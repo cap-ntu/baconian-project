@@ -1,1 +1,18 @@
 language: python
+python:
+  - "3.3"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+  - "3.7"
+virtualenv:
+  system_site_packages: true
+
+install:
+  - pip install -r requirment.txt
+
+script: python test/test.py
+
+branches:
+  only:
+  - master
