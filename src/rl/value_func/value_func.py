@@ -3,16 +3,25 @@
 # Project: ModelBasedRLFramework
 from src.core.basic import Basic
 import typeguard as tg
+from src.core.parameters import Parameters
+from src.envs.env_spec import EnvSpec
 
 
 class ValueFunction(Basic):
 
     @tg.typechecked
-    def __init__(self, auto_set_up: bool = False):
+    def __init__(self, env_spec: EnvSpec, parameters: Parameters):
         super().__init__()
-        self._name = 'value_function'
-        if auto_set_up:
-            self.init_set_up()
+        self.env_spec = env_spec
+        self.parameters = parameters
+
+    @property
+    def obs_space(self):
+        return self.env_spec.obs_space
+
+    @property
+    def action_space(self):
+        return self.env_spec.action_space
 
     @tg.typechecked
     def copy(self, obj) -> bool:
@@ -26,13 +35,5 @@ class ValueFunction(Basic):
     def update(self, *args, **kwargs):
         raise NotImplementedError
 
-    @tg.typechecked
-    def init_set_up(self, *args, **kwargs) -> bool:
-        return True
-
-
-class TrainableValueFunction(ValueFunction):
-
-    def __init__(self, auto_set_up: bool = False):
-        super().__init__(auto_set_up)
-        self.trainable_var_list = []
+    def init(self, source_obj=None):
+        raise NotImplementedError
