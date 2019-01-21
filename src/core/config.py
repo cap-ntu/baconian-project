@@ -60,12 +60,8 @@ class Config(object):
                 Config.check_dict_key(check_dict=check_dict[key], required_key_dict=required_key_dict[key])
         return True
 
-
-if __name__ == '__main__':
-    config = {
-        'A': 1,
-        'B': 2,
-        'C': {'D': 1, 'E': 2}
-    }
-    key_list = dict(A='', B='', C=dict(D='', E=''))
-    c = Config(required_key_dict=key_list, config_dict=config)
+    def __call__(self, key):
+        if key not in self.config_dict:
+            raise KeyError('key {} not in the config'.format(key))
+        else:
+            return self.config_dict[key]

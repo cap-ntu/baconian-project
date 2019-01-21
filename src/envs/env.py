@@ -2,7 +2,7 @@ import gym
 from src.core.basic import Basic
 from gym.core import Space
 import numpy as np
-from src.core.config import config
+from src.core.config import Config
 from typeguard import typechecked
 
 
@@ -13,7 +13,7 @@ class Env(gym.Env, Basic):
     key_list = []
 
     @typechecked
-    def __init__(self, config: config):
+    def __init__(self, config: Config):
         super(Env, self).__init__(config=config)
         self.action_space = Space()
         self.observation_space = Space()

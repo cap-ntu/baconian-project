@@ -1,6 +1,3 @@
-# Date: 11/16/18
-# Author: Luke
-# Project: ModelBasedRLFramework
 from src.rl.value_func.value_func import ValueFunction
 import typeguard as tg
 from gym.core import Space
@@ -8,7 +5,6 @@ from src.envs.env_spec import EnvSpec
 import overrides
 import numpy as np
 import tensorflow as tf
-from src.tf.mlp import MLP
 from typeguard import typechecked
 from src.tf.tf_parameters import TensorflowParameters
 from src.tf.util import MLPCreator
@@ -31,13 +27,18 @@ class MLPQValueFunction(ValueFunction):
                  mlp_config: list):
         self.name_scope = name_scope
         self.mlp_config = mlp_config
+        self.input_norm = input_norm
+        self.output_norm = output_norm
+        self.output_low = output_low
+        self.output_high = output_high
+
         with tf.variable_scope(self.name_scope):
             self.state_ph = tf.placeholder(shape=[None, env_spec.flat_obs_dim], dtype=tf.float32, name='state_ph')
             self.action_ph = tf.placeholder(shape=[None, env_spec.flat_action_dim], dtype=tf.float32, name='action_ph')
             self.mlp_input = tf.concat([self.state_ph, self.action_ph], axis=1, name='state_action_input')
 
         self.mlp_net, self.q_tensor, var_list = MLPCreator.create_network(input=self.mlp_input,
-                                                                          network_config=self.mlp_config,
+                                                                          network_config=mlp_config,
                                                                           input_norm=input_norm,
                                                                           output_norm=output_norm,
                                                                           output_high=output_high,
@@ -69,3 +70,13 @@ class MLPQValueFunction(ValueFunction):
         self.parameters.init()
         if source_obj:
             self.copy(obj=source_obj)
+
+    def make_copy(self, *args, **kwargs):
+        copy_mlp_q_value = MLPQValueFunction(env_spec=self.env_spec,
+                                             name_scope=kwargs['name_scope'],
+                                             input_norm=self.input_norm,
+                                             output_norm=self.output_norm,
+                                             output_low=self.output_low,
+                                             output_high=self.output_high,
+                                             mlp_config=self.mlp_config)
+        return copy_mlp_q_value

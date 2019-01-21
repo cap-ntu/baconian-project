@@ -1,6 +1,7 @@
 from gym.core import Space
 from typeguard import typechecked
 from src.envs.util import *
+import numpy as np
 
 
 class EnvSpec(object):
@@ -25,3 +26,7 @@ class EnvSpec(object):
     @property
     def flat_action_dim(self) -> int:
         return flat_dim(self.action_space)
+
+    @staticmethod
+    def flat(space_type: Space, obs_or_action: (np.ndarray, list)):
+        return flatten(space_type, obs_or_action)

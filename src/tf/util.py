@@ -55,6 +55,7 @@ class MLPCreator(object):
 
         if input_norm:
             net = tl.layers.LambdaLayer(prev_layer=net,
+                                        name="{}_INPUT_NORM".format(net_name),
                                         fn=lambda x: (x - input_norm[0]) / input_norm[1])
         last_layer_act = None
         for layer_config in network_config:

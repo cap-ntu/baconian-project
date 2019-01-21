@@ -25,7 +25,7 @@ class ValueFunction(Basic):
 
     @tg.typechecked
     def copy(self, obj) -> bool:
-        if isinstance(o=obj, t=type(self)):
+        if not isinstance(obj, type(self)):
             raise TypeError('Wrong type of obj %s to be copied, which should be %s' % (type(obj), type(self)))
         return True
 
@@ -36,4 +36,7 @@ class ValueFunction(Basic):
         raise NotImplementedError
 
     def init(self, source_obj=None):
+        raise NotImplementedError
+
+    def make_copy(self, *args, **kwargs):
         raise NotImplementedError

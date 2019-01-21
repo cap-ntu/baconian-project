@@ -12,11 +12,11 @@
 ```
 
 
-#### Question to be consider:
+#### Question to be considered:
 ```
 1. How to define the minimal elements that do not need to be decoupled
 in algorithm
-2. Support for a multi-agent environment?
+2. The pipeline can be considered as a work flow or state transition model 
 ```
 
 #### Feature that will include:
@@ -76,7 +76,7 @@ freeze the whole configure instantly after running: how about snapshot all code?
 ### Survey on model-based rl algo
 
 ```
-1. Model predictive control: approximate the dynamics with a neural network, liear system etc.
+1. Model predictive control: approximate the dynamics with a neural network, linear system etc.
 2. Embede to control, E2C:  a model that is has locally linear transition dynamics in a latent space
 3. Model Ensemble Trust Region Policy Optimization (ME-TRPO): use ensemble dynamics models to better drive the learning 
 of TRPO

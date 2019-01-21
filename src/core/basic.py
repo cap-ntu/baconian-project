@@ -3,8 +3,6 @@ import typeguard as tg
 
 class Basic(object):
     """ Basic class within the whole framework"""
-    STATUS_LIST = None
-    INIT_STATUS = None
 
     def __init__(self):
         self.log_flag = False
@@ -19,25 +17,29 @@ class Status(object):
 
     def __init__(self, obj: Basic):
         self.obj = obj
-        if hasattr(obj, 'INIT_STATUS'):
-            self.status_val = obj.INIT_STATUS
-        else:
-            self.status_val = None
+        self._status_val = None
         if hasattr(obj, 'STATUS_LIST'):
-            self.status_dict = obj.STATUS_LIST
+            self.status_list = obj.STATUS_LIST
         else:
-            self.status_dict = None
+            self.status_list = None
+        if hasattr(obj, 'INIT_STATUS'):
+            self.set_status(new_status=obj.INIT_STATUS)
+        else:
+            self._status_val = None
 
     def __call__(self, *args, **kwargs):
-        return self.status_val
+        return self._status_val
 
     @tg.typechecked
     def set_status(self, new_status: str):
-        if self.status_dict:
-            assert new_status in self.status_dict
-            self.status_val = new_status
+        if self.status_list:
+            try:
+                assert new_status in self.status_list
+            except AssertionError as e:
+                print("{} New status :{} not in the status list: {} ".format(e, new_status, self.status_list))
+            self._status_val = new_status
         else:
-            self.status_val = new_status
+            self._status_val = new_status
 
     def get_status(self):
         return self()

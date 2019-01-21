@@ -71,7 +71,7 @@ class GamePlayer(Basic):
                                          agent_print_log_flag=True)
         self.step_count += 1
         if self.step_count % 1 == 0 and self.step_count > 0:
-            self.agent.update()
+            self.agent.train()
         return trainer_data
 
     def play(self, seed_new=None):
