@@ -1,8 +1,10 @@
 import numpy as np
+from typeguard import typechecked
 
 
 class RingBuffer(object):
-    def __init__(self, maxlen, shape, dtype='float32'):
+    @typechecked
+    def __init__(self, maxlen: int, shape: (list, tuple), dtype='float32'):
         self.maxlen = maxlen
         self.start = 0
         self.length = 0

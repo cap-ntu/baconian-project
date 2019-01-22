@@ -4,5 +4,6 @@
   "Q_NET_L1_NORM_SCALE": 0.01,
   "Q_NET_L2_NORM_SCALE": 0.01,
   "LEARNING_RATE": 0.001,
-  "DECAY": 0.5
+  "DECAY": 0.5,
+  "BATCH_SIZE": 5
 }
