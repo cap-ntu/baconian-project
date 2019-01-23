@@ -1,6 +1,8 @@
-from src.core import Config, Pipeline, GlobalConfig
+from src.core.global_config import GlobalConfig
+from src.core.config import Config
+from src.core.pipeline import Pipeline
 from src.rl import ModelFreeAlgo
-from src.envs import Env
+from src.envs.env import Env
 
 
 class ModelFreePipeline(Pipeline):
@@ -38,12 +40,12 @@ class ModelFreePipeline(Pipeline):
             self.to_state_corrupted()
 
     def on_enter_state_inited(self):
-        pass
-
-    def on_exit_state_inited(self):
         self.algo.init()
         self.env.init()
         print('model-free pipeline finish inited')
+
+    def on_exit_state_inited(self):
+        pass
 
     def on_enter_state_testing(self):
         pass

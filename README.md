@@ -1,7 +1,7 @@
 # ModelBasedRLFramework
 [![Build Status](https://travis-ci.com/Lukeeeeee/ModelBasedRLFramework.svg?token=dTo6wB1jmzxu58xyRPX6&branch=master)](https://travis-ci.com/Lukeeeeee/ModelBasedRLFramework)
 
-#### Development Path deadline: 2.4
+#### Development Path deadline: 2.19
 ```
 1. policy, value function and algo module: 1.15
 2. env, dynamics model based env : 1.19

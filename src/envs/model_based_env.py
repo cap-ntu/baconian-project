@@ -1,9 +1,9 @@
-from src.core.config import Config
-from src.envs.env import Env
+import src.envs.env as env
+import src.core.config as config
 
 
-class ModelBasedEnv(Env):
-    def __init__(self, config: Config):
+class ModelBasedEnv(env.Env):
+    def __init__(self, config: config.Config):
         super().__init__(config)
 
     def step(self, action):

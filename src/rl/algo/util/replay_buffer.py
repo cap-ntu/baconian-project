@@ -59,7 +59,6 @@ class BaseReplayBuffer(object):
     def append(self, obs0, action, reward, obs1, terminal1, training=True):
         if not training:
             return
-
         self.observations0.append(obs0)
         self.actions.append(action)
         self.rewards.append(reward)

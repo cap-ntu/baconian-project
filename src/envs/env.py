@@ -1,8 +1,5 @@
 import gym
 from src.core.basic import Basic
-from gym.core import Space
-import numpy as np
-from src.core.config import Config
 from typeguard import typechecked
 
 
@@ -13,22 +10,20 @@ class Env(gym.Env, Basic):
     key_list = []
 
     @typechecked
-    def __init__(self, config: Config):
-        super(Env, self).__init__(config=config)
-        self.action_space = Space()
-        self.observation_space = Space()
-        self.cost_fn = None
-        self.step_count = 0
+    def __init__(self):
+        super(Env, self).__init__()
+        self.action_space = None
+        self.observation_space = None
+        self.step_count = None
 
     def step(self, action):
-        return None
+        raise NotImplementedError
 
     def reset(self):
-        return None
+        raise NotImplementedError
 
     def init(self):
-        print("%s init finished" % type(self).__name__)
-        return True
+        raise NotImplementedError
 
 
 if __name__ == '__main__':

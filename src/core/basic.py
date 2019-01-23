@@ -1,8 +1,11 @@
 import typeguard as tg
+from src.core.global_config import GlobalConfig
 
 
 class Basic(object):
     """ Basic class within the whole framework"""
+    STATUS_LIST = GlobalConfig.DEFAULT_BASIC_STATUS_LIST
+    INIT_STATUS = GlobalConfig.DEFAULT_BASIC_INIT_STATUS
 
     def __init__(self):
         self.log_flag = False
@@ -22,7 +25,7 @@ class Status(object):
             self.status_list = obj.STATUS_LIST
         else:
             self.status_list = None
-        if hasattr(obj, 'INIT_STATUS'):
+        if hasattr(obj, 'INIT_STATUS') and obj.INIT_STATUS is not None:
             self.set_status(new_status=obj.INIT_STATUS)
         else:
             self._status_val = None

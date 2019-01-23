@@ -13,7 +13,8 @@ import tensorflow as tf
 import tensorflow.contrib as tfcontrib
 import numpy as np
 from src.misc import *
-from src.core import GlobalConfig
+from src.core.global_config import GlobalConfig
+from src.common.sampler.sample_data import TransitionData
 
 
 # todo
@@ -27,7 +28,7 @@ class DQN(ModelFreeAlgo):
 
     @typechecked
     def __init__(self,
-                 env: GlobalConfig.DEFAULT_ALLOWED_ENV_TYPE,
+                 env: GlobalConfig.DEFAULT_ALLOWED_GYM_ENV_TYPE + (Env,),
                  config_or_config_dict: (Config, dict),
                  # todo check the type list
                  # todo bug on mlp value function and its placeholder which is crushed with the dqn placeholder
@@ -64,7 +65,7 @@ class DQN(ModelFreeAlgo):
             with tf.variable_scope('train'):
                 self.q_value_func_loss, _, self.update_q_value_func_op = self._set_up_loss()
                 self.update_target_q_value_func_op = self._set_up_target_update()
-
+        # todo handle the var list problem
         self.var_list = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='dqn/train')
 
     def init(self, sess=None):
@@ -136,12 +137,14 @@ class DQN(ModelFreeAlgo):
                                                  sess=sess)
         return action, q_val
 
-    def store_one_sample(self, state, next_state, action, reward, done):
-        self.replay_buffer.append(obs0=state,
-                                  obs1=next_state,
-                                  action=action,
-                                  reward=reward,
-                                  terminal1=done)
+    def append_to_memory(self, samples: TransitionData):
+        for obs0, obs1, action, reward, terminal1 in zip(samples.state_set, samples.new_state_set, samples.action_set,
+                                                         samples.reward_set, samples.done_set):
+            self.replay_buffer.append(obs0=obs0,
+                                      obs1=obs1,
+                                      action=action,
+                                      reward=reward,
+                                      terminal1=terminal1)
 
     def _predict_action(self, obs: np.ndarray, q_value_tensor: tf.Tensor, action_ph: tf.Tensor, state_ph: tf.Tensor,
                         sess=None):
