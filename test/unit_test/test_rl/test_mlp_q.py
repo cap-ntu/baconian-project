@@ -8,8 +8,11 @@ import tensorflow as tf
 
 class TestMLPQValueFunction(unittest.TestCase):
     def test_init(self):
+        if tf.get_default_session():
+            sess = tf.get_default_session()
+            sess.__exit__(None, None, None)
+            # sess.close()
         tf.reset_default_graph()
-
         env = make('Swimmer-v1')
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)

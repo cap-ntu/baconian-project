@@ -11,8 +11,11 @@ from src.rl.exploration_strategy.epsilon_greedy import EpsilonGreedy
 
 class TestExplorationStrategy(unittest.TestCase):
     def test_eps_greedy(self):
+        if tf.get_default_session():
+            sess = tf.get_default_session()
+            sess.__exit__(None, None, None)
+            # sess.close()
         tf.reset_default_graph()
-
         env = make('Acrobot-v1')
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)

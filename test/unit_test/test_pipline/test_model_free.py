@@ -1,20 +1,19 @@
 import unittest
 from src.rl.algo.model_free import DQN
-from gym import make
+from src.envs.gym_env import make
 from src.envs.env_spec import EnvSpec
 from src.rl.value_func.mlp_q_value import MLPQValueFunction
 import tensorflow as tf
 from src.tf.util import create_new_tf_session
-import numpy as np
+from src.agent.agent import Agent
+from src.rl.exploration_strategy.epsilon_greedy import EpsilonGreedy
+from src.core.pipelines.model_free_pipelines import ModelFreePipeline
 
 
-class TestDQN(unittest.TestCase):
-    def test_init(self):
-        if tf.get_default_session():
-            sess = tf.get_default_session()
-            # sess.exit(None, None, None)
-            sess.close()
+class TestModelFreePipline(unittest.TestCase):
+    def test_agent(self):
         tf.reset_default_graph()
+
         env = make('Acrobot-v1')
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
@@ -50,19 +49,15 @@ class TestDQN(unittest.TestCase):
                                              BATCH_SIZE=10,
                                              Q_NET_L1_NORM_SCALE=0.001,
                                              Q_NET_L2_NORM_SCALE=0.001,
+                                             TRAIN_ITERATION=10,
                                              LEARNING_RATE=0.001,
-                                             TRAIN_ITERATION=1,
                                              DECAY=0.5),
                   value_func=mlp_q)
-        dqn.init()
-        st = env.reset()
-        from src.common.sampler.sample_data import TransitionData
-        for i in range(100):
-            ac = dqn.predict(obs=st, sess=sess, batch_flag=False)
-            st_new, re, done, _ = env.step(action=ac)
-            a = TransitionData()
-            a.append(state=st, new_state=st_new, action=ac, done=done, reward=re)
-            dqn.append_to_memory(a)
-            print(st)
-        for i in range(10):
-            print(dqn.train(batch_data=None, train_iter=10, sess=None, update_target=True))
+        agent = Agent(env=env, algo=dqn, exploration_strategy=EpsilonGreedy(action_space=dqn.env_spec.action_space,
+                                                                            init_random_prob=0.5,
+                                                                            decay_type=None))
+        model_free = ModelFreePipeline(agent=agent, env=env,
+                                       config_or_config_dict=dict(TEST_SAMPLES_COUNT=10,
+                                                                  TRAIN_SAMPLES_COUNT=10,
+                                                                  TOTAL_SAMPLES_COUNT=30))
+        model_free.launch()

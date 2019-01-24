@@ -11,8 +11,8 @@ class TestMLPQValueFunction(unittest.TestCase):
 
         if tf.get_default_session():
             sess = tf.get_default_session()
-            # sess.exit(None, None, None)
-            sess.close()
+            sess.__exit__(None, None, None)
+            # sess.close()
         tf.reset_default_graph()
 
         env = make('Swimmer-v1')

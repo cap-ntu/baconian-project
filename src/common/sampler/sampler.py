@@ -15,15 +15,18 @@ class Sampler(Basic):
         self._data.reset()
 
     @typechecked
-    def sample(self, env: GlobalConfig.DEFAULT_ALLOWED_GYM_ENV_TYPE + (Env,), agent, sample_count: int,
-               reset_at_start=False):
+    def sample(self, env: GlobalConfig.DEFAULT_ALLOWED_GYM_ENV_TYPE + (Env,),
+               agent,
+               in_test_flag: bool,
+               sample_count: int,
+               reset_at_start=False) -> TransitionData:
         if reset_at_start is True:
             state = env.reset()
         else:
             state = env.get_state()
         sample_record = TransitionData()
         for i in range(sample_count):
-            action = agent.predict(obs=state)
+            action = agent.predict(obs=state, in_test_flag=in_test_flag)
             new_state, re, done, info = env.step(action)
             if not isinstance(done, bool):
                 if done[0] == 1:

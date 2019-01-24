@@ -21,8 +21,10 @@ class Algo(Basic, abc.ABC):
     def init(self):
         self.status.set_status('JUST_INITED')
 
-    def train(self, *arg, **kwargs):
+    @typechecked
+    def train(self, *arg, **kwargs) -> dict:
         self.status.set_status('TRAIN')
+        return dict()
 
     def test(self, *arg, **kwargs):
         self.status.set_status('TEST')

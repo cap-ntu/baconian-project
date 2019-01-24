@@ -69,38 +69,43 @@ class DQN(ModelFreeAlgo):
         self.var_list = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='dqn/train')
 
     def init(self, sess=None):
+        super().init()
         self.q_value_func.init()
         self.target_q_value_func.init(source_obj=self.q_value_func)
         tf_sess = sess if sess else tf.get_default_session()
         tf_sess.run(tf.variables_initializer(var_list=self.var_list))
 
     @typechecked
-    def train(self, batch_data: (dict, None), train_iter=10, sess=None, update_target=False):
-        if not batch_data:
-            batch_data = self.replay_buffer.sample(batch_size=self.config('BATCH_SIZE'))
+    def train(self, batch_data=None, train_iter=None, sess=None, update_target=True) -> dict:
+        super().train()
+        batch_data = self.replay_buffer.sample(batch_size=self.config('BATCH_SIZE')) if not batch_data else batch_data
+        assert isinstance(batch_data, TransitionData)
+
+        train_iter = self.config("TRAIN_ITERATION") if not train_iter else train_iter
+
         average_loss = 0.0
         tf_sess = sess if sess else tf.get_default_session()
-        _, target_q_val_on_new_s = self.predict_target_with_q_val(obs=batch_data['obs0'],
+        _, target_q_val_on_new_s = self.predict_target_with_q_val(obs=batch_data.new_state_set,
                                                                   batch_flag=True)
         target_q_val_on_new_s = np.expand_dims(target_q_val_on_new_s, axis=1)
-        assert target_q_val_on_new_s.shape[0] == batch_data['obs0'].shape[0]
+        assert target_q_val_on_new_s.shape[0] == batch_data.state_set.shape[0]
         for i in range(train_iter):
             res, _ = tf_sess.run([self.q_value_func_loss, self.update_q_value_func_op],
                                  feed_dict={
-                                     self.reward_input: batch_data['rewards'],
-                                     self.action_input: batch_data['actions'],
-                                     self.state_input: batch_data['obs0'],
-                                     self.done_input: batch_data['terminals1'],
+                                     self.reward_input: batch_data.reward_set,
+                                     self.action_input: batch_data.action_set,
+                                     self.state_input: batch_data.state_set,
+                                     self.done_input: batch_data.done_set,
                                      self.target_q_input: target_q_val_on_new_s
                                  })
             average_loss += res
         average_loss /= train_iter
         if update_target is True:
             tf_sess.run(self.update_target_q_value_func_op)
-        return average_loss
+        return dict(average_loss=average_loss)
 
-    def evaluate(self, *arg, **kwargs):
-        raise NotImplementedError
+    def test(self, *arg, **kwargs):
+        super().test()
 
     @typechecked
     def predict(self, obs: np.ndarray, sess=None, batch_flag: bool = False):

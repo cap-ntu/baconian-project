@@ -32,15 +32,16 @@ class Agent(Basic):
         assert isinstance(new_value, int) and new_value >= 0
         self._env_step_count = new_value
 
-    def predict(self, **kwargs):
-        if self.explorations_strategy:
+    def predict(self, in_test_flag, **kwargs):
+        if self.explorations_strategy and not in_test_flag:
             return self.explorations_strategy.predict(**kwargs, algo=self.algo)
         else:
             return self.algo.predict(**kwargs)
 
-    def sample(self, env, sample_count: int, store_flag=False):
+    def sample(self, env, sample_count: int, in_test_flag: bool, store_flag=False):
         batch_data = self.sampler.sample(agent=self,
                                          env=env,
+                                         in_test_flag=in_test_flag,
                                          sample_count=sample_count)
         if store_flag is True:
             self.store_samples(samples=batch_data)
@@ -54,8 +55,8 @@ class Agent(Basic):
     def store_samples(self, samples: SampleData):
         self.algo.append_to_memory(samples)
 
-    def update(self):
-        self.algo.train()
+    def update(self) -> dict:
+        return self.algo.train()
 
     def reset(self):
         raise NotImplementedError

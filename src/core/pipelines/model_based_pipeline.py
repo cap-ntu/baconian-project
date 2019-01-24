@@ -1,17 +1,19 @@
-from src.core import Config, Pipeline, GlobalConfig
-from src.rl import ModelBasedAlgo
-from src.envs import Env
+from src.core.pipeline import Pipeline
+from src.core.global_config import GlobalConfig
+from src.envs.env import Env
+from src.core.config import Config
+from src.rl.algo.algo import ModelBasedAlgo
 
 
-class ModelFreePipeline(Pipeline):
+class ModelBasedPipeline(Pipeline):
     STATE_LIST = ['state_not_inited', 'state_inited', 'state_algo_testing', 'state_algo_training', 'state_ended']
-    INITE_STATE = 'state_not_inited'
+    INIT_STATE = 'state_not_inited'
 
     def __init__(self, config: Config, algo: ModelBasedAlgo, env: Env):
         self.algo = algo
         self.env = env
 
-        super().__init__(config=config, init_state=self.INITE_STATE, states=self.STATE_LIST)
+        super().__init__(config=config, init_state=self.INIT_STATE, states=self.STATE_LIST)
 
     def launch(self):
         assert self.is_state_not_inited()

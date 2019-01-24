@@ -1,5 +1,6 @@
 import numpy as np
 from typeguard import typechecked
+from src.common.sampler.sample_data import TransitionData, TrajectoryData, SampleData
 
 
 class RingBuffer(object):
@@ -82,7 +83,7 @@ class UniformRandomReplayBuffer(BaseReplayBuffer):
     def __init__(self, limit, action_shape, observation_shape):
         super().__init__(limit, action_shape, observation_shape)
 
-    def sample(self, batch_size):
+    def sample(self, batch_size) -> SampleData:
         assert self.nb_entries >= batch_size
 
         batch_idxs = np.random.randint(self.nb_entries - 2, size=batch_size)
@@ -100,4 +101,12 @@ class UniformRandomReplayBuffer(BaseReplayBuffer):
             'actions': array_min2d(action_batch),
             'terminals1': array_min2d(terminal1_batch),
         }
-        return result
+
+        res = TransitionData()
+        res._state_set = result['obs0']
+        res._new_state_set = result['obs1']
+        res._action_set = result['actions']
+        res._done_set = result['terminals1']
+        res._reward_set = result['rewards']
+
+        return res

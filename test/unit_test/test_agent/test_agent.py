@@ -56,7 +56,7 @@ class TestAgent(unittest.TestCase):
                                                                             decay_type=None))
         agent.init()
         env.reset()
-        data = agent.sample(env=env, sample_count=10, store_flag=True)
+        data = agent.sample(env=env, sample_count=10, store_flag=True, in_test_flag=False)
         from src.common.sampler.sample_data import SampleData
         self.assertTrue(isinstance(data, SampleData))
         self.assertEqual(agent.algo.replay_buffer.nb_entries, 10)

@@ -4,7 +4,9 @@ import typeguard as tg
 
 
 class Config(object):
-    def __init__(self, required_key_dict: dict, config_dict=None):
+    def __init__(self, required_key_dict: dict, config_dict=None, cls_name=""):
+        self.cls_name = cls_name
+
         self.required_key_dict = required_key_dict
         if config_dict:
             self.config_dict = config_dict
@@ -31,7 +33,7 @@ class Config(object):
         self.config_dict = res
 
     def check_config(self, dict: dict, key_dict: dict) -> bool:
-        if Config.check_dict_key(check_dict=dict, required_key_dict=key_dict):
+        if self.check_dict_key(check_dict=dict, required_key_dict=key_dict):
             return True
         else:
             return False
@@ -49,19 +51,19 @@ class Config(object):
         with open(path, 'w') as f:
             json.dump(obj=dict, fp=f, indent=4, sort_keys=True)
 
-    @staticmethod
-    def check_dict_key(check_dict: dict, required_key_dict: dict) -> bool:
+    def check_dict_key(self, check_dict: dict, required_key_dict: dict) -> bool:
         for key, val in required_key_dict.items():
             if not isinstance(check_dict, dict):
-                raise TypeError('input check dict should be a dict instead of {}'.format(type(check_dict).__name__))
+                raise TypeError('{}: input check dict should be a dict instead of {}'.format(self.cls_name,
+                                                                                             type(check_dict).__name__))
             if key not in check_dict:
-                raise IndexError('Missing Key %s' % key)
+                raise IndexError('{} Missing Key {}'.format(self.cls_name, key))
             if isinstance(val, dict):
-                Config.check_dict_key(check_dict=check_dict[key], required_key_dict=required_key_dict[key])
+                self.check_dict_key(check_dict=check_dict[key], required_key_dict=required_key_dict[key])
         return True
 
     def __call__(self, key):
         if key not in self.config_dict:
-            raise KeyError('key {} not in the config'.format(key))
+            raise KeyError('{} key {} not in the config'.format(self.cls_name, key))
         else:
             return self.config_dict[key]
