@@ -44,7 +44,7 @@ class TestDQN(unittest.TestCase):
                                           "W_NORMAL_STDDEV": 0.03
                                       }
                                   ])
-        dqn = DQN(env=env,
+        dqn = DQN(env_spec=env_spec,
                   config_or_config_dict=dict(REPLAY_BUFFER_SIZE=1000,
                                              GAMMA=0.99,
                                              BATCH_SIZE=10,

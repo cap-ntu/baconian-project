@@ -6,15 +6,15 @@ from src.rl.algo.algo import ModelFreeAlgo
 from src.core.config import Config
 from typeguard import typechecked
 from src.rl.value_func import *
-from src.envs.env import Env
 from src.rl.algo.util.replay_buffer import UniformRandomReplayBuffer, BaseReplayBuffer
 from src.util.required_keys import SRC_UTIL_REQUIRED_KEYS
 import tensorflow as tf
 import tensorflow.contrib as tfcontrib
 import numpy as np
 from src.misc import *
-from src.core.global_config import GlobalConfig
 from src.common.sampler.sample_data import TransitionData
+from src.tf.tf_parameters import TensorflowParameters
+from src.rl.value_func.value_func import ValueFunction
 
 
 # todo
@@ -28,22 +28,25 @@ class DQN(ModelFreeAlgo):
 
     @typechecked
     def __init__(self,
-                 env: GlobalConfig.DEFAULT_ALLOWED_GYM_ENV_TYPE + (Env,),
+                 env_spec,
                  config_or_config_dict: (Config, dict),
                  # todo check the type list
                  # todo bug on mlp value function and its placeholder which is crushed with the dqn placeholder
                  value_func: MLPQValueFunction,
                  replay_buffer=None):
         # todo add the action iterator
-        super().__init__(env=env)
+        super(DQN, self).__init__(env_spec=env_spec)
         if isinstance(config_or_config_dict, dict):
-            config = Config(required_key_dict=self.required_key_list, config_dict=config_or_config_dict)
+            config = Config(required_key_dict=self.required_key_list,
+                            config_dict=config_or_config_dict,
+                            cls_name=type(self).__name__)
         elif isinstance(config_or_config_dict, Config):
             config = config_or_config_dict
         else:
             raise TypeError('Type {} is not supported, use dict or Config'.format(type(config_or_config_dict).__name__))
 
         self.config = config
+
         if replay_buffer:
             assert issubclass(replay_buffer, BaseReplayBuffer)
             self.replay_buffer = replay_buffer
@@ -54,6 +57,14 @@ class DQN(ModelFreeAlgo):
         self.q_value_func = value_func
         self.state_input = self.q_value_func.state_ph
         self.action_input = self.q_value_func.action_ph
+
+        self.parameters = TensorflowParameters(tf_var_list=[],
+                                               rest_parameters=dict(),
+                                               name='dqn_para',
+                                               auto_init=False,
+                                               source_config=config,
+                                               require_snapshot=False)
+
         with tf.variable_scope('dqn'):
             self.reward_input = tf.placeholder(shape=[None, 1], dtype=tf.float32)
             self.next_state_input = tf.placeholder(shape=[None, self.env_spec.flat_obs_dim], dtype=tf.float32)
@@ -67,21 +78,25 @@ class DQN(ModelFreeAlgo):
                 self.update_target_q_value_func_op = self._set_up_target_update()
         # todo handle the var list problem
         self.var_list = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='dqn/train')
+        self.parameters.set_tf_var_list(tf_var_list=self.var_list)
 
     def init(self, sess=None):
         super().init()
         self.q_value_func.init()
         self.target_q_value_func.init(source_obj=self.q_value_func)
         tf_sess = sess if sess else tf.get_default_session()
-        tf_sess.run(tf.variables_initializer(var_list=self.var_list))
+        feed_dict = self.parameters.return_tf_parameter_feed_dict()
+        tf_sess.run(tf.variables_initializer(var_list=self.var_list),
+                    feed_dict=feed_dict)
 
     @typechecked
     def train(self, batch_data=None, train_iter=None, sess=None, update_target=True) -> dict:
         super().train()
-        batch_data = self.replay_buffer.sample(batch_size=self.config('BATCH_SIZE')) if not batch_data else batch_data
+        batch_data = self.replay_buffer.sample(
+            batch_size=self.parameters('BATCH_SIZE')) if not batch_data else batch_data
         assert isinstance(batch_data, TransitionData)
 
-        train_iter = self.config("TRAIN_ITERATION") if not train_iter else train_iter
+        train_iter = self.parameters("TRAIN_ITERATION") if not train_iter else train_iter
 
         average_loss = 0.0
         tf_sess = sess if sess else tf.get_default_session()
@@ -89,19 +104,22 @@ class DQN(ModelFreeAlgo):
                                                                   batch_flag=True)
         target_q_val_on_new_s = np.expand_dims(target_q_val_on_new_s, axis=1)
         assert target_q_val_on_new_s.shape[0] == batch_data.state_set.shape[0]
+        feed_dict = {
+            self.reward_input: batch_data.reward_set,
+            self.action_input: batch_data.action_set,
+            self.state_input: batch_data.state_set,
+            self.done_input: batch_data.done_set,
+            self.target_q_input: target_q_val_on_new_s,
+            **self.parameters.return_tf_parameter_feed_dict()
+        }
         for i in range(train_iter):
             res, _ = tf_sess.run([self.q_value_func_loss, self.update_q_value_func_op],
-                                 feed_dict={
-                                     self.reward_input: batch_data.reward_set,
-                                     self.action_input: batch_data.action_set,
-                                     self.state_input: batch_data.state_set,
-                                     self.done_input: batch_data.done_set,
-                                     self.target_q_input: target_q_val_on_new_s
-                                 })
+                                 feed_dict=feed_dict)
             average_loss += res
         average_loss /= train_iter
         if update_target is True:
-            tf_sess.run(self.update_target_q_value_func_op)
+            tf_sess.run(self.update_target_q_value_func_op,
+                        feed_dict=self.parameters.return_tf_parameter_feed_dict())
         return dict(average_loss=average_loss)
 
     def test(self, *arg, **kwargs):
@@ -156,9 +174,10 @@ class DQN(ModelFreeAlgo):
         assert self.env_spec.obs_space.contains(obs)
         obs = repeat_ndarray(obs, repeats=self.env_spec.flat_action_dim)
         tf_sess = sess if sess else tf.get_default_session()
+        feed_dict = {action_ph: generate_n_actions_hot_code(n=self.env_spec.flat_action_dim),
+                     state_ph: obs, **self.parameters.return_tf_parameter_feed_dict()}
         res = tf_sess.run([q_value_tensor],
-                          feed_dict={action_ph: generate_n_actions_hot_code(n=self.env_spec.flat_action_dim),
-                                     state_ph: obs})[0]
+                          feed_dict=feed_dict)[0]
         return np.argmax(res, axis=0), np.max(res, axis=0)
 
     def _predict_batch_action(self, obs: np.ndarray, q_value_tensor: tf.Tensor, action_ph: tf.Tensor,
@@ -176,17 +195,18 @@ class DQN(ModelFreeAlgo):
         return np.array(actions), np.array(q_values)
 
     def _set_up_loss(self):
-        l1_l2 = tfcontrib.layers.l1_l2_regularizer(scale_l1=self.config('Q_NET_L1_NORM_SCALE'),
-                                                   scale_l2=self.config('Q_NET_L2_NORM_SCALE'))
+        l1_l2 = tfcontrib.layers.l1_l2_regularizer(scale_l1=self.parameters('Q_NET_L1_NORM_SCALE'),
+                                                   scale_l2=self.parameters('Q_NET_L2_NORM_SCALE'))
         loss = tf.reduce_sum((self.predict_q_value - self.q_value_func.q_tensor) ** 2) + \
-               tfcontrib.layers.apply_regularization(l1_l2, weights_list=self.q_value_func.parameters())
-        optimizer = tf.train.AdadeltaOptimizer(learning_rate=self.config('LEARNING_RATE'))
-        optimize_op = optimizer.minimize(loss=loss, var_list=self.q_value_func.parameters())
+               tfcontrib.layers.apply_regularization(l1_l2, weights_list=self.q_value_func.parameters('tf_var_list'))
+        optimizer = tf.train.AdadeltaOptimizer(learning_rate=self.parameters('LEARNING_RATE'))
+        optimize_op = optimizer.minimize(loss=loss, var_list=self.q_value_func.parameters('tf_var_list'))
         return loss, optimizer, optimize_op
 
     def _set_up_target_update(self):
         op = []
-        for var, target_var in zip(self.q_value_func.parameters(), self.target_q_value_func.parameters()):
-            ref_val = self.config('DECAY') * target_var + (1.0 - self.config('DECAY')) * var
+        for var, target_var in zip(self.q_value_func.parameters('tf_var_list'),
+                                   self.target_q_value_func.parameters('tf_var_list')):
+            ref_val = self.parameters('DECAY') * target_var + (1.0 - self.parameters('DECAY')) * var
             op.append(tf.assign(target_var, ref_val))
         return op

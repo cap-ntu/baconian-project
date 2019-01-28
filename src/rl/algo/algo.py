@@ -1,11 +1,8 @@
 from src.core.basic import Basic
 import abc
-from src.core.global_config import GlobalConfig
 from src.envs.env_spec import EnvSpec
-from src.envs.env import Env
-from src.envs.model_based_env import ModelBasedEnv
+from src.rl.algo.model_based.models.dynamics_model import DynamicsModel
 from typeguard import typechecked
-from src.common.sampler.sampler import Sampler
 
 
 class Algo(Basic, abc.ABC):
@@ -13,15 +10,13 @@ class Algo(Basic, abc.ABC):
     INIT_STATUS = 'NOT_INIT'
 
     @typechecked
-    def __init__(self, env: GlobalConfig.DEFAULT_ALLOWED_GYM_ENV_TYPE + (Env,)):
-        self.env_spec = EnvSpec(obs_space=env.observation_space, action_space=env.action_space)
-        self.env = env
+    def __init__(self, env_spec: EnvSpec):
+        self.env_spec = env_spec
         super().__init__()
 
     def init(self):
         self.status.set_status('JUST_INITED')
 
-    @typechecked
     def train(self, *arg, **kwargs) -> dict:
         self.status.set_status('TRAIN')
         return dict()
@@ -37,14 +32,10 @@ class Algo(Basic, abc.ABC):
 
 
 class ModelFreeAlgo(Algo):
-
-    def __init__(self, env, sampler: Sampler = Sampler()):
-        super().__init__(env)
-        self.sampler = sampler
+    pass
 
 
 class ModelBasedAlgo(Algo):
-    def __init__(self, env, dynamics_model: ModelBasedEnv, sampler: Sampler = Sampler()):
-        super().__init__(env)
+    def __init__(self, env_spec, dynamics_model: DynamicsModel):
+        super().__init__(env_spec)
         self.dynamics_model = dynamics_model
-        self.sampler = sampler

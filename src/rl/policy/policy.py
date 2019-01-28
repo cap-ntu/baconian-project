@@ -7,11 +7,10 @@ from src.envs.env_spec import EnvSpec
 class Policy(Basic):
 
     @tg.typechecked
-    def __init__(self, env_spec: EnvSpec):
+    def __init__(self, env_spec: EnvSpec, parameters: Parameters):
         super().__init__()
         self.env_spec = env_spec
-        if not hasattr(self, 'parameters'):
-            self.parameters = Parameters(parameters=[])
+        self.parameters = parameters
 
     @property
     def obs_space(self):

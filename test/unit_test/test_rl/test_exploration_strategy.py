@@ -45,13 +45,14 @@ class TestExplorationStrategy(unittest.TestCase):
                                           "W_NORMAL_STDDEV": 0.03
                                       }
                                   ])
-        dqn = DQN(env=env,
+        dqn = DQN(env_spec=env_spec,
                   config_or_config_dict=dict(REPLAY_BUFFER_SIZE=1000,
                                              GAMMA=0.99,
                                              BATCH_SIZE=10,
                                              Q_NET_L1_NORM_SCALE=0.001,
                                              Q_NET_L2_NORM_SCALE=0.001,
                                              LEARNING_RATE=0.001,
+                                             TRAIN_ITERATION=1,
                                              DECAY=0.5),
                   value_func=mlp_q)
         dqn.init()

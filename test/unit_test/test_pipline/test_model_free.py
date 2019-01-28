@@ -43,7 +43,7 @@ class TestModelFreePipline(unittest.TestCase):
                                           "W_NORMAL_STDDEV": 0.03
                                       }
                                   ])
-        dqn = DQN(env=env,
+        dqn = DQN(env_spec=env_spec,
                   config_or_config_dict=dict(REPLAY_BUFFER_SIZE=1000,
                                              GAMMA=0.99,
                                              BATCH_SIZE=10,
@@ -57,7 +57,7 @@ class TestModelFreePipline(unittest.TestCase):
                                                                             init_random_prob=0.5,
                                                                             decay_type=None))
         model_free = ModelFreePipeline(agent=agent, env=env,
-                                       config_or_config_dict=dict(TEST_SAMPLES_COUNT=10,
-                                                                  TRAIN_SAMPLES_COUNT=10,
-                                                                  TOTAL_SAMPLES_COUNT=30))
+                                       config_or_config_dict=dict(TEST_SAMPLES_COUNT=100,
+                                                                  TRAIN_SAMPLES_COUNT=100,
+                                                                  TOTAL_SAMPLES_COUNT=1000))
         model_free.launch()
