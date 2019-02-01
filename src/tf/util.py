@@ -78,8 +78,8 @@ class MLPCreator(object):
                                         fn=lambda x: (x * output_norm[1]) + output_norm[1],
                                         name=net_name + '_NORM')
         if output_high is not None and output_low is not None:
-            if last_layer_act != "IDENTITY":
-                raise ValueError('Please set the last layer activation as identity to use output scale')
+            if last_layer_act not in ("IDENTITY", 'LINEAR'):
+                raise ValueError('Please set the last layer activation as IDENTITY/LINEAR to use output scale')
             net = tl.layers.LambdaLayer(prev_layer=net,
                                         fn=lambda x: tf.nn.tanh(x),
                                         name=net_name + '_TANH')

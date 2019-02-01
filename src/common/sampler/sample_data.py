@@ -1,4 +1,5 @@
 import numpy as np
+from typeguard import typechecked
 
 
 # todo this module need to be tested
@@ -70,16 +71,16 @@ class TrajectoryData(SampleData):
     def __init__(self):
         super(TrajectoryData, self).__init__()
         self.trajectories = []
-        self.cumulative_reward = 0.0
-        self.step_count_per_episode = 0
 
     def reset(self):
         self.trajectories = []
-        self.cumulative_reward = 0.0
-        self.step_count_per_episode = 0
 
-    def append(self, state, action, new_state, done, reward):
-        self.cumulative_reward += reward
+    @typechecked
+    def append(self, transition_data: TransitionData):
+        self.trajectories.append(self._process_trajecotry(transition_data))
 
     def union(self, sample_data):
-        pass
+        raise NotImplementedError
+
+    def _process_trajectory(self, trajectory_data) -> TransitionData:
+        raise NotImplementedError

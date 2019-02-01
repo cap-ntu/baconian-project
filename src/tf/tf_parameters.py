@@ -1,10 +1,8 @@
-import numpy as np
 import tensorflow as tf
 from src.core.parameters import Parameters
 from src.core.global_config import GlobalConfig
 from overrides.overrides import overrides
 from typeguard import typechecked
-from src.core.config import Config
 
 
 class TensorflowParameters(Parameters):

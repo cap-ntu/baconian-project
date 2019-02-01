@@ -1,7 +1,7 @@
 from src.core.global_config import GlobalConfig
-from src.core.config import Config
+from src.config.dict_config import DictConfig
 from src.core.pipeline import Pipeline
-from src.rl import ModelFreeAlgo
+from src.misc.misc import *
 from src.envs.env import Env
 import abc
 from src.agent.agent import Agent
@@ -11,32 +11,29 @@ from src.util.required_keys import SRC_UTIL_REQUIRED_KEYS
 
 
 class ModelFreePipeline(Pipeline):
-    STATE_LIST = ['state_not_inited', 'state_inited', 'state_algo_testing', 'state_algo_training', 'state_ended',
+    STATE_LIST = ['state_not_inited', 'state_inited', 'state_agent_testing', 'state_agent_training', 'state_ended',
                   'state_corrupted']
     INITE_STATE = 'state_not_inited'
 
-    required_key_list = Config.load_json(file_path=os.path.join(SRC_UTIL_REQUIRED_KEYS,
+    required_key_list = DictConfig.load_json(file_path=os.path.join(SRC_UTIL_REQUIRED_KEYS,
                                                                 'model_free_pipeline.json'))
 
-    def __init__(self, config_or_config_dict: (Config, dict), agent: Agent, env: Env):
+    def __init__(self, config_or_config_dict: (DictConfig, dict), agent: Agent, env: Env):
         transitions = []
         self.agent = agent
         self.env = env
-        if isinstance(config_or_config_dict, dict):
-            config = Config(required_key_dict=self.required_key_list,
-                            cls_name=type(self).__name__,
-                            config_dict=config_or_config_dict)
-
+        config = construct_dict_config(config_or_config_dict, obj=self)
         super().__init__(config=config, init_state=self.INITE_STATE, states=self.STATE_LIST, transitions=transitions)
+        # todo move the hard code here
         self.finite_state_machine.add_transition('init', 'state_not_inited', 'state_inited')
         self.finite_state_machine.add_transition('train',
-                                                 ['state_algo_testing', 'state_inited', 'state_algo_training'],
-                                                 'state_algo_training')
+                                                 ['state_agent_testing', 'state_inited', 'state_agent_training'],
+                                                 'state_agent_training')
         self.finite_state_machine.add_transition('test',
-                                                 ['state_algo_training', 'state_inited', 'state_algo_testing'],
-                                                 'state_algo_testing')
+                                                 ['state_agent_training', 'state_inited', 'state_agent_testing'],
+                                                 'state_agent_testing')
         self.finite_state_machine.add_transition('end',
-                                                 ['state_algo_training', 'state_algo_testing', 'state_inited',
+                                                 ['state_agent_training', 'state_agent_testing', 'state_inited',
                                                   'state_not_inited'],
                                                  'state_ended',
                                                  conditions='_is_flow_ended')
@@ -71,10 +68,10 @@ class ModelFreePipeline(Pipeline):
     def on_exit_state_inited(self):
         print('model-free pipeline finish inited')
 
-    def on_enter_state_algo_testing(self):
+    def on_enter_state_agent_testing(self):
         print('model-free pipeline enter testing')
 
-    def on_exit_state_algo_testing(self):
+    def on_exit_state_agent_testing(self):
 
         res = self.agent.sample(env=self.agent.env,
                                 sample_count=self.config('TEST_SAMPLES_COUNT'),
@@ -85,10 +82,10 @@ class ModelFreePipeline(Pipeline):
 
         print('model-free pipeline exit testing')
 
-    def on_enter_state_algo_training(self):
+    def on_enter_state_agent_training(self):
         print('model-free pipeline enter training')
 
-    def on_exit_state_algo_training(self):
+    def on_exit_state_agent_training(self):
         res = self.agent.sample(env=self.agent.env,
                                 sample_count=self.config('TRAIN_SAMPLES_COUNT'),
                                 store_flag=True,
@@ -106,10 +103,10 @@ class ModelFreePipeline(Pipeline):
         print('model-free pipeline exit ended')
 
     def on_enter_state_corrupted(self):
-        pass
+        raise NotImplementedError
 
     def on_exit_state_corrupted(self):
-        pass
+        raise NotImplementedError
 
     @abc.abstractmethod
     def _is_flow_ended(self):

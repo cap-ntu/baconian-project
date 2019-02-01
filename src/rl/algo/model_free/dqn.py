@@ -1,20 +1,15 @@
-# Date: 11/16/18
-# Author: Luke
-# Project: ModelBasedRLFramework
-import os
 from src.rl.algo.algo import ModelFreeAlgo
-from src.core.config import Config
+from src.config.dict_config import DictConfig
 from typeguard import typechecked
 from src.rl.value_func import *
 from src.rl.algo.util.replay_buffer import UniformRandomReplayBuffer, BaseReplayBuffer
-from src.util.required_keys import SRC_UTIL_REQUIRED_KEYS
 import tensorflow as tf
 import tensorflow.contrib as tfcontrib
 import numpy as np
-from src.misc import *
+from src.misc.misc import *
 from src.common.sampler.sample_data import TransitionData
 from src.tf.tf_parameters import TensorflowParameters
-from src.rl.value_func.value_func import ValueFunction
+from src.core.global_config import GlobalConfig
 
 
 # todo
@@ -23,27 +18,19 @@ from src.rl.value_func.value_func import ValueFunction
 
 
 class DQN(ModelFreeAlgo):
-    required_key_list = Config.load_json(file_path=os.path.join(SRC_UTIL_REQUIRED_KEYS,
-                                                                'dqn.json'))
+    required_key_list = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_DQN_REQUIRED_KEY_LIST)
 
     @typechecked
     def __init__(self,
                  env_spec,
-                 config_or_config_dict: (Config, dict),
+                 config_or_config_dict: (DictConfig, dict),
                  # todo check the type list
                  # todo bug on mlp value function and its placeholder which is crushed with the dqn placeholder
                  value_func: MLPQValueFunction,
                  replay_buffer=None):
         # todo add the action iterator
         super(DQN, self).__init__(env_spec=env_spec)
-        if isinstance(config_or_config_dict, dict):
-            config = Config(required_key_dict=self.required_key_list,
-                            config_dict=config_or_config_dict,
-                            cls_name=type(self).__name__)
-        elif isinstance(config_or_config_dict, Config):
-            config = config_or_config_dict
-        else:
-            raise TypeError('Type {} is not supported, use dict or Config'.format(type(config_or_config_dict).__name__))
+        config = construct_dict_config(config_or_config_dict, self)
 
         self.config = config
 

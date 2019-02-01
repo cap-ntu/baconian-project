@@ -1,7 +1,5 @@
-import numpy as np
 from typeguard import typechecked
-from src.core.config import Config
-import tensorflow as tf
+from src.config.dict_config import DictConfig
 
 
 class Parameters(object):
@@ -14,8 +12,9 @@ class Parameters(object):
     def __init__(self, parameters: dict, source_config=None, auto_init=False, name='parameters'):
         self._parameters = parameters
         self.name = name
-        self._source_config = source_config if source_config else Config(required_key_dict=dict(), config_dict=dict())
-        assert isinstance(self._source_config, Config)
+        self._source_config = source_config if source_config else DictConfig(required_key_dict=dict(),
+                                                                             config_dict=dict())
+        assert isinstance(self._source_config, DictConfig)
 
         if auto_init is True:
             self.init()

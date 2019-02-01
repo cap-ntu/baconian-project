@@ -1,5 +1,4 @@
-from overrides.overrides import overrides
-from src.core.config import Config
+from src.config.dict_config import DictConfig
 from typeguard import typechecked
 from transitions import Machine
 
@@ -10,7 +9,7 @@ class Pipeline(object):
     INIT_STATE = None
 
     @typechecked
-    def __init__(self, config: Config, init_state: str, states: list, transitions: (list, dict)):
+    def __init__(self, config: DictConfig, init_state: str, states: list, transitions: (list, dict)):
         self.config = config
         self.finite_state_machine = Machine(model=self, transitions=transitions, states=states, initial=init_state)
 

@@ -12,8 +12,8 @@ class TestDQN(unittest.TestCase):
     def test_init(self):
         if tf.get_default_session():
             sess = tf.get_default_session()
-            # sess.exit(None, None, None)
-            sess.close()
+            sess.__exit__(None, None, None)
+            # sess.close()
         tf.reset_default_graph()
         env = make('Acrobot-v1')
         env_spec = EnvSpec(obs_space=env.observation_space,
@@ -63,6 +63,7 @@ class TestDQN(unittest.TestCase):
             a = TransitionData()
             a.append(state=st, new_state=st_new, action=ac, done=done, reward=re)
             dqn.append_to_memory(a)
+            print(a.new_state_set - a.state_set)
             print(st)
         for i in range(10):
             print(dqn.train(batch_data=None, train_iter=10, sess=None, update_target=True))

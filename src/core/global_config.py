@@ -6,15 +6,20 @@ from typeguard import typechecked
 import json
 import tensorflow as tf
 from gym.wrappers import TimeLimit, SkipWrapper, Monitor
+import os
+from src.util.required_keys import SRC_UTIL_REQUIRED_KEYS
 
 
 class GlobalConfig(object):
     DEFAULT_MAX_TF_SAVER_KEEP = 20
-    DEFAULT_CATCHED_EXCEPTION_OR_ERROR_LIST = (tf.errors.ResourceExhaustedError)
+    DEFAULT_CATCHED_EXCEPTION_OR_ERROR_LIST = (tf.errors.ResourceExhaustedError,)
     # todo check this type list
     DEFAULT_ALLOWED_GYM_ENV_TYPE = (TimeLimit, SkipWrapper, Monitor)
     DEFAULT_BASIC_STATUS_LIST = ['train', 'test']
     DEFAULT_BASIC_INIT_STATUS = None
+
+    # config required key list
+    DEFAULT_DQN_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS, 'dqn.json')
 
     @staticmethod
     @typechecked
@@ -32,3 +37,7 @@ class GlobalConfig(object):
         with open(path_to_file, 'r') as f:
             new_dict = json.load(f)
             GlobalConfig.set_new_config(new_dict)
+
+    # For internal use
+    SAMPLE_TYPE_SAMPLE_TRANSITION_DATA = 'transition_data'
+    SAMPLE_TYPE_SAMPLE_TRAJECTORY_DATA = 'trajectory_data'

@@ -4,6 +4,10 @@ import typeguard as tg
 
 
 class Config(object):
+    pass
+
+
+class DictConfig(Config):
     def __init__(self, required_key_dict: dict, config_dict=None, cls_name=""):
         self.cls_name = cls_name
 
@@ -24,12 +28,15 @@ class Config(object):
                 if type(val) is list:
                     new_value[str(key)] = tuple(val)
             self._config_dict = new_value
+            # todo check this
+            for key, val in self._config_dict.items():
+                setattr(self, key, val)
 
     def save_config(self, path, name):
-        Config.save_to_json(dict=self.config_dict, path=path, file_name=name)
+        DictConfig.save_to_json(dict=self.config_dict, path=path, file_name=name)
 
     def load_config(self, path):
-        res = Config.load_json(file_path=path)
+        res = DictConfig.load_json(file_path=path)
         self.config_dict = res
 
     def check_config(self, dict: dict, key_dict: dict) -> bool:
@@ -67,3 +74,6 @@ class Config(object):
             raise KeyError('{} key {} not in the config'.format(self.cls_name, key))
         else:
             return self.config_dict[key]
+
+    def __getitem__(self, item):
+        return self.__call__(item)

@@ -28,5 +28,5 @@ class EnvSpec(object):
         return flat_dim(self.action_space)
 
     @staticmethod
-    def flat(space_type: Space, obs_or_action: (np.ndarray, list)):
-        return flatten(space_type, obs_or_action)
+    def flat(space: Space, obs_or_action: (np.ndarray, list)):
+        return flatten(space, obs_or_action)

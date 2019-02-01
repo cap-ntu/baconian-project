@@ -5,6 +5,7 @@ from src.core.basic import Basic
 import typeguard as tg
 from src.core.parameters import Parameters
 from src.envs.env_spec import EnvSpec
+import abc
 
 
 class ValueFunction(Basic):
@@ -29,14 +30,17 @@ class ValueFunction(Basic):
             raise TypeError('Wrong type of obj %s to be copied, which should be %s' % (type(obj), type(self)))
         return True
 
+    @abc.abstractmethod
     def forward(self, *args, **kwargs):
         raise NotImplementedError
 
     def update(self, *args, **kwargs):
         raise NotImplementedError
 
+    @abc.abstractmethod
     def init(self, source_obj=None):
         raise NotImplementedError
 
+    @abc.abstractmethod
     def make_copy(self, *args, **kwargs):
         raise NotImplementedError
