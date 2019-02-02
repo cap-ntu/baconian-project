@@ -1,6 +1,6 @@
 import os
 import tensorflow as tf
-from src.config.config import Config
+from src.config.dict_config import DictConfig
 from conf.key import CONFIG_KEY
 import numpy as np
 import random
@@ -13,7 +13,7 @@ from src.core.basic import Basic
 
 
 class GamePlayer(Basic):
-    key_list = Config.load_json(file_path=CONFIG_KEY + '/gamePlayerKey.json')
+    key_list = DictConfig.load_json(file_path=CONFIG_KEY + '/gamePlayerKey.json')
 
     def __init__(self, config, agent, env, basic_list, ep_type=0, log_path=None, log_path_end_with=""):
         super(GamePlayer, self).__init__()

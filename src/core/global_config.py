@@ -7,7 +7,7 @@ import json
 import tensorflow as tf
 from gym.wrappers import TimeLimit, SkipWrapper, Monitor
 import os
-from src.util.required_keys import SRC_UTIL_REQUIRED_KEYS
+from src.config.required_keys import SRC_UTIL_REQUIRED_KEYS
 
 
 class GlobalConfig(object):
@@ -20,7 +20,7 @@ class GlobalConfig(object):
 
     # config required key list
     DEFAULT_DQN_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS, 'dqn.json')
-
+    DEFAULT_ALGO_SAMPLE_WITH_DYNAMICS_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS, 'sample_with_dynamics.json')
     @staticmethod
     @typechecked
     def set_new_config(config_dict: dict):

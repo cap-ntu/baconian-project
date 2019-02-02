@@ -10,6 +10,7 @@ from src.misc.misc import *
 from src.common.sampler.sample_data import TransitionData
 from src.tf.tf_parameters import TensorflowParameters
 from src.core.global_config import GlobalConfig
+from src.envs.util import *
 
 
 # todo
@@ -39,8 +40,8 @@ class DQN(ModelFreeAlgo):
             self.replay_buffer = replay_buffer
         else:
             self.replay_buffer = UniformRandomReplayBuffer(limit=self.config('REPLAY_BUFFER_SIZE'),
-                                                           action_shape=(self.env_spec.flat_action_dim,),
-                                                           observation_shape=(self.env_spec.flat_obs_dim,))
+                                                           action_shape=self.env_spec.action_shape,
+                                                           observation_shape=self.env_spec.obs_shape)
         self.q_value_func = value_func
         self.state_input = self.q_value_func.state_ph
         self.action_input = self.q_value_func.action_ph
@@ -78,7 +79,7 @@ class DQN(ModelFreeAlgo):
 
     @typechecked
     def train(self, batch_data=None, train_iter=None, sess=None, update_target=True) -> dict:
-        super().train()
+        super(DQN, self).train()
         batch_data = self.replay_buffer.sample(
             batch_size=self.parameters('BATCH_SIZE')) if not batch_data else batch_data
         assert isinstance(batch_data, TransitionData)
@@ -93,7 +94,7 @@ class DQN(ModelFreeAlgo):
         assert target_q_val_on_new_s.shape[0] == batch_data.state_set.shape[0]
         feed_dict = {
             self.reward_input: batch_data.reward_set,
-            self.action_input: batch_data.action_set,
+            self.action_input: flatten_n(self.env_spec.action_space, batch_data.action_set),
             self.state_input: batch_data.state_set,
             self.done_input: batch_data.done_set,
             self.target_q_input: target_q_val_on_new_s,
@@ -148,8 +149,9 @@ class DQN(ModelFreeAlgo):
         return action, q_val
 
     def append_to_memory(self, samples: TransitionData):
-        for obs0, obs1, action, reward, terminal1 in zip(samples.state_set, samples.new_state_set, samples.action_set,
-                                                         samples.reward_set, samples.done_set):
+        iter_samples = samples.return_generator()
+
+        for obs0, obs1, action, reward, terminal1 in iter_samples:
             self.replay_buffer.append(obs0=obs0,
                                       obs1=obs1,
                                       action=action,

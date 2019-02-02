@@ -42,7 +42,7 @@ def flatten_n(space, obs):
         obs = np.asarray(obs)
         return obs.reshape((obs.shape[0], -1))
     elif isinstance(space, gym.spaces.Discrete):
-        return special.to_onehot_n(obs, space.n)
+        return special.to_onehot_n(np.array(obs, dtype=np.int), space.n)
     elif isinstance(space, gym.spaces.Tuple):
         obs_regrouped = [[obs[i] for o in obs] for i in range(len(obs[0]))]
         flat_regrouped = [
@@ -57,7 +57,7 @@ def unflatten(space, obs):
     if isinstance(space, gym.spaces.Box):
         return np.asarray(obs).reshape(space.shape)
     elif isinstance(space, gym.spaces.Discrete):
-        return special.from_onehot(obs)
+        return special.from_onehot(np.array(obs, dtype=np.int))
     elif isinstance(space, gym.spaces.Tuple):
         dims = [flat_dim(c) for c in space.spaces]
         flat_xs = np.split(obs, np.cumsum(dims)[:-1])
@@ -71,7 +71,7 @@ def unflatten_n(space, obs):
         obs = np.asarray(obs)
         return obs.reshape((obs.shape[0],) + space.shape)
     elif isinstance(space, gym.spaces.Discrete):
-        return special.from_onehot_n(obs)
+        return special.from_onehot_n(np.array(obs, dtype=np.int))
     elif isinstance(space, gym.spaces.Tuple):
         dims = [flat_dim(c) for c in space.spaces]
         flat_xs = np.split(obs, np.cumsum(dims)[:-1], axis=-1)
@@ -86,6 +86,11 @@ def unflatten_n(space, obs):
 
 def weighted_sample(space, weights):
     if isinstance(space, gym.spaces.Discrete):
-        return special.weighted_sample(weights, range(space.n))
+        return special.weighted_sample(np.array(weights, dtype=np.int), range(space.n))
     else:
         raise NotImplementedError
+
+
+def sample_to_replace_inf(obj, ):
+    # todo
+    pass

@@ -7,7 +7,7 @@ import abc
 from src.agent.agent import Agent
 import numpy as np
 import os
-from src.util.required_keys import SRC_UTIL_REQUIRED_KEYS
+from src.config.required_keys import SRC_UTIL_REQUIRED_KEYS
 
 
 class ModelFreePipeline(Pipeline):

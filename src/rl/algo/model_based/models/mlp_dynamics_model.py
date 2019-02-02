@@ -58,6 +58,7 @@ class ContinuousMLPDynamicsModel(DynamicsModel):
                                                                                 l2_norm_scale=l2_norm_scale)
         train_var_list = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='{}/train'.format(self.name_scope))
         self.parameters.set_tf_var_list(train_var_list + self.parameters('tf_var_list'))
+        # todo super __init__ may override the self.parameters
         super(ContinuousMLPDynamicsModel, self).__init__(env_spec=env_spec, parameters=parameters)
 
     def init(self, source_obj=None):
@@ -97,9 +98,10 @@ class ContinuousMLPDynamicsModel(DynamicsModel):
         return loss, optimizer, optimize_op
 
     @typechecked
-    def train(self, batch_data: TransitionData, train_iter=None, sess=None) -> dict:
-        tf_sess = sess if sess else tf.get_default_session()
-        train_iter = self.parameters('train_iteration') if not train_iter else train_iter
+    def train(self, batch_data: TransitionData, **kwargs) -> dict:
+
+        tf_sess = kwargs['sess'] if ('sess' in kwargs and kwargs['sess']) else tf.get_default_session()
+        train_iter = self.parameters('train_iter') if 'train_iter' not in kwargs else kwargs['train_iter']
         feed_dict = {
             self.state_ph: batch_data.state_set,
             self.action_ph: flatten_n(self.env_space.action_space, batch_data.action_set),

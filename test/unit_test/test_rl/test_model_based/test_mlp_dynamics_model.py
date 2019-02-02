@@ -57,7 +57,7 @@ class TestDynamicsModel(unittest.TestCase):
         mlp_dyna.init()
         mlp_dyna.step(action=env_spec.action_space.sample(),
                       state=env_spec.obs_space.sample())
-        data = TransitionData()
+        data = TransitionData(env_spec)
         st = env.get_state()
         for i in range(10):
             ac = env_spec.action_space.sample()

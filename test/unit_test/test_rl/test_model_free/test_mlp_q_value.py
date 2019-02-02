@@ -1,5 +1,5 @@
 import unittest
-from gym import make
+from src.envs import make
 from src.envs.env_spec import EnvSpec
 from src.rl.value_func.mlp_q_value import MLPQValueFunction
 import tensorflow as tf

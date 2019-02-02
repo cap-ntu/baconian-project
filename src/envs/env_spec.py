@@ -10,6 +10,12 @@ class EnvSpec(object):
     def __init__(self, obs_space: Space, action_space: Space):
         self._obs_space = obs_space
         self._action_space = action_space
+        self.obs_shape = tuple(np.array(self.obs_space.sample()).shape)
+        if len(self.obs_shape) == 0:
+            self.obs_shape = (1,)
+        self.action_shape = tuple(np.array(self.action_space.sample()).shape)
+        if len(self.action_shape) == 0:
+            self.action_shape = (1,)
 
     @property
     def obs_space(self):

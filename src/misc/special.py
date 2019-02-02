@@ -5,6 +5,7 @@ This script is from garage
 import numpy as np
 import scipy
 import scipy.signal
+from typeguard import typechecked
 
 
 def weighted_sample(weights, objects):
@@ -163,3 +164,13 @@ def rk4(derivs, y0, t, *args, **kwargs):
         k4 = np.asarray(derivs(y0 + dt * k3, thist + dt, *args, **kwargs))
         yout[i + 1] = y0 + dt / 6.0 * (k1 + 2 * k2 + 2 * k3 + k4)
     return yout
+
+@typechecked
+def make_batch(v: np.ndarray, original_shape: (list, tuple)):
+    assert len(v.shape) <= len(original_shape) + 1
+    if len(v.shape) == len(original_shape) + 1:
+        return v
+    else:
+        bs = np.prod(list(v.shape)) / np.prod(original_shape)
+        assert bs == int(bs)
+        return np.reshape(v, newshape=[int(bs)] + list(original_shape))

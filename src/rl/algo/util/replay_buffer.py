@@ -102,7 +102,7 @@ class UniformRandomReplayBuffer(BaseReplayBuffer):
             'terminals1': array_min2d(terminal1_batch),
         }
 
-        res = TransitionData()
+        res = TransitionData(obs_shape=self.obs_shape, action_shape=self.action_shape)
         res._state_set = result['obs0']
         res._new_state_set = result['obs1']
         res._action_set = result['actions']

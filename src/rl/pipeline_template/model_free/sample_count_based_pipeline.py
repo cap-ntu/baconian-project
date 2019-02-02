@@ -1,11 +1,11 @@
-from src.core.config import Config
+from src.config.dict_config import DictConfig
 from src.core.pipelines.model_free_pipelines import ModelFreePipeline
 from src.envs.env import Env
 from src.agent.agent import Agent
 
 
 class SampleCountBasedModelFreePipeline(ModelFreePipeline):
-    def __init__(self, config: Config, agent: Agent, env: Env):
+    def __init__(self, config: DictConfig, agent: Agent, env: Env):
         super().__init__(config, agent, env)
         self.total_train_sample_count = 0
 

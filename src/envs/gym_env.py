@@ -3,6 +3,7 @@ import gym.envs
 from gym.envs.registration import registry
 from gym.envs.mujoco import mujoco_env
 import numpy as np
+from gym.spaces.box import Box
 
 
 def make(gym_env_id):
@@ -20,6 +21,13 @@ class GymEnv(Env):
         self._gym_env = gym.make(gym_env_id)
         self.action_space = self._gym_env.action_space
         self.observation_space = self._gym_env.observation_space
+        if isinstance(self.action_space, Box):
+            self.action_space.low = np.nan_to_num(self.action_space.low)
+            self.action_space.high = np.nan_to_num(self.action_space.high)
+        if isinstance(self.observation_space, Box):
+            self.observation_space.low = np.nan_to_num(self.observation_space.low)
+            self.observation_space.high = np.nan_to_num(self.observation_space.high)
+
         self.reward_range = self._gym_env.reward_range
 
     def step(self, action):
