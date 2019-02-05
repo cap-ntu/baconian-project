@@ -3,6 +3,7 @@ from src.core.parameters import Parameters
 from src.core.global_config import GlobalConfig
 from overrides.overrides import overrides
 from typeguard import typechecked
+import numpy as np
 
 
 class TensorflowParameters(Parameters):
@@ -12,6 +13,7 @@ class TensorflowParameters(Parameters):
                  max_to_keep=GlobalConfig.DEFAULT_MAX_TF_SAVER_KEEP,
                  auto_init=False,
                  source_config=None,
+                 to_ph_parameter_dict=None,
                  require_snapshot=False):
         para_dict = {**dict(tf_var_list=tf_var_list), **rest_parameters}
 
@@ -27,16 +29,10 @@ class TensorflowParameters(Parameters):
         self.max_to_keep = max_to_keep
         self.require_snapshot = require_snapshot
 
-        if require_snapshot is True:
-            sess = tf.get_default_session()
-            with tf.variable_scope('snapshot'):
-                for var in self._parameters['tf_var_list']:
-                    snap_var = tf.Variable(initial_value=sess.run(var),
-                                           expected_shape=var.get_shape().as_list(),
-                                           name=var.name)
-                    self.snapshot_var.append(snap_var)
-                    self.save_snapshot_op.append(tf.assign(var, snap_var))
-                    self.load_snapshot_op.append(tf.assign(snap_var, var))
+        self._registered_tf_ph_dict = dict()
+        if to_ph_parameter_dict:
+            for key, val in to_ph_parameter_dict.items():
+                self.to_tf_ph(key, ph=val)
         if auto_init is True:
             self.init()
 
@@ -45,6 +41,17 @@ class TensorflowParameters(Parameters):
         sess = tf.get_default_session()
         sess.run(tf.variables_initializer(var_list=self._parameters['tf_var_list']))
         if self.require_snapshot is True:
+            if len(self.snapshot_var) == 0:
+                # add the snapshot op after the init
+                sess = tf.get_default_session()
+                with tf.variable_scope('snapshot'):
+                    for var in self._parameters['tf_var_list']:
+                        snap_var = tf.Variable(initial_value=sess.run(var),
+                                               expected_shape=var.get_shape().as_list(),
+                                               name=str(var.name).split(':')[0])
+                        self.snapshot_var.append(snap_var)
+                        self.save_snapshot_op.append(tf.assign(var, snap_var))
+                        self.load_snapshot_op.append(tf.assign(snap_var, var))
             sess.run(tf.variables_initializer(var_list=self.snapshot_var))
             sess.run(self.save_snapshot_op)
         self.saver = tf.train.Saver(max_to_keep=self.max_to_keep,
@@ -53,13 +60,16 @@ class TensorflowParameters(Parameters):
     @typechecked
     def return_tf_parameter_feed_dict(self) -> dict:
         # todo tuning or adaptive para setting here
-        return dict()
+        res = dict()
+        for key, val in self._registered_tf_ph_dict.items():
+            res[val] = self(key)
+        return res
 
     def save_snapshot(self):
         sess = tf.get_default_session()
         if len(self.save_snapshot_op) == 0:
             with tf.variable_scope('snapshot'):
-                for var in self._parameters:
+                for var in self._parameters['tf_var_list']:
                     snap_var = tf.Variable(initial_value=sess.run(var),
                                            expected_shape=var.get_shape().as_list(),
                                            name=var.name)
@@ -71,7 +81,7 @@ class TensorflowParameters(Parameters):
         sess = tf.get_default_session()
         if len(self.load_snapshot_op) == 0:
             with tf.variable_scope('snapshot'):
-                for var in self._parameters:
+                for var in self._parameters['tf_var_list']:
                     snap_var = tf.Variable(initial_value=sess.run(var),
                                            expected_shape=var.get_shape().as_list(),
                                            name=var.name)
@@ -96,13 +106,32 @@ class TensorflowParameters(Parameters):
     def load_from_h5py(self, path_to_h5py):
         raise NotImplementedError
 
-    def __call__(self, key=None):
-        return super().__call__(key)
+    def __call__(self, key=None, require_true_value=False):
+        if key in self._registered_tf_ph_dict.keys() and require_true_value is True:
+            return tf.get_default_session().run(self._registered_tf_ph_dict[key])
+        else:
+            return super().__call__(key)
+
+    def set(self, key, new_val):
+        if not isinstance(new_val, type(self(key))):
+            raise TypeError('new value of parameters {} should be type {} instead of {}'.format(key, type(self(key)),
+                                                                                                type(new_val)))
+        else:
+            if key in self._parameters:
+                self._parameters[key] = new_val
+            else:
+                self._source_config[key] = new_val
 
     def set_tf_var_list(self, tf_var_list: list):
         for var in tf_var_list:
             assert isinstance(var, (tf.Tensor, tf.Variable))
         self._parameters['tf_var_list'] = tf_var_list
+
+    @typechecked
+    def to_tf_ph(self, key, ph: tf.Tensor):
+        # call the parameters first to make sure it have a init value
+        self(key)
+        self._registered_tf_ph_dict[key] = ph
 
     @typechecked
     @overrides
@@ -113,3 +142,30 @@ class TensorflowParameters(Parameters):
         sess = tf.get_default_session()
         sess.run(tmp_op_list)
         del tmp_op_list
+
+    def update(self):
+        # todo the adaptive strategy of params goes here
+        self.set('LEARNING_RATE', new_val=self('LEARNING_RATE') * 0.99)
+        pass
+
+
+class PlaceholderParameter(object):
+    # todo
+    """
+    Create a placeholder by passing into a init value, the shape and type will be inferred
+    """
+
+    def __init__(self, init_value, var_scope, name):
+        with tf.variable_scope(var_scope):
+            if isinstance(init_value, (float, int)) or np.isscalar(init_value):
+                shape = [1]
+                type = tf.float32
+            else:
+                shape = np.array(init_value).shape
+                np_type = np.array(init_value).dtype
+
+
+class AdaptiveWrapper(object):
+    def __init__(self, source_para_obj):
+        self.source_parameters = source_para_obj
+        pass
