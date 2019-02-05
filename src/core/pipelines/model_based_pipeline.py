@@ -2,7 +2,9 @@ from src.core.pipeline import Pipeline
 from src.core.global_config import GlobalConfig
 from src.envs.env import Env
 from src.config.dict_config import DictConfig
-from src.rl.algo.algo import ModelBasedAlgo
+from src.misc.misc import *
+from src.agent.agent import Agent
+import numpy as np
 
 
 class ModelBasedPipeline(Pipeline):
@@ -13,12 +15,15 @@ class ModelBasedPipeline(Pipeline):
     STATE_LIST = ['state_not_inited', 'state_inited', 'state_agent_testing', 'state_agent_training', 'state_ended',
                   'state_dynamics_testing', 'state_dynamics_training']
     INIT_STATE = 'state_not_inited'
+    required_key_list = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_MODEL_BASED_PIPELINE_REQUIRED_KEY_LIST)
 
-    def __init__(self, config: DictConfig, algo: ModelBasedAlgo, env: Env):
-        self.algo = algo
+    def __init__(self, config_or_config_dict: (DictConfig, dict), agent: Agent, env: Env):
+        transitions = []
+        self.agent = agent
         self.env = env
+        config = construct_dict_config(config_or_config_dict, obj=self)
+        super().__init__(config=config, init_state=self.INIT_STATE, states=self.STATE_LIST, transitions=transitions)
 
-        super().__init__(config=config, init_state=self.INIT_STATE, states=self.STATE_LIST)
         # todo move the hard code here
         self.finite_state_machine.add_transition('init', 'state_not_inited', 'state_inited')
         self.finite_state_machine.add_transition('train agent',
@@ -30,11 +35,11 @@ class ModelBasedPipeline(Pipeline):
                                                   'state_dynamics_testing', 'state_dynamics_training'],
                                                  'state_agent_testing')
 
-        self.finite_state_machine.add_transition('train dyanmics',
+        self.finite_state_machine.add_transition('train dynamics',
                                                  ['state_agent_testing', 'state_inited', 'state_agent_training',
                                                   'state_dynamics_testing', 'state_dynamics_training'],
                                                  'state_dynamics_training')
-        self.finite_state_machine.add_transition('test dyanmics',
+        self.finite_state_machine.add_transition('test dynamics',
                                                  ['state_agent_training', 'state_inited', 'state_agent_testing',
                                                   'state_dynamics_testing', 'state_dynamics_training'],
                                                  'state_dynamics_testing')
@@ -59,22 +64,38 @@ class ModelBasedPipeline(Pipeline):
             self.to_state_corrupted()
 
     def on_enter_state_inited(self):
-        pass
+        self.env.init()
+        self.agent.init()
 
     def on_exit_state_inited(self):
-        pass
+        print('model-based pipeline finish inited')
 
     def on_enter_state_agent_testing(self):
         pass
 
     def on_exit_state_agent_testing(self):
-        pass
+        res = self.agent.sample(env=self.agent.env,
+                                sample_count=self.config('TEST_SAMPLES_COUNT'),
+                                store_flag=False,
+                                in_test_flag=True)
+        self.total_test_samples += self.config('TEST_SAMPLES_COUNT')
+        print("Mean reward is {}".format(np.mean(res.reward_set)))
+
+        print('model-based pipeline exit testing')
 
     def on_enter_state_agent_training(self):
         pass
 
     def on_exit_state_agent_training(self):
-        pass
+        res = self.agent.sample(env=self.agent.env,
+                                sample_count=self.config('TRAIN_SAMPLES_COUNT'),
+                                store_flag=True,
+                                in_test_flag=False)
+        self.total_train_samples += self.config('TRAIN_SAMPLES_COUNT')
+        info = self.agent.update(state=self.state)
+        print("Mean reward is {}".format(np.mean(res.reward_set)))
+        print("Train info is {}".format(info))
+        print('model-based pipeline exit training')
 
     def on_enter_state_dynamics_testing(self):
         pass
@@ -86,13 +107,21 @@ class ModelBasedPipeline(Pipeline):
         pass
 
     def on_exit_state_dynamics_training(self):
-        pass
+        res = self.agent.sample(env=self.agent.env,
+                                sample_count=self.config('TRAIN_SAMPLES_COUNT'),
+                                store_flag=True,
+                                in_test_flag=False)
+        self.total_train_samples += self.config('TRAIN_SAMPLES_COUNT')
+        info = self.agent.update(batch_data=res, state=self.state)
+        print("Mean reward is {}".format(np.mean(res.reward_set)))
+        print("Train info is {}".format(info))
+        print('model-based pipeline exit training')
 
     def on_enter_state_ended(self):
-        pass
+        print('model-based pipeline enter ended')
 
     def on_exit_state_ended(self):
-        pass
+        print('model-based pipeline exit ended')
 
     def on_enter_state_corrupted(self):
         pass
@@ -101,5 +130,10 @@ class ModelBasedPipeline(Pipeline):
         pass
 
     def _is_flow_ended(self):
-        # todo define different end condition here
-        return False
+        return self.total_train_samples >= self.config("TOTAL_SAMPLES_COUNT")
+
+    def on_enter_state_not_inited(self):
+        pass
+
+    def on_exit_state_not_inited(self):
+        pass

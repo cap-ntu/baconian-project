@@ -13,17 +13,16 @@ from src.config.required_keys import SRC_UTIL_REQUIRED_KEYS
 class ModelFreePipeline(Pipeline):
     STATE_LIST = ['state_not_inited', 'state_inited', 'state_agent_testing', 'state_agent_training', 'state_ended',
                   'state_corrupted']
-    INITE_STATE = 'state_not_inited'
+    INIT_STATE = 'state_not_inited'
 
-    required_key_list = DictConfig.load_json(file_path=os.path.join(SRC_UTIL_REQUIRED_KEYS,
-                                                                'model_free_pipeline.json'))
+    required_key_list = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_MODEL_FREE_PIPELINE_REQUIRED_KEY_LIST)
 
     def __init__(self, config_or_config_dict: (DictConfig, dict), agent: Agent, env: Env):
         transitions = []
         self.agent = agent
         self.env = env
         config = construct_dict_config(config_or_config_dict, obj=self)
-        super().__init__(config=config, init_state=self.INITE_STATE, states=self.STATE_LIST, transitions=transitions)
+        super().__init__(config=config, init_state=self.INIT_STATE, states=self.STATE_LIST, transitions=transitions)
         # todo move the hard code here
         self.finite_state_machine.add_transition('init', 'state_not_inited', 'state_inited')
         self.finite_state_machine.add_transition('train',
@@ -37,11 +36,6 @@ class ModelFreePipeline(Pipeline):
                                                   'state_not_inited'],
                                                  'state_ended',
                                                  conditions='_is_flow_ended')
-        self.total_test_samples = 0
-        self.total_train_samples = 0
-        for state_name in self.STATE_LIST:
-            assert hasattr(self, 'on_enter_{}'.format(state_name))
-            assert hasattr(self, 'on_exit_{}'.format(state_name))
 
     def launch(self):
         assert self.is_state_not_inited()
@@ -55,11 +49,10 @@ class ModelFreePipeline(Pipeline):
             self.to_state_corrupted()
 
     def on_enter_state_not_inited(self):
-        self.agent.init()
-        self.env.init()
+        pass
 
     def on_exit_state_not_inited(self):
-        print('model-free pipeline finish inited')
+        pass
 
     def on_enter_state_inited(self):
         self.agent.init()

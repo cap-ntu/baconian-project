@@ -35,41 +35,38 @@ class SampleWithDynamics(ModelBasedAlgo):
         self.model_free_algo.init()
         self.dynamics_model.init()
 
-    def train(self, batch_data) -> dict:
+    def train(self, **kwargs) -> dict:
         super(SampleWithDynamics, self).train()
-        dynamics_train_res_dict = self._fit_dynamics_model(batch_data=batch_data,
-                                                           train_iter=self.parameters('dynamics_model_train_iter'))
-
-        model_free_algo_train_res_dict = self._train_model_free_algo(batch_data=batch_data,
-                                                                     train_iter=self.parameters(
-                                                                         'model_free_algo_train_iter'))
-
         res_dict = {}
-        for key, val in dynamics_train_res_dict.items():
-            res_dict["mlp_dynamics_{}".format(key)] = val
-        for key, val in model_free_algo_train_res_dict.items():
-            res_dict['dqn_{}'.format(key)] = val
+        batch_data = kwargs['batch_data'] if 'batch_data' in kwargs else None
+        if 'state' not in kwargs or ('state' in kwargs and kwargs['state'] == 'state_dynamics_training'):
+
+            dynamics_train_res_dict = self._fit_dynamics_model(batch_data=batch_data,
+                                                               train_iter=self.parameters('dynamics_model_train_iter'))
+            for key, val in dynamics_train_res_dict.items():
+                res_dict["mlp_dynamics_{}".format(key)] = val
+        if 'state' not in kwargs or ('state' in kwargs and kwargs['state'] == 'state_agent_training'):
+            model_free_algo_train_res_dict = self._train_model_free_algo(batch_data=batch_data,
+                                                                         train_iter=self.parameters(
+                                                                             'model_free_algo_train_iter'))
+
+            for key, val in model_free_algo_train_res_dict.items():
+                res_dict['dqn_{}'.format(key)] = val
         return res_dict
 
     def test(self, *arg, **kwargs):
         super().test(*arg, **kwargs)
 
     def _fit_dynamics_model(self, batch_data: TransitionData, train_iter, sess=None) -> dict:
-        average_loss = 0.0
-        for i in range(train_iter):
-            res_dict = self.dynamics_model.train(batch_data, **dict(sess=sess,
-                                                                    train_iter=train_iter))
-            average_loss += (res_dict['average_loss'])
-        return dict(loss=average_loss / train_iter,
-                    train_iter=train_iter)
+        res_dict = self.dynamics_model.train(batch_data, **dict(sess=sess,
+                                                                train_iter=train_iter))
+        return res_dict
 
-    def _train_model_free_algo(self, batch_data: TransitionData, train_iter, sess=None):
-        average_loss = 0.0
-        for i in range(train_iter):
-            res_dict = self.model_free_algo.train(batch_data, sess=sess)
-            average_loss += (res_dict['average_loss'])
-        return dict(loss=average_loss / train_iter,
-                    train_iter=train_iter)
+    def _train_model_free_algo(self, batch_data=None, train_iter=None, sess=None):
+        res_dict = self.model_free_algo.train(**dict(batch_data=batch_data,
+                                                     train_iter=train_iter,
+                                                     sess=sess))
+        return res_dict
 
     def predict(self, obs, **kwargs):
         return self.model_free_algo.predict(obs)

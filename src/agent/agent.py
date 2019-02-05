@@ -6,13 +6,14 @@ from typeguard import typechecked
 from src.rl.exploration_strategy.base import ExplorationStrategy
 from src.common.sampler.sample_data import SampleData
 from src.envs.env import Env
+from src.envs.env_spec import EnvSpec
 
 
 class Agent(Basic):
 
     @typechecked
-    def __init__(self, env: GlobalConfig.DEFAULT_ALLOWED_GYM_ENV_TYPE + (Env,), algo: Algo,
-                 sampler: Sampler = Sampler(),
+    def __init__(self, env: GlobalConfig.DEFAULT_ALLOWED_GYM_ENV_TYPE + (Env,), algo: Algo, env_spec: EnvSpec,
+                 sampler: Sampler = None,
                  exploration_strategy=None):
         super(Agent, self).__init__()
         self.env = env
@@ -22,6 +23,7 @@ class Agent(Basic):
         if exploration_strategy:
             assert isinstance(exploration_strategy, ExplorationStrategy)
             self.explorations_strategy = exploration_strategy
+        self.sampler = sampler if sampler else Sampler(env_spec=env_spec)
 
     @property
     def env_sample_count(self):
@@ -53,10 +55,10 @@ class Agent(Basic):
 
     @typechecked
     def store_samples(self, samples: SampleData):
-        self.algo.append_to_memory(samples)
+        self.algo.append_to_memory(samples=samples)
 
-    def update(self) -> dict:
-        return self.algo.train()
+    def update(self, **kwargs) -> dict:
+        return self.algo.train(**kwargs)
 
     def reset(self):
         raise NotImplementedError

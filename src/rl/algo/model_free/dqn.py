@@ -81,7 +81,7 @@ class DQN(ModelFreeAlgo):
     def train(self, batch_data=None, train_iter=None, sess=None, update_target=True) -> dict:
         super(DQN, self).train()
         batch_data = self.replay_buffer.sample(
-            batch_size=self.parameters('BATCH_SIZE')) if not batch_data else batch_data
+            batch_size=self.parameters('BATCH_SIZE')) if batch_data is None else batch_data
         assert isinstance(batch_data, TransitionData)
 
         train_iter = self.parameters("TRAIN_ITERATION") if not train_iter else train_iter

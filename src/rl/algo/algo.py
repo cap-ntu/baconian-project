@@ -19,9 +19,11 @@ class Algo(Basic, abc.ABC):
 
     def train(self, *arg, **kwargs) -> dict:
         self.status.set_status('TRAIN')
+        return dict()
 
-    def test(self, *arg, **kwargs):
+    def test(self, *arg, **kwargs) -> dict:
         self.status.set_status('TEST')
+        return dict()
 
     def predict(self, *arg, **kwargs):
         raise NotImplementedError

@@ -20,7 +20,14 @@ class GlobalConfig(object):
 
     # config required key list
     DEFAULT_DQN_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS, 'dqn.json')
-    DEFAULT_ALGO_SAMPLE_WITH_DYNAMICS_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS, 'sample_with_dynamics.json')
+    DEFAULT_ALGO_SAMPLE_WITH_DYNAMICS_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS,
+                                                                       'sample_with_dynamics.json')
+    DEFAULT_MODEL_FREE_PIPELINE_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS,
+                                                                 'model_free_pipeline.json')
+
+    DEFAULT_MODEL_BASED_PIPELINE_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS,
+                                                                  'model_based_pipeline.json')
+
     @staticmethod
     @typechecked
     def set_new_config(config_dict: dict):
