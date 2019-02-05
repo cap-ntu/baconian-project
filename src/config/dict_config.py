@@ -65,6 +65,9 @@ class DictConfig(Config):
                                                                                              type(check_dict).__name__))
             if key not in check_dict:
                 raise IndexError('{} Missing Key {}'.format(self.cls_name, key))
+            if not isinstance(check_dict[key], type(required_key_dict[key])):
+                raise TypeError('{} should be type {} from required key dict file but with type {}'.
+                                format(key, type(check_dict[key]), type(required_key_dict[key])))
             if isinstance(val, dict):
                 self.check_dict_key(check_dict=check_dict[key], required_key_dict=required_key_dict[key])
         return True
