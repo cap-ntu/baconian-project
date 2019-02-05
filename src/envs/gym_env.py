@@ -4,6 +4,8 @@ from gym.envs.registration import registry
 from gym.envs.mujoco import mujoco_env
 import numpy as np
 from gym.spaces.box import Box
+from gym.core import Space
+import types
 
 
 def make(gym_env_id):
@@ -24,9 +26,11 @@ class GymEnv(Env):
         if isinstance(self.action_space, Box):
             self.action_space.low = np.nan_to_num(self.action_space.low)
             self.action_space.high = np.nan_to_num(self.action_space.high)
+            self.action_space.sample = types.MethodType(self._sample_with_nan, self.action_space)
         if isinstance(self.observation_space, Box):
             self.observation_space.low = np.nan_to_num(self.observation_space.low)
             self.observation_space.high = np.nan_to_num(self.observation_space.high)
+            self.observation_space.sample = types.MethodType(self._sample_with_nan, self.observation_space)
 
         self.reward_range = self._gym_env.reward_range
 
@@ -68,3 +72,12 @@ class GymEnv(Env):
             return self._gym_env.unwrapped
         else:
             return self._gym_env
+
+    @staticmethod
+    def _sample_with_nan(space: Space):
+        assert isinstance(space, Box)
+        high = np.ones_like(space.low)
+        low = -1 * np.ones_like(space.high)
+        return np.clip(np.random.uniform(low=low, high=high, size=space.low.shape),
+                       a_min=space.low,
+                       a_max=space.high)
