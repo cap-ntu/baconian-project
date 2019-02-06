@@ -1,9 +1,8 @@
 from src.core.basic import Basic
 from src.common.sampler.sample_data import TransitionData, TrajectoryData
-from src.core.global_config import GlobalConfig
+from src.config.global_config import GlobalConfig
 from typeguard import typechecked
 from src.envs.env import Env
-from src.envs.env_spec import EnvSpec
 
 
 class Sampler(Basic):

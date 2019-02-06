@@ -1,6 +1,6 @@
 from src.core.basic import Basic
 from src.common.sampler.sampler import Sampler
-from src.core.global_config import GlobalConfig
+from src.config.global_config import GlobalConfig
 from src.rl.algo.algo import Algo
 from typeguard import typechecked
 from src.rl.exploration_strategy.base import ExplorationStrategy

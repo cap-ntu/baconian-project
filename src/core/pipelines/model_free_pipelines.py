@@ -1,13 +1,11 @@
-from src.core.global_config import GlobalConfig
+from src.config.global_config import GlobalConfig
 from src.config.dict_config import DictConfig
 from src.core.pipeline import Pipeline
-from src.misc.misc import *
 from src.envs.env import Env
 import abc
 from src.agent.agent import Agent
 import numpy as np
-import os
-from src.config.required_keys import SRC_UTIL_REQUIRED_KEYS
+from src.common.misc.misc import *
 
 
 class ModelFreePipeline(Pipeline):

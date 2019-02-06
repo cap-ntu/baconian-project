@@ -1,5 +1,5 @@
 from src.config.dict_config import DictConfig
-from src.core.global_config import GlobalConfig
+from src.config.global_config import GlobalConfig
 
 
 class DQNDictConfig(DictConfig):

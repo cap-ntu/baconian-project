@@ -1,5 +1,5 @@
 import unittest
-from src.core.global_config import GlobalConfig
+from src.config.global_config import GlobalConfig
 
 
 class TestCore(unittest.TestCase):

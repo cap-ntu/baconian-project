@@ -6,11 +6,11 @@ from src.rl.algo.util.replay_buffer import UniformRandomReplayBuffer, BaseReplay
 import tensorflow as tf
 import tensorflow.contrib as tfcontrib
 import numpy as np
-from src.misc.misc import *
 from src.common.sampler.sample_data import TransitionData
 from src.tf.tf_parameters import TensorflowParameters
-from src.core.global_config import GlobalConfig
+from src.config.global_config import GlobalConfig
 from src.envs.util import *
+from src.common.misc.misc import *
 
 
 # todo
@@ -28,6 +28,7 @@ class DQN(ModelFreeAlgo):
                  # todo check the type list
                  # todo bug on mlp value function and its placeholder which is crushed with the dqn placeholder
                  value_func: MLPQValueFunction,
+                 adaptive_learning_rate=False,
                  replay_buffer=None):
         # todo add the action iterator
         super(DQN, self).__init__(env_spec=env_spec)
@@ -45,9 +46,15 @@ class DQN(ModelFreeAlgo):
         self.q_value_func = value_func
         self.state_input = self.q_value_func.state_ph
         self.action_input = self.q_value_func.action_ph
+        self.adaptive_learning_rate = adaptive_learning_rate
+        to_ph_parameter_dict = dict()
+        with tf.variable_scope('dqn'):
+            if adaptive_learning_rate is not False:
+                to_ph_parameter_dict['LEARNING_RATE'] = tf.placeholder(shape=(), dtype=tf.float32)
 
         self.parameters = TensorflowParameters(tf_var_list=[],
                                                rest_parameters=dict(),
+                                               to_ph_parameter_dict=to_ph_parameter_dict,
                                                name='dqn_para',
                                                auto_init=False,
                                                source_config=config,

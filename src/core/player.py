@@ -1,14 +1,10 @@
 import os
-import tensorflow as tf
 from src.config.dict_config import DictConfig
 from conf.key import CONFIG_KEY
 import numpy as np
 import random
 from log.intelligentTestLog import INTEL_LOG
 from src.core import Logger
-from src.util.sampler.sampler import SamplerData
-import config as cfg
-import functools
 from src.core.basic import Basic
 
 

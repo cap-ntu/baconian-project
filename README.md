@@ -25,23 +25,24 @@
 ```
 // 1. global random seed control: done
 // 2. unit test
-3. error and exception handling
+// 3. error and exception handling
 4. more user-friendly configuration
 5. more user-friendly logging
 ~~6. paralleled pipeline~~
 7. Support for third party envrionment simulation by network communication
 8. add a debug mode for fast debugging
 9. consider a new module to handle the log file content, may avoid the json dumps issue
+10. paramters adaptive strategy
 ```
 
 ### some third party package/tools may be used
 ```
-1. pytest for unit test
-2. travis for CI
+// 1. pytest for unit test
+// 2. travis for CI
 3. COVERALLS: for test coverage 
-4. Sphinx for documentation
+// 4. Sphinx for documentation
 5. concurrent for paralleded computing?
-6. overide for assure the siguature of functions
+// 6. overide for assure the siguature of functions
 ``` 
 
 ### TODO

@@ -1,6 +1,6 @@
 import numpy as np
 from typeguard import typechecked
-from src.misc.special import *
+from src.common.misc import *
 from src.envs.env_spec import EnvSpec
 
 

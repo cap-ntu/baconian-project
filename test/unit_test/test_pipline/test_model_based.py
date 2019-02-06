@@ -12,8 +12,12 @@ from src.rl.algo.model_based.models.mlp_dynamics_model import ContinuousMLPDynam
 from src.rl.algo.model_based.sample_with_model import SampleWithDynamics
 
 
-class TestModelFreePipline(unittest.TestCase):
+class TestModelFreePipeline(unittest.TestCase):
     def test_agent(self):
+        if tf.get_default_session():
+            sess = tf.get_default_session()
+            sess.__exit__(None, None, None)
+            # sess.close()
         tf.reset_default_graph()
 
         env = make('Acrobot-v1')

@@ -2,11 +2,11 @@ from src.rl.algo.algo import ModelBasedAlgo
 from src.rl.algo.model_based.models.dynamics_model import DynamicsModel
 from typeguard import typechecked
 from src.config.dict_config import DictConfig
-from src.misc.misc import *
 from src.common.sampler.sample_data import TransitionData
 from src.tf.tf_parameters import TensorflowParameters
-from src.core.global_config import GlobalConfig
+from src.config.global_config import GlobalConfig
 from src.rl.algo.algo import ModelFreeAlgo
+from src.common.misc.misc import *
 
 
 class SampleWithDynamics(ModelBasedAlgo):

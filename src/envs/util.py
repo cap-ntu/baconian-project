@@ -4,7 +4,7 @@ This script is from garage
 
 import gym.spaces
 import numpy as np
-from src.misc import special
+from src.common.misc import special
 
 __all__ = [
     'flat_dim', 'flatten', 'flatten_n', 'unflatten', 'unflatten_n',

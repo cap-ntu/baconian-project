@@ -45,6 +45,7 @@ class TestDQN(unittest.TestCase):
                                       }
                                   ])
         dqn = DQN(env_spec=env_spec,
+                  adaptive_learning_rate=True,
                   config_or_config_dict=dict(REPLAY_BUFFER_SIZE=1000,
                                              GAMMA=0.99,
                                              BATCH_SIZE=10,

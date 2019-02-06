@@ -6,7 +6,7 @@ from src.tf.mlp import MLP
 import tensorflow.contrib as tf_contrib
 from src.common.sampler.sample_data import TransitionData
 from typeguard import typechecked
-from src.misc.special import *
+from src.common.misc import *
 from src.envs.util import *
 
 

@@ -1,5 +1,5 @@
 import typeguard as tg
-from src.core.global_config import GlobalConfig
+from src.config.global_config import GlobalConfig
 
 
 class Basic(object):

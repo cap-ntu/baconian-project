@@ -1,8 +1,7 @@
-import numpy as np
 from src.core.basic import Basic
 import abc
 from src.common.sampler.sampler import Sampler
-from src.core.global_config import GlobalConfig
+from src.config.global_config import GlobalConfig
 
 
 class DataSource(Basic):

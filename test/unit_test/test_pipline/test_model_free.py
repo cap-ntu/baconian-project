@@ -12,6 +12,10 @@ from src.core.pipelines.model_free_pipelines import ModelFreePipeline
 
 class TestModelFreePipline(unittest.TestCase):
     def test_agent(self):
+        if tf.get_default_session():
+            sess = tf.get_default_session()
+            sess.__exit__(None, None, None)
+            # sess.close()
         tf.reset_default_graph()
 
         env = make('Acrobot-v1')

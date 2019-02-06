@@ -1,10 +1,10 @@
 from src.core.pipeline import Pipeline
-from src.core.global_config import GlobalConfig
+from src.config.global_config import GlobalConfig
 from src.envs.env import Env
 from src.config.dict_config import DictConfig
-from src.misc.misc import *
 from src.agent.agent import Agent
 import numpy as np
+from src.common.misc.misc import *
 
 
 class ModelBasedPipeline(Pipeline):
