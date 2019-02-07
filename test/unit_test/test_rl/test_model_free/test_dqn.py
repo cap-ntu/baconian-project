@@ -1,6 +1,6 @@
 import unittest
 from src.rl.algo.model_free import DQN
-from gym import make
+from src.envs.gym_env import make
 from src.envs.env_spec import EnvSpec
 from src.rl.value_func.mlp_q_value import MLPQValueFunction
 import tensorflow as tf
