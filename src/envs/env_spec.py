@@ -1,6 +1,7 @@
 from gym.core import Space
 from typeguard import typechecked
-from src.envs.util import *
+
+from src.common.misc.special import flat_dim, flatten
 import numpy as np
 
 
@@ -15,7 +16,7 @@ class EnvSpec(object):
             self.obs_shape = (1,)
         self.action_shape = tuple(np.array(self.action_space.sample()).shape)
         if len(self.action_shape) == 0:
-            self.action_shape = (1,)
+            self.action_shape = ()
 
     @property
     def obs_space(self):

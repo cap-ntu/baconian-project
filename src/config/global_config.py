@@ -28,6 +28,9 @@ class GlobalConfig(object):
     DEFAULT_MODEL_BASED_PIPELINE_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS,
                                                                   'model_based_pipeline.json')
 
+    DEFAULT_MPC_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS,
+                                                 'mpc.json')
+
     @staticmethod
     @typechecked
     def set_new_config(config_dict: dict):

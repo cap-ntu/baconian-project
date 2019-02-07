@@ -1,11 +1,15 @@
 """
 This script is from garage
 """
-
+import gym.spaces
 import numpy as np
 import scipy
 import scipy.signal
 from typeguard import typechecked
+
+__all__ = ['weighted_sample', 'weighted_sample_n', 'softmax', 'cat_entropy', 'cat_perplexity', 'explained_variance_1d',
+           'to_onehot', 'to_onehot_n', 'from_onehot', 'from_onehot_n', 'discount_cumsum', 'discount_return', 'rk4',
+           'make_batch']
 
 
 def weighted_sample(weights, objects):
@@ -165,12 +169,85 @@ def rk4(derivs, y0, t, *args, **kwargs):
         yout[i + 1] = y0 + dt / 6.0 * (k1 + 2 * k2 + 2 * k3 + k4)
     return yout
 
+
 @typechecked
 def make_batch(v: np.ndarray, original_shape: (list, tuple)):
-    assert len(v.shape) <= len(original_shape) + 1
+    # assert len(v.shape) <= len(original_shape) + 1
     if len(v.shape) == len(original_shape) + 1:
         return v
     else:
         bs = np.prod(list(v.shape)) / np.prod(original_shape)
         assert bs == int(bs)
         return np.reshape(v, newshape=[int(bs)] + list(original_shape))
+
+
+def flat_dim(space):
+    if isinstance(space, gym.spaces.Box):
+        return np.prod(space.low.shape)
+    elif isinstance(space, gym.spaces.Discrete):
+        return space.n
+    elif isinstance(space, gym.spaces.Tuple):
+        return np.sum([flat_dim(x) for x in space.spaces])
+    else:
+        raise NotImplementedError
+
+
+def flatten(space, obs):
+    if isinstance(space, gym.spaces.Box):
+        return np.asarray(obs).flatten()
+    elif isinstance(space, gym.spaces.Discrete):
+        if space.n == 2:
+            obs = int(obs)
+        return to_onehot(obs, space.n)
+    elif isinstance(space, gym.spaces.Tuple):
+        return np.concatenate(
+            [flatten(c, xi) for c, xi in zip(space.spaces, obs)])
+    else:
+        raise NotImplementedError
+
+
+def flatten_n(space, obs):
+    if isinstance(space, gym.spaces.Box):
+        obs = np.asarray(obs)
+        return obs.reshape((obs.shape[0], -1))
+    elif isinstance(space, gym.spaces.Discrete):
+        return to_onehot_n(np.array(obs, dtype=np.int), space.n)
+    elif isinstance(space, gym.spaces.Tuple):
+        obs_regrouped = [[obs[i] for o in obs] for i in range(len(obs[0]))]
+        flat_regrouped = [
+            flatten_n(c, oi) for c, oi in zip(space.spaces, obs_regrouped)
+        ]
+        return np.concatenate(flat_regrouped, axis=-1)
+    else:
+        raise NotImplementedError
+
+
+def unflatten(space, obs):
+    if isinstance(space, gym.spaces.Box):
+        return np.asarray(obs).reshape(space.shape)
+    elif isinstance(space, gym.spaces.Discrete):
+        return from_onehot(np.array(obs, dtype=np.int))
+    elif isinstance(space, gym.spaces.Tuple):
+        dims = [flat_dim(c) for c in space.spaces]
+        flat_xs = np.split(obs, np.cumsum(dims)[:-1])
+        return tuple(unflatten(c, xi) for c, xi in zip(space.spaces, flat_xs))
+    else:
+        raise NotImplementedError
+
+
+def unflatten_n(space, obs):
+    if isinstance(space, gym.spaces.Box):
+        obs = np.asarray(obs)
+        return obs.reshape((obs.shape[0],) + space.shape)
+    elif isinstance(space, gym.spaces.Discrete):
+        return from_onehot_n(np.array(obs, dtype=np.int))
+    elif isinstance(space, gym.spaces.Tuple):
+        dims = [flat_dim(c) for c in space.spaces]
+        flat_xs = np.split(obs, np.cumsum(dims)[:-1], axis=-1)
+        unflat_xs = [
+            unflatten_n(c, xi) for c, xi in zip(space.spaces, flat_xs)
+        ]
+        unflat_xs_grouped = list(zip(*unflat_xs))
+        return unflat_xs_grouped
+    else:
+        raise NotImplementedError

@@ -1,3 +1,4 @@
+from src.common.misc.special import flatten_n
 from src.rl.algo.algo import ModelFreeAlgo
 from src.config.dict_config import DictConfig
 from typeguard import typechecked
@@ -9,7 +10,6 @@ import numpy as np
 from src.common.sampler.sample_data import TransitionData
 from src.tf.tf_parameters import TensorflowParameters
 from src.config.global_config import GlobalConfig
-from src.envs.util import *
 from src.common.misc.misc import *
 
 

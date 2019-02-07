@@ -79,7 +79,7 @@ class ModelBasedPipeline(Pipeline):
                                 store_flag=False,
                                 in_test_flag=True)
         self.total_test_samples += self.config('TEST_SAMPLES_COUNT')
-        print("Mean reward is {}".format(np.mean(res.reward_set)))
+        print("Mean reward_func is {}".format(np.mean(res.reward_set)))
 
         print('model-based pipeline exit testing')
 
@@ -93,7 +93,7 @@ class ModelBasedPipeline(Pipeline):
                                 in_test_flag=False)
         self.total_train_samples += self.config('TRAIN_SAMPLES_COUNT')
         info = self.agent.update(state=self.state)
-        print("Mean reward is {}".format(np.mean(res.reward_set)))
+        print("Mean reward_func is {}".format(np.mean(res.reward_set)))
         print("Train info is {}".format(info))
         print('model-based pipeline exit training')
 
@@ -113,7 +113,7 @@ class ModelBasedPipeline(Pipeline):
                                 in_test_flag=False)
         self.total_train_samples += self.config('TRAIN_SAMPLES_COUNT')
         info = self.agent.update(batch_data=res, state=self.state)
-        print("Mean reward is {}".format(np.mean(res.reward_set)))
+        print("Mean reward_func is {}".format(np.mean(res.reward_set)))
         print("Train info is {}".format(info))
         print('model-based pipeline exit training')
 

@@ -13,7 +13,7 @@ from src.common.sampler.sample_data import TransitionData
 
 class TestSampleWithDynamics(unittest.TestCase):
 
-    def test_init(self):
+    def test_init_discrete(self):
         if tf.get_default_session():
             sess = tf.get_default_session()
             sess.__exit__(None, None, None)
@@ -110,3 +110,7 @@ class TestSampleWithDynamics(unittest.TestCase):
                         done=done)
         algo.append_to_memory(samples=data)
         print(algo.train(batch_data=data))
+
+
+if __name__ == '__main__':
+    unittest.main()

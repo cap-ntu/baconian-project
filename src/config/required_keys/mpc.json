@@ -1,0 +1,5 @@
+{
+  "SAMPLED_HORIZON": 10,
+  "SAMPLED_PATH_NUM": 10,
+  "dynamics_model_train_iter": 1
+}

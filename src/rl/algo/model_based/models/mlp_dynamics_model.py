@@ -1,3 +1,4 @@
+from src.common.misc.special import flatten_n
 from src.envs.env_spec import EnvSpec
 from src.rl.algo.model_based.models.dynamics_model import DynamicsModel
 import tensorflow as tf
@@ -7,7 +8,7 @@ import tensorflow.contrib as tf_contrib
 from src.common.sampler.sample_data import TransitionData
 from typeguard import typechecked
 from src.common.misc import *
-from src.envs.util import *
+import numpy as np
 
 
 class ContinuousMLPDynamicsModel(DynamicsModel):

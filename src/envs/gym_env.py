@@ -6,6 +6,7 @@ import numpy as np
 from gym.spaces.box import Box
 from gym.core import Space
 import types
+from src.envs.env_spec import EnvSpec
 
 
 def make(gym_env_id):
@@ -31,6 +32,8 @@ class GymEnv(Env):
             self.observation_space.low = np.nan_to_num(self.observation_space.low)
             self.observation_space.high = np.nan_to_num(self.observation_space.high)
             self.observation_space.sample = types.MethodType(self._sample_with_nan, self.observation_space)
+        self.env_spec = EnvSpec(obs_space=self.observation_space,
+                                action_space=self.action_space)
 
         self.reward_range = self._gym_env.reward_range
 

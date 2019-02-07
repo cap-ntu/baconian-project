@@ -8,7 +8,6 @@ from src.tf.util import create_new_tf_session
 import numpy as np
 from src.tf.tf_parameters import TensorflowParameters
 from src.config.dict_config import DictConfig
-from src.envs.util import *
 from src.core.basic import Basic
 
 

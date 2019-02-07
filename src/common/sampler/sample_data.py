@@ -1,6 +1,7 @@
 import numpy as np
 from typeguard import typechecked
-from src.common.misc import *
+from src.common.misc.misc import *
+from src.common.misc.special import *
 from src.envs.env_spec import EnvSpec
 
 
@@ -8,6 +9,8 @@ from src.envs.env_spec import EnvSpec
 
 class SampleData(object):
     def __init__(self, env_spec: EnvSpec = None, obs_shape=None, action_shape=None):
+        if env_spec is None and (obs_shape is None or action_shape is None):
+            raise ValueError('At least env_spec or (obs_shape, action_shape) should be passed in')
         self._state_set = []
         self._action_set = []
         self._reward_set = []
@@ -92,10 +95,10 @@ class TrajectoryData(SampleData):
 
     @typechecked
     def append(self, transition_data: TransitionData):
-        self.trajectories.append(self._process_trajecotry(transition_data))
+        self.trajectories.append(self._process_trajectory(transition_data))
 
     def union(self, sample_data):
         raise NotImplementedError
 
     def _process_trajectory(self, trajectory_data) -> TransitionData:
-        raise NotImplementedError
+        return trajectory_data

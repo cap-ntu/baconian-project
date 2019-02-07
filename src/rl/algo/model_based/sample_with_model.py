@@ -26,7 +26,7 @@ class SampleWithDynamics(ModelBasedAlgo):
         self.parameters = TensorflowParameters(tf_var_list=[],
                                                rest_parameters=dict(),
                                                auto_init=False,
-                                               name='sample_with_model_para',
+                                               name='sample_with_model_param',
                                                source_config=self.config,
                                                require_snapshot=False)
 

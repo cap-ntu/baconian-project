@@ -69,7 +69,7 @@ class ModelFreePipeline(Pipeline):
                                 store_flag=False,
                                 in_test_flag=True)
         self.total_test_samples += self.config('TEST_SAMPLES_COUNT')
-        print("Mean reward is {}".format(np.mean(res.reward_set)))
+        print("Mean reward_func is {}".format(np.mean(res.reward_set)))
 
         print('model-free pipeline exit testing')
 
@@ -83,7 +83,7 @@ class ModelFreePipeline(Pipeline):
                                 in_test_flag=False)
         self.total_train_samples += self.config('TRAIN_SAMPLES_COUNT')
         info = self.agent.update()
-        print("Mean reward is {}".format(np.mean(res.reward_set)))
+        print("Mean reward_func is {}".format(np.mean(res.reward_set)))
         print("Train info is {}".format(info))
         print('model-free pipeline exit training')
 

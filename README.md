@@ -66,7 +66,7 @@ freeze the whole configure instantly after running: how about snapshot all code?
 4. no unit test
 5. configuration is too complicated
 6. log files are too heavy 
-7. Not to use global cfg to control the code behaviour
+7. Not use global cfg to control the code behaviour
 ```
 
 ### Principle 
