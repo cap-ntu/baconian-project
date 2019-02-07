@@ -28,7 +28,8 @@ class DQN(ModelFreeAlgo):
                  # todo check the type list
                  # todo bug on mlp value function and its placeholder which is crushed with the dqn placeholder
                  value_func: MLPQValueFunction,
-                 adaptive_learning_rate=False,
+                 adaptive_learning_rate: bool = False,
+                 name: str = 'dqn',
                  replay_buffer=None):
         # todo add the action iterator
         super(DQN, self).__init__(env_spec=env_spec)
@@ -44,35 +45,36 @@ class DQN(ModelFreeAlgo):
                                                            action_shape=self.env_spec.action_shape,
                                                            observation_shape=self.env_spec.obs_shape)
         self.q_value_func = value_func
-        self.state_input = self.q_value_func.state_ph
-        self.action_input = self.q_value_func.action_ph
+        self.state_input = self.q_value_func.state_input
+        self.action_input = self.q_value_func.action_input
+
         self.adaptive_learning_rate = adaptive_learning_rate
         to_ph_parameter_dict = dict()
-        with tf.variable_scope('dqn'):
+        with tf.variable_scope(name):
             if adaptive_learning_rate is not False:
                 to_ph_parameter_dict['LEARNING_RATE'] = tf.placeholder(shape=(), dtype=tf.float32)
 
         self.parameters = TensorflowParameters(tf_var_list=[],
                                                rest_parameters=dict(),
                                                to_ph_parameter_dict=to_ph_parameter_dict,
-                                               name='dqn_para',
+                                               name='{}_param'.format(name),
                                                auto_init=False,
                                                source_config=config,
                                                require_snapshot=False)
 
-        with tf.variable_scope('dqn'):
+        with tf.variable_scope(name):
             self.reward_input = tf.placeholder(shape=[None, 1], dtype=tf.float32)
             self.next_state_input = tf.placeholder(shape=[None, self.env_spec.flat_obs_dim], dtype=tf.float32)
             self.done_input = tf.placeholder(shape=[None, 1], dtype=tf.bool)
             self.target_q_input = tf.placeholder(shape=[None, 1], dtype=tf.float32)
             done = tf.cast(self.done_input, dtype=tf.float32)
-            self.target_q_value_func = self.q_value_func.make_copy(name_scope='dqn_targe_q_value_net')
+            self.target_q_value_func = self.q_value_func.make_copy(name_scope='{}_targe_q_value_net'.format(name))
             self.predict_q_value = (1. - done) * self.config('GAMMA') * self.target_q_input + self.reward_input
             with tf.variable_scope('train'):
                 self.q_value_func_loss, _, self.update_q_value_func_op = self._set_up_loss()
                 self.update_target_q_value_func_op = self._set_up_target_update()
         # todo handle the var list problem
-        self.var_list = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='dqn/train')
+        self.var_list = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='{}/train'.format(name))
         self.parameters.set_tf_var_list(tf_var_list=self.var_list)
 
     def init(self, sess=None):
@@ -144,14 +146,14 @@ class DQN(ModelFreeAlgo):
         if batch_flag:
             action, q_val = self._predict_batch_action(obs=obs,
                                                        q_value_tensor=self.target_q_value_func.q_tensor,
-                                                       action_ph=self.target_q_value_func.action_ph,
-                                                       state_ph=self.target_q_value_func.state_ph,
+                                                       action_ph=self.target_q_value_func.action_input,
+                                                       state_ph=self.target_q_value_func.state_input,
                                                        sess=sess)
         else:
             action, q_val = self._predict_action(obs=obs,
                                                  q_value_tensor=self.q_value_func.q_tensor,
-                                                 action_ph=self.target_q_value_func.action_ph,
-                                                 state_ph=self.target_q_value_func.state_ph,
+                                                 action_ph=self.target_q_value_func.action_input,
+                                                 state_ph=self.target_q_value_func.state_input,
                                                  sess=sess)
         return action, q_val
 

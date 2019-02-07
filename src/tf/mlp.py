@@ -12,6 +12,7 @@ class MLP(object):
                  input_ph: tf.Tensor,
                  name_scope: str,
                  net_name: str,
+                 reuse,
                  output_norm: bool,
                  input_norm: bool,
                  output_low: (list, np.ndarray, None),
@@ -21,19 +22,22 @@ class MLP(object):
         self.name_scope = name_scope
         self.mlp_config = mlp_config
         self.mlp_net_name = net_name
-        with tf.variable_scope(self.name_scope):
-            self.net, self.output, self.var_list = MLPCreator.create_network(input=input_ph,
-                                                                             network_config=mlp_config,
-                                                                             tf_var_scope=name_scope,
-                                                                             net_name=net_name,
-                                                                             input_norm=input_norm,
-                                                                             output_high=output_high,
-                                                                             output_low=output_low,
-                                                                             output_norm=output_norm)
-            self.parameters = TensorflowParameters(tf_var_list=self.var_list,
-                                                   name='parameters_{}'.format(self.mlp_net_name),
-                                                   rest_parameters=dict(),
-                                                   auto_init=False)
+        self.net, self.output, self.var_list = MLPCreator.create_network_with_tf_layers(input=input_ph,
+                                                                                        reuse=reuse,
+                                                                                        network_config=mlp_config,
+                                                                                        tf_var_scope=name_scope,
+                                                                                        net_name=net_name,
+                                                                                        input_norm=input_norm,
+                                                                                        output_high=output_high,
+                                                                                        output_low=output_low,
+                                                                                        output_norm=output_norm)
+        for var in self.var_list:
+            assert name_scope in var.name
+            assert net_name in var.name
+        self.parameters = TensorflowParameters(tf_var_list=self.var_list,
+                                               name='parameters_{}'.format(self.mlp_net_name),
+                                               rest_parameters=dict(),
+                                               auto_init=False)
 
     def forward(self, input: np.ndarray, sess=tf.get_default_session()) -> np.ndarray:
         feed_dict = {

@@ -33,6 +33,7 @@ class ContinuousMLPDynamicsModel(DynamicsModel):
             self.delta_state_label_ph = tf.placeholder(shape=[None, env_spec.flat_obs_dim], dtype=tf.float32,
                                                        name='delta_state_label_ph')
         self.mlp_net = MLP(input_ph=self.mlp_input_ph,
+                           reuse=False,
                            mlp_config=mlp_config,
                            input_norm=input_norm,
                            output_norm=output_norm,

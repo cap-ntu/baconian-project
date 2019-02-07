@@ -23,7 +23,17 @@ class MLPQValueFunction(ValueFunction):
                  output_norm: bool,
                  output_low: (list, np.ndarray, None),
                  output_high: (list, np.ndarray, None),
-                 mlp_config: list):
+                 mlp_config: list,
+                 state_input: tf.Tensor = None,
+                 action_input: tf.Tensor = None
+                 ):
+        with tf.variable_scope(name_scope):
+            self.state_input = state_input if state_input else tf.placeholder(shape=[None, env_spec.flat_obs_dim],
+                                                                              dtype=tf.float32,
+                                                                              name='state_ph')
+            self.action_input = action_input if action_input else tf.placeholder(shape=[None, env_spec.flat_action_dim],
+                                                                                 dtype=tf.float32,
+                                                                                 name='action_ph')
         self.name_scope = name_scope
         self.mlp_config = mlp_config
         self.input_norm = input_norm
@@ -32,11 +42,10 @@ class MLPQValueFunction(ValueFunction):
         self.output_high = output_high
 
         with tf.variable_scope(self.name_scope):
-            self.state_ph = tf.placeholder(shape=[None, env_spec.flat_obs_dim], dtype=tf.float32, name='state_ph')
-            self.action_ph = tf.placeholder(shape=[None, env_spec.flat_action_dim], dtype=tf.float32, name='action_ph')
-            self.mlp_input_ph = tf.concat([self.state_ph, self.action_ph], axis=1, name='state_action_input')
+            self.mlp_input_ph = tf.concat([self.state_input, self.action_input], axis=1, name='state_action_input')
 
         self.mlp_net = MLP(input_ph=self.mlp_input_ph,
+                           reuse=False,
                            mlp_config=mlp_config,
                            input_norm=input_norm,
                            output_norm=output_norm,
@@ -60,11 +69,15 @@ class MLPQValueFunction(ValueFunction):
 
     @typechecked
     @overrides.overrides
-    def forward(self, obs: (np.ndarray, list), action: (np.ndarray, list), sess=tf.get_default_session(), *args,
+    def forward(self, obs: (np.ndarray, list), action: (np.ndarray, list), sess=tf.get_default_session(),
+                feed_dict=None, *args,
                 **kwargs):
         feed_dict = {
-            self.state_ph: obs,
-            self.action_ph: action,
+            self.state_input: obs,
+            self.action_input: action,
+            **self.parameters.return_tf_parameter_feed_dict()
+        } if feed_dict is None else {
+            **feed_dict,
             **self.parameters.return_tf_parameter_feed_dict()
         }
         q = sess.run(self.q_tensor,
