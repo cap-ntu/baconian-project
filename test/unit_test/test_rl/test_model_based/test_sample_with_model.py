@@ -26,10 +26,6 @@ class TestSampleWithDynamics(unittest.TestCase):
 
         mlp_q = MLPQValueFunction(env_spec=env_spec,
                                   name_scope='mlp_q',
-                                  input_norm=False,
-                                  output_norm=False,
-                                  output_low=None,
-                                  output_high=None,
                                   mlp_config=[
                                       {
                                           "ACT": "RELU",

@@ -23,10 +23,6 @@ class TestMLPQValueFunction(unittest.TestCase):
 
         mlp_q = MLPQValueFunction(env_spec=env_spec,
                                   name_scope='mlp_q',
-                                  input_norm=False,
-                                  output_norm=False,
-                                  output_low=None,
-                                  output_high=None,
                                   mlp_config=[
                                       {
                                           "ACT": "RELU",
@@ -101,6 +97,7 @@ class TestMLPQValueFunction(unittest.TestCase):
             mlp_q.init()
             if tf.get_default_session():
                 tf.get_default_session().close()
+            mlp_q.forward(obs=env.observation_space.sample(), action=env.action_space.sample())
 
 
 if __name__ == '__main__':

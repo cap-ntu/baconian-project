@@ -20,8 +20,6 @@ class TestAgent(unittest.TestCase):
 
         mlp_q = MLPQValueFunction(env_spec=env_spec,
                                   name_scope='mlp_q',
-                                  input_norm=False,
-                                  output_norm=False,
                                   output_low=None,
                                   output_high=None,
                                   mlp_config=[
@@ -52,9 +50,11 @@ class TestAgent(unittest.TestCase):
                                              TRAIN_ITERATION=10,
                                              DECAY=0.5),
                   value_func=mlp_q)
-        agent = Agent(env=env, algo=dqn, exploration_strategy=EpsilonGreedy(action_space=dqn.env_spec.action_space,
-                                                                            init_random_prob=0.5,
-                                                                            decay_type=None))
+        agent = Agent(env=env, env_spec=env_spec,
+                      algo=dqn,
+                      exploration_strategy=EpsilonGreedy(action_space=dqn.env_spec.action_space,
+                                                         init_random_prob=0.5,
+                                                         decay_type=None))
         agent.init()
         env.reset()
         data = agent.sample(env=env, sample_count=10, store_flag=True, in_test_flag=False)
