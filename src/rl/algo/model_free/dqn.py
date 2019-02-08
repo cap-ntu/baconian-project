@@ -68,22 +68,24 @@ class DQN(ModelFreeAlgo):
             self.done_input = tf.placeholder(shape=[None, 1], dtype=tf.bool)
             self.target_q_input = tf.placeholder(shape=[None, 1], dtype=tf.float32)
             done = tf.cast(self.done_input, dtype=tf.float32)
-            self.target_q_value_func = self.q_value_func.make_copy(name_scope='{}_targe_q_value_net'.format(name))
+            self.target_q_value_func = self.q_value_func.make_copy(name_scope='{}_targe_q_value_net'.format(name),
+                                                                   reuse=False)
             self.predict_q_value = (1. - done) * self.config('GAMMA') * self.target_q_input + self.reward_input
             with tf.variable_scope('train'):
                 self.q_value_func_loss, _, self.update_q_value_func_op = self._set_up_loss()
                 self.update_target_q_value_func_op = self._set_up_target_update()
         # todo handle the var list problem
-        self.var_list = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='{}/train'.format(name))
-        self.parameters.set_tf_var_list(tf_var_list=self.var_list)
+        var_list = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='{}/train'.format(name))
+        self.parameters.set_tf_var_list(tf_var_list=var_list)
 
     def init(self, sess=None):
         super().init()
         self.q_value_func.init()
+        # todo really need to start from the same init value?
         self.target_q_value_func.init(source_obj=self.q_value_func)
         tf_sess = sess if sess else tf.get_default_session()
         feed_dict = self.parameters.return_tf_parameter_feed_dict()
-        tf_sess.run(tf.variables_initializer(var_list=self.var_list),
+        tf_sess.run(tf.variables_initializer(var_list=self.parameters('tf_var_list')),
                     feed_dict=feed_dict)
 
     @typechecked
@@ -157,6 +159,7 @@ class DQN(ModelFreeAlgo):
                                                  sess=sess)
         return action, q_val
 
+    @typechecked
     def append_to_memory(self, samples: TransitionData):
         iter_samples = samples.return_generator()
 

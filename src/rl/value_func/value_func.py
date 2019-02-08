@@ -6,12 +6,13 @@ import typeguard as tg
 from src.core.parameters import Parameters
 from src.envs.env_spec import EnvSpec
 import abc
+import tensorflow as tf
 
 
 class ValueFunction(Basic):
 
     @tg.typechecked
-    def __init__(self, env_spec: EnvSpec, parameters: Parameters):
+    def __init__(self, env_spec: EnvSpec, parameters: Parameters = None):
         super().__init__()
         self.env_spec = env_spec
         self.parameters = parameters
@@ -44,3 +45,10 @@ class ValueFunction(Basic):
     @abc.abstractmethod
     def make_copy(self, *args, **kwargs):
         raise NotImplementedError
+
+
+class PlaceholderInputValueFunction(ValueFunction):
+    @tg.typechecked
+    def __init__(self, env_spec: EnvSpec, parameters: Parameters = None, input: tf.Tensor = None):
+        super().__init__(env_spec, parameters)
+        self.input = input

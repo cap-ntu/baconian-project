@@ -15,13 +15,13 @@ class ContinuousMLPDynamicsModel(DynamicsModel):
     def __init__(self, env_spec: EnvSpec,
                  name_scope: str,
                  mlp_config: list,
-                 input_norm: bool,
                  learning_rate: float,
                  l1_norm_scale: float,
                  l2_norm_scale: float,
-                 output_norm: bool,
-                 output_low: (list, np.ndarray, None),
-                 output_high: (list, np.ndarray, None),
+                 output_norm: np.ndarray = None,
+                 input_norm: np.ndarray = None,
+                 output_low: np.ndarray = None,
+                 output_high: np.ndarray = None,
                  init_state=None):
         super().__init__(env_spec, init_state)
         self.mlp_config = mlp_config

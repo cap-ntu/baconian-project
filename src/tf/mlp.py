@@ -13,8 +13,8 @@ class MLP(object):
                  name_scope: str,
                  net_name: str,
                  reuse,
-                 output_norm: bool,
-                 input_norm: bool,
+                 input_norm: (list, np.ndarray, None),
+                 output_norm: (list, np.ndarray, None),
                  output_low: (list, np.ndarray, None),
                  output_high: (list, np.ndarray, None),
                  mlp_config: list):
@@ -33,7 +33,6 @@ class MLP(object):
                                                                                         output_norm=output_norm)
         for var in self.var_list:
             assert name_scope in var.name
-            assert net_name in var.name
         self.parameters = TensorflowParameters(tf_var_list=self.var_list,
                                                name='parameters_{}'.format(self.mlp_net_name),
                                                rest_parameters=dict(),
