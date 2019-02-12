@@ -7,6 +7,7 @@ import tensorflow as tf
 from typeguard import typechecked
 from src.tf.tf_parameters import TensorflowParameters
 from src.tf.mlp import MLP
+from src.common.special import *
 
 
 class MLPQValueFunction(PlaceholderInputValueFunction):
@@ -28,7 +29,7 @@ class MLPQValueFunction(PlaceholderInputValueFunction):
                  output_low: np.ndarray = None,
                  output_high: np.ndarray = None,
                  ):
-        with tf.variable_scope(name_scope):
+        with tf.name_scope(name_scope):
             self.state_input = state_input if state_input is not None else tf.placeholder(
                 shape=[None, env_spec.flat_obs_dim],
                 dtype=tf.float32,
@@ -73,9 +74,12 @@ class MLPQValueFunction(PlaceholderInputValueFunction):
 
     @typechecked
     @overrides.overrides
-    def forward(self, obs: (np.ndarray, list), action: (np.ndarray, list), sess=tf.get_default_session(),
+    def forward(self, obs: (np.ndarray, list), action: (np.ndarray, list), sess=None,
                 feed_dict=None, *args,
                 **kwargs):
+        sess = sess if sess else tf.get_default_session()
+        obs = make_batch(obs, original_shape=self.env_spec.obs_shape)
+        action = make_batch(action, original_shape=self.env_spec.action_shape)
         feed_dict = {
             self.state_input: obs,
             self.action_input: action,

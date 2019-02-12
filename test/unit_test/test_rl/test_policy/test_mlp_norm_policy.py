@@ -1,16 +1,11 @@
-from src.rl.algo.model_based.models.dynamics_model import DynamicsModel
-from src.rl.algo.model_based.models.mlp_dynamics_model import ContinuousMLPDynamicsModel
 import unittest
-import unittest
-from src.rl.algo.model_free import DQN
 from src.envs.gym_env import make
 from src.envs.env_spec import EnvSpec
-from src.rl.value_func.mlp_q_value import MLPQValueFunction
 import tensorflow as tf
 from src.tf.util import create_new_tf_session
 import numpy as np
-from src.common.sampler.sample_data import TransitionData
 from src.rl.policy.normal_distribution_mlp import NormalDistributionMLPPolicy
+from src.common.special import *
 
 
 class TestNormalDistMLPPolicy(unittest.TestCase):
@@ -52,6 +47,9 @@ class TestNormalDistMLPPolicy(unittest.TestCase):
                                              reuse=False)
         self.assertIsNotNone(tf.get_default_session())
         policy.init()
+        dist_info = policy.get_dist_info()
+        self.assertTrue(np.equal(dist_info[0]['shape'], policy.mean_output.shape.as_list()).all())
+        self.assertTrue(np.equal(dist_info[1]['shape'], policy.logvar_output.shape.as_list()).all())
         for _ in range(10):
             ac = policy.forward(obs=env.observation_space.sample())
             self.assertTrue(env.action_space.contains(ac[0]))
@@ -79,3 +77,77 @@ class TestNormalDistMLPPolicy(unittest.TestCase):
             self.assertTrue(np.isclose(re1, re2).all())
             self.assertTrue(np.isclose(re1, re3).all())
             self.assertTrue(np.isclose(re2, re3).all())
+
+    def test_func(self):
+        if tf.get_default_session():
+            sess = tf.get_default_session()
+            sess.__exit__(None, None, None)
+        tf.reset_default_graph()
+        env = make('Swimmer-v1')
+        env.reset()
+        env_spec = EnvSpec(obs_space=env.observation_space,
+                           action_space=env.action_space)
+        sess = create_new_tf_session(cuda_device=0)
+
+        policy = NormalDistributionMLPPolicy(env_spec=env_spec,
+                                             name_scope='mlp_policy',
+                                             mlp_config=[
+                                                 {
+                                                     "ACT": "RELU",
+                                                     "B_INIT_VALUE": 0.0,
+                                                     "NAME": "1",
+                                                     "N_UNITS": 16,
+                                                     "TYPE": "DENSE",
+                                                     "W_NORMAL_STDDEV": 0.03
+                                                 },
+                                                 {
+                                                     "ACT": "LINEAR",
+                                                     "B_INIT_VALUE": 0.0,
+                                                     "NAME": "OUPTUT",
+                                                     "N_UNITS": env_spec.flat_action_dim,
+                                                     "TYPE": "DENSE",
+                                                     "W_NORMAL_STDDEV": 0.03
+                                                 }
+                                             ],
+                                             output_high=None,
+                                             output_low=None,
+                                             output_norm=None,
+                                             input_norm=None,
+                                             reuse=False)
+        self.assertIsNotNone(tf.get_default_session())
+        policy.init()
+        print(
+            policy.compute_dist_info(name='entropy',
+                                     feed_dict={
+                                         policy.state_input: make_batch(env_spec.obs_space.sample(),
+                                                                        original_shape=env_spec.obs_shape)}))
+        print(
+            policy.compute_dist_info(name='prob',
+                                     value=env_spec.action_space.sample(),
+                                     feed_dict={
+                                         policy.state_input: make_batch(env_spec.obs_space.sample(),
+                                                                        original_shape=env_spec.obs_shape)}))
+        new_policy = policy.make_copy(
+            reuse=False,
+            name_scope='new_p'
+        )
+        new_policy.init()
+        for var1, var2 in zip(policy.parameters('tf_var_list'), new_policy.parameters('tf_var_list')):
+            print(var1.name)
+            print(var2.name)
+            self.assertNotEqual(var1.name, var2.name)
+            self.assertNotEqual(id(var1), id(var2))
+        obs1 = make_batch(env_spec.obs_space.sample(),
+                          original_shape=env_spec.obs_shape,
+                          )
+        obs2 = make_batch(env_spec.obs_space.sample(),
+                          original_shape=env_spec.obs_shape)
+        kl1 = policy.compute_dist_info(name='kl', other=new_policy, feed_dict={
+            policy.state_input: obs1,
+            new_policy.state_input: obs2
+        })
+        kl2 = sess.run(policy.kl(other=new_policy), feed_dict={
+            policy.state_input: obs1,
+            new_policy.state_input: obs2
+        })
+        self.assertTrue(np.isclose(kl1, kl2).all())

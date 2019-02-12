@@ -4,7 +4,7 @@ from src.envs.env import Env
 from src.config.dict_config import DictConfig
 from src.agent.agent import Agent
 import numpy as np
-from src.common.misc.misc import *
+from src.common.misc import *
 
 
 class ModelBasedPipeline(Pipeline):

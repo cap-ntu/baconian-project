@@ -34,6 +34,9 @@ class GlobalConfig(object):
     DEFAULT_DDPG_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS,
                                                   'ddpg.json')
 
+    DEFAULT_PPO_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS, 'ppo.json')
+
+
     @staticmethod
     @typechecked
     def set_new_config(config_dict: dict):

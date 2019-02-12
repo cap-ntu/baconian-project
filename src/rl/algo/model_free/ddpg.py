@@ -1,5 +1,5 @@
 from src.envs.env_spec import EnvSpec
-from src.rl.algo.algo import ModelFreeAlgo
+from src.rl.algo.algo import ModelFreeAlgo, OffPolicyAlgo
 from src.config.dict_config import DictConfig
 from typeguard import typechecked
 from src.rl.value_func import *
@@ -10,27 +10,26 @@ import numpy as np
 from src.common.sampler.sample_data import TransitionData
 from src.tf.tf_parameters import TensorflowParameters
 from src.config.global_config import GlobalConfig
-from src.common.misc.misc import *
-from src.common.misc.special import *
+from src.common.special import *
 from src.rl.policy.deterministic_mlp import DeterministicMLPPolicy
-from baselines.common.tf_util import flatgrad
+from src.tf.util import *
+from src.common.misc import *
 
 
-class DDPG(ModelFreeAlgo):
+class DDPG(ModelFreeAlgo, OffPolicyAlgo):
     required_key_list = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_DDPG_REQUIRED_KEY_LIST)
 
     @typechecked
     def __init__(self,
                  env_spec: EnvSpec,
                  config_or_config_dict: (DictConfig, dict),
-                 # todo check the type list
                  # todo bug on mlp value function and its placeholder which is crushed with the dqn placeholder
                  value_func: MLPQValueFunction,
                  policy: DeterministicMLPPolicy,
                  adaptive_learning_rate=False,
                  name='ddpg',
                  replay_buffer=None):
-        super(DDPG, self).__init__(env_spec)
+        super(DDPG, self).__init__(env_spec, name=name)
         config = construct_dict_config(config_or_config_dict, self)
 
         self.config = config
@@ -77,11 +76,14 @@ class DDPG(ModelFreeAlgo):
             done = tf.cast(self.done_input, dtype=tf.float32)
             self.predict_q_value = (1. - done) * self.config('GAMMA') * self.target_q_input + self.reward_input
             with tf.variable_scope('train'):
-                self.critic_loss, self.critic_update_op, self.target_critic_update_op = self._setup_critic_loss()
-                self.actor_loss, self.actor_update_op, self.target_actor_update_op = self._set_up_actor_loss()
+                self.critic_loss, self.critic_update_op, self.target_critic_update_op, self.critic_optimizer = self._setup_critic_loss()
+                self.actor_loss, self.actor_update_op, self.target_actor_update_op, self.action_optimizer = self._set_up_actor_loss()
+        var_list = get_tf_collection_var_list(
+            '{}/train'.format(name)) + self.critic_optimizer.variables() + self.action_optimizer.variables()
+        self.parameters.set_tf_var_list(tf_var_list=sorted(list(set(var_list)), key=lambda x: x.name))
 
         # todo handle the var list problem
-        var_list = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='{}/train'.format(name))
+        var_list = get_tf_collection_var_list(key=tf.GraphKeys.GLOBAL_VARIABLES, scope='{}/train'.format(name))
         self.parameters.set_tf_var_list(tf_var_list=var_list)
 
     def init(self, sess=None):
@@ -169,7 +171,7 @@ class DDPG(ModelFreeAlgo):
             self.state_input: make_batch(obs, original_shape=self.env_spec.obs_shape),
             **self.parameters.return_tf_parameter_feed_dict()
         }
-        return tf_sess.run(self.actor.action_tensor, feed_dict=feed_dict)
+        return self.actor.forward(obs=obs, sess=tf_sess, feed_dict=feed_dict)
 
     @typechecked
     def append_to_memory(self, samples: TransitionData):
@@ -187,7 +189,7 @@ class DDPG(ModelFreeAlgo):
                                                     scale_l2=self.parameters('Q_NET_L2_NORM_SCALE'))
         loss = tf.reduce_sum((self.predict_q_value - self.critic.q_tensor) ** 2) + \
                tf_contrib.layers.apply_regularization(l1_l2, weights_list=self.critic.parameters('tf_var_list'))
-        optimizer = tf.train.AdadeltaOptimizer(learning_rate=self.parameters('CRITIC_LEARNING_RATE'))
+        optimizer = tf.train.AdamOptimizer(learning_rate=self.parameters('CRITIC_LEARNING_RATE'))
         optimize_op = optimizer.minimize(loss=loss, var_list=self.critic.parameters('tf_var_list'))
 
         op = []
@@ -196,7 +198,7 @@ class DDPG(ModelFreeAlgo):
             ref_val = self.parameters('DECAY') * target_var + (1.0 - self.parameters('DECAY')) * var
             op.append(tf.assign(target_var, ref_val))
 
-        return loss, optimize_op, op
+        return loss, optimize_op, op, optimizer
 
     def _set_up_actor_loss(self):
         loss = -tf.reduce_mean(self._critic_with_actor_output.q_tensor)
@@ -204,12 +206,12 @@ class DDPG(ModelFreeAlgo):
         if self.parameters('critic_clip_norm') is not None:
             grads = [tf.clip_by_norm(grad, clip_norm=self.parameters('critic_clip_norm')) for grad in grads]
         grads_var_pair = zip(grads, self.actor.parameters('tf_var_list'))
-        optimize_op = tf.train.AdadeltaOptimizer(learning_rate=self.parameters('ACTOR_LEARNING_RATE')). \
-            apply_gradients(grads_var_pair)
+        optimizer = tf.train.AdamOptimizer(learning_rate=self.parameters('ACTOR_LEARNING_RATE'))
+        optimize_op = optimizer.apply_gradients(grads_var_pair)
         op = []
         for var, target_var in zip(self.actor.parameters('tf_var_list'),
                                    self.target_actor.parameters('tf_var_list')):
             ref_val = self.parameters('DECAY') * target_var + (1.0 - self.parameters('DECAY')) * var
             op.append(tf.assign(target_var, ref_val))
 
-        return loss, optimize_op, op
+        return loss, optimize_op, op, optimizer

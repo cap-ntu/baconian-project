@@ -1,13 +1,12 @@
-from src.common.misc.special import flatten
 from src.rl.algo.algo import ModelBasedAlgo
 from src.rl.algo.model_based.models.dynamics_model import DynamicsModel
 from src.config.dict_config import DictConfig
 from src.common.sampler.sample_data import TrajectoryData, TransitionData
 from src.core.parameters import Parameters
 from src.config.global_config import GlobalConfig
-from src.common.misc.misc import *
 from src.rl.algo.model_based.misc.reward_func.reward_func import RewardFunc
 from src.rl.algo.model_based.misc.terminal_func.terminal_func import TerminalFunc
+from src.common.misc import *
 
 
 class ModelPredictiveControl(ModelBasedAlgo):
@@ -16,9 +15,10 @@ class ModelPredictiveControl(ModelBasedAlgo):
     def __init__(self, env_spec, dynamics_model: DynamicsModel,
                  config_or_config_dict: (DictConfig, dict),
                  reward_func: RewardFunc,
-                 terminal_func: TerminalFunc
+                 terminal_func: TerminalFunc,
+                 name='mpc'
                  ):
-        super().__init__(env_spec, dynamics_model)
+        super().__init__(env_spec, dynamics_model, name)
         self.config = construct_dict_config(config_or_config_dict, self)
         self.reward_func = reward_func
         self.terminal_func = terminal_func

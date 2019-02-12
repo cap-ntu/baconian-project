@@ -1,9 +1,15 @@
 import os
 
 import tensorflow as tf
-# import tensorlayer as tl
 from tensorflow.contrib.layers import variance_scaling_initializer as contrib_W_init
 from typeguard import typechecked
+
+__all__ = ['get_tf_collection_var_list', 'MLPCreator']
+
+
+def get_tf_collection_var_list(scope, key=tf.GraphKeys.GLOBAL_VARIABLES):
+    var_list = tf.get_collection(key, scope=scope)
+    return sorted(list(set(var_list)), key=lambda x: x.name)
 
 
 def create_new_tf_session(cuda_device: int):
@@ -14,6 +20,12 @@ def create_new_tf_session(cuda_device: int):
     sess.__enter__()
     assert tf.get_default_session()
     return sess
+
+
+class TensorInput(object):
+    def __init__(self, **kwargs):
+        for key, val in kwargs:
+            setattr(self, key, val)
 
 
 class MLPCreator(object):
@@ -151,7 +163,8 @@ class MLPCreator(object):
             net = tf.tanh(net)
             net = (net + 1.0) / 2.0 * (output_high - output_low) + output_low
         # todo bugs here: the collection may contain extra variable that is instanced by others but have same name scope
-        net_all_params = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=tf.get_variable_scope().name)
+        net_all_params = get_tf_collection_var_list(key=tf.GraphKeys.GLOBAL_VARIABLES,
+                                                    scope=tf.get_variable_scope().name)
         if tf_var_scope_context is not None:
             # TODO test: this context need to be checked
             tf_var_scope_context.__exit__(type_arg=None, value_arg=None, traceback_arg=None)

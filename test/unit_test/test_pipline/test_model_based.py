@@ -6,7 +6,7 @@ from src.rl.value_func.mlp_q_value import MLPQValueFunction
 import tensorflow as tf
 from src.tf.util import create_new_tf_session
 from src.agent.agent import Agent
-from src.rl.exploration_strategy.epsilon_greedy import EpsilonGreedy
+from src.rl.misc.exploration_strategy.epsilon_greedy import EpsilonGreedy
 from src.core.pipelines.model_based_pipeline import ModelBasedPipeline
 from src.rl.algo.model_based.models.mlp_dynamics_model import ContinuousMLPDynamicsModel
 from src.rl.algo.model_based.sample_with_model import SampleWithDynamics

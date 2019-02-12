@@ -6,7 +6,7 @@ from src.rl.value_func.mlp_q_value import MLPQValueFunction
 import tensorflow as tf
 from src.tf.util import create_new_tf_session
 from src.agent.agent import Agent
-from src.rl.exploration_strategy.epsilon_greedy import EpsilonGreedy
+from src.rl.misc.exploration_strategy.epsilon_greedy import EpsilonGreedy
 
 
 class TestAgent(unittest.TestCase):

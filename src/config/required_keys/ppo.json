@@ -1,0 +1,14 @@
+{
+  "gamma": 0.995,
+  "lam": 0.98,
+  "policy_train_iter": 10,
+  "value_func_train_iter": 10,
+  "clipping_range": null,
+  "beta": 1.0,
+  "eta": 50,
+  "kl_target": 0.003,
+  "policy_lr": 0.01,
+  "value_func_lr": 0.01,
+  "value_func_train_batch_size": 10,
+  "log_var_init": -1.0
+}

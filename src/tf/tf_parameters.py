@@ -62,7 +62,7 @@ class TensorflowParameters(Parameters):
         # todo tuning or adaptive para setting here
         res = dict()
         for key, val in self._registered_tf_ph_dict.items():
-            res[val] = self(key)
+            res[val] = self(key, require_true_value=True)
         return res
 
     def save_snapshot(self):
@@ -107,8 +107,13 @@ class TensorflowParameters(Parameters):
         raise NotImplementedError
 
     def __call__(self, key=None, require_true_value=False):
-        if key in self._registered_tf_ph_dict.keys() and require_true_value is True:
-            return tf.get_default_session().run(self._registered_tf_ph_dict[key])
+        if key in self._registered_tf_ph_dict.keys():
+            if require_true_value is True:
+                # todo debug here
+                return super().__call__(key)
+                # raise NotImplemented
+            else:
+                return self._registered_tf_ph_dict[key]
         else:
             return super().__call__(key)
 
@@ -123,9 +128,12 @@ class TensorflowParameters(Parameters):
                 self._source_config[key] = new_val
 
     def set_tf_var_list(self, tf_var_list: list):
+        temp_var_list = list(set(tf_var_list))
+        if len(temp_var_list) < len(tf_var_list):
+            raise ValueError('Redundant tf variable in tf_var_list')
         for var in tf_var_list:
             assert isinstance(var, (tf.Tensor, tf.Variable))
-        self._parameters['tf_var_list'] = tf_var_list
+        self._parameters['tf_var_list'] += tf_var_list
 
     @typechecked
     def to_tf_ph(self, key, ph: tf.Tensor):

@@ -6,7 +6,7 @@ from src.common.sampler.sample_data import TransitionData
 from src.tf.tf_parameters import TensorflowParameters
 from src.config.global_config import GlobalConfig
 from src.rl.algo.algo import ModelFreeAlgo
-from src.common.misc.misc import *
+from src.common.misc import *
 
 
 class SampleWithDynamics(ModelBasedAlgo):
@@ -19,8 +19,9 @@ class SampleWithDynamics(ModelBasedAlgo):
     def __init__(self, env_spec, dynamics_model: DynamicsModel,
                  model_free_algo: ModelFreeAlgo,
                  config_or_config_dict: (DictConfig, dict),
+                 name='sample_with_dynamics'
                  ):
-        super().__init__(env_spec, dynamics_model)
+        super().__init__(env_spec, dynamics_model, name)
         self.model_free_algo = model_free_algo
         self.config = construct_dict_config(config_or_config_dict, self)
         self.parameters = TensorflowParameters(tf_var_list=[],

@@ -84,3 +84,6 @@ class GymEnv(Env):
         return np.clip(np.random.uniform(low=low, high=high, size=space.low.shape),
                        a_min=space.low,
                        a_max=space.high)
+        # return make_batch(np.clip(np.random.uniform(low=low, high=high, size=space.low.shape),
+        #                           a_min=space.low,
+        #                           a_max=space.high), original_shape=tuple(np.ones_like(space.low).shape))

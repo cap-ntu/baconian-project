@@ -3,7 +3,7 @@ from src.common.sampler.sampler import Sampler
 from src.config.global_config import GlobalConfig
 from src.rl.algo.algo import Algo
 from typeguard import typechecked
-from src.rl.exploration_strategy.base import ExplorationStrategy
+from src.rl.misc.exploration_strategy.base import ExplorationStrategy
 from src.common.sampler.sample_data import SampleData
 from src.envs.env import Env
 from src.envs.env_spec import EnvSpec

@@ -1,15 +1,12 @@
-from src.envs.env_spec import EnvSpec
 from src.rl.policy.policy import DeterministicPolicy
 from typeguard import typechecked
-from gym.core import Space
 from src.envs.env_spec import EnvSpec
 import overrides
 import numpy as np
 import tensorflow as tf
 from src.tf.mlp import MLP
 from src.tf.tf_parameters import TensorflowParameters
-from src.common.misc.misc import *
-from src.common.misc.special import *
+from src.common.special import *
 
 
 class DeterministicMLPPolicy(DeterministicPolicy):
@@ -56,11 +53,10 @@ class DeterministicMLPPolicy(DeterministicPolicy):
     @overrides.overrides
     def forward(self, obs: (np.ndarray, list), sess=None, feed_dict=None, **kwargs):
         obs = make_batch(obs, original_shape=self.env_spec.obs_shape)
+        feed_dict = {} if feed_dict is None else feed_dict
         feed_dict = {
-            self.state_input: obs,
-            **self.parameters.return_tf_parameter_feed_dict()
-        } if feed_dict is None else {
             **feed_dict,
+            self.state_input: obs,
             **self.parameters.return_tf_parameter_feed_dict()
         }
         sess = sess if sess else tf.get_default_session()

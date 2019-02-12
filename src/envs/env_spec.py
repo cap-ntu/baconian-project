@@ -1,7 +1,7 @@
 from gym.core import Space
 from typeguard import typechecked
 
-from src.common.misc.special import flat_dim, flatten
+from src.common.special import flat_dim, flatten
 import numpy as np
 
 

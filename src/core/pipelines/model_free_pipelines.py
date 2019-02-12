@@ -5,7 +5,7 @@ from src.envs.env import Env
 import abc
 from src.agent.agent import Agent
 import numpy as np
-from src.common.misc.misc import *
+from src.common.misc import *
 
 
 class ModelFreePipeline(Pipeline):

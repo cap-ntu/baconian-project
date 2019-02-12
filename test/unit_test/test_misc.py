@@ -1,8 +1,7 @@
 import unittest
 from src.envs.env_spec import EnvSpec
 from gym.spaces import *
-from src.common.misc.special import *
-from src.common.misc.misc import *
+from src.common.special import *
 from src.envs.gym_env import make
 import numpy as np
 

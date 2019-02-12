@@ -1,4 +1,4 @@
-from src.rl.exploration_strategy.base import ExplorationStrategy
+from src.rl.misc.exploration_strategy.base import ExplorationStrategy
 from gym.core import Space
 from src.common.random import Random
 from typeguard import typechecked

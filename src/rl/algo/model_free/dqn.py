@@ -1,8 +1,9 @@
-from src.common.misc.special import flatten_n
-from src.rl.algo.algo import ModelFreeAlgo
+from src.common.special import flatten_n
+from src.rl.algo.algo import ModelFreeAlgo, OffPolicyAlgo
 from src.config.dict_config import DictConfig
 from typeguard import typechecked
 from src.rl.value_func import *
+from src.tf.util import *
 from src.rl.algo.util.replay_buffer import UniformRandomReplayBuffer, BaseReplayBuffer
 import tensorflow as tf
 import tensorflow.contrib as tfcontrib
@@ -10,15 +11,10 @@ import numpy as np
 from src.common.sampler.sample_data import TransitionData
 from src.tf.tf_parameters import TensorflowParameters
 from src.config.global_config import GlobalConfig
-from src.common.misc.misc import *
+from src.common.misc import *
 
 
-# todo
-# 1. how to define the action iterator, need one hot ?
-# 2. how to define the action dim and flat dim
-
-
-class DQN(ModelFreeAlgo):
+class DQN(ModelFreeAlgo, OffPolicyAlgo):
     required_key_list = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_DQN_REQUIRED_KEY_LIST)
 
     @typechecked
@@ -32,7 +28,7 @@ class DQN(ModelFreeAlgo):
                  name: str = 'dqn',
                  replay_buffer=None):
         # todo add the action iterator
-        super(DQN, self).__init__(env_spec=env_spec)
+        super(DQN, self).__init__(env_spec=env_spec, name=name)
         config = construct_dict_config(config_or_config_dict, self)
 
         self.config = config
@@ -75,7 +71,7 @@ class DQN(ModelFreeAlgo):
                 self.q_value_func_loss, _, self.update_q_value_func_op = self._set_up_loss()
                 self.update_target_q_value_func_op = self._set_up_target_update()
         # todo handle the var list problem
-        var_list = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='{}/train'.format(name))
+        var_list = get_tf_collection_var_list(key=tf.GraphKeys.GLOBAL_VARIABLES, scope='{}/train'.format(name))
         self.parameters.set_tf_var_list(tf_var_list=var_list)
 
     def init(self, sess=None):

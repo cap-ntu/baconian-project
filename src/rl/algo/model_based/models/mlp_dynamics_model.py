@@ -1,4 +1,4 @@
-from src.common.misc.special import flatten_n
+from src.common.special import flatten_n
 from src.envs.env_spec import EnvSpec
 from src.rl.algo.model_based.models.dynamics_model import DynamicsModel
 import tensorflow as tf
@@ -7,8 +7,8 @@ from src.tf.mlp import MLP
 import tensorflow.contrib as tf_contrib
 from src.common.sampler.sample_data import TransitionData
 from typeguard import typechecked
-from src.common.misc import *
 import numpy as np
+from src.tf.util import *
 
 
 class ContinuousMLPDynamicsModel(DynamicsModel):
@@ -58,10 +58,11 @@ class ContinuousMLPDynamicsModel(DynamicsModel):
                 self.new_state_output = self.mlp_net.output + self.state_ph
                 self.loss, self._optimizer, self.optimize_op = self._setup_loss(l1_norm_scale=l1_norm_scale,
                                                                                 l2_norm_scale=l2_norm_scale)
-        train_var_list = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='{}/train'.format(self.name_scope))
+        train_var_list = get_tf_collection_var_list(key=tf.GraphKeys.GLOBAL_VARIABLES,
+                                                    scope='{}/train'.format(self.name_scope))
+        super(ContinuousMLPDynamicsModel, self).__init__(env_spec=env_spec, parameters=parameters)
         self.parameters.set_tf_var_list(train_var_list + self.parameters('tf_var_list'))
         # todo super __init__ may override the self.parameters
-        super(ContinuousMLPDynamicsModel, self).__init__(env_spec=env_spec, parameters=parameters)
 
     def init(self, source_obj=None):
         self.parameters.init()
