@@ -29,8 +29,6 @@ class TestDynamicsModel(unittest.TestCase):
         mlp_dyna = ContinuousMLPDynamicsModel(
             env_spec=env_spec,
             name_scope='mlp_dyna',
-            input_norm=False,
-            output_norm=False,
             output_low=env_spec.obs_space.low,
             output_high=env_spec.obs_space.high,
             l1_norm_scale=1.0,
@@ -73,8 +71,6 @@ class TestDynamicsModel(unittest.TestCase):
         mlp_dyna_2 = ContinuousMLPDynamicsModel(
             env_spec=env_spec,
             name_scope='mlp_dyna2',
-            input_norm=False,
-            output_norm=False,
             output_low=env_spec.obs_space.low,
             output_high=env_spec.obs_space.high,
             l1_norm_scale=1.0,

@@ -68,21 +68,23 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo):
                                                                    reuse=False)
             self.predict_q_value = (1. - done) * self.config('GAMMA') * self.target_q_input + self.reward_input
             with tf.variable_scope('train'):
-                self.q_value_func_loss, _, self.update_q_value_func_op = self._set_up_loss()
+                self.q_value_func_loss, self.optimizer, self.update_q_value_func_op = self._set_up_loss()
                 self.update_target_q_value_func_op = self._set_up_target_update()
         # todo handle the var list problem
-        var_list = get_tf_collection_var_list(key=tf.GraphKeys.GLOBAL_VARIABLES, scope='{}/train'.format(name))
-        self.parameters.set_tf_var_list(tf_var_list=var_list)
+        var_list = get_tf_collection_var_list(key=tf.GraphKeys.GLOBAL_VARIABLES,
+                                              scope='{}/train'.format(name)) + self.optimizer.variables()
+        self.parameters.set_tf_var_list(tf_var_list=sorted(list(set(var_list)), key=lambda x: x.name))
 
     def init(self, sess=None):
         super().init()
         self.q_value_func.init()
         # todo really need to start from the same init value?
         self.target_q_value_func.init(source_obj=self.q_value_func)
-        tf_sess = sess if sess else tf.get_default_session()
-        feed_dict = self.parameters.return_tf_parameter_feed_dict()
-        tf_sess.run(tf.variables_initializer(var_list=self.parameters('tf_var_list')),
-                    feed_dict=feed_dict)
+        # tf_sess = sess if sess else tf.get_default_session()
+        # feed_dict = self.parameters.return_tf_parameter_feed_dict()
+        self.parameters.init()
+        # tf_sess.run(tf.variables_initializer(var_list=self.parameters('tf_var_list')),
+        #             feed_dict=feed_dict)
 
     @typechecked
     def train(self, batch_data=None, train_iter=None, sess=None, update_target=True) -> dict:
@@ -196,7 +198,7 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo):
                                                    scale_l2=self.parameters('Q_NET_L2_NORM_SCALE'))
         loss = tf.reduce_sum((self.predict_q_value - self.q_value_func.q_tensor) ** 2) + \
                tfcontrib.layers.apply_regularization(l1_l2, weights_list=self.q_value_func.parameters('tf_var_list'))
-        optimizer = tf.train.AdadeltaOptimizer(learning_rate=self.parameters('LEARNING_RATE'))
+        optimizer = tf.train.AdamOptimizer(learning_rate=self.parameters('LEARNING_RATE'))
         optimize_op = optimizer.minimize(loss=loss, var_list=self.q_value_func.parameters('tf_var_list'))
         return loss, optimizer, optimize_op
 

@@ -112,8 +112,6 @@ class NormalDistributionMLPPolicy(StochasticPolicy):
     def copy(self, obj) -> bool:
         assert isinstance(obj, type(self))
         self.mlp_net.copy(obj=obj.mlp_net)
-        tf_sess = tf.get_default_session()
-        tf_sess.run(tf.assign(self.logvar_output, obj.logvar_output))
         return super().copy(obj)
 
     def make_copy(self, **kwargs):

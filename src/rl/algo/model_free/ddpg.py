@@ -78,23 +78,22 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo):
             with tf.variable_scope('train'):
                 self.critic_loss, self.critic_update_op, self.target_critic_update_op, self.critic_optimizer = self._setup_critic_loss()
                 self.actor_loss, self.actor_update_op, self.target_actor_update_op, self.action_optimizer = self._set_up_actor_loss()
+
+        # todo handle the var list problem
         var_list = get_tf_collection_var_list(
             '{}/train'.format(name)) + self.critic_optimizer.variables() + self.action_optimizer.variables()
         self.parameters.set_tf_var_list(tf_var_list=sorted(list(set(var_list)), key=lambda x: x.name))
-
-        # todo handle the var list problem
-        var_list = get_tf_collection_var_list(key=tf.GraphKeys.GLOBAL_VARIABLES, scope='{}/train'.format(name))
-        self.parameters.set_tf_var_list(tf_var_list=var_list)
 
     def init(self, sess=None):
         self.actor.init()
         self.critic.init()
         self.target_actor.init()
         self.target_critic.init(source_obj=self.critic)
-        tf_sess = sess if sess else tf.get_default_session()
-        feed_dict = self.parameters.return_tf_parameter_feed_dict()
-        tf_sess.run(tf.variables_initializer(var_list=self.parameters('tf_var_list')),
-                    feed_dict=feed_dict)
+        # tf_sess = sess if sess else tf.get_default_session()
+        # feed_dict = self.parameters.return_tf_parameter_feed_dict()
+        # tf_sess.run(tf.variables_initializer(var_list=self.parameters('tf_var_list')),
+        #             feed_dict=feed_dict)
+        self.parameters.init()
         super().init()
 
     @typechecked

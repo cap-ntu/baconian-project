@@ -56,12 +56,14 @@ class ContinuousMLPDynamicsModel(DynamicsModel):
         with tf.variable_scope(self.name_scope):
             with tf.variable_scope('train'):
                 self.new_state_output = self.mlp_net.output + self.state_ph
-                self.loss, self._optimizer, self.optimize_op = self._setup_loss(l1_norm_scale=l1_norm_scale,
-                                                                                l2_norm_scale=l2_norm_scale)
+                self.loss, self.optimizer, self.optimize_op = self._setup_loss(l1_norm_scale=l1_norm_scale,
+                                                                               l2_norm_scale=l2_norm_scale)
         train_var_list = get_tf_collection_var_list(key=tf.GraphKeys.GLOBAL_VARIABLES,
-                                                    scope='{}/train'.format(self.name_scope))
+                                                    scope='{}/train'.format(
+                                                        self.name_scope)) + self.optimizer.variables()
+
         super(ContinuousMLPDynamicsModel, self).__init__(env_spec=env_spec, parameters=parameters)
-        self.parameters.set_tf_var_list(train_var_list + self.parameters('tf_var_list'))
+        self.parameters.set_tf_var_list(sorted(list(set(train_var_list)), key=lambda x: x.name))
         # todo super __init__ may override the self.parameters
 
     def init(self, source_obj=None):
@@ -71,6 +73,7 @@ class ContinuousMLPDynamicsModel(DynamicsModel):
 
     def copy(self, obj: DynamicsModel) -> bool:
         super().copy(obj)
+        self.mlp_net.copy(obj=obj.mlp_net)
         self.parameters.copy_from(source_parameter=obj.parameters)
         return True
 
@@ -96,7 +99,7 @@ class ContinuousMLPDynamicsModel(DynamicsModel):
                                                     scale_l2=l2_norm_scale)
         loss = tf.reduce_sum((self.mlp_net.output - self.delta_state_label_ph) ** 2) + \
                tf_contrib.layers.apply_regularization(l1_l2, weights_list=self.parameters('tf_var_list'))
-        optimizer = tf.train.AdadeltaOptimizer(learning_rate=self.parameters('learning_rate'))
+        optimizer = tf.train.AdamOptimizer(learning_rate=self.parameters('learning_rate'))
         optimize_op = optimizer.minimize(loss=loss, var_list=self.parameters('tf_var_list'))
         return loss, optimizer, optimize_op
 

@@ -85,8 +85,9 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo):
     def init(self):
         self.policy.init()
         self.value_func.init()
-        sess = tf.get_default_session()
-        sess.run(tf.variables_initializer(var_list=self.parameters('tf_var_list')))
+        self.parameters.init()
+        # sess = tf.get_default_session()
+        # sess.run(tf.variables_initializer(var_list=self.parameters('tf_var_list')))
         super().init()
 
     def train(self, trajectory_data: TrajectoryData = None, train_iter=None, sess=None) -> dict:

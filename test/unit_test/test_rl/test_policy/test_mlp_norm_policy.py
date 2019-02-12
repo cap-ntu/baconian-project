@@ -71,12 +71,16 @@ class TestNormalDistMLPPolicy(unittest.TestCase):
             self.assertEqual(id(var1), id(var2))
 
         policy.copy(p2)
+        res = []
+        res2 = []
         for var1, var2, var3 in zip(policy.parameters('tf_var_list'), p2.parameters('tf_var_list'),
                                     p3.parameters('tf_var_list')):
             re1, re2, re3 = sess.run([var1, var2, var3])
-            self.assertTrue(np.isclose(re1, re2).all())
+            res.append(np.isclose(re1, re2).all())
             self.assertTrue(np.isclose(re1, re3).all())
-            self.assertTrue(np.isclose(re2, re3).all())
+            res2.append(np.isclose(re3, re2).all())
+        self.assertFalse(np.array(res).all())
+        self.assertFalse(np.array(res2).all())
 
     def test_func(self):
         if tf.get_default_session():
@@ -151,3 +155,7 @@ class TestNormalDistMLPPolicy(unittest.TestCase):
             new_policy.state_input: obs2
         })
         self.assertTrue(np.isclose(kl1, kl2).all())
+
+
+if __name__ == '__main__':
+    unittest.main()
