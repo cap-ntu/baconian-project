@@ -1,8 +1,6 @@
 import unittest
 from mbrl.envs.gym_env import make
 from mbrl.envs.env_spec import EnvSpec
-import tensorflow as tf
-from mbrl.tf.util import create_new_tf_session
 import numpy as np
 from mbrl.rl.policy.normal_distribution_mlp import NormalDistributionMLPPolicy
 from mbrl.common.special import *
@@ -11,15 +9,10 @@ from mbrl.test.tests.testSetup import TestTensorflowSetup
 
 class TestNormalDistMLPPolicy(TestTensorflowSetup):
     def test_mlp_norm_dist_policy(self):
-        if tf.get_default_session():
-            sess = tf.get_default_session()
-            sess.__exit__(None, None, None)
-        tf.reset_default_graph()
         env = make('Swimmer-v1')
         env.reset()
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
-        sess = create_new_tf_session(cuda_device=0)
 
         policy = NormalDistributionMLPPolicy(env_spec=env_spec,
                                              name_scope='mlp_policy',
@@ -46,7 +39,6 @@ class TestNormalDistMLPPolicy(TestTensorflowSetup):
                                              output_norm=None,
                                              input_norm=None,
                                              reuse=False)
-        self.assertIsNotNone(tf.get_default_session())
         policy.init()
         dist_info = policy.get_dist_info()
         self.assertTrue(np.equal(dist_info[0]['shape'], policy.mean_output.shape.as_list()).all())
@@ -76,7 +68,7 @@ class TestNormalDistMLPPolicy(TestTensorflowSetup):
         res2 = []
         for var1, var2, var3 in zip(policy.parameters('tf_var_list'), p2.parameters('tf_var_list'),
                                     p3.parameters('tf_var_list')):
-            re1, re2, re3 = sess.run([var1, var2, var3])
+            re1, re2, re3 = self.sess.run([var1, var2, var3])
             res.append(np.isclose(re1, re2).all())
             self.assertTrue(np.isclose(re1, re3).all())
             res2.append(np.isclose(re3, re2).all())
@@ -84,15 +76,10 @@ class TestNormalDistMLPPolicy(TestTensorflowSetup):
         self.assertFalse(np.array(res2).all())
 
     def test_func(self):
-        if tf.get_default_session():
-            sess = tf.get_default_session()
-            sess.__exit__(None, None, None)
-        tf.reset_default_graph()
         env = make('Swimmer-v1')
         env.reset()
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
-        sess = create_new_tf_session(cuda_device=0)
 
         policy = NormalDistributionMLPPolicy(env_spec=env_spec,
                                              name_scope='mlp_policy',
@@ -119,7 +106,6 @@ class TestNormalDistMLPPolicy(TestTensorflowSetup):
                                              output_norm=None,
                                              input_norm=None,
                                              reuse=False)
-        self.assertIsNotNone(tf.get_default_session())
         policy.init()
         print(
             policy.compute_dist_info(name='entropy',
@@ -151,7 +137,7 @@ class TestNormalDistMLPPolicy(TestTensorflowSetup):
             policy.state_input: obs1,
             new_policy.state_input: obs2
         })
-        kl2 = sess.run(policy.kl(other=new_policy), feed_dict={
+        kl2 = self.sess.run(policy.kl(other=new_policy), feed_dict={
             policy.state_input: obs1,
             new_policy.state_input: obs2
         })

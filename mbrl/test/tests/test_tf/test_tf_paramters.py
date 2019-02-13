@@ -8,20 +8,15 @@ import numpy as np
 from mbrl.tf.tf_parameters import TensorflowParameters
 from mbrl.config.dict_config import DictConfig
 from mbrl.core.basic import Basic
+from mbrl.test.tests.testSetup import TestTensorflowSetup
 
 
 class Foo(Basic):
     required_key_list = dict(var1=1, var2=0.1)
 
 
-class TestTensorflowParameters(BaseTestCase):
+class TestTensorflowParameters(TestTensorflowSetup):
     def test_tf_param(self):
-        if tf.get_default_session():
-            sess = tf.get_default_session()
-            sess.__exit__(None, None, None)
-            # sess.close()
-        tf.reset_default_graph()
-        sess = create_new_tf_session(cuda_device=0)
 
         with tf.variable_scope('test_tf_param'):
             a = tf.get_variable(shape=[3, 4], dtype=tf.float32, name='var_1')

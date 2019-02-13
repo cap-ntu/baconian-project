@@ -1,7 +1,5 @@
 from mbrl.envs.gym_env import make
 from mbrl.envs.env_spec import EnvSpec
-import tensorflow as tf
-from mbrl.tf.util import create_new_tf_session
 from mbrl.rl.algo.model_based.models.mlp_dynamics_model import ContinuousMLPDynamicsModel
 from mbrl.common.sampler.sample_data import TransitionData
 from mbrl.rl.algo.model_based.mpc import ModelPredictiveControl
@@ -15,15 +13,9 @@ from mbrl.test.tests.testSetup import TestTensorflowSetup
 class TestMPC(TestTensorflowSetup):
 
     def test_init_discrete(self):
-        if tf.get_default_session():
-            sess = tf.get_default_session()
-            sess.__exit__(None, None, None)
-            # sess.close()
-        tf.reset_default_graph()
         env = make('Acrobot-v1')
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
-        sess = create_new_tf_session(cuda_device=0)
 
         mlp_dyna = ContinuousMLPDynamicsModel(
             env_spec=env_spec,
@@ -80,21 +72,13 @@ class TestMPC(TestTensorflowSetup):
         print(algo.train(batch_data=data))
 
     def test_init_continuous(self):
-        if tf.get_default_session():
-            sess = tf.get_default_session()
-            sess.__exit__(None, None, None)
-            # sess.close()
-        tf.reset_default_graph()
         env = make('Swimmer-v1')
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
-        sess = create_new_tf_session(cuda_device=0)
 
         mlp_dyna = ContinuousMLPDynamicsModel(
             env_spec=env_spec,
             name_scope='mlp_dyna',
-            input_norm=False,
-            output_norm=False,
             output_low=np.ones_like(env_spec.obs_space.low) * -1.,
             output_high=np.ones_like(env_spec.obs_space.high),
             l1_norm_scale=1.0,

@@ -2,22 +2,14 @@ from mbrl.rl.algo.model_free import DQN
 from mbrl.envs.gym_env import make
 from mbrl.envs.env_spec import EnvSpec
 from mbrl.rl.value_func.mlp_q_value import MLPQValueFunction
-import tensorflow as tf
-from mbrl.tf.util import create_new_tf_session
 from mbrl.test.tests.testSetup import TestTensorflowSetup
 
 
 class TestDQN(TestTensorflowSetup):
     def test_init(self):
-        if tf.get_default_session():
-            sess = tf.get_default_session()
-            sess.__exit__(None, None, None)
-            # sess.close()
-        tf.reset_default_graph()
         env = make('Acrobot-v1')
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
-        sess = create_new_tf_session(cuda_device=0)
 
         mlp_q = MLPQValueFunction(env_spec=env_spec,
                                   name_scope='mlp_q',
@@ -55,7 +47,7 @@ class TestDQN(TestTensorflowSetup):
         from mbrl.common.sampler.sample_data import TransitionData
         a = TransitionData(env_spec)
         for i in range(100):
-            ac = dqn.predict(obs=st, sess=sess, batch_flag=False)
+            ac = dqn.predict(obs=st, sess=self.sess, batch_flag=False)
             st_new, re, done, _ = env.step(action=ac)
             a.append(state=st, new_state=st_new, action=ac, done=done, reward=re)
             dqn.append_to_memory(a)

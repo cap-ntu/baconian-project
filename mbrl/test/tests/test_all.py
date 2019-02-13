@@ -1,4 +1,5 @@
 import unittest
+from mbrl.test.tests.testSetup import BaseTestCase
 
 
 class MyTestCase(BaseTestCase):

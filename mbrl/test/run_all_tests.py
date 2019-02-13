@@ -15,7 +15,7 @@ def test_all(dir=''):
     suite = TestSuite()
     for all_test_suite in loader.discover(start_dir=os.path.join(path, 'tests', dir), pattern='test*.py'):
         for test_case in all_test_suite:
-            suite.addTests(test_case)
+            suite.addTest(test_case)
     TextTestRunner().run(test=suite)
 
 

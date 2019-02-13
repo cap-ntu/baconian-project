@@ -1,6 +1,5 @@
 from mbrl.envs.gym_env import make
 from mbrl.envs.env_spec import EnvSpec
-import tensorflow as tf
 from mbrl.rl.policy.deterministic_mlp import DeterministicMLPPolicy
 from mbrl.test.tests.testSetup import TestTensorflowSetup
 
@@ -37,7 +36,6 @@ class TestDeterministicMLPPolicy(TestTensorflowSetup):
                                         output_norm=None,
                                         input_norm=None,
                                         reuse=False)
-        self.assertIsNotNone(tf.get_default_session())
         policy.init()
         for _ in range(10):
             ac = policy.forward(obs=env.observation_space.sample())

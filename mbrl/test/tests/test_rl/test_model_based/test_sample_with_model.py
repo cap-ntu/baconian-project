@@ -4,8 +4,6 @@ from mbrl.rl.algo.model_free import DQN
 from mbrl.envs.gym_env import make
 from mbrl.envs.env_spec import EnvSpec
 from mbrl.rl.value_func.mlp_q_value import MLPQValueFunction
-import tensorflow as tf
-from mbrl.tf.util import create_new_tf_session
 from mbrl.rl.algo.model_based.models.mlp_dynamics_model import ContinuousMLPDynamicsModel
 from mbrl.common.sampler.sample_data import TransitionData
 from mbrl.test.tests.testSetup import TestTensorflowSetup
@@ -14,15 +12,9 @@ from mbrl.test.tests.testSetup import TestTensorflowSetup
 class TestSampleWithDynamics(TestTensorflowSetup):
 
     def test_init_discrete(self):
-        if tf.get_default_session():
-            sess = tf.get_default_session()
-            sess.__exit__(None, None, None)
-            # sess.close()
-        tf.reset_default_graph()
         env = make('Acrobot-v1')
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
-        sess = create_new_tf_session(cuda_device=0)
 
         mlp_q = MLPQValueFunction(env_spec=env_spec,
                                   name_scope='mlp_q',

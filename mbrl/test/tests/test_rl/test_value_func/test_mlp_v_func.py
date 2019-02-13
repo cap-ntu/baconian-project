@@ -2,21 +2,13 @@ import unittest
 from mbrl.envs import make
 from mbrl.envs.env_spec import EnvSpec
 from mbrl.rl.value_func.mlp_v_value import MLPVValueFunc
+from mbrl.test.tests.testSetup import TestTensorflowSetup
 import tensorflow as tf
-from mbrl.tf.util import create_new_tf_session
 
 
-class TestMLPVValueFunc(BaseTestCase):
+class TestMLPVValueFunc(TestTensorflowSetup):
     def test_init(self):
-
-        if tf.get_default_session():
-            sess = tf.get_default_session()
-            sess.__exit__(None, None, None)
-            # sess.close()
-        tf.reset_default_graph()
-
         env = make('Swimmer-v1')
-        sess = create_new_tf_session(cuda_device=0)
 
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
@@ -43,19 +35,9 @@ class TestMLPVValueFunc(BaseTestCase):
                               ])
         # self.assertEqual(mlp_q.q_tensor.shape()[1], 1)
         mlp_v.init()
-        if tf.get_default_session():
-            tf.get_default_session().close()
 
     def test_init_2(self):
-
-        if tf.get_default_session():
-            sess = tf.get_default_session()
-            sess.__exit__(None, None, None)
-            # sess.close()
-        tf.reset_default_graph()
-
         env = make('Swimmer-v1')
-        sess = create_new_tf_session(cuda_device=0)
 
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)

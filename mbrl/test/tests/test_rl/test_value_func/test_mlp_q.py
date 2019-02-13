@@ -2,21 +2,15 @@ import unittest
 from mbrl.envs import make
 from mbrl.envs.env_spec import EnvSpec
 from mbrl.rl.value_func.mlp_q_value import MLPQValueFunction
-from mbrl.tf.util import create_new_tf_session
-import tensorflow as tf
+from mbrl.test.tests.testSetup import TestTensorflowSetup
 
 
-class TestMLPQValueFunction(BaseTestCase):
+class TestMLPQValueFunction(TestTensorflowSetup):
     def test_init(self):
-        if tf.get_default_session():
-            sess = tf.get_default_session()
-            sess.__exit__(None, None, None)
             # sess.close()
-        tf.reset_default_graph()
         env = make('Swimmer-v1')
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
-        sess = create_new_tf_session(cuda_device=0)
 
         mlp_q = MLPQValueFunction(env_spec=env_spec,
                                   name_scope='mlp_q',
@@ -40,8 +34,6 @@ class TestMLPQValueFunction(BaseTestCase):
                                   ])
         # self.assertEqual(list(mlp_q.q_tensor.shape())[1], 1)
         mlp_q.init()
-        if tf.get_default_session():
-            tf.get_default_session().close()
 
     def test_run_time(self):
         pass

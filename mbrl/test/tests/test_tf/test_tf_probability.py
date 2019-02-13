@@ -2,10 +2,10 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 import unittest
 from mbrl.envs.env_spec import EnvSpec
-from mbrl.tf.util import create_new_tf_session
 import numpy as np
 from mbrl.envs.gym_env import make
 from mbrl.common.special import *
+from mbrl.test.tests.testSetup import TestTensorflowSetup
 
 
 def describe_sample_tensor_shape(sample_shape, distribution):
@@ -61,14 +61,9 @@ def kl_entropy_logprob_from_pat_cody(old_mean, old_var, mean, var, sess, action_
     return sess.run([kl, entropy, logp, logp_old], feed_dict=feed_dict)
 
 
-class TestTFP(BaseTestCase):
+class TestTFP(TestTensorflowSetup):
     def test_init(self):
-        if tf.get_default_session():
-            sess = tf.get_default_session()
-            sess.__exit__(None, None, None)
-        tf.reset_default_graph()
-        sess = create_new_tf_session(cuda_device=0)
-
+        sess = self.sess
         env = make('Swimmer-v1')
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
