@@ -3,9 +3,9 @@ python:
   - "3.5"
 
 install:
-  - pip install -r requirment.txt
+  - pip install -r requirement.txt.txt
 
-script: python test/test.py
+script: pytest
 
 branches:
   only:
