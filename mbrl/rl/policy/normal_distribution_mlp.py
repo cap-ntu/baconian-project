@@ -82,7 +82,6 @@ class NormalDistributionMLPPolicy(StochasticPolicy):
         if self.mlp_net:
             var_list += self.mlp_net.var_list
 
-        # todo use set to solve the duplicated tensor bug temporarily
         self.parameters = TensorflowParameters(tf_var_list=sorted(list(set(var_list)),
                                                                   key=lambda x: x.name),
                                                rest_parameters=dict(
@@ -104,7 +103,6 @@ class NormalDistributionMLPPolicy(StochasticPolicy):
         }
         sess = sess if sess else tf.get_default_session()
         res = sess.run(self.action_output, feed_dict=feed_dict)
-        # todo clip the action?
         res = np.clip(res, a_min=self.env_spec.action_space.low, a_max=self.env_spec.action_space.high)
         return res
 
@@ -165,7 +163,6 @@ class NormalDistributionMLPPolicy(StochasticPolicy):
         return sess.run(self.dist_info_tensor_op_dict[name](**kwargs), feed_dict=feed_dict)
 
     def kl(self, other, *args, **kwargs) -> tf.Tensor:
-        # todo unit test
         # todo do we need to make the type to be identical?
         assert isinstance(other, type(self))
         return self.action_distribution.kl_divergence(other.action_distribution)

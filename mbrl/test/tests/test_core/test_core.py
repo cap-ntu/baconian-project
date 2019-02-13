@@ -1,5 +1,5 @@
 from mbrl.config.global_config import GlobalConfig
-from mbrl.test.tests.testSetup import BaseTestCase
+from mbrl.test.tests.test_setup import BaseTestCase
 
 
 class TestCore(BaseTestCase):

@@ -79,7 +79,6 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo):
                 self.critic_loss, self.critic_update_op, self.target_critic_update_op, self.critic_optimizer = self._setup_critic_loss()
                 self.actor_loss, self.actor_update_op, self.target_actor_update_op, self.action_optimizer = self._set_up_actor_loss()
 
-        # todo handle the var list problem
         var_list = get_tf_collection_var_list(
             '{}/train'.format(name)) + self.critic_optimizer.variables() + self.action_optimizer.variables()
         self.parameters.set_tf_var_list(tf_var_list=sorted(list(set(var_list)), key=lambda x: x.name))

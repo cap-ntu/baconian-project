@@ -23,7 +23,10 @@ class TestTensorflowSetup(BaseTestCase):
         self.sess = create_new_tf_session(cuda_device=self.default_id)
 
     def tearDown(self):
-        self.assertTrue(self.sess.run(tf.report_uninitialized_variables()).shape[0] == [0])
+        if self.sess.run(tf.report_uninitialized_variables()).shape[0] != 0:
+            print(self.sess.run(tf.report_uninitialized_variables()))
+            print(self.sess.run(tf.report_uninitialized_variables()).shape)
+            raise AssertionError('some variables are not uninitialized')
 
         if tf.get_default_session():
             sess = tf.get_default_session()

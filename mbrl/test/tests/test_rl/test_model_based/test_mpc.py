@@ -7,7 +7,7 @@ import unittest
 from mbrl.rl.algo.model_based.misc.terminal_func.terminal_func import RandomTerminalFunc
 from mbrl.rl.algo.model_based.misc.reward_func.reward_func import RandomRewardFunc
 import numpy as np
-from mbrl.test.tests.testSetup import TestTensorflowSetup
+from mbrl.test.tests.test_setup import TestTensorflowSetup
 
 
 class TestMPC(TestTensorflowSetup):

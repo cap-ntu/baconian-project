@@ -5,7 +5,7 @@ python:
 install:
   - pip install -r requirement.txt
 
-script: pytest ./test/
+script: python mbrl/test/run_all_tests.py
 
 branches:
   only:

@@ -4,7 +4,7 @@ from gym.spaces import *
 from mbrl.common.special import *
 from mbrl.envs.gym_env import make
 import numpy as np
-from mbrl.test.tests.testSetup import BaseTestCase
+from mbrl.test.tests.test_setup import BaseTestCase
 
 
 class TestMisc(BaseTestCase):

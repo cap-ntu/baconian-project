@@ -111,7 +111,6 @@ class TensorflowParameters(Parameters):
             if require_true_value is True:
                 # todo debug here
                 return super().__call__(key)
-                # raise NotImplemented
             else:
                 return self._registered_tf_ph_dict[key]
         else:
@@ -151,29 +150,21 @@ class TensorflowParameters(Parameters):
         sess.run(tmp_op_list)
         del tmp_op_list
 
-    def update(self):
+    def update(self, *args, **kwargs):
         # todo the adaptive strategy of params goes here
         self.set('LEARNING_RATE', new_val=self('LEARNING_RATE') * 0.99)
         pass
 
-
-class PlaceholderParameter(object):
-    # todo
-    """
-    Create a placeholder by passing into a init value, the shape and type will be inferred
-    """
-
-    def __init__(self, init_value, var_scope, name):
-        with tf.variable_scope(var_scope):
-            if isinstance(init_value, (float, int)) or np.isscalar(init_value):
-                shape = [1]
-                type = tf.float32
-            else:
-                shape = np.array(init_value).shape
-                np_type = np.array(init_value).dtype
-
-
-class AdaptiveWrapper(object):
-    def __init__(self, source_para_obj):
-        self.source_parameters = source_para_obj
-        pass
+# class PlaceholderParameter(object):
+#     """
+#     Create a placeholder by passing into a init value, the shape and type will be inferred
+#     """
+#
+#     def __init__(self, init_value, var_scope, name):
+#         with tf.variable_scope(var_scope):
+#             if isinstance(init_value, (float, int)) or np.isscalar(init_value):
+#                 shape = [1]
+#                 type = tf.float32
+#             else:
+#                 shape = np.array(init_value).shape
+#                 np_type = np.array(init_value).dtype

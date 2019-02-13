@@ -21,7 +21,6 @@ class DeterministicMLPPolicy(DeterministicPolicy):
         super(DeterministicMLPPolicy, self).__init__(env_spec, parameters=None)
         obs_dim = env_spec.flat_obs_dim
         action_dim = env_spec.flat_action_dim
-        # todo check the key here
         assert action_dim == mlp_config[-1]['N_UNITS']
         self.name_scope = name_scope
         self.mlp_config = mlp_config
@@ -61,7 +60,6 @@ class DeterministicMLPPolicy(DeterministicPolicy):
         }
         sess = sess if sess else tf.get_default_session()
         res = sess.run(self.action_tensor, feed_dict=feed_dict)
-        # todo clip the action?
         res = np.clip(res, a_min=self.env_spec.action_space.low, a_max=self.env_spec.action_space.high)
         return res
 

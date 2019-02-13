@@ -30,7 +30,8 @@ class SampleProcessor(object):
                 )
             finally:
                 values = traj('v_value_set')
-            tds = rewards - values + np.append(values[1:] * gamma, 0)
+            # todo better way to handle shape error (no squeeze)
+            tds = np.squeeze(rewards) - np.squeeze(values) + np.append(values[1:] * gamma, 0)
             advantages = discount(tds, gamma * lam)
             traj.append_new_set(name=name, data_set=make_batch(advantages, original_shape=[]), shape=[])
 

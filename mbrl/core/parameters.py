@@ -1,5 +1,6 @@
 from typeguard import typechecked
 from mbrl.config.dict_config import DictConfig
+import abc
 
 
 class Parameters(object):
@@ -32,8 +33,16 @@ class Parameters(object):
             # return self._parameters
             raise KeyError('specific a key to call {}'.format(type(self).__name__))
 
+    @abc.abstractmethod
     def init(self):
         pass
 
+    @abc.abstractmethod
     def copy_from(self, source_parameter):
+        # todo implement this
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def update(self, *args, **kwargs):
+        # todo implement this
         raise NotImplementedError

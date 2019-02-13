@@ -4,7 +4,7 @@ from mbrl.rl.value_func.mlp_q_value import MLPQValueFunction
 from mbrl.rl.algo.model_free.ddpg import DDPG
 from mbrl.rl.policy.deterministic_mlp import DeterministicMLPPolicy
 from mbrl.common.sampler.sample_data import TransitionData
-from mbrl.test.tests.testSetup import TestTensorflowSetup
+from mbrl.test.tests.test_setup import TestTensorflowSetup
 
 
 class TestDDPG(TestTensorflowSetup):

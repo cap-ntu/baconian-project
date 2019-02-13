@@ -2,7 +2,7 @@ from mbrl.rl.algo.model_based.models.mlp_dynamics_model import ContinuousMLPDyna
 from mbrl.envs.gym_env import make
 from mbrl.envs.env_spec import EnvSpec
 from mbrl.common.sampler.sample_data import TransitionData
-from mbrl.test.tests.testSetup import TestTensorflowSetup
+from mbrl.test.tests.test_setup import TestTensorflowSetup
 
 
 class TestDynamicsModel(TestTensorflowSetup):

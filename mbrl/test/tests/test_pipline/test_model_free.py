@@ -5,7 +5,7 @@ from mbrl.rl.value_func.mlp_q_value import MLPQValueFunction
 from mbrl.agent.agent import Agent
 from mbrl.rl.misc.exploration_strategy.epsilon_greedy import EpsilonGreedy
 from mbrl.core.pipelines.model_free_pipelines import ModelFreePipeline
-from mbrl.test.tests.testSetup import TestTensorflowSetup
+from mbrl.test.tests.test_setup import TestTensorflowSetup
 
 
 class TestModelFreePipline(TestTensorflowSetup):

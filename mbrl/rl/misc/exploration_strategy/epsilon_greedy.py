@@ -2,6 +2,7 @@ from mbrl.rl.misc.exploration_strategy.base import ExplorationStrategy
 from gym.core import Space
 from mbrl.common.random import Random
 from typeguard import typechecked
+from mbrl.core.parameters import Parameters
 
 
 class EpsilonGreedy(ExplorationStrategy):
@@ -13,6 +14,9 @@ class EpsilonGreedy(ExplorationStrategy):
         self.decay_type = decay_type
         # todo decay for the prob
         self.random_state = random_state
+        self.parameter = Parameters(parameters=dict(init_random_prob=self.init_random_prob,
+                                                    decay_type=self.decay_type),
+                                    name='eps_greedy_params')
         super(ExplorationStrategy, self).__init__()
 
     def predict(self, **kwargs):

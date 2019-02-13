@@ -8,7 +8,7 @@ import numpy as np
 from mbrl.tf.tf_parameters import TensorflowParameters
 from mbrl.config.dict_config import DictConfig
 from mbrl.core.basic import Basic
-from mbrl.test.tests.testSetup import TestTensorflowSetup
+from mbrl.test.tests.test_setup import TestTensorflowSetup
 
 
 class Foo(Basic):

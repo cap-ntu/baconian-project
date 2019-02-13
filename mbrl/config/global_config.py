@@ -42,7 +42,13 @@ class GlobalConfig(object):
     def set_new_config(config_dict: dict):
         for key, val in config_dict.items():
             if hasattr(GlobalConfig, key):
-                # todo some type check here
+                attr = getattr(GlobalConfig, key)
+                if attr is not None and not isinstance(val, type(attr)):
+                    raise TypeError('Set the GlobalConfig.{} with type{}, instead of type {}'.format(key,
+                                                                                                     type(
+                                                                                                         attr).__name__,
+                                                                                                     type(
+                                                                                                         val).__name__))
                 setattr(GlobalConfig, key, val)
             else:
                 setattr(GlobalConfig, key, val)

@@ -28,7 +28,6 @@ class DictConfig(Config):
                 if type(val) is list:
                     new_value[str(key)] = tuple(val)
             self._config_dict = new_value
-            # todo check this
             for key, val in self._config_dict.items():
                 setattr(self, key, val)
 

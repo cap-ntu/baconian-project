@@ -23,7 +23,8 @@ class ContinuousMLPDynamicsModel(DynamicsModel):
                  output_low: np.ndarray = None,
                  output_high: np.ndarray = None,
                  init_state=None):
-        super().__init__(env_spec, init_state)
+        super(ContinuousMLPDynamicsModel, self).__init__(env_spec=env_spec, parameters=None, init_state=init_state)
+
         self.mlp_config = mlp_config
         self.name_scope = name_scope
         with tf.variable_scope(self.name_scope):
@@ -42,17 +43,16 @@ class ContinuousMLPDynamicsModel(DynamicsModel):
                            name_scope=name_scope,
                            net_name='mlp')
         assert self.mlp_net.output.shape[1] == env_spec.flat_obs_dim
-        parameters = TensorflowParameters(tf_var_list=self.mlp_net.var_list,
-                                          name='mlp_continuous_dynamics_model',
-                                          rest_parameters=dict(l1_norm_scale=l1_norm_scale,
-                                                               l2_norm_scale=l2_norm_scale,
-                                                               output_low=output_low,
-                                                               output_high=output_high,
-                                                               input_norm=input_norm,
-                                                               learning_rate=learning_rate),
-                                          auto_init=False)
 
-        self.parameters = parameters
+        self.parameters = TensorflowParameters(tf_var_list=self.mlp_net.var_list,
+                                               name='mlp_continuous_dynamics_model',
+                                               rest_parameters=dict(l1_norm_scale=l1_norm_scale,
+                                                                    l2_norm_scale=l2_norm_scale,
+                                                                    output_low=output_low,
+                                                                    output_high=output_high,
+                                                                    input_norm=input_norm,
+                                                                    learning_rate=learning_rate),
+                                               auto_init=False)
         with tf.variable_scope(self.name_scope):
             with tf.variable_scope('train'):
                 self.new_state_output = self.mlp_net.output + self.state_ph
@@ -62,9 +62,7 @@ class ContinuousMLPDynamicsModel(DynamicsModel):
                                                     scope='{}/train'.format(
                                                         self.name_scope)) + self.optimizer.variables()
 
-        super(ContinuousMLPDynamicsModel, self).__init__(env_spec=env_spec, parameters=parameters)
         self.parameters.set_tf_var_list(sorted(list(set(train_var_list)), key=lambda x: x.name))
-        # todo super __init__ may override the self.parameters
 
     def init(self, source_obj=None):
         self.parameters.init()

@@ -21,7 +21,6 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo):
     def __init__(self,
                  env_spec,
                  config_or_config_dict: (DictConfig, dict),
-                 # todo check the type list
                  # todo bug on mlp value function and its placeholder which is crushed with the dqn placeholder
                  value_func: MLPQValueFunction,
                  adaptive_learning_rate: bool = False,
@@ -30,7 +29,6 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo):
         # todo add the action iterator
         super(DQN, self).__init__(env_spec=env_spec, name=name)
         config = construct_dict_config(config_or_config_dict, self)
-
         self.config = config
 
         if replay_buffer:
@@ -70,7 +68,6 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo):
             with tf.variable_scope('train'):
                 self.q_value_func_loss, self.optimizer, self.update_q_value_func_op = self._set_up_loss()
                 self.update_target_q_value_func_op = self._set_up_target_update()
-        # todo handle the var list problem
         var_list = get_tf_collection_var_list(key=tf.GraphKeys.GLOBAL_VARIABLES,
                                               scope='{}/train'.format(name)) + self.optimizer.variables()
         self.parameters.set_tf_var_list(tf_var_list=sorted(list(set(var_list)), key=lambda x: x.name))
@@ -78,11 +75,11 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo):
     def init(self, sess=None):
         super().init()
         self.q_value_func.init()
-        # todo really need to start from the same init value?
-        self.target_q_value_func.init(source_obj=self.q_value_func)
+        self.target_q_value_func.init()
+        self.parameters.init()
+
         # tf_sess = sess if sess else tf.get_default_session()
         # feed_dict = self.parameters.return_tf_parameter_feed_dict()
-        self.parameters.init()
         # tf_sess.run(tf.variables_initializer(var_list=self.parameters('tf_var_list')),
         #             feed_dict=feed_dict)
 
@@ -151,7 +148,7 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo):
                                                        sess=sess)
         else:
             action, q_val = self._predict_action(obs=obs,
-                                                 q_value_tensor=self.q_value_func.q_tensor,
+                                                 q_value_tensor=self.target_q_value_func.q_tensor,
                                                  action_ph=self.target_q_value_func.action_input,
                                                  state_ph=self.target_q_value_func.state_input,
                                                  sess=sess)

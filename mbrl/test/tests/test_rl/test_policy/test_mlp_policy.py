@@ -1,7 +1,7 @@
 from mbrl.envs.gym_env import make
 from mbrl.envs.env_spec import EnvSpec
 from mbrl.rl.policy.deterministic_mlp import DeterministicMLPPolicy
-from mbrl.test.tests.testSetup import TestTensorflowSetup
+from mbrl.test.tests.test_setup import TestTensorflowSetup
 
 
 class TestDeterministicMLPPolicy(TestTensorflowSetup):
@@ -42,6 +42,7 @@ class TestDeterministicMLPPolicy(TestTensorflowSetup):
             self.assertTrue(env.action_space.contains(ac[0]))
         p2 = policy.make_copy(name_scope='test',
                               reuse=False)
+        p2.init()
         self.assertGreater(len(policy.parameters('tf_var_list')), 0)
         self.assertGreater(len(p2.parameters('tf_var_list')), 0)
         for var1, var2 in zip(policy.parameters('tf_var_list'), p2.parameters('tf_var_list')):
@@ -50,6 +51,7 @@ class TestDeterministicMLPPolicy(TestTensorflowSetup):
 
         p3 = policy.make_copy(name_scope='mlp_policy',
                               reuse=True)
+        p3.init()
         self.assertGreater(len(p3.parameters('tf_var_list')), 0)
         for var1, var2 in zip(policy.parameters('tf_var_list'), p3.parameters('tf_var_list')):
             self.assertEqual(var1.shape, var2.shape)

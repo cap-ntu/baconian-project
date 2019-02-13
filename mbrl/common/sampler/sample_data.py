@@ -5,8 +5,6 @@ from mbrl.envs.env_spec import EnvSpec
 from copy import deepcopy
 
 
-# todo this module need to be tested
-
 class SampleData(object):
     def __init__(self, env_spec: EnvSpec = None, obs_shape=None, action_shape=None):
         if env_spec is None and (obs_shape is None or action_shape is None):
@@ -26,34 +24,27 @@ class SampleData(object):
             'state_set': [self._state_set, self.obs_shape],
             'new_state_set': [self._new_state_set, self.obs_shape],
             'action_set': [self._action_set, self.action_shape],
-            'reward_set': [self._reward_set, []],
-            'done_set': [self._done_set, []],
+            'reward_set': [self._reward_set, [1]],
+            'done_set': [self._done_set, [1]],
         }
         assert isinstance(self.obs_shape, (list, tuple))
         assert isinstance(self.action_shape, (list, tuple))
         self._allowed_data_set_keys = ['state_set', 'action_set', 'new_state_set', 'reward_set', 'done_set']
+        # for key, val in self._internal_data_dict.items():
+        #     self._register_data_set(source_data=self(key), name=key)
 
     def __len__(self):
         return len(self._state_set)
 
     def reset(self):
-        # self._state_set = []
-        # self._action_set = []
-        # self._reward_set = []
-        # self._done_set = []
-        # self._new_state_set = []
         for key, data_set in self._internal_data_dict.items():
+            # todo how to define the reset value
             self._internal_data_dict[key][0] = []
         self.cumulative_reward = 0.0
         self.step_count_per_episode = 0
 
-    def append(self, state: np.ndarray, action: np.ndarray, new_state: np.ndarray, done: bool, reward: (float,)):
-        self._state_set.append(state)
-        self._new_state_set.append(new_state)
-        self._reward_set.append(reward)
-        self._done_set.append(done)
-        self._action_set.append(action)
-        self.cumulative_reward += reward
+    def append(self, *args, **kwargs):
+        raise NotImplementedError
 
     def union(self, sample_data):
         assert isinstance(sample_data, type(self))
@@ -85,7 +76,7 @@ class SampleData(object):
         assert len(data_set) == len(self._action_set)
         assert len(np.array(data_set).shape) - 1 == len(shape)
         if len(shape) > 0:
-            assert np.equal(np.array(data_set).shape[1:], shape)
+            assert np.equal(np.array(data_set).shape[1:], shape).all()
         if isinstance(data_set, np.ndarray):
             data_set = data_set.tolist()
         shape = tuple(shape)
@@ -95,26 +86,30 @@ class SampleData(object):
     def sample_batch(self, *args, **kwargs):
         raise NotImplementedError
 
-    # todo the following api should be deprecated
+    # todo in future version, use following api
+
+    # def _register_data_set(self, source_data, name):
+    #     setattr(self, name, source_data)
+
     @property
     def state_set(self):
-        return make_batch(np.array(self._state_set), original_shape=self.obs_shape)
+        return self('state_set')
 
     @property
     def new_state_set(self):
-        return make_batch(np.array(self._new_state_set), self.obs_shape)
+        return self('new_state_set')
 
     @property
     def action_set(self):
-        return make_batch(np.array(self._action_set), self.action_shape)
+        return self('action_set')
 
     @property
     def reward_set(self):
-        return make_batch(np.array(self._reward_set), [1])
+        return self('reward_set')
 
     @property
     def done_set(self):
-        return make_batch(np.array(self._done_set), [1])
+        return self('done_set')
 
 
 class TransitionData(SampleData):
@@ -131,9 +126,18 @@ class TransitionData(SampleData):
             batch_data[key] = self(key)[id_index]
         return batch_data
 
+    # @typechecked
+    def append(self, state: np.ndarray, action: np.ndarray, new_state: np.ndarray, done: bool, reward: float):
+        # todo some type check should be here
+        self._state_set.append(state)
+        self._new_state_set.append(new_state)
+        self._reward_set.append(reward)
+        self._done_set.append(done)
+        self._action_set.append(action)
+        self.cumulative_reward += reward
+
 
 class TrajectoryData(SampleData):
-    # todo implementation
     def __init__(self, env_spec=None, obs_shape=None, action_shape=None):
         super(TrajectoryData, self).__init__(env_spec=env_spec, obs_shape=obs_shape, action_shape=action_shape)
         self.trajectories = []

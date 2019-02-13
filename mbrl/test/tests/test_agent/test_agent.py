@@ -1,4 +1,4 @@
-from mbrl.test.tests.testSetup import TestTensorflowSetup
+from mbrl.test.tests.test_setup import TestTensorflowSetup
 
 from mbrl.rl.algo.model_free import DQN
 from mbrl.envs.gym_env import make

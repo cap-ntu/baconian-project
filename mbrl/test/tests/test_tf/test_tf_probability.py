@@ -5,7 +5,7 @@ from mbrl.envs.env_spec import EnvSpec
 import numpy as np
 from mbrl.envs.gym_env import make
 from mbrl.common.special import *
-from mbrl.test.tests.testSetup import TestTensorflowSetup
+from mbrl.test.tests.test_setup import TestTensorflowSetup
 
 
 def describe_sample_tensor_shape(sample_shape, distribution):

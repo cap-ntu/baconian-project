@@ -4,8 +4,7 @@ This script is from garage
 
 import gym.spaces
 import numpy as np
-from mbrl.misc import special
-
+from mbrl.common import special
 __all__ = [
     'flat_dim', 'flatten', 'flatten_n', 'unflatten', 'unflatten_n',
     'weighted_sample'

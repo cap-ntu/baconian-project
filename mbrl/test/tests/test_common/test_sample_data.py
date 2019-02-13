@@ -2,7 +2,7 @@ from mbrl.common.sampler.sample_data import TransitionData
 from mbrl.envs import make
 from mbrl.envs.env_spec import EnvSpec
 import numpy as np
-from mbrl.test.tests.testSetup import BaseTestCase
+from mbrl.test.tests.test_setup import BaseTestCase
 
 
 class TestSampleData(BaseTestCase):
@@ -17,14 +17,18 @@ class TestSampleData(BaseTestCase):
             st_new, re, done, _ = env.step(action=ac)
             a.append(state=st, new_state=st_new, action=ac, done=done, reward=re)
         self.assertEqual(a.reward_set.shape[0], 100)
-        self.assertEqual(a.reward_set.shape[1], 1)
         self.assertEqual(a.done_set.shape[0], 100)
-        self.assertEqual(a.done_set.shape[1], 1)
 
         self.assertEqual(a.action_set.shape[0], 100)
         self.assertEqual(a.state_set.shape[0], 100)
         self.assertEqual(a.new_state_set.shape[0], 100)
 
+        self.assertEqual(a('reward_set').shape[0], 100)
+        self.assertEqual(a('done_set').shape[0], 100)
+
+        self.assertEqual(a('state_set').shape[0], 100)
+        self.assertEqual(a('new_state_set').shape[0], 100)
+        self.assertEqual(a('action_set').shape[0], 100)
         iterator = a.return_generator()
         count = 0
         for st, new_st, ac, reward, terminal in iterator:
@@ -44,14 +48,18 @@ class TestSampleData(BaseTestCase):
             st_new, re, done, _ = env.step(action=ac)
             a.append(state=st, new_state=st_new, action=ac, done=done, reward=re)
         self.assertEqual(a.reward_set.shape[0], 100)
-        self.assertEqual(a.reward_set.shape[1], 1)
         self.assertEqual(a.done_set.shape[0], 100)
-        self.assertEqual(a.done_set.shape[1], 1)
 
         self.assertEqual(a.action_set.shape[0], 100)
         self.assertEqual(a.state_set.shape[0], 100)
         self.assertEqual(a.new_state_set.shape[0], 100)
 
+        self.assertEqual(a('reward_set').shape[0], 100)
+        self.assertEqual(a('done_set').shape[0], 100)
+
+        self.assertEqual(a('state_set').shape[0], 100)
+        self.assertEqual(a('new_state_set').shape[0], 100)
+        self.assertEqual(a('action_set').shape[0], 100)
         iterator = a.return_generator()
         count = 0
         for st, new_st, ac, reward, terminal in iterator:

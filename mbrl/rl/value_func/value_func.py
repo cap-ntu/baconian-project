@@ -35,8 +35,9 @@ class ValueFunction(Basic):
     def forward(self, *args, **kwargs):
         raise NotImplementedError
 
-    def update(self, *args, **kwargs):
-        raise NotImplementedError
+    @tg.typechecked
+    def update(self, param_update_args: dict, *args, **kwargs):
+        self.parameters.update(**param_update_args)
 
     @abc.abstractmethod
     def init(self, source_obj=None):

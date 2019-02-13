@@ -6,7 +6,7 @@ from mbrl.envs.env_spec import EnvSpec
 from mbrl.rl.value_func.mlp_q_value import MLPQValueFunction
 from mbrl.rl.algo.model_based.models.mlp_dynamics_model import ContinuousMLPDynamicsModel
 from mbrl.common.sampler.sample_data import TransitionData
-from mbrl.test.tests.testSetup import TestTensorflowSetup
+from mbrl.test.tests.test_setup import TestTensorflowSetup
 
 
 class TestSampleWithDynamics(TestTensorflowSetup):

@@ -37,3 +37,9 @@ class EnvSpec(object):
     @staticmethod
     def flat(space: Space, obs_or_action: (np.ndarray, list)):
         return flatten(space, obs_or_action)
+
+    def flat_action(self, action: (np.ndarray, list)):
+        return flatten(self.action_space, action)
+
+    def flat_obs(self, obs: (np.ndarray, list)):
+        return flatten(self.obs_space, obs)

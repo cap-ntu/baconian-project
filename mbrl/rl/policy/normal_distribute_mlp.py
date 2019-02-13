@@ -16,7 +16,6 @@ class NormalDistributionMLPPolicy(Policy):
         super().__init__(env_spec)
         obs_dim = env_spec.flat_obs_dim
         action_dim = env_spec.flat_action_dim
-        # todo check the key here
         assert action_dim == mlp_config[-1]['OUTPUT_DIM']
         with tf.variable_scope(name_scope):
             self.state_ph = tf.placeholder(shape=[None, obs_dim], dtype=tf.float32, name='state_ph')

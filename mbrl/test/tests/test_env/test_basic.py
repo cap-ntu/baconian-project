@@ -1,5 +1,6 @@
 from mbrl.envs.gym_env import GymEnv
-from mbrl.test.tests.testSetup import BaseTestCase
+from mbrl.test.tests.test_setup import BaseTestCase
+from gym import make
 
 
 class TestEnv(BaseTestCase):
@@ -11,17 +12,15 @@ class TestEnv(BaseTestCase):
         a.step(action=a.action_space.sample())
 
     def test_all_get_state(self):
-        pass
+        type_list = []
         # for id in GymEnv._all_gym_env_id:
         #     try:
         #         env = make(id)
+        #         type_list.append(type(env).__name__)
         #         env.reset()
         #         st = env.get_state()
         #         self.assertTrue(env.observation_space.contains(st))
         #         assert env.observation_space.contains(st)
         #     except BaseException:
         #         print("{} is not found".format(id))
-
-    def test_all_spaces_and_op(self):
-        # todo
-        pass
+        print(set(type_list))

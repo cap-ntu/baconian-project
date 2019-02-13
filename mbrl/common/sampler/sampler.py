@@ -63,13 +63,6 @@ class Sampler(Basic):
             while done is not True:
                 action = agent.predict(obs=state, in_test_flag=in_test_flag)
                 new_state, re, done, info = env.step(action)
-                # todo done signal should be bool, which should be strict at the env codes
-                if not isinstance(done, bool):
-                    if done[0] == 1:
-                        done = True
-                    else:
-                        done = False
-
                 traj_record.append(state=state,
                                    action=action,
                                    reward=re,

@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from mbrl.tf.util import MLPCreator
-from mbrl.test.tests.testSetup import TestTensorflowSetup
+from mbrl.test.tests.test_setup import TestTensorflowSetup
 import tensorflow as tf
 
 

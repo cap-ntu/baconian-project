@@ -7,7 +7,7 @@ from mbrl.rl.misc.exploration_strategy.epsilon_greedy import EpsilonGreedy
 from mbrl.core.pipelines.model_based_pipeline import ModelBasedPipeline
 from mbrl.rl.algo.model_based.models.mlp_dynamics_model import ContinuousMLPDynamicsModel
 from mbrl.rl.algo.model_based.sample_with_model import SampleWithDynamics
-from mbrl.test.tests.testSetup import TestTensorflowSetup
+from mbrl.test.tests.test_setup import TestTensorflowSetup
 
 
 class TestModelFreePipeline(TestTensorflowSetup):

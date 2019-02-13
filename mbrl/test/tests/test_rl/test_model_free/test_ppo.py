@@ -4,7 +4,7 @@ from mbrl.common.sampler.sample_data import TransitionData, TrajectoryData
 from mbrl.rl.value_func.mlp_v_value import MLPVValueFunc
 from mbrl.rl.policy.normal_distribution_mlp import NormalDistributionMLPPolicy
 from mbrl.rl.algo.model_free.ppo import PPO
-from mbrl.test.tests.testSetup import TestTensorflowSetup
+from mbrl.test.tests.test_setup import TestTensorflowSetup
 import tensorflow as tf
 
 
