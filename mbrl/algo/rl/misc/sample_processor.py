@@ -1,6 +1,6 @@
 from mbrl.common.sampler.sample_data import TransitionData, TrajectoryData
 import numpy as np
-from mbrl.algo.rl.value_func import ValueFunction
+from mbrl.algo.rl.value_func.value_func import ValueFunction
 from typeguard import typechecked
 import scipy.signal
 from mbrl.common.special import *

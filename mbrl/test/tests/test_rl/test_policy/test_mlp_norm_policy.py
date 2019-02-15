@@ -2,7 +2,7 @@ import unittest
 from mbrl.envs.gym_env import make
 from mbrl.envs.env_spec import EnvSpec
 import numpy as np
-from mbrl.algo.rl.policy.normal_distribute_mlp import NormalDistributionMLPPolicy
+from mbrl.algo.rl.policy.normal_distribution_mlp import NormalDistributionMLPPolicy
 from mbrl.common.special import *
 from mbrl.test.tests.test_setup import TestTensorflowSetup
 

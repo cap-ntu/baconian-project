@@ -1,5 +1,5 @@
 from mbrl.envs.env_spec import EnvSpec
-from mbrl.algo.rl.policy import Policy
+from mbrl.algo.rl.policy.policy import Policy
 from typeguard import typechecked
 from overrides.overrides import overrides
 
@@ -11,5 +11,5 @@ class UniformRandomPolicy(Policy):
         super().__init__(env_spec)
 
     @overrides
-    def sample(self, obs, **kwargs):
+    def forward(self, obs, **kwargs):
         return self.action_space.sample()

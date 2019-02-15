@@ -7,11 +7,11 @@ import numpy as np
 from mbrl.common.sampler.sample_data import TrajectoryData, TransitionData
 from mbrl.tf.tf_parameters import TensorflowParameters
 from mbrl.config.global_config import GlobalConfig
-from mbrl.algo.rl.policy import StochasticPolicy
+from mbrl.algo.rl.policy.policy import StochasticPolicy
 from mbrl.algo.rl.value_func.mlp_v_value import MLPVValueFunc
 from mbrl.tf.util import *
 from mbrl.common.misc import *
-from mbrl.algo.rl.misc import SampleProcessor
+from mbrl.algo.rl.misc.sample_processor import SampleProcessor
 
 
 class PPO(ModelFreeAlgo, OnPolicyAlgo):

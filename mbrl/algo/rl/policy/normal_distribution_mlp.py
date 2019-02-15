@@ -1,4 +1,4 @@
-from mbrl.algo.rl.policy import StochasticPolicy
+from mbrl.algo.rl.policy.policy import StochasticPolicy
 from typeguard import typechecked
 from mbrl.envs.env_spec import EnvSpec
 import overrides
@@ -107,7 +107,7 @@ class NormalDistributionMLPPolicy(StochasticPolicy):
         return res
 
     @overrides.overrides
-    def copy(self, obj) -> bool:
+    def copy_from(self, obj) -> bool:
         assert isinstance(obj, type(self))
         self.mlp_net.copy_from(obj=obj.mlp_net)
         return super().copy_from(obj)
@@ -138,7 +138,7 @@ class NormalDistributionMLPPolicy(StochasticPolicy):
     def init(self, source_obj=None):
         self.parameters.init()
         if source_obj:
-            self.copy(obj=source_obj)
+            self.copy_from(obj=source_obj)
 
     def compute_dist_info(self, name, sess=None, **kwargs) -> np.ndarray:
         assert name in ['log_prob', 'prob', 'entropy', 'kl']
