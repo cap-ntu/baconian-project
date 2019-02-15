@@ -4,9 +4,7 @@ A module for handle the data pre-processing including normalization, standardiza
 import numpy as np
 import abc
 from typeguard import typechecked
-import overrides
 import tensorflow as tf
-from mbrl.rl.utils import Scaler
 
 
 class DataWrapper(object):

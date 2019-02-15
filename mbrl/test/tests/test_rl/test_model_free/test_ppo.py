@@ -1,9 +1,9 @@
 from mbrl.envs.gym_env import make
 from mbrl.envs.env_spec import EnvSpec
 from mbrl.common.sampler.sample_data import TransitionData, TrajectoryData
-from mbrl.rl.value_func.mlp_v_value import MLPVValueFunc
-from mbrl.rl.policy.normal_distribution_mlp import NormalDistributionMLPPolicy
-from mbrl.rl.algo.model_free.ppo import PPO
+from mbrl.algo.rl.value_func.mlp_v_value import MLPVValueFunc
+from mbrl.algo.rl.policy.normal_distribute_mlp import NormalDistributionMLPPolicy
+from mbrl.algo.rl.model_free.ppo import PPO
 from mbrl.test.tests.test_setup import TestTensorflowSetup
 import tensorflow as tf
 

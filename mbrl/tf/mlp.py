@@ -47,7 +47,7 @@ class MLP(object):
                        feed_dict=feed_dict)
         return np.squeeze(res)
 
-    def copy(self, obj) -> bool:
+    def copy_from(self, obj) -> bool:
         if not isinstance(obj, type(self)):
             raise TypeError('Wrong type of obj %s to be copied, which should be %s' % (type(obj), type(self)))
         self.parameters.copy_from(source_parameter=obj.parameters)
@@ -56,4 +56,4 @@ class MLP(object):
     def init(self, source_obj=None):
         self.parameters.init()
         if source_obj:
-            self.copy(obj=source_obj)
+            self.copy_from(obj=source_obj)

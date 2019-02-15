@@ -1,7 +1,7 @@
 import unittest
 from mbrl.envs import make
 from mbrl.envs.env_spec import EnvSpec
-from mbrl.rl.value_func.mlp_q_value import MLPQValueFunction
+from mbrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
 from mbrl.common.special import *
 from mbrl.test.tests.test_setup import TestTensorflowSetup
 import tensorflow as tf
