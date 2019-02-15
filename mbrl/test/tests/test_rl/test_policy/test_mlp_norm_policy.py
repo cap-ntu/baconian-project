@@ -2,7 +2,7 @@ import unittest
 from mbrl.envs.gym_env import make
 from mbrl.envs.env_spec import EnvSpec
 import numpy as np
-from mbrl.rl.policy.normal_distribution_mlp import NormalDistributionMLPPolicy
+from mbrl.algo.rl.policy.normal_distribute_mlp import NormalDistributionMLPPolicy
 from mbrl.common.special import *
 from mbrl.test.tests.test_setup import TestTensorflowSetup
 
@@ -63,7 +63,7 @@ class TestNormalDistMLPPolicy(TestTensorflowSetup):
             self.assertEqual(var1.shape, var2.shape)
             self.assertEqual(id(var1), id(var2))
 
-        policy.copy(p2)
+        policy.copy_from(p2)
         res = []
         res2 = []
         for var1, var2, var3 in zip(policy.parameters('tf_var_list'), p2.parameters('tf_var_list'),

@@ -1,8 +1,8 @@
 from mbrl.envs.gym_env import make
 from mbrl.envs.env_spec import EnvSpec
-from mbrl.rl.value_func.mlp_q_value import MLPQValueFunction
-from mbrl.rl.algo.model_free.ddpg import DDPG
-from mbrl.rl.policy.deterministic_mlp import DeterministicMLPPolicy
+from mbrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
+from mbrl.algo.rl.model_free.ddpg import DDPG
+from mbrl.algo.rl.policy.deterministic_mlp import DeterministicMLPPolicy
 from mbrl.common.sampler.sample_data import TransitionData
 from mbrl.test.tests.test_setup import TestTensorflowSetup
 

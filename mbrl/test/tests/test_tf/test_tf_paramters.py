@@ -1,10 +1,4 @@
-import unittest
-from mbrl.rl.algo.model_free import DQN
-from mbrl.envs.env_spec import EnvSpec
-from mbrl.rl.value_func.mlp_q_value import MLPQValueFunction
 import tensorflow as tf
-from mbrl.tf.util import create_new_tf_session
-import numpy as np
 from mbrl.tf.tf_parameters import TensorflowParameters
 from mbrl.config.dict_config import DictConfig
 from mbrl.core.basic import Basic

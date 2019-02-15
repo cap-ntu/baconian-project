@@ -1,11 +1,11 @@
 from mbrl.envs.gym_env import make
 from mbrl.envs.env_spec import EnvSpec
-from mbrl.rl.algo.model_based.models.mlp_dynamics_model import ContinuousMLPDynamicsModel
+from mbrl.algo.rl.model_based.models.mlp_dynamics_model import ContinuousMLPDynamicsModel
 from mbrl.common.sampler.sample_data import TransitionData
-from mbrl.rl.algo.model_based.mpc import ModelPredictiveControl
+from mbrl.algo.rl.model_based.mpc import ModelPredictiveControl
 import unittest
-from mbrl.rl.algo.model_based.misc.terminal_func.terminal_func import RandomTerminalFunc
-from mbrl.rl.algo.model_based.misc.reward_func.reward_func import RandomRewardFunc
+from mbrl.algo.rl.model_based.misc.terminal_func.terminal_func import RandomTerminalFunc
+from mbrl.algo.rl.model_based.misc.reward_func.reward_func import RandomRewardFunc
 import numpy as np
 from mbrl.test.tests.test_setup import TestTensorflowSetup
 

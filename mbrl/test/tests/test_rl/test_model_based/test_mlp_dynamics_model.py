@@ -1,4 +1,4 @@
-from mbrl.rl.algo.model_based.models.mlp_dynamics_model import ContinuousMLPDynamicsModel
+from mbrl.algo.rl.model_based.models.mlp_dynamics_model import ContinuousMLPDynamicsModel
 from mbrl.envs.gym_env import make
 from mbrl.envs.env_spec import EnvSpec
 from mbrl.common.sampler.sample_data import TransitionData
@@ -82,4 +82,4 @@ class TestDynamicsModel(TestTensorflowSetup):
                 }
             ])
         mlp_dyna_2.init(source_obj=mlp_dyna)
-        mlp_dyna_2.copy(mlp_dyna)
+        mlp_dyna_2.copy_from(mlp_dyna)

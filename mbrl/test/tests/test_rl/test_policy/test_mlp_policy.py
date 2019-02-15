@@ -1,6 +1,6 @@
 from mbrl.envs.gym_env import make
 from mbrl.envs.env_spec import EnvSpec
-from mbrl.rl.policy.deterministic_mlp import DeterministicMLPPolicy
+from mbrl.algo.rl.policy .deterministic_mlp import DeterministicMLPPolicy
 from mbrl.test.tests.test_setup import TestTensorflowSetup
 
 
