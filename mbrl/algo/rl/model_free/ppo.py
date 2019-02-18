@@ -12,6 +12,8 @@ from mbrl.algo.rl.value_func.mlp_v_value import MLPVValueFunc
 from mbrl.tf.util import *
 from mbrl.common.misc import *
 from mbrl.algo.rl.misc.sample_processor import SampleProcessor
+from mbrl.common.util.logger import record_return_decorator
+from mbrl.core.status import register_counter_status_decorator
 
 
 class PPO(ModelFreeAlgo, OnPolicyAlgo):
@@ -82,6 +84,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo):
             '{}/train'.format(name)) + self.policy_optimizer.variables() + self.value_func_optimizer.variables()
         self.parameters.set_tf_var_list(tf_var_list=sorted(list(set(var_list)), key=lambda x: x.name))
 
+    @register_counter_status_decorator(increment=1, key='init')
     def init(self):
         self.policy.init()
         self.value_func.init()
@@ -90,6 +93,9 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo):
         # sess.run(tf.variables_initializer(var_list=self.parameters('tf_var_list')))
         super().init()
 
+    @record_return_decorator(which_logger='global')
+    @register_counter_status_decorator(increment=1, key='train')
+    @typechecked
     def train(self, trajectory_data: TrajectoryData = None, train_iter=None, sess=None) -> dict:
         super(PPO, self).train()
         if trajectory_data is None:
@@ -119,9 +125,11 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo):
             **value_func_res_dict
         }
 
+    @register_counter_status_decorator(increment=1, key='test')
     def test(self, *arg, **kwargs) -> dict:
         return super().test(*arg, **kwargs)
 
+    @register_counter_status_decorator(increment=1, key='predict')
     @typechecked
     def predict(self, obs: np.ndarray, sess=None, batch_flag: bool = False):
         tf_sess = sess if sess else tf.get_default_session()

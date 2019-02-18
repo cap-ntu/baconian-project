@@ -1,4 +1,5 @@
 from mbrl.core.basic import Basic
+from mbrl.core.status import StatusWithSingleInfo, StatusWithSubInfo
 import abc
 from mbrl.envs.env_spec import EnvSpec
 from typeguard import typechecked
@@ -16,7 +17,7 @@ class Algo(Basic, abc.ABC):
     def __init__(self, env_spec: EnvSpec, name: str = 'algo'):
         self.env_spec = env_spec
         self._name = name
-        super().__init__()
+        super().__init__(status=StatusWithSubInfo(obj=self))
 
     @property
     def name(self):
@@ -41,3 +42,6 @@ class Algo(Basic, abc.ABC):
 
     def register_logger(self, logger: Logger):
         raise NotImplementedError
+
+    def get_status(self) -> dict:
+        return self.status.get_status()

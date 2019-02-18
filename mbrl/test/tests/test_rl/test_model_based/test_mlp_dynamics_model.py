@@ -84,8 +84,3 @@ class TestDynamicsModel(TestTensorflowSetup):
             ])
         mlp_dyna_2.init(source_obj=mlp_dyna)
         mlp_dyna_2.copy_from(mlp_dyna)
-        self.assertTrue(len(mlp_dyna.grad_op()) > 0)
-        print(self.sess.run(mlp_dyna.grad_op(), feed_dict={
-            mlp_dyna.state_input: data.state_set,
-            mlp_dyna.action_input: flatten_n(env_spec.action_space, data.action_set),
-        }))

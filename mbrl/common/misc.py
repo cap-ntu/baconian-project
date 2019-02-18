@@ -4,6 +4,7 @@ from mbrl.config.dict_config import DictConfig
 __all__ = ['generate_n_actions_hot_code', 'repeat_ndarray', 'construct_dict_config']
 
 
+
 def generate_n_actions_hot_code(n):
     res = np.arange(0, n)
     action = np.zeros([n, n])

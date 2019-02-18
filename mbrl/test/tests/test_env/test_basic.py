@@ -1,6 +1,5 @@
 from mbrl.envs.gym_env import GymEnv
 from mbrl.test.tests.test_setup import BaseTestCase
-from gym import make
 
 
 class TestEnv(BaseTestCase):

@@ -9,6 +9,7 @@ from mbrl.algo.rl.model_based.misc.reward_func.reward_func import RandomRewardFu
 import numpy as np
 from mbrl.test.tests.test_setup import TestTensorflowSetup
 from mbrl.algo.rl.policy.random_policy import UniformRandomPolicy
+from mbrl.algo.rl.policy.random_policy import UniformRandomPolicy
 
 
 class TestMPC(TestTensorflowSetup):
@@ -113,7 +114,8 @@ class TestMPC(TestTensorflowSetup):
                 dynamics_model_train_iter=10
             ),
             reward_func=RandomRewardFunc(),
-            terminal_func=RandomTerminalFunc()
+            terminal_func=RandomTerminalFunc(),
+            policy=UniformRandomPolicy(env_spec=env_spec)
         )
         algo.init()
         for _ in range(100):

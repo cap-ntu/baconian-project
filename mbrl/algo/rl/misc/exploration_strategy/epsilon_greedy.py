@@ -1,5 +1,5 @@
 from mbrl.algo.rl.misc.exploration_strategy.base import ExplorationStrategy
-from gym.core import Space
+from mbrl.common.spaces.base import Space
 from mbrl.common.random import Random
 from typeguard import typechecked
 from mbrl.core.parameters import Parameters

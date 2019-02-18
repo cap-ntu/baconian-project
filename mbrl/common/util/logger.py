@@ -66,6 +66,10 @@ class Logger(object):
     def record(self):
         self._record_by_getter()
 
+    def save(self):
+        # todo
+        pass
+
     def append_to_global_obj_log(self, obj, obj_name: str, attr_name: str, status_info: dict, log_val):
         if obj not in self._global_obj_log:
             self._global_obj_log[obj] = {}
@@ -114,19 +118,6 @@ class Logger(object):
                                                                      get_method=get_method_name,
                                                                      static_flag=static_flag)
 
-    # @typechecked
-    # def _register_logging_attribute_by_decorator(self, obj, obj_name: str, attr_name: str):
-    #     if not hasattr(obj, 'get_status') or not callable(obj.get_status):
-    #         raise ValueError('registered obj {} mush have callable method get_status()'.format(type(obj)))
-    #     if obj not in self._registered_log_file_dict:
-    #         self._registered_log_file_dict[obj] = {}
-    #     if attr_name in self._registered_log_file_dict[obj]:
-    #         return
-    #     self._registered_log_file_dict[obj][attr_name] = dict(obj=obj,
-    #                                                           obj_name=obj_name,
-    #                                                           attr_name=attr_name)
-
-
 # @property
 # def config_file_log_dir(self):
 #     self._config_file_log_dir = os.path.join(self.log_dir, 'config')
@@ -155,38 +146,11 @@ global_logger = Logger(log_path=GlobalConfig.DEFAULT_LOG_PATH,
                        log_level=GlobalConfig.DEFAULT_LOG_LEVEL)
 
 
-class LoggingConfig(object):
-    def __init__(self, log_file_type_list: list = GlobalConfig.DEFAULT_ALLOWED_LOG_FILE_TYPES,
-                 log_level: int = GlobalConfig.DEFAULT_LOG_LEVEL):
-        pass
-
-
-@decorator
-@typechecked
-def count_call_times(func, logger: Logger = global_logger, *arg, **kwargs):
-    obj = func.__self__
-
-
-# @decorator
-# def record_return(func, which_logger: str = 'global', self=None, *arg, **kwargs):
-#     obj = self
-#     obj_name = getattr(obj, 'name') if hasattr(obj, 'name') else str(obj.__name__)
+# class LoggingConfig(object):
+#     def __init__(self, log_file_type_list: list = GlobalConfig.DEFAULT_ALLOWED_LOG_FILE_TYPES,
+#                  log_level: int = GlobalConfig.DEFAULT_LOG_LEVEL):
+#         pass
 #
-#     if which_logger == 'global':
-#         logger = global_logger
-#     elif which_logger == 'self':
-#         logger = getattr(obj, 'logger')
-#     else:
-#         raise ValueError('Not supported logger indicator: {}, use {}'.format(which_logger, 'gloabl, self'))
-#     if not hasattr(obj, 'get_status') or not callable(obj.get_status):
-#         raise ValueError('registered obj {} mush have callable method get_status()'.format(type(obj)))
-#     res = func(self, *arg, **kwargs)
-#     info = obj.get_status()
-#     if not isinstance(res, dict):
-#         raise TypeError('returned value by {} must be a dict in order to be logged'.format(func.__name__))
-#     for key, val in res.items():
-#         logger.append_to_global_obj_log(obj=obj, attr_name=key, obj_name=obj_name, status_info=info, log_val=val)
-
 
 def record_return_decorator(which_logger: str):
     def wrap(fn):

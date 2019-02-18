@@ -1,12 +1,13 @@
-from gym.core import Space
+from mbrl.common.spaces.base import Space
 from typeguard import typechecked
 
 from mbrl.common.special import flat_dim, flatten
 import numpy as np
+from mbrl.core.util import init_func_arg_record_decorator
 
 
 class EnvSpec(object):
-
+    @init_func_arg_record_decorator()
     @typechecked
     def __init__(self, obs_space: Space, action_space: Space):
         self._obs_space = obs_space

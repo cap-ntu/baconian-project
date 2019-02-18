@@ -1,6 +1,7 @@
 import json
 import os
 import typeguard as tg
+from mbrl.core.util import init_func_arg_record_decorator
 
 
 class Config(object):
@@ -8,6 +9,8 @@ class Config(object):
 
 
 class DictConfig(Config):
+
+    @init_func_arg_record_decorator()
     def __init__(self, required_key_dict: dict, config_dict=None, cls_name=""):
         self.cls_name = cls_name
 

@@ -1,6 +1,6 @@
 import unittest
 from mbrl.envs.env_spec import EnvSpec
-from gym.spaces import *
+from mbrl.common.spaces import *
 from mbrl.common.special import *
 from mbrl.envs.gym_env import make
 import numpy as np

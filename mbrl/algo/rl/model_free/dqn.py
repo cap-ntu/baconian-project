@@ -2,6 +2,8 @@ from mbrl.common.special import flatten_n
 from mbrl.algo.rl.rl_algo import ModelFreeAlgo, OffPolicyAlgo
 from mbrl.config.dict_config import DictConfig
 from typeguard import typechecked
+
+from mbrl.core.util import init_func_arg_record_decorator
 from mbrl.tf.util import *
 from mbrl.algo.rl.util.replay_buffer import UniformRandomReplayBuffer, BaseReplayBuffer
 import tensorflow as tf
@@ -13,11 +15,13 @@ from mbrl.config.global_config import GlobalConfig
 from mbrl.common.misc import *
 from mbrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
 from mbrl.common.util.logger import record_return_decorator
+from mbrl.core.status import register_counter_status_decorator
 
 
 class DQN(ModelFreeAlgo, OffPolicyAlgo):
     required_key_list = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_DQN_REQUIRED_KEY_LIST)
 
+    @init_func_arg_record_decorator()
     @typechecked
     def __init__(self,
                  env_spec,
@@ -73,18 +77,19 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo):
                                               scope='{}/train'.format(name)) + self.optimizer.variables()
         self.parameters.set_tf_var_list(tf_var_list=sorted(list(set(var_list)), key=lambda x: x.name))
 
+    @register_counter_status_decorator(increment=1, key='init')
     def init(self, sess=None):
         super().init()
         self.q_value_func.init()
         self.target_q_value_func.init()
         self.parameters.init()
-
         # tf_sess = sess if sess else tf.get_default_session()
         # feed_dict = self.parameters.return_tf_parameter_feed_dict()
         # tf_sess.run(tf.variables_initializer(var_list=self.parameters('tf_var_list')),
         #             feed_dict=feed_dict)
 
     @record_return_decorator(which_logger='global')
+    @register_counter_status_decorator(increment=1, key='train')
     @typechecked
     def train(self, batch_data=None, train_iter=None, sess=None, update_target=True) -> dict:
         super(DQN, self).train()
@@ -118,9 +123,11 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo):
                         feed_dict=self.parameters.return_tf_parameter_feed_dict())
         return dict(average_loss=average_loss)
 
+    @register_counter_status_decorator(increment=1, key='test')
     def test(self, *arg, **kwargs):
         super().test()
 
+    @register_counter_status_decorator(increment=1, key='predict')
     @typechecked
     def predict(self, obs: np.ndarray, sess=None, batch_flag: bool = False):
         if batch_flag:
@@ -156,6 +163,7 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo):
                                                  sess=sess)
         return action, q_val
 
+    @register_counter_status_decorator(increment=1, key='append_to_memory')
     @typechecked
     def append_to_memory(self, samples: TransitionData):
         iter_samples = samples.return_generator()

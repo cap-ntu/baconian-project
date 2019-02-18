@@ -8,6 +8,7 @@ from typeguard import typechecked
 from mbrl.tf.tf_parameters import TensorflowParameters
 from mbrl.tf.mlp import MLP
 from mbrl.common.special import *
+from mbrl.core.util import init_func_arg_record_decorator
 
 
 class MLPQValueFunction(PlaceholderInputValueFunction):
@@ -16,6 +17,7 @@ class MLPQValueFunction(PlaceholderInputValueFunction):
     return the Q value for all action/ input action.
     """
 
+    @init_func_arg_record_decorator()
     @tg.typechecked
     def __init__(self,
                  env_spec: EnvSpec,

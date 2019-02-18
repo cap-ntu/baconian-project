@@ -8,8 +8,11 @@ class Basic(object):
     STATUS_LIST = GlobalConfig.DEFAULT_BASIC_STATUS_LIST
     INIT_STATUS = GlobalConfig.DEFAULT_BASIC_INIT_STATUS
 
-    def __init__(self):
-        self.status = Status(self)
+    def __init__(self, status=None):
+        if not status:
+            self.status = Status(self)
+        else:
+            self.status = status
 
     def init(self):
         raise NotImplementedError

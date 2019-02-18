@@ -24,6 +24,7 @@ class TestTensorflowSetup(BaseTestCase):
 
     def tearDown(self):
         if self.sess.run(tf.report_uninitialized_variables()).shape[0] != 0:
+            print('some variables are not uninitialized:')
             print(self.sess.run(tf.report_uninitialized_variables()))
             print(self.sess.run(tf.report_uninitialized_variables()).shape)
             raise AssertionError('some variables are not uninitialized')
