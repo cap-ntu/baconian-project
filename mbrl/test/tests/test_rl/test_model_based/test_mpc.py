@@ -1,6 +1,6 @@
 from mbrl.envs.gym_env import make
 from mbrl.envs.env_spec import EnvSpec
-from mbrl.algo.rl.model_based.models.mlp_dynamics_model import ContinuousMLPDynamicsModel
+from mbrl.algo.rl.model_based.models.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
 from mbrl.common.sampler.sample_data import TransitionData
 from mbrl.algo.rl.model_based.mpc import ModelPredictiveControl
 import unittest
@@ -8,6 +8,7 @@ from mbrl.algo.rl.model_based.misc.terminal_func.terminal_func import RandomTerm
 from mbrl.algo.rl.model_based.misc.reward_func.reward_func import RandomRewardFunc
 import numpy as np
 from mbrl.test.tests.test_setup import TestTensorflowSetup
+from mbrl.algo.rl.policy.random_policy import UniformRandomPolicy
 
 
 class TestMPC(TestTensorflowSetup):
@@ -17,7 +18,7 @@ class TestMPC(TestTensorflowSetup):
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
 
-        mlp_dyna = ContinuousMLPDynamicsModel(
+        mlp_dyna = ContinuousMLPGlobalDynamicsModel(
             env_spec=env_spec,
             name_scope='mlp_dyna',
             output_low=env_spec.obs_space.low,
@@ -52,7 +53,8 @@ class TestMPC(TestTensorflowSetup):
                 dynamics_model_train_iter=10
             ),
             reward_func=RandomRewardFunc(),
-            terminal_func=RandomTerminalFunc()
+            terminal_func=RandomTerminalFunc(),
+            policy=UniformRandomPolicy(env_spec=env_spec)
         )
         algo.init()
         for _ in range(100):
@@ -76,7 +78,7 @@ class TestMPC(TestTensorflowSetup):
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
 
-        mlp_dyna = ContinuousMLPDynamicsModel(
+        mlp_dyna = ContinuousMLPGlobalDynamicsModel(
             env_spec=env_spec,
             name_scope='mlp_dyna',
             output_low=np.ones_like(env_spec.obs_space.low) * -1.,

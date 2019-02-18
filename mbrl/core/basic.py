@@ -9,12 +9,14 @@ class Basic(object):
     INIT_STATUS = GlobalConfig.DEFAULT_BASIC_INIT_STATUS
 
     def __init__(self):
-        self.log_flag = False
-        self.log_content = None
         self.status = Status(self)
 
     def init(self):
         raise NotImplementedError
 
-    def get_status(self):
+    def get_status(self) -> dict:
         return self.status.get_status()
+
+    @property
+    def name(self):
+        raise NotImplementedError

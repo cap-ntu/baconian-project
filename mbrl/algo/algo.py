@@ -2,6 +2,10 @@ from mbrl.core.basic import Basic
 import abc
 from mbrl.envs.env_spec import EnvSpec
 from typeguard import typechecked
+from mbrl.common.util.logger import Logger
+
+
+# import numpy as np
 
 
 class Algo(Basic, abc.ABC):
@@ -11,8 +15,12 @@ class Algo(Basic, abc.ABC):
     @typechecked
     def __init__(self, env_spec: EnvSpec, name: str = 'algo'):
         self.env_spec = env_spec
-        self.name = name
+        self._name = name
         super().__init__()
+
+    @property
+    def name(self):
+        return self._name
 
     def init(self):
         self.status.set_status('JUST_INITED')
@@ -31,4 +39,5 @@ class Algo(Basic, abc.ABC):
     def append_to_memory(self, *args, **kwargs):
         raise NotImplementedError
 
-
+    def register_logger(self, logger: Logger):
+        raise NotImplementedError

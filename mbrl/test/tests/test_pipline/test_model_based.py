@@ -4,7 +4,7 @@ from mbrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
 from mbrl.agent.agent import Agent
 from mbrl.algo.rl.misc.exploration_strategy.epsilon_greedy import EpsilonGreedy
 from mbrl.core.pipelines.model_based_pipeline import ModelBasedPipeline
-from mbrl.algo.rl.model_based.models.mlp_dynamics_model import ContinuousMLPDynamicsModel
+from mbrl.algo.rl.model_based.models.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
 from mbrl.algo.rl.model_based.sample_with_model import SampleWithDynamics
 from mbrl.test.tests.test_setup import TestTensorflowSetup
 from mbrl.algo.rl.model_free.dqn import DQN
@@ -49,7 +49,7 @@ class TestModelFreePipeline(TestTensorflowSetup):
                                              DECAY=0.5),
                   value_func=mlp_q)
 
-        mlp_dyna = ContinuousMLPDynamicsModel(
+        mlp_dyna = ContinuousMLPGlobalDynamicsModel(
             env_spec=env_spec,
             name_scope='mlp_dyna',
             output_low=env_spec.obs_space.low,

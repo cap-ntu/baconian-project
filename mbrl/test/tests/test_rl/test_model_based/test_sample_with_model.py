@@ -4,7 +4,7 @@ from mbrl.algo.rl.model_free.dqn import DQN
 from mbrl.envs.gym_env import make
 from mbrl.envs.env_spec import EnvSpec
 from mbrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
-from mbrl.algo.rl.model_based.models.mlp_dynamics_model import ContinuousMLPDynamicsModel
+from mbrl.algo.rl.model_based.models.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
 from mbrl.common.sampler.sample_data import TransitionData
 from mbrl.test.tests.test_setup import TestTensorflowSetup
 
@@ -46,7 +46,7 @@ class TestSampleWithDynamics(TestTensorflowSetup):
                                              TRAIN_ITERATION=1,
                                              DECAY=0.5),
                   value_func=mlp_q)
-        mlp_dyna = ContinuousMLPDynamicsModel(
+        mlp_dyna = ContinuousMLPGlobalDynamicsModel(
             env_spec=env_spec,
             name_scope='mlp_dyna',
             output_low=env_spec.obs_space.low,

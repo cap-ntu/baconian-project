@@ -13,3 +13,6 @@ class UniformRandomPolicy(Policy):
     @overrides
     def forward(self, obs, **kwargs):
         return self.action_space.sample()
+
+    def init(self):
+        pass

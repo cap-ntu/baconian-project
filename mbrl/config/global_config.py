@@ -36,6 +36,11 @@ class GlobalConfig(object):
 
     DEFAULT_PPO_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS, 'ppo.json')
 
+    DEFAULT_ALLOWED_LOG_FILE_TYPES = ('json', 'csv', 'h5py')
+    # todo more detailed define on this
+    DEFAULT_LOG_LEVEL = 1
+    DEFAULT_LOG_PATH = '/home/dls/tmp/test'
+    DEFAULT_LOG_CONFIG_DICT = dict()
 
     @staticmethod
     @typechecked

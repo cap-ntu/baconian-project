@@ -29,9 +29,9 @@ class SampleData(object):
         }
         assert isinstance(self.obs_shape, (list, tuple))
         assert isinstance(self.action_shape, (list, tuple))
-        self._allowed_data_set_keys = ['state_set', 'action_set', 'new_state_set', 'reward_set', 'done_set']
+        # self._allowed_data_set_keys = ['state_set', 'action_set', 'new_state_set', 'reward_set', 'done_set']
         # for key, val in self._internal_data_dict.items():
-        #     self._register_data_set(source_data=self(key), name=key)
+        #     self._register_data_set(name=key)
 
     def __len__(self):
         return len(self._state_set)
@@ -81,15 +81,21 @@ class SampleData(object):
             data_set = data_set.tolist()
         shape = tuple(shape)
         self._internal_data_dict[name] = [data_set, shape]
-        self._allowed_data_set_keys.append(name)
+        # self._allowed_data_set_keys.append(name)
+        # self._register_data_set(name=name)
 
     def sample_batch(self, *args, **kwargs):
         raise NotImplementedError
 
     # todo in future version, use following api
 
-    # def _register_data_set(self, source_data, name):
-    #     setattr(self, name, source_data)
+    # def _register_data_set(self, name):
+    #     self.__setattr__(name, )
+    #     setattr(self, name, property(fget=self()))
+
+    @property
+    def _allowed_data_set_keys(self):
+        return list(self._internal_data_dict.keys())
 
     @property
     def state_set(self):

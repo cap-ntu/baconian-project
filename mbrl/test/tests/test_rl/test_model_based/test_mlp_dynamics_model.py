@@ -1,8 +1,9 @@
-from mbrl.algo.rl.model_based.models.mlp_dynamics_model import ContinuousMLPDynamicsModel
+from mbrl.algo.rl.model_based.models.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
 from mbrl.envs.gym_env import make
 from mbrl.envs.env_spec import EnvSpec
 from mbrl.common.sampler.sample_data import TransitionData
 from mbrl.test.tests.test_setup import TestTensorflowSetup
+from mbrl.common.special import *
 
 
 class TestDynamicsModel(TestTensorflowSetup):
@@ -13,7 +14,7 @@ class TestDynamicsModel(TestTensorflowSetup):
         env.reset()
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
-        mlp_dyna = ContinuousMLPDynamicsModel(
+        mlp_dyna = ContinuousMLPGlobalDynamicsModel(
             env_spec=env_spec,
             name_scope='mlp_dyna',
             output_low=env_spec.obs_space.low,
@@ -55,7 +56,7 @@ class TestDynamicsModel(TestTensorflowSetup):
             st = new_st
         print(mlp_dyna.train(batch_data=data, train_iter=10))
 
-        mlp_dyna_2 = ContinuousMLPDynamicsModel(
+        mlp_dyna_2 = ContinuousMLPGlobalDynamicsModel(
             env_spec=env_spec,
             name_scope='mlp_dyna2',
             output_low=env_spec.obs_space.low,
@@ -83,3 +84,8 @@ class TestDynamicsModel(TestTensorflowSetup):
             ])
         mlp_dyna_2.init(source_obj=mlp_dyna)
         mlp_dyna_2.copy_from(mlp_dyna)
+        self.assertTrue(len(mlp_dyna.grad_op()) > 0)
+        print(self.sess.run(mlp_dyna.grad_op(), feed_dict={
+            mlp_dyna.state_input: data.state_set,
+            mlp_dyna.action_input: flatten_n(env_spec.action_space, data.action_set),
+        }))

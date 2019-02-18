@@ -8,14 +8,6 @@ class ModelFreeAlgo(Algo):
         super(ModelFreeAlgo, self).__init__(env_spec, name)
 
 
-class ModelFreeOnPolicyAlgo(ModelFreeAlgo):
-    pass
-
-
-class ModelFreeOffPolicyAlgo(ModelFreeAlgo):
-    pass
-
-
 class OnPolicyAlgo(Algo):
     pass
 

@@ -1,6 +1,6 @@
 from mbrl.common.special import flatten_n
 from mbrl.envs.env_spec import EnvSpec
-from mbrl.algo.rl.model_based.models.dynamics_model import DynamicsModel
+from mbrl.algo.rl.model_based.models.dynamics_model import GlobalDynamicsModel, DerivableDynamics
 import tensorflow as tf
 from mbrl.tf.tf_parameters import TensorflowParameters
 from mbrl.tf.mlp import MLP
@@ -11,7 +11,7 @@ import numpy as np
 from mbrl.tf.util import *
 
 
-class ContinuousMLPDynamicsModel(DynamicsModel):
+class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics):
     def __init__(self, env_spec: EnvSpec,
                  name_scope: str,
                  mlp_config: list,
@@ -23,14 +23,16 @@ class ContinuousMLPDynamicsModel(DynamicsModel):
                  output_low: np.ndarray = None,
                  output_high: np.ndarray = None,
                  init_state=None):
-        super(ContinuousMLPDynamicsModel, self).__init__(env_spec=env_spec, parameters=None, init_state=init_state)
+        super(ContinuousMLPGlobalDynamicsModel, self).__init__(env_spec=env_spec, parameters=None,
+                                                               init_state=init_state)
 
         self.mlp_config = mlp_config
         self.name_scope = name_scope
         with tf.variable_scope(self.name_scope):
-            self.state_ph = tf.placeholder(shape=[None, env_spec.flat_obs_dim], dtype=tf.float32, name='state_ph')
-            self.action_ph = tf.placeholder(shape=[None, env_spec.flat_action_dim], dtype=tf.float32, name='action_ph')
-            self.mlp_input_ph = tf.concat([self.state_ph, self.action_ph], axis=1, name='state_action_input')
+            self.state_input = tf.placeholder(shape=[None, env_spec.flat_obs_dim], dtype=tf.float32, name='state_ph')
+            self.action_input = tf.placeholder(shape=[None, env_spec.flat_action_dim], dtype=tf.float32,
+                                               name='action_ph')
+            self.mlp_input_ph = tf.concat([self.state_input, self.action_input], axis=1, name='state_action_input')
             self.delta_state_label_ph = tf.placeholder(shape=[None, env_spec.flat_obs_dim], dtype=tf.float32,
                                                        name='delta_state_label_ph')
         self.mlp_net = MLP(input_ph=self.mlp_input_ph,
@@ -55,7 +57,7 @@ class ContinuousMLPDynamicsModel(DynamicsModel):
                                                auto_init=False)
         with tf.variable_scope(self.name_scope):
             with tf.variable_scope('train'):
-                self.new_state_output = self.mlp_net.output + self.state_ph
+                self.new_state_output = self.mlp_net.output + self.state_input
                 self.loss, self.optimizer, self.optimize_op = self._setup_loss(l1_norm_scale=l1_norm_scale,
                                                                                l2_norm_scale=l2_norm_scale)
         train_var_list = get_tf_collection_var_list(key=tf.GraphKeys.GLOBAL_VARIABLES,
@@ -63,6 +65,10 @@ class ContinuousMLPDynamicsModel(DynamicsModel):
                                                         self.name_scope)) + self.optimizer.variables()
 
         self.parameters.set_tf_var_list(sorted(list(set(train_var_list)), key=lambda x: x.name))
+        DerivableDynamics.__init__(self,
+                                   input_node_dict=dict(state_input=self.state_input,
+                                                        action_action_input=self.action_input),
+                                   output_node_dict=dict(new_state_output=self.new_state_output))
 
     def init(self, source_obj=None):
         self.parameters.init()
@@ -87,8 +93,8 @@ class ContinuousMLPDynamicsModel(DynamicsModel):
             action = np.expand_dims(action, 0)
         new_state = tf_sess.run(self.new_state_output,
                                 feed_dict={
-                                    self.action_ph: action,
-                                    self.state_ph: state
+                                    self.action_input: action,
+                                    self.state_input: state
                                 })
         return np.clip(np.squeeze(new_state), self.parameters('output_low'), self.parameters('output_high'))
 
@@ -107,8 +113,8 @@ class ContinuousMLPDynamicsModel(DynamicsModel):
         tf_sess = kwargs['sess'] if ('sess' in kwargs and kwargs['sess']) else tf.get_default_session()
         train_iter = self.parameters('train_iter') if 'train_iter' not in kwargs else kwargs['train_iter']
         feed_dict = {
-            self.state_ph: batch_data.state_set,
-            self.action_ph: flatten_n(self.env_space.action_space, batch_data.action_set),
+            self.state_input: batch_data.state_set,
+            self.action_input: flatten_n(self.env_space.action_space, batch_data.action_set),
             self.delta_state_label_ph: batch_data.new_state_set - batch_data.state_set,
             **self.parameters.return_tf_parameter_feed_dict()
         }
@@ -118,5 +124,4 @@ class ContinuousMLPDynamicsModel(DynamicsModel):
             loss, _ = tf_sess.run([self.loss, self.optimize_op],
                                   feed_dict=feed_dict)
             average_loss += loss
-
         return dict(average_loss=average_loss / train_iter)

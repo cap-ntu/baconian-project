@@ -7,10 +7,6 @@ import scipy
 import scipy.signal
 from typeguard import typechecked
 
-__all__ = ['weighted_sample', 'weighted_sample_n', 'softmax', 'cat_entropy', 'cat_perplexity', 'explained_variance_1d',
-           'to_onehot', 'to_onehot_n', 'from_onehot', 'from_onehot_n', 'discount_cumsum', 'discount_return', 'rk4',
-           'make_batch']
-
 
 def weighted_sample(weights, objects):
     """
