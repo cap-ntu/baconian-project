@@ -15,7 +15,7 @@ from mbrl.algo.rl.policy.deterministic_mlp import DeterministicMLPPolicy
 from mbrl.tf.util import *
 from mbrl.common.misc import *
 from mbrl.common.util.recorder import record_return_decorator
-from mbrl.core.status import register_counter_status_decorator
+from mbrl.core.status import register_counter_info_to_status_decorator
 
 
 class DDPG(ModelFreeAlgo, OffPolicyAlgo):
@@ -85,7 +85,7 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo):
             '{}/train'.format(name)) + self.critic_optimizer.variables() + self.action_optimizer.variables()
         self.parameters.set_tf_var_list(tf_var_list=sorted(list(set(var_list)), key=lambda x: x.name))
 
-    @register_counter_status_decorator(increment=1, key='init')
+    @register_counter_info_to_status_decorator(increment=(), info_key='init', under_status='JUST_INITED')
     def init(self, sess=None):
         self.actor.init()
         self.critic.init()
@@ -99,7 +99,7 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo):
         super().init()
 
     @record_return_decorator(which_recorder='self')
-    @register_counter_status_decorator(increment=1, key='train')
+    @register_counter_info_to_status_decorator(increment=1, info_key='train', under_status='TRAIN')
     @typechecked
     def train(self, batch_data=None, train_iter=None, sess=None, update_target=True) -> dict:
         super(DDPG, self).train()
@@ -164,7 +164,7 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo):
             sess.run(self.target_actor_update_op)
         return dict(actor_average_loss=average_loss / train_iter)
 
-    @register_counter_status_decorator(increment=1, key='test')
+    @register_counter_info_to_status_decorator(increment=1, info_key='test', under_status='TEST')
     def test(self, *arg, **kwargs) -> dict:
         return super().test(*arg, **kwargs)
 

@@ -10,16 +10,20 @@ class Basic(object):
 
     def __init__(self, status=None):
         if not status:
-            self.status = Status(self)
+            self._status = Status(self)
         else:
-            self.status = status
+            self._status = status
 
     def init(self):
         raise NotImplementedError
 
     def get_status(self) -> dict:
-        return self.status.get_status()
+        return self._status.get_status()
 
     @property
     def name(self):
         raise NotImplementedError
+
+    @property
+    def status_list(self):
+        return self.STATUS_LIST

@@ -25,14 +25,14 @@ class Algo(Basic, abc.ABC):
         return self._name
 
     def init(self):
-        self.status.set_status('JUST_INITED')
+        self._status.set_status('JUST_INITED')
 
     def train(self, *arg, **kwargs) -> dict:
-        self.status.set_status('TRAIN')
+        self._status.set_status('TRAIN')
         return dict()
 
     def test(self, *arg, **kwargs) -> dict:
-        self.status.set_status('TEST')
+        self._status.set_status('TEST')
         return dict()
 
     def predict(self, *arg, **kwargs):
@@ -45,4 +45,4 @@ class Algo(Basic, abc.ABC):
         raise NotImplementedError
 
     def get_status(self) -> dict:
-        return self.status.get_status()
+        return self._status.get_status()

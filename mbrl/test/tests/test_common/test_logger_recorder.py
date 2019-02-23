@@ -37,9 +37,9 @@ class TestLogger(TestWithLogSet):
         obj = Foo()
 
         a = Recorder()
-        a.register_logging_attribute_by_record(obj=obj, obj_name='foo', attr_name='val', get_method_name='get_val',
+        a.register_logging_attribute_by_record(obj=obj, attr_name='val', get_method=lambda x: x['obj'].get_val,
                                                static_flag=False)
-        a.register_logging_attribute_by_record(obj=obj, obj_name='foo', attr_name='loss', static_flag=True)
+        a.register_logging_attribute_by_record(obj=obj, attr_name='loss', static_flag=True)
         a.record()
         print(a._obj_log)
         self.assertTrue('val' in a._obj_log[obj])
@@ -48,9 +48,9 @@ class TestLogger(TestWithLogSet):
         a.record()
 
         b = Recorder()
-        b.register_logging_attribute_by_record(obj=obj, obj_name='foo', attr_name='val', get_method_name='get_val',
+        b.register_logging_attribute_by_record(obj=obj, attr_name='val', get_method=lambda x: x['obj'].get_val,
                                                static_flag=False)
-        b.register_logging_attribute_by_record(obj=obj, obj_name='foo', attr_name='loss', static_flag=True)
+        b.register_logging_attribute_by_record(obj=obj, attr_name='loss', static_flag=True)
 
         b.record()
         self.assertTrue('val' in b._obj_log[obj])
@@ -70,15 +70,15 @@ class TestLogger(TestWithLogSet):
         self.assertTrue(obj in obj.recorder._obj_log)
         self.assertTrue('val' in obj.recorder._obj_log[obj])
         self.assertTrue(len(obj.recorder._obj_log[obj]['val']) == 3)
-        self.assertTrue(obj.recorder._obj_log[obj]['val'][0]['value'] == 20)
-        self.assertTrue(obj.recorder._obj_log[obj]['val'][1]['value'] == 2)
-        self.assertTrue(obj.recorder._obj_log[obj]['val'][2]['value'] == 8)
+        self.assertTrue(obj.recorder._obj_log[obj]['val'][0]['log_val'] == 20)
+        self.assertTrue(obj.recorder._obj_log[obj]['val'][1]['log_val'] == 2)
+        self.assertTrue(obj.recorder._obj_log[obj]['val'][2]['log_val'] == 8)
 
         self.assertTrue('val2' in obj.recorder._obj_log[obj])
         self.assertTrue(len(obj.recorder._obj_log[obj]['val2']) == 3)
-        self.assertTrue(obj.recorder._obj_log[obj]['val2'][0]['value'] == 10)
-        self.assertTrue(obj.recorder._obj_log[obj]['val2'][1]['value'] == 1)
-        self.assertTrue(obj.recorder._obj_log[obj]['val2'][2]['value'] == 2)
+        self.assertTrue(obj.recorder._obj_log[obj]['val2'][0]['log_val'] == 10)
+        self.assertTrue(obj.recorder._obj_log[obj]['val2'][1]['log_val'] == 1)
+        self.assertTrue(obj.recorder._obj_log[obj]['val2'][2]['log_val'] == 2)
 
         obj = Foo()
         obj.get_by_return(res=10, num=2)
@@ -88,15 +88,15 @@ class TestLogger(TestWithLogSet):
         self.assertTrue(obj in obj.recorder._obj_log)
         self.assertTrue('val' in obj.recorder._obj_log[obj])
         self.assertTrue(len(obj.recorder._obj_log[obj]['val']) == 3)
-        self.assertTrue(obj.recorder._obj_log[obj]['val'][0]['value'] == 20)
-        self.assertTrue(obj.recorder._obj_log[obj]['val'][1]['value'] == 2)
-        self.assertTrue(obj.recorder._obj_log[obj]['val'][2]['value'] == 8)
+        self.assertTrue(obj.recorder._obj_log[obj]['val'][0]['log_val'] == 20)
+        self.assertTrue(obj.recorder._obj_log[obj]['val'][1]['log_val'] == 2)
+        self.assertTrue(obj.recorder._obj_log[obj]['val'][2]['log_val'] == 8)
 
         self.assertTrue('val2' in obj.recorder._obj_log[obj])
         self.assertTrue(len(obj.recorder._obj_log[obj]['val2']) == 3)
-        self.assertTrue(obj.recorder._obj_log[obj]['val2'][0]['value'] == 10)
-        self.assertTrue(obj.recorder._obj_log[obj]['val2'][1]['value'] == 1)
-        self.assertTrue(obj.recorder._obj_log[obj]['val2'][2]['value'] == 2)
+        self.assertTrue(obj.recorder._obj_log[obj]['val2'][0]['log_val'] == 10)
+        self.assertTrue(obj.recorder._obj_log[obj]['val2'][1]['log_val'] == 1)
+        self.assertTrue(obj.recorder._obj_log[obj]['val2'][2]['log_val'] == 2)
 
 
 class TesTLoggerWithDQN(TestTensorflowSetup, TestWithLogSet):
@@ -107,7 +107,7 @@ class TesTLoggerWithDQN(TestTensorflowSetup, TestWithLogSet):
         TestWithLogSet.setUp(self)
         TestTensorflowSetup.setUp(self)
 
-    def test_init(self):
+    def test_integration_with_dqn(self):
         env = make('Acrobot-v1')
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
@@ -133,6 +133,7 @@ class TesTLoggerWithDQN(TestTensorflowSetup, TestWithLogSet):
                                       }
                                   ])
         dqn = DQN(env_spec=env_spec,
+                  name='dqn_test',
                   adaptive_learning_rate=True,
                   config_or_config_dict=dict(REPLAY_BUFFER_SIZE=1000,
                                              GAMMA=0.99,
@@ -159,7 +160,16 @@ class TesTLoggerWithDQN(TestTensorflowSetup, TestWithLogSet):
         self.assertTrue('average_loss' in dqn.recorder._obj_log[dqn])
         self.assertTrue(len(dqn.recorder._obj_log[dqn]['average_loss']) == 2)
         self.assertTrue(
-            np.equal(np.array(res), [x['value'] for x in dqn.recorder._obj_log[dqn]['average_loss']]).all())
+            np.equal(np.array(res), [x['log_val'] for x in dqn.recorder._obj_log[dqn]['average_loss']]).all())
+
+        self.assertTrue(len(Logger()._registered_recorders) > 0)
+        self.assertTrue(dqn.recorder in Logger()._registered_recorders)
+
+        self.assertTrue('dqn_adaptive_learning_rate' in dqn.recorder._obj_log[dqn])
+        self.assertTrue(len(dqn.recorder._obj_log[dqn]['dqn_adaptive_learning_rate']) == 2)
+        print(dqn.recorder._obj_log[dqn]['dqn_adaptive_learning_rate'])
+
+        Logger().flush_recorder()
 
     def test_console_logger(self):
         logger = ConsoleLogger()
@@ -173,6 +183,10 @@ class TesTLoggerWithDQN(TestTensorflowSetup, TestWithLogSet):
 
         logger2 = ConsoleLogger()
         self.assertEqual(id(logger), id(logger2))
+
+    def tearDown(self):
+        TestTensorflowSetup.tearDown(self)
+        TestWithLogSet.tearDown(self)
 
 
 if __name__ == '__main__':

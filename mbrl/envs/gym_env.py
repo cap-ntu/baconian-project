@@ -55,12 +55,17 @@ class GymEnv(Env):
         self.reward_range = self._gym_env.reward_range
 
     def step(self, action):
+        super().step(action)
         return self.unwrapped.step(action=action)
 
     def reset(self):
+        super().reset()
+
         return self.unwrapped.reset()
 
     def init(self):
+        super().init()
+
         return self.reset()
 
     def seed(self, seed=None):

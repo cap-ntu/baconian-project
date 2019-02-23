@@ -4,6 +4,8 @@ from mbrl.tf.util import create_new_tf_session
 from mbrl.common.util.recorder import global_recorder
 from mbrl.common.util.logger import global_logger, global_console_logger
 from mbrl.config.global_config import GlobalConfig
+import shutil
+import os
 
 
 class BaseTestCase(unittest.TestCase):
@@ -39,13 +41,19 @@ class TestTensorflowSetup(BaseTestCase):
 
 class TestWithLogSet(BaseTestCase):
     def setUp(self):
+        try:
+            shutil.rmtree(GlobalConfig.DEFAULT_LOG_PATH)
+        except FileNotFoundError:
+            pass
+        os.mkdir(GlobalConfig.DEFAULT_LOG_PATH)
         global_logger.init(config_or_config_dict=GlobalConfig.DEFAULT_LOG_CONFIG_DICT,
                            log_path=GlobalConfig.DEFAULT_LOG_PATH,
                            log_level=GlobalConfig.DEFAULT_LOG_LEVEL)
         global_console_logger.init(logger_name='console_logger',
                                    to_file_flag=True,
                                    level=GlobalConfig.DEFAULT_LOG_LEVEL,
-                                   to_file_name='/home/dls/CAP/ModelBasedRLFramework/mbrl/test/tests/tmp_path/tmp.log')
+                                   to_file_name=os.path.join(GlobalConfig.DEFAULT_LOG_PATH, 'console.log'))
 
     def tearDown(self):
-        pass
+        global_logger.reset()
+        global_console_logger.reset()

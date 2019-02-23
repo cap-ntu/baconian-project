@@ -15,7 +15,7 @@ class GlobalConfig(object):
     DEFAULT_CATCHED_EXCEPTION_OR_ERROR_LIST = (tf.errors.ResourceExhaustedError,)
     # todo check this type list
     DEFAULT_ALLOWED_GYM_ENV_TYPE = (TimeLimit, SkipWrapper, Monitor)
-    DEFAULT_BASIC_STATUS_LIST = ['train', 'test']
+    DEFAULT_BASIC_STATUS_LIST = ['TRAIN', 'TEST']
     DEFAULT_BASIC_INIT_STATUS = None
 
     # config required key list

@@ -71,5 +71,5 @@ class TestStatusWithDQN(TestTensorflowSetup):
             dqn.append_to_memory(a)
         res.append(dqn.train(batch_data=a, train_iter=10, sess=None, update_target=True)['average_loss'])
         res.append(dqn.train(batch_data=None, train_iter=10, sess=None, update_target=True)['average_loss'])
-        print(dqn.status())
-        print(dqn.status._info_dict_with_sub_info)
+        print(dqn._status())
+        print(dqn._status._info_dict_with_sub_info)

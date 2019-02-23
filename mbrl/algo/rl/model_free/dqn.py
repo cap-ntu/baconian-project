@@ -2,7 +2,7 @@ from mbrl.common.special import flatten_n
 from mbrl.algo.rl.rl_algo import ModelFreeAlgo, OffPolicyAlgo
 from mbrl.config.dict_config import DictConfig
 from typeguard import typechecked
-
+from copy import deepcopy
 from mbrl.core.util import init_func_arg_record_decorator
 from mbrl.tf.util import *
 from mbrl.algo.rl.util.replay_buffer import UniformRandomReplayBuffer, BaseReplayBuffer
@@ -15,7 +15,7 @@ from mbrl.config.global_config import GlobalConfig
 from mbrl.common.misc import *
 from mbrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
 from mbrl.common.util.recorder import record_return_decorator
-from mbrl.core.status import register_counter_status_decorator
+from mbrl.core.status import register_counter_info_to_status_decorator
 
 
 class DQN(ModelFreeAlgo, OffPolicyAlgo):
@@ -77,22 +77,28 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo):
                                               scope='{}/train'.format(name)) + self.optimizer.variables()
         self.parameters.set_tf_var_list(tf_var_list=sorted(list(set(var_list)), key=lambda x: x.name))
 
-    @register_counter_status_decorator(increment=1, key='init')
+        # todo for test record only
+        self.recorder.register_logging_attribute_by_record(obj=self,
+                                                           attr_name='dqn_adaptive_learning_rate',
+                                                           static_flag=False,
+                                                           get_method=lambda x: x['obj'].parameters('LEARNING_RATE',
+                                                                                                    require_true_value=True))
+
+    @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='JUST_INITED')
     def init(self, sess=None):
         super().init()
         self.q_value_func.init()
         self.target_q_value_func.init()
         self.parameters.init()
-        # tf_sess = sess if sess else tf.get_default_session()
-        # feed_dict = self.parameters.return_tf_parameter_feed_dict()
-        # tf_sess.run(tf.variables_initializer(var_list=self.parameters('tf_var_list')),
-        #             feed_dict=feed_dict)
 
     @record_return_decorator(which_recorder='self')
-    @register_counter_status_decorator(increment=1, key='train')
+    @register_counter_info_to_status_decorator(increment=1, info_key='train_counter', under_status='TRAIN')
+    # todo check two decorator will crush each other or not
     @typechecked
     def train(self, batch_data=None, train_iter=None, sess=None, update_target=True) -> dict:
         super(DQN, self).train()
+        # todo for test record only
+        self.recorder.record()
         batch_data = self.replay_buffer.sample(
             batch_size=self.parameters('BATCH_SIZE')) if batch_data is None else batch_data
         assert isinstance(batch_data, TransitionData)
@@ -123,11 +129,11 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo):
                         feed_dict=self.parameters.return_tf_parameter_feed_dict())
         return dict(average_loss=average_loss)
 
-    @register_counter_status_decorator(increment=1, key='test')
+    @register_counter_info_to_status_decorator(increment=1, info_key='test_counter', under_status='TEST')
     def test(self, *arg, **kwargs):
         super().test()
 
-    @register_counter_status_decorator(increment=1, key='predict')
+    @register_counter_info_to_status_decorator(increment=1, info_key='test_counter')
     @typechecked
     def predict(self, obs: np.ndarray, sess=None, batch_flag: bool = False):
         if batch_flag:
@@ -163,17 +169,19 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo):
                                                  sess=sess)
         return action, q_val
 
-    @register_counter_status_decorator(increment=1, key='append_to_memory')
+    @register_counter_info_to_status_decorator(increment=1, info_key='append_to_memory')
     @typechecked
     def append_to_memory(self, samples: TransitionData):
         iter_samples = samples.return_generator()
-
+        data_count = 0
         for obs0, obs1, action, reward, terminal1 in iter_samples:
             self.replay_buffer.append(obs0=obs0,
                                       obs1=obs1,
                                       action=action,
                                       reward=reward,
                                       terminal1=terminal1)
+            data_count += 1
+        self._status.update_info(info_key='replay_buffer_data_total_count', increment=data_count)
 
     def _predict_action(self, obs: np.ndarray, q_value_tensor: tf.Tensor, action_ph: tf.Tensor, state_ph: tf.Tensor,
                         sess=None):

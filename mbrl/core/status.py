@@ -1,5 +1,6 @@
 import typeguard as tg
 import abc
+from typeguard import typechecked
 
 
 class Status(object):
@@ -66,10 +67,11 @@ class StatusWithSingleInfo(StatusWithInfo):
     def set_status(self, new_status: str):
         return super().set_status(new_status)
 
-    def get_status(self):
+    @typechecked
+    def get_status(self) -> dict:
         return self()
 
-    def append_new_info(self, info_key: str, init_value):
+    def append_new_info(self, info_key: str, init_value, under_status=None):
         if info_key == 'status':
             raise ValueError("can use key: status which is a system default key")
         if info_key in self._info_dict:
@@ -80,8 +82,9 @@ class StatusWithSingleInfo(StatusWithInfo):
     def has_info(self, info_key):
         return info_key in self._info_dict
 
-    def update_info(self, info_key, increment):
-        assert self.has_info(info_key=info_key)
+    def update_info(self, info_key, increment, under_status=None):
+        if not self.has_info(info_key=info_key):
+            self.append_new_info(info_key=info_key, init_value=0)
         self._info_dict[info_key] += increment
 
     def reset(self):
@@ -107,7 +110,7 @@ class StatusWithSubInfo(StatusWithInfo):
     def set_status(self, new_status: str):
         return super().set_status(new_status)
 
-    def get_status(self):
+    def get_status(self) -> dict:
         return self()
 
     def append_new_info(self, info_key: str, init_value, under_status=None):
@@ -128,7 +131,8 @@ class StatusWithSubInfo(StatusWithInfo):
     def update_info(self, info_key, increment, under_status=None):
         if not under_status:
             under_status = self._status_val
-        assert self.has_info(info_key=info_key, under_status=under_status)
+        if not self.has_info(info_key=info_key, under_status=under_status):
+            self.append_new_info(info_key=info_key, init_value=0, under_status=under_status)
         self._info_dict_with_sub_info[under_status][info_key] += increment
 
     def reset(self):
@@ -136,22 +140,28 @@ class StatusWithSubInfo(StatusWithInfo):
             self._info_dict_with_sub_info[key] = {}
 
 
-def register_counter_status_decorator(increment, key):
+def register_counter_info_to_status_decorator(increment, info_key, under_status=None):
     def wrap(fn):
         def wrap_with_self(self, *args, **kwargs):
             # todo call the fn first in order to get a correct status
-            res = fn(self, *args, **kwargs)
+            # todo a bug here, which is record() called in fn will lost the just appended info_key at the very first
             obj = self
-            if not hasattr(obj, 'status') or not isinstance(getattr(obj, 'status'), StatusWithInfo):
+            if not hasattr(obj, '_status') or not isinstance(getattr(obj, '_status'), StatusWithInfo):
                 raise ValueError(
-                    'in order to count the calling time, the object {} did not have attribute StatusWithInfo instance or with wrong type of Status'.format(
+                    ' the object {} does not not have attribute StatusWithInfo instance or hold wrong type of Status'.format(
                         obj))
-            assert isinstance(getattr(obj, 'status'), StatusWithInfo)
-            obj_status = getattr(obj, 'status')
-            if not obj_status.has_info(info_key=key):
-                obj_status.append_new_info(info_key=key, init_value=0)
-            obj_status.update_info(info_key=key, increment=increment)
 
+            assert isinstance(getattr(obj, '_status'), StatusWithInfo)
+            obj_status = getattr(obj, '_status')
+            # if isinstance(obj_status, StatusWithSubInfo):
+            #     assert under_status
+            if under_status:
+                assert under_status in obj.STATUS_LIST
+            obj_status.append_new_info(info_key=info_key, init_value=0, under_status=under_status)
+            res = fn(self, *args, **kwargs)
+            if under_status:
+                assert under_status == obj.get_status()['status']
+            obj_status.update_info(info_key=info_key, increment=increment, under_status=under_status)
             return res
 
         return wrap_with_self
