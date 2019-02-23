@@ -4,7 +4,7 @@ import abc
 from mbrl.envs.env_spec import EnvSpec
 from typeguard import typechecked
 from mbrl.common.util.logger import Logger
-
+from mbrl.common.util.recorder import Recorder
 
 # import numpy as np
 
@@ -17,6 +17,7 @@ class Algo(Basic, abc.ABC):
     def __init__(self, env_spec: EnvSpec, name: str = 'algo'):
         self.env_spec = env_spec
         self._name = name
+        self.recorder = Recorder()
         super().__init__(status=StatusWithSubInfo(obj=self))
 
     @property

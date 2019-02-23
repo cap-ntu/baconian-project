@@ -12,7 +12,7 @@ from mbrl.algo.rl.value_func.mlp_v_value import MLPVValueFunc
 from mbrl.tf.util import *
 from mbrl.common.misc import *
 from mbrl.algo.rl.misc.sample_processor import SampleProcessor
-from mbrl.common.util.logger import record_return_decorator
+from mbrl.common.util.recorder import record_return_decorator
 from mbrl.core.status import register_counter_status_decorator
 
 
@@ -93,7 +93,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo):
         # sess.run(tf.variables_initializer(var_list=self.parameters('tf_var_list')))
         super().init()
 
-    @record_return_decorator(which_logger='global')
+    @record_return_decorator(which_recorder='self')
     @register_counter_status_decorator(increment=1, key='train')
     @typechecked
     def train(self, trajectory_data: TrajectoryData = None, train_iter=None, sess=None) -> dict:

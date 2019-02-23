@@ -1,6 +1,7 @@
 from mbrl.config.dict_config import DictConfig
 from typeguard import typechecked
 from transitions import Machine
+from mbrl.common.util.recorder import Recorder
 
 
 class Pipeline(object):
@@ -14,6 +15,7 @@ class Pipeline(object):
         self.finite_state_machine = Machine(model=self, transitions=transitions, states=states, initial=init_state)
         self.total_test_samples = 0
         self.total_train_samples = 0
+        self.recorder = Recorder()
         for state_name in self.STATE_LIST:
             if not hasattr(self, 'on_enter_{}'.format(state_name)):
                 raise AssertionError('{} method is missed'.format('on_enter_{}'.format(state_name)))

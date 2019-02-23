@@ -1,6 +1,7 @@
 import gym
 from mbrl.core.basic import Basic
 from typeguard import typechecked
+from mbrl.common.util.recorder import Recorder
 
 
 class Env(gym.Env, Basic):
@@ -15,6 +16,7 @@ class Env(gym.Env, Basic):
         self.action_space = None
         self.observation_space = None
         self.step_count = None
+        self.recorder = Recorder
 
     def step(self, action):
         raise NotImplementedError

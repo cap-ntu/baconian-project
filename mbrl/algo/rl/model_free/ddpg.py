@@ -14,7 +14,7 @@ from mbrl.common.special import *
 from mbrl.algo.rl.policy.deterministic_mlp import DeterministicMLPPolicy
 from mbrl.tf.util import *
 from mbrl.common.misc import *
-from mbrl.common.util.logger import record_return_decorator
+from mbrl.common.util.recorder import record_return_decorator
 from mbrl.core.status import register_counter_status_decorator
 
 
@@ -98,7 +98,7 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo):
         self.parameters.init()
         super().init()
 
-    @record_return_decorator(which_logger='global')
+    @record_return_decorator(which_recorder='self')
     @register_counter_status_decorator(increment=1, key='train')
     @typechecked
     def train(self, batch_data=None, train_iter=None, sess=None, update_target=True) -> dict:

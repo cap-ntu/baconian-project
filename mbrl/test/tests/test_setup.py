@@ -1,6 +1,9 @@
 import unittest
 import tensorflow as tf
 from mbrl.tf.util import create_new_tf_session
+from mbrl.common.util.recorder import global_recorder
+from mbrl.common.util.logger import global_logger, global_console_logger
+from mbrl.config.global_config import GlobalConfig
 
 
 class BaseTestCase(unittest.TestCase):
@@ -32,3 +35,17 @@ class TestTensorflowSetup(BaseTestCase):
         if tf.get_default_session():
             sess = tf.get_default_session()
             sess.close()
+
+
+class TestWithLogSet(BaseTestCase):
+    def setUp(self):
+        global_logger.init(config_or_config_dict=GlobalConfig.DEFAULT_LOG_CONFIG_DICT,
+                           log_path=GlobalConfig.DEFAULT_LOG_PATH,
+                           log_level=GlobalConfig.DEFAULT_LOG_LEVEL)
+        global_console_logger.init(logger_name='console_logger',
+                                   to_file_flag=True,
+                                   level=GlobalConfig.DEFAULT_LOG_LEVEL,
+                                   to_file_name='/home/dls/CAP/ModelBasedRLFramework/mbrl/test/tests/tmp_path/tmp.log')
+
+    def tearDown(self):
+        pass

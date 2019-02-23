@@ -53,6 +53,7 @@ class ModelFreePipeline(Pipeline):
         pass
 
     def on_enter_state_inited(self):
+        # todo set seed here?
         self.agent.init()
         self.env.init()
 

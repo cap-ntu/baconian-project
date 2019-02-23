@@ -14,7 +14,7 @@ from mbrl.tf.tf_parameters import TensorflowParameters
 from mbrl.config.global_config import GlobalConfig
 from mbrl.common.misc import *
 from mbrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
-from mbrl.common.util.logger import record_return_decorator
+from mbrl.common.util.recorder import record_return_decorator
 from mbrl.core.status import register_counter_status_decorator
 
 
@@ -88,7 +88,7 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo):
         # tf_sess.run(tf.variables_initializer(var_list=self.parameters('tf_var_list')),
         #             feed_dict=feed_dict)
 
-    @record_return_decorator(which_logger='global')
+    @record_return_decorator(which_recorder='self')
     @register_counter_status_decorator(increment=1, key='train')
     @typechecked
     def train(self, batch_data=None, train_iter=None, sess=None, update_target=True) -> dict:

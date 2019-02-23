@@ -1,7 +1,8 @@
 from mbrl.core.status import Status, StatusWithSingleInfo
 from mbrl.test.tests.test_setup import TestTensorflowSetup, BaseTestCase
 from mbrl.test.tests.test_setup import BaseTestCase
-from mbrl.common.util.logger import Logger, record_return_decorator, reset_global_memo, global_logger
+from mbrl.common.util.logger import Logger, global_logger
+from mbrl.common.util.recorder import record_return_decorator
 import numpy as np
 from mbrl.core.basic import Basic
 from mbrl.test.tests.test_setup import TestTensorflowSetup
@@ -23,7 +24,6 @@ class TestStatus(BaseTestCase):
 
 class TestStatusWithDQN(TestTensorflowSetup):
     def test_with_dqn(self):
-        reset_global_memo()
         env = make('Acrobot-v1')
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)

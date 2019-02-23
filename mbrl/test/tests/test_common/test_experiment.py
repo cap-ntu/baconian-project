@@ -10,6 +10,7 @@ import tensorflow as tf
 class TestExp(TestTensorflowSetup):
     def test_init_arg_decorator(self):
         env = make('Acrobot-v1')
+
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
 
@@ -58,6 +59,8 @@ class TestExp(TestTensorflowSetup):
 
         self.assertTrue(new_dqn in a)
         self.assertTrue(dqn not in a)
+        self.assertNotEqual(id(new_dqn), id(dqn))
+
         print(a)
         self.setUp()
         new_dqn_2 = copy_globally(arg_dict=a, source_obj_list=[new_dqn])[0]
@@ -66,4 +69,6 @@ class TestExp(TestTensorflowSetup):
 
         self.assertTrue(new_dqn_2 in a)
         self.assertTrue(new_dqn not in a)
+        self.assertNotEqual(id(new_dqn_2), id(dqn))
+        self.assertNotEqual(id(new_dqn_2), id(new_dqn))
         print(a)

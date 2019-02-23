@@ -7,6 +7,7 @@ from mbrl.algo.rl.misc.exploration_strategy.base import ExplorationStrategy
 from mbrl.common.sampler.sample_data import SampleData
 from mbrl.envs.env import Env
 from mbrl.envs.env_spec import EnvSpec
+from mbrl.common.util.recorder import Recorder
 
 
 class Agent(Basic):
@@ -20,6 +21,7 @@ class Agent(Basic):
         self.algo = algo
         self._env_step_count = 0
         self.sampler = sampler
+        self.recorder = Recorder()
         if exploration_strategy:
             assert isinstance(exploration_strategy, ExplorationStrategy)
             self.explorations_strategy = exploration_strategy
