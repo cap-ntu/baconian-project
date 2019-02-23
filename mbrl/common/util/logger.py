@@ -48,7 +48,7 @@ class _SingletonLogger(BaseLogger):
         self._model_file_log_dir = None
         self.logger_config = None
         self.log_level = None
-        self.inited_flag = True
+        self.inited_flag = False
 
     def init(self, config_or_config_dict: (DictConfig, dict),
              log_path, log_level=None, **kwargs):
@@ -90,7 +90,11 @@ class _SingletonLogger(BaseLogger):
         self._save()
 
     def append_recorder(self, recorder):
-        self._registered_recorder.append(dict(recorder=recorder))
+        self._registered_recorder.append(recorder)
+
+    def reset(self):
+        self._registered_recorder = []
+        self.inited_flag = False
 
 
 class Logger(object):
@@ -109,6 +113,9 @@ class Logger(object):
                                       log_level=log_level,
                                       **kwargs)
 
+    def reset(self):
+        Logger.only_instance.reset()
+
 
 global_logger = Logger()
 
@@ -126,6 +133,7 @@ class _SingletonConsoleLogger(BaseLogger):
         self.name = None
         self.logger = None
         self.file_handler = None
+        self.inited_flag = False
 
     def init(self, logger_name, to_file_flag, level: str, to_file_name: str = None):
         self.name = logger_name
@@ -154,6 +162,10 @@ class _SingletonConsoleLogger(BaseLogger):
         for handler in logging.root.handlers[:]:
             logging.root.removeHandler(handler)
 
+    def reset(self):
+        self.close()
+        self.inited_flag = False
+
 
 class ConsoleLogger(object):
     only_instance = None
@@ -167,6 +179,9 @@ class ConsoleLogger(object):
         if not ConsoleLogger.only_instance.inited_flag:
             ConsoleLogger.only_instance.init(logger_name=logger_name, to_file_flag=to_file_flag,
                                              level=level, to_file_name=to_file_name)
+
+    def reset(self):
+        ConsoleLogger.only_instance.reset()
 
 
 global_console_logger = ConsoleLogger()

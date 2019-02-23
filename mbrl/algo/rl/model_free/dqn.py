@@ -77,22 +77,29 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo):
                                               scope='{}/train'.format(name)) + self.optimizer.variables()
         self.parameters.set_tf_var_list(tf_var_list=sorted(list(set(var_list)), key=lambda x: x.name))
 
+        # todo for test record only
+        self.recorder.register_logging_attribute_by_record(obj=self,
+                                                           obj_name=self.name,
+                                                           attr_name='dqn_adaptive_learning_rate',
+                                                           static_flag=False,
+                                                           get_method=lambda x: x['obj'].parameters('LEARNING_RATE',
+                                                                                                    require_true_value=True))
+
     @register_counter_status_decorator(increment=1, key='init')
     def init(self, sess=None):
         super().init()
         self.q_value_func.init()
         self.target_q_value_func.init()
         self.parameters.init()
-        # tf_sess = sess if sess else tf.get_default_session()
-        # feed_dict = self.parameters.return_tf_parameter_feed_dict()
-        # tf_sess.run(tf.variables_initializer(var_list=self.parameters('tf_var_list')),
-        #             feed_dict=feed_dict)
 
     @record_return_decorator(which_recorder='self')
     @register_counter_status_decorator(increment=1, key='train')
+    # todo check two decorator will crush each other or not
     @typechecked
     def train(self, batch_data=None, train_iter=None, sess=None, update_target=True) -> dict:
         super(DQN, self).train()
+        # todo for test record only
+        self.recorder.record()
         batch_data = self.replay_buffer.sample(
             batch_size=self.parameters('BATCH_SIZE')) if batch_data is None else batch_data
         assert isinstance(batch_data, TransitionData)

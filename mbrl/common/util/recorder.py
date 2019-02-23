@@ -41,7 +41,7 @@ class Recorder(object):
                 if val['get_method'] is None:
                     res = val['obj'].__getattribute__(val['attr_name'])
                 else:
-                    res = val['obj'].__getattribute__(val['get_method'])()
+                    res = val['get_method'](val)
                 self.append_to_obj_log(obj=val['obj'],
                                        attr_name=val['attr_name'],
                                        obj_name=val['obj_name'],
@@ -50,14 +50,14 @@ class Recorder(object):
 
     @typechecked
     def register_logging_attribute_by_record(self, obj, obj_name: str, attr_name: str, static_flag: bool,
-                                             get_method_name: str = None):
+                                             get_method=None):
         """
         register an attribute that will be recorded periodically during training, duplicated registered will be ignored
         :param obj:
         :param obj_name:
         :param attr_name:
         :param static_flag:
-        :param get_method_name:
+        :param get_method:
         :return:
         """
         if not hasattr(obj, 'get_status') or not callable(obj.get_status):
@@ -69,12 +69,15 @@ class Recorder(object):
         self._registered_log_attr_by_get_dict[obj][attr_name] = dict(obj=obj,
                                                                      obj_name=obj_name,
                                                                      attr_name=attr_name,
-                                                                     get_method=get_method_name,
+                                                                     get_method=get_method,
                                                                      static_flag=static_flag)
 
     def reset(self):
         self._obj_log = {}
         self._registered_log_attr_by_get_dict = {}
+
+    def flush(self):
+        raise NotImplementedError
 
 
 global_recorder = Recorder()

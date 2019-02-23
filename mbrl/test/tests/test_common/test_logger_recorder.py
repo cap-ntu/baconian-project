@@ -37,7 +37,7 @@ class TestLogger(TestWithLogSet):
         obj = Foo()
 
         a = Recorder()
-        a.register_logging_attribute_by_record(obj=obj, obj_name='foo', attr_name='val', get_method_name='get_val',
+        a.register_logging_attribute_by_record(obj=obj, obj_name='foo', attr_name='val', get_method='get_val',
                                                static_flag=False)
         a.register_logging_attribute_by_record(obj=obj, obj_name='foo', attr_name='loss', static_flag=True)
         a.record()
@@ -48,7 +48,7 @@ class TestLogger(TestWithLogSet):
         a.record()
 
         b = Recorder()
-        b.register_logging_attribute_by_record(obj=obj, obj_name='foo', attr_name='val', get_method_name='get_val',
+        b.register_logging_attribute_by_record(obj=obj, obj_name='foo', attr_name='val', get_method='get_val',
                                                static_flag=False)
         b.register_logging_attribute_by_record(obj=obj, obj_name='foo', attr_name='loss', static_flag=True)
 
@@ -161,6 +161,13 @@ class TesTLoggerWithDQN(TestTensorflowSetup, TestWithLogSet):
         self.assertTrue(
             np.equal(np.array(res), [x['value'] for x in dqn.recorder._obj_log[dqn]['average_loss']]).all())
 
+        self.assertTrue(len(Logger()._registered_recorder) > 0)
+        self.assertTrue(dqn.recorder in Logger()._registered_recorder)
+
+        self.assertTrue('dqn_adaptive_learning_rate' in dqn.recorder._obj_log[dqn])
+        self.assertTrue(len(dqn.recorder._obj_log[dqn]['dqn_adaptive_learning_rate']) == 2)
+        print(dqn.recorder._obj_log[dqn]['dqn_adaptive_learning_rate'])
+
     def test_console_logger(self):
         logger = ConsoleLogger()
         self.assertTrue(logger.inited_flag)
@@ -173,6 +180,10 @@ class TesTLoggerWithDQN(TestTensorflowSetup, TestWithLogSet):
 
         logger2 = ConsoleLogger()
         self.assertEqual(id(logger), id(logger2))
+
+    def tearDown(self):
+        TestTensorflowSetup.tearDown(self)
+        TestWithLogSet.tearDown(self)
 
 
 if __name__ == '__main__':

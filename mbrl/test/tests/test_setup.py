@@ -48,4 +48,5 @@ class TestWithLogSet(BaseTestCase):
                                    to_file_name='/home/dls/CAP/ModelBasedRLFramework/mbrl/test/tests/tmp_path/tmp.log')
 
     def tearDown(self):
-        pass
+        global_logger.reset()
+        global_console_logger.reset()
