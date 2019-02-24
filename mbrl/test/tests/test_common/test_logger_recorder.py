@@ -107,6 +107,9 @@ class TesTLoggerWithDQN(TestTensorflowSetup, TestWithLogSet):
         TestWithLogSet.setUp(self)
         TestTensorflowSetup.setUp(self)
 
+        self.assertTrue(ConsoleLogger().inited_flag)
+        self.assertTrue(Logger().inited_flag)
+
     def test_integration_with_dqn(self):
         env = make('Acrobot-v1')
         env_spec = EnvSpec(obs_space=env.observation_space,
@@ -172,17 +175,15 @@ class TesTLoggerWithDQN(TestTensorflowSetup, TestWithLogSet):
         Logger().flush_recorder()
 
     def test_console_logger(self):
+        self.assertTrue(ConsoleLogger().inited_flag)
         logger = ConsoleLogger()
         self.assertTrue(logger.inited_flag)
-        logger.init(to_file_flag=True,
-                    logger_name='test',
-                    to_file_name='/home/dls/CAP/ModelBasedRLFramework/mbrl/test/tests/tmp_path/tmp.log',
-                    level='DEBUG')
         self.assertTrue(logger.inited_flag)
         logger.print('info', 'this is for test %s', 'args')
 
         logger2 = ConsoleLogger()
         self.assertEqual(id(logger), id(logger2))
+        logger.flush()
 
     def tearDown(self):
         TestTensorflowSetup.tearDown(self)

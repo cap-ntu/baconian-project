@@ -40,7 +40,7 @@ class GlobalConfig(object):
 
     DEFAULT_ALLOWED_LOG_FILE_TYPES = ('json', 'csv', 'h5py')
     # todo more detailed define on this
-    DEFAULT_LOG_LEVEL = 'CRITICAL'
+    DEFAULT_LOG_LEVEL = 'DEBUG'
     DEFAULT_LOG_PATH = '/home/dls/CAP/ModelBasedRLFramework/mbrl/test/tests/tmp_path'
     DEFAULT_LOG_CONFIG_DICT = dict()
     DEFAULT_LOG_USE_GLOBAL_MEMO_FLAG = True,

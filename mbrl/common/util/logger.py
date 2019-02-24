@@ -51,6 +51,8 @@ class _SingletonLogger(BaseLogger):
 
     def init(self, config_or_config_dict: (DictConfig, dict),
              log_path, log_level=None, **kwargs):
+        if self.inited_flag:
+            return
         self._log_dir = log_path
         # todo debug only
         # if os.path.exists(self._log_dir):
@@ -110,7 +112,8 @@ class _SingletonLogger(BaseLogger):
     def _out_to_file(self, file_path: str, content: (tuple, list, dict), file_name: str):
         if len(content) == 0:
             return
-        ConsoleLogger().print('info', 'Write log to {}/{}', file_path, file_name)
+        # ConsoleLogger().print('info', 'Write log to %s/%s', file_path, file_name)
+        ConsoleLogger().print('info', 'Write log to {}/{}'.format(file_path, file_name))
         mode = 'a'
         if not os.path.exists(file_path):
             os.makedirs(file_path)
@@ -152,16 +155,16 @@ class Logger(object):
             Logger.only_instance = _SingletonLogger()
         return Logger.only_instance
 
-    def init(self, config_or_config_dict: (DictConfig, dict),
-             log_path, log_level=None, **kwargs):
-        if not Logger.only_instance.inited_flag:
-            Logger.only_instance.init(config_or_config_dict=config_or_config_dict,
-                                      log_path=log_path,
-                                      log_level=log_level,
-                                      **kwargs)
-
-    def reset(self):
-        Logger.only_instance.reset()
+    # def init(self, config_or_config_dict: (DictConfig, dict),
+    #          log_path, log_level=None, **kwargs):
+    #     if not Logger.only_instance.inited_flag:
+    #         Logger.only_instance.init(config_or_config_dict=config_or_config_dict,
+    #                                   log_path=log_path,
+    #                                   log_level=log_level,
+    #                                   **kwargs)
+    #
+    # def reset(self):
+    #     Logger.only_instance.reset()
 
 
 global_logger = Logger()
@@ -183,11 +186,13 @@ class _SingletonConsoleLogger(BaseLogger):
         self.inited_flag = False
 
     def init(self, logger_name, to_file_flag, level: str, to_file_name: str = None):
+        if self.inited_flag is True:
+            return
         self.name = logger_name
         logging.basicConfig(format=GlobalConfig.DEFAULT_LOGGING_FORMAT)
         if level not in self.ALLOWED_LOG_LEVEL:
             raise ValueError('Wrong log level use {} instead'.format(self.ALLOWED_LOG_LEVEL))
-        self.logger = logging.getLogger('console_logger')
+        self.logger = logging.getLogger(logger_name)
         self.logger.setLevel(getattr(logging, level))
 
         self.file_handler = None
@@ -215,7 +220,8 @@ class _SingletonConsoleLogger(BaseLogger):
         self.inited_flag = False
 
     def flush(self):
-        self.file_handler.flush()
+        if self.file_handler:
+            self.file_handler.flush()
         for handler in logging.root.handlers[:]:
             handler.flush()
 
@@ -228,13 +234,13 @@ class ConsoleLogger(object):
             ConsoleLogger.only_instance = _SingletonConsoleLogger()
         return ConsoleLogger.only_instance
 
-    def init(self, logger_name, to_file_flag, level: str, to_file_name: str = None):
-        if not ConsoleLogger.only_instance.inited_flag:
-            ConsoleLogger.only_instance.init(logger_name=logger_name, to_file_flag=to_file_flag,
-                                             level=level, to_file_name=to_file_name)
-
-    def reset(self):
-        ConsoleLogger.only_instance.reset()
+    # def init(self, logger_name, to_file_flag, level: str, to_file_name: str = None):
+    #     if not ConsoleLogger.only_instance.inited_flag:
+    #         ConsoleLogger.only_instance.init(logger_name=logger_name, to_file_flag=to_file_flag,
+    #                                          level=level, to_file_name=to_file_name)
+    #
+    # def reset(self):
+    #     ConsoleLogger.only_instance.reset()
 
 
 global_console_logger = ConsoleLogger()
