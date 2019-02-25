@@ -53,8 +53,10 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo):
                                        name=dist_info['name'])), dist_info['name']) for dist_info in
                 dist_info_list
             ]
+            # todo debug the name here
             self.old_policy = self.policy.make_copy(reuse=False,
-                                                    name_scope='old_{}'.format(self.name),
+                                                    name_scope='old_{}'.format(self.policy.name),
+                                                    name='old_{}'.format(self.policy.name),
                                                     distribution_tensors_tuple=tuple(self.old_dist_tensor))
             if adaptive_learning_rate is not False:
                 to_ph_parameter_dict['policy_lr'] = tf.placeholder(shape=(), dtype=tf.float32,

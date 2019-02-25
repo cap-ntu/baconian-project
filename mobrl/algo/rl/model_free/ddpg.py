@@ -36,9 +36,13 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo):
 
         self.config = config
         self.actor = policy
-        self.target_actor = self.actor.make_copy(name_scope='target_actor', reuse=False)
+        self.target_actor = self.actor.make_copy(name_scope='{}_target_actor'.format(self.name),
+                                                 name='{}_target_actor'.format(self.name),
+                                                 reuse=False)
         self.critic = value_func
-        self.target_critic = self.critic.make_copy(name_scope='target_critic', reuse=False)
+        self.target_critic = self.critic.make_copy(name_scope='{}_target_critic'.format(self.name),
+                                                   name='{}_target_critic'.format(self.name),
+                                                   reuse=False)
 
         self.state_input = self.actor.state_input
 
@@ -66,8 +70,11 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo):
                                                require_snapshot=False)
         # todo check this reuse utility
         self._critic_with_actor_output = self.critic.make_copy(reuse=True,
+                                                               name='actor_input_{}'.format(self.critic.name),
                                                                action_input=self.actor.action_tensor)
         self._target_critic_with_target_actor_output = self.target_critic.make_copy(reuse=True,
+                                                                                    name='target_critic_with_target_actor_output_{}'.format(
+                                                                                        self.critic.name),
                                                                                     action_input=self.target_actor.action_tensor)
 
         with tf.variable_scope(name):

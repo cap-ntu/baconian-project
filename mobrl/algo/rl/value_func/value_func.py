@@ -12,8 +12,8 @@ import tensorflow as tf
 class ValueFunction(Basic):
 
     @tg.typechecked
-    def __init__(self, env_spec: EnvSpec, parameters: Parameters = None):
-        super().__init__()
+    def __init__(self, env_spec: EnvSpec, parameters: Parameters = None, name='value_func'):
+        super().__init__(name)
         self.env_spec = env_spec
         self.parameters = parameters
 
@@ -50,6 +50,6 @@ class ValueFunction(Basic):
 
 class PlaceholderInputValueFunction(ValueFunction):
     @tg.typechecked
-    def __init__(self, env_spec: EnvSpec, parameters: Parameters = None, input: tf.Tensor = None):
-        super().__init__(env_spec, parameters)
+    def __init__(self, name: str, env_spec: EnvSpec, parameters: Parameters = None, input: tf.Tensor = None):
+        super().__init__(env_spec=env_spec, parameters=parameters, name=name)
         self.input = input

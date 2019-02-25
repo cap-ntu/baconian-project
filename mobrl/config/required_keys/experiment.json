@@ -1,0 +1,6 @@
+{
+  "console_logger_to_file_flag": true,
+  "console_logger_to_file_name": "console_test.log",
+  "log_path": "/home/dls/CAP/mobrl/mobrl/test/tests/tmp_path",
+  "log_level": "DEBUG"
+}

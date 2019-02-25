@@ -22,5 +22,5 @@ class Pipeline(object):
             if not hasattr(self, 'on_exit_{}'.format(state_name)):
                 raise AssertionError('{} method is missed'.format('on_exit_{}'.format(state_name)))
 
-    def launch(self, *args, **kwargs):
+    def launch(self, *args, **kwargs) -> bool:
         raise NotImplementedError

@@ -68,6 +68,7 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo):
             self.target_q_input = tf.placeholder(shape=[None, 1], dtype=tf.float32)
             done = tf.cast(self.done_input, dtype=tf.float32)
             self.target_q_value_func = self.q_value_func.make_copy(name_scope='{}_targe_q_value_net'.format(name),
+                                                                   name='{}_targe_q_value_net'.format(name),
                                                                    reuse=False)
             self.predict_q_value = (1. - done) * self.config('GAMMA') * self.target_q_input + self.reward_input
             with tf.variable_scope('train'):
@@ -211,6 +212,7 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo):
     def _set_up_loss(self):
         l1_l2 = tfcontrib.layers.l1_l2_regularizer(scale_l1=self.parameters('Q_NET_L1_NORM_SCALE'),
                                                    scale_l2=self.parameters('Q_NET_L2_NORM_SCALE'))
+        # todo bug here of l1 l2
         loss = tf.reduce_sum((self.predict_q_value - self.q_value_func.q_tensor) ** 2) + \
                tfcontrib.layers.apply_regularization(l1_l2, weights_list=self.q_value_func.parameters('tf_var_list'))
         optimizer = tf.train.AdamOptimizer(learning_rate=self.parameters('LEARNING_RATE'))

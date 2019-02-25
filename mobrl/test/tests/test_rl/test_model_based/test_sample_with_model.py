@@ -18,6 +18,7 @@ class TestSampleWithDynamics(TestTensorflowSetup):
 
         mlp_q = MLPQValueFunction(env_spec=env_spec,
                                   name_scope='mlp_q',
+                                  name='mlp_q',
                                   mlp_config=[
                                       {
                                           "ACT": "RELU",
@@ -49,6 +50,7 @@ class TestSampleWithDynamics(TestTensorflowSetup):
         mlp_dyna = ContinuousMLPGlobalDynamicsModel(
             env_spec=env_spec,
             name_scope='mlp_dyna',
+            name='mlp_dyna',
             output_low=env_spec.obs_space.low,
             output_high=env_spec.obs_space.high,
             l1_norm_scale=1.0,

@@ -15,6 +15,7 @@ class TestAgent(TestTensorflowSetup):
                            action_space=env.action_space)
 
         mlp_q = MLPQValueFunction(env_spec=env_spec,
+                                  name='mlp_q',
                                   name_scope='mlp_q',
                                   output_low=None,
                                   output_high=None,
@@ -48,6 +49,7 @@ class TestAgent(TestTensorflowSetup):
                   value_func=mlp_q)
         agent = Agent(env=env, env_spec=env_spec,
                       algo=dqn,
+                      name='agent',
                       exploration_strategy=EpsilonGreedy(action_space=dqn.env_spec.action_space,
                                                          init_random_prob=0.5,
                                                          decay_type=None))

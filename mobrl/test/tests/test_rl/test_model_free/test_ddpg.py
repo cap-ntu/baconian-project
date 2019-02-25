@@ -15,6 +15,7 @@ class TestDDPG(TestTensorflowSetup):
 
         mlp_q = MLPQValueFunction(env_spec=env_spec,
                                   name_scope='mlp_q',
+                                  name='mlp_q',
                                   mlp_config=[
                                       {
                                           "ACT": "RELU",
@@ -35,6 +36,7 @@ class TestDDPG(TestTensorflowSetup):
                                   ])
         policy = DeterministicMLPPolicy(env_spec=env_spec,
                                         name_scope='mlp_policy',
+                                        name='mlp_policy',
                                         mlp_config=[
                                             {
                                                 "ACT": "RELU",

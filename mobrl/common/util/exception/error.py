@@ -1,2 +1,6 @@
-class Error(Exception):
+class MobrlError(Exception):
+    pass
+
+
+class GlobalNameExistedError(MobrlError):
     pass

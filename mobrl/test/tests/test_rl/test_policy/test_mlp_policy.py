@@ -12,6 +12,7 @@ class TestDeterministicMLPPolicy(TestTensorflowSetup):
                            action_space=env.action_space)
 
         policy = DeterministicMLPPolicy(env_spec=env_spec,
+                                        name='mlp_policy',
                                         name_scope='mlp_policy',
                                         mlp_config=[
                                             {
@@ -40,7 +41,8 @@ class TestDeterministicMLPPolicy(TestTensorflowSetup):
         for _ in range(10):
             ac = policy.forward(obs=env.observation_space.sample())
             self.assertTrue(env.action_space.contains(ac[0]))
-        p2 = policy.make_copy(name_scope='test',
+        p2 = policy.make_copy(name='test',
+                              name_scope='test',
                               reuse=False)
         p2.init()
         self.assertGreater(len(policy.parameters('tf_var_list')), 0)
@@ -49,7 +51,8 @@ class TestDeterministicMLPPolicy(TestTensorflowSetup):
             self.assertEqual(var1.shape, var2.shape)
             self.assertNotEqual(id(var1), id(var2))
 
-        p3 = policy.make_copy(name_scope='mlp_policy',
+        p3 = policy.make_copy(name='mlp_policy_2',
+                              name_scope='mlp_policy',
                               reuse=True)
         p3.init()
         self.assertGreater(len(p3.parameters('tf_var_list')), 0)

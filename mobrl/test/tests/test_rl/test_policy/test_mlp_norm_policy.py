@@ -15,6 +15,7 @@ class TestNormalDistMLPPolicy(TestTensorflowSetup):
                            action_space=env.action_space)
 
         policy = NormalDistributionMLPPolicy(env_spec=env_spec,
+                                             name='mlp_policy',
                                              name_scope='mlp_policy',
                                              mlp_config=[
                                                  {
@@ -46,7 +47,8 @@ class TestNormalDistMLPPolicy(TestTensorflowSetup):
         for _ in range(10):
             ac = policy.forward(obs=env.observation_space.sample())
             self.assertTrue(env.action_space.contains(ac[0]))
-        p2 = policy.make_copy(name_scope='test',
+        p2 = policy.make_copy(name='test',
+                              name_scope='mlp_policy_2',
                               reuse=False)
         p2.init()
         self.assertGreater(len(policy.parameters('tf_var_list')), 0)
@@ -55,7 +57,9 @@ class TestNormalDistMLPPolicy(TestTensorflowSetup):
             self.assertEqual(var1.shape, var2.shape)
             self.assertNotEqual(id(var1), id(var2))
 
-        p3 = policy.make_copy(name_scope='mlp_policy',
+        p3 = policy.make_copy(name='mlp_policy_ttt',
+                              name_scope='mlp_policy',
+
                               reuse=True)
         p3.init()
         self.assertGreater(len(p3.parameters('tf_var_list')), 0)
@@ -82,6 +86,7 @@ class TestNormalDistMLPPolicy(TestTensorflowSetup):
                            action_space=env.action_space)
 
         policy = NormalDistributionMLPPolicy(env_spec=env_spec,
+                                             name='mlp_policy',
                                              name_scope='mlp_policy',
                                              mlp_config=[
                                                  {
@@ -120,7 +125,9 @@ class TestNormalDistMLPPolicy(TestTensorflowSetup):
                                                                         original_shape=env_spec.obs_shape)}))
         new_policy = policy.make_copy(
             reuse=False,
-            name_scope='new_p'
+            name='new_p',
+            name_scope='mlp_policy_2',
+
         )
         new_policy.init()
         for var1, var2 in zip(policy.parameters('tf_var_list'), new_policy.parameters('tf_var_list')):

@@ -1,17 +1,6 @@
-import logging
-import os
-import json
-import numpy as np
 from typeguard import typechecked
-from mobrl.config.dict_config import DictConfig
-from mobrl.common.misc import *
-from mobrl.config.global_config import GlobalConfig
 from copy import deepcopy
-import decorators
-from decorator import decorator
-import logging
-import abc
-from mobrl.common.util.logger import global_logger
+from mobrl.common.util.logger import Logger
 from mobrl.core.basic import Basic
 
 
@@ -19,7 +8,7 @@ class Recorder(object):
     def __init__(self, flush_by_split_status=True):
         self._obj_log = {}
         self._registered_log_attr_by_get_dict = {}
-        global_logger.append_recorder(self)
+        Logger().append_recorder(self)
         self.flush_by_split_status = flush_by_split_status
 
     @typechecked
@@ -102,7 +91,7 @@ class Recorder(object):
         self._registered_log_attr_by_get_dict = {}
 
     def flush(self):
-        global_logger.flush_recorder(recorder=self)
+        Logger().flush_recorder(recorder=self)
 
     def _record_by_getter(self):
         for key, obj_dict in self._registered_log_attr_by_get_dict.items():

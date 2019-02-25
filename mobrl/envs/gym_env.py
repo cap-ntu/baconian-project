@@ -11,9 +11,20 @@ from gym.core import Space as GymSpace
 import mobrl.common.spaces as garage_space
 from typeguard import typechecked
 
+_env_inited_count = dict()
 
-def make(gym_env_id):
-    return GymEnv(gym_env_id)
+
+def make(gym_env_id, allow_multiple_env=True):
+    if allow_multiple_env is True:
+
+        if gym_env_id not in _env_inited_count:
+            _env_inited_count[gym_env_id] = 0
+        else:
+            _env_inited_count[gym_env_id] += 1
+
+        return GymEnv(gym_env_id, name='{}_{}'.format(gym_env_id, _env_inited_count[gym_env_id]))
+    else:
+        return GymEnv(gym_env_id)
 
 
 @typechecked
@@ -33,8 +44,8 @@ def space_converter(space: GymSpace):
 class GymEnv(Env):
     _all_gym_env_id = list(registry.env_specs.keys())
 
-    def __init__(self, gym_env_id: str):
-        super().__init__()
+    def __init__(self, gym_env_id: str, name: str = None):
+        super().__init__(name=name if name else gym_env_id)
         self.env_id = gym_env_id
         if gym_env_id not in self._all_gym_env_id:
             raise ValueError('Env id: {} is not supported currently'.format(gym_env_id))

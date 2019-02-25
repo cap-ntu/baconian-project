@@ -22,6 +22,7 @@ class TestMPC(TestTensorflowSetup):
         mlp_dyna = ContinuousMLPGlobalDynamicsModel(
             env_spec=env_spec,
             name_scope='mlp_dyna',
+            name='mlp_dyna',
             output_low=env_spec.obs_space.low,
             output_high=env_spec.obs_space.high,
             l1_norm_scale=1.0,
@@ -53,9 +54,9 @@ class TestMPC(TestTensorflowSetup):
                 SAMPLED_PATH_NUM=5,
                 dynamics_model_train_iter=10
             ),
-            reward_func=RandomRewardFunc(),
-            terminal_func=RandomTerminalFunc(),
-            policy=UniformRandomPolicy(env_spec=env_spec)
+            reward_func=RandomRewardFunc('re_fun'),
+            terminal_func=RandomTerminalFunc(name='random_p'),
+            policy=UniformRandomPolicy(env_spec=env_spec, name='unp')
         )
         algo.init()
         for _ in range(100):
@@ -82,6 +83,7 @@ class TestMPC(TestTensorflowSetup):
         mlp_dyna = ContinuousMLPGlobalDynamicsModel(
             env_spec=env_spec,
             name_scope='mlp_dyna',
+            name='mlp_dyna',
             output_low=np.ones_like(env_spec.obs_space.low) * -1.,
             output_high=np.ones_like(env_spec.obs_space.high),
             l1_norm_scale=1.0,
@@ -106,6 +108,7 @@ class TestMPC(TestTensorflowSetup):
                 }
             ])
         algo = ModelPredictiveControl(
+            name='mpc',
             dynamics_model=mlp_dyna,
             env_spec=env_spec,
             config_or_config_dict=dict(
@@ -113,9 +116,9 @@ class TestMPC(TestTensorflowSetup):
                 SAMPLED_PATH_NUM=5,
                 dynamics_model_train_iter=10
             ),
-            reward_func=RandomRewardFunc(),
-            terminal_func=RandomTerminalFunc(),
-            policy=UniformRandomPolicy(env_spec=env_spec)
+            reward_func=RandomRewardFunc('re_fun'),
+            terminal_func=RandomTerminalFunc(name='random_p'),
+            policy=UniformRandomPolicy(env_spec=env_spec, name='unp')
         )
         algo.init()
         for _ in range(100):

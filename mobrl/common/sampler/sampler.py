@@ -6,8 +6,8 @@ from mobrl.envs.env import Env
 
 
 class Sampler(Basic):
-    def __init__(self, env_spec):
-        super().__init__()
+    def __init__(self, env_spec, name):
+        super().__init__(name)
         self._data = TransitionData(env_spec)
         self.env_spec = env_spec
 

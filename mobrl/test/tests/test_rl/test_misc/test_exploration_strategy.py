@@ -14,6 +14,7 @@ class TestExplorationStrategy(TestTensorflowSetup):
 
         mlp_q = MLPQValueFunction(env_spec=env_spec,
                                   name_scope='mlp_q',
+                                  name='mlp_q',
                                   mlp_config=[
                                       {
                                           "ACT": "RELU",

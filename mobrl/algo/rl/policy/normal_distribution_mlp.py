@@ -9,12 +9,15 @@ from mobrl.tf.tf_parameters import TensorflowParameters
 from mobrl.common.special import *
 import tensorflow_probability as tfp
 from mobrl.tf.util import *
+from mobrl.algo.rl.utils import _get_copy_arg_with_tf_reuse
 
 
 class NormalDistributionMLPPolicy(StochasticPolicy):
 
     def __init__(self, env_spec: EnvSpec,
-                 name_scope: str, mlp_config: list,
+                 name: str,
+                 name_scope: str,
+                 mlp_config: list,
                  input_norm: np.ndarray = None,
                  output_norm: np.ndarray = None,
                  output_low: np.ndarray = None,
@@ -22,17 +25,17 @@ class NormalDistributionMLPPolicy(StochasticPolicy):
                  reuse=False,
                  distribution_tensors_tuple: tuple = None
                  ):
-        super(NormalDistributionMLPPolicy, self).__init__(env_spec, parameters=None)
+        super(NormalDistributionMLPPolicy, self).__init__(env_spec=env_spec, name=name, parameters=None)
         obs_dim = env_spec.flat_obs_dim
         action_dim = env_spec.flat_action_dim
         assert action_dim == mlp_config[-1]['N_UNITS']
-        self.name_scope = name_scope
         self.mlp_config = mlp_config
         self.input_norm = input_norm
         self.output_norm = output_norm
         self.output_low = output_low
         self.output_high = output_high
         self.mlp_config = mlp_config
+        self.name_scope = name_scope
 
         if distribution_tensors_tuple is not None:
             self.mean_output = distribution_tensors_tuple[0][0]
@@ -41,7 +44,7 @@ class NormalDistributionMLPPolicy(StochasticPolicy):
             assert list(self.logvar_output.shape)[-1] == action_dim
             self.mlp_net = None
         else:
-            with tf.variable_scope(name_scope):
+            with tf.variable_scope(self.name_scope):
                 self.state_input = tf.placeholder(shape=[None, obs_dim], dtype=tf.float32, name='state_ph')
             self.mlp_net = MLP(input_ph=self.state_input,
                                reuse=reuse,
@@ -113,19 +116,7 @@ class NormalDistributionMLPPolicy(StochasticPolicy):
         return super().copy_from(obj)
 
     def make_copy(self, **kwargs):
-        if 'reuse' in kwargs:
-            if kwargs['reuse'] is True:
-                if 'name_scope' in kwargs and kwargs['name_scope'] != self.name_scope:
-                    raise ValueError('If reuse, the name scope should be same instead of : {} and {}'.format(
-                        kwargs['name_scope'], self.name_scope))
-                else:
-                    kwargs.update(name_scope=self.name_scope)
-            else:
-                if 'name_scope' in kwargs and kwargs['name_scope'] == self.name_scope:
-                    raise ValueError(
-                        'If not reuse, the name scope should be different instead of: {} and {}'.format(
-                            kwargs['name_scope'], self.name_scope))
-
+        kwargs = _get_copy_arg_with_tf_reuse(obj=self, kwargs=kwargs)
         copy_mlp_policy = NormalDistributionMLPPolicy(env_spec=self.env_spec,
                                                       input_norm=self.input_norm,
                                                       output_norm=self.output_norm,

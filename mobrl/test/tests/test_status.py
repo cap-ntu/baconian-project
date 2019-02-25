@@ -1,11 +1,5 @@
 from mobrl.core.status import Status, StatusWithSingleInfo
-from mobrl.test.tests.test_setup import TestTensorflowSetup, BaseTestCase
 from mobrl.test.tests.test_setup import BaseTestCase
-from mobrl.common.util.logger import Logger, global_logger
-from mobrl.common.util.recorder import record_return_decorator
-import numpy as np
-from mobrl.core.basic import Basic
-from mobrl.test.tests.test_setup import TestTensorflowSetup
 from mobrl.algo.rl.model_free.dqn import DQN
 from mobrl.envs.gym_env import make
 from mobrl.envs.env_spec import EnvSpec
@@ -30,6 +24,7 @@ class TestStatusWithDQN(TestTensorflowSetup):
 
         mlp_q = MLPQValueFunction(env_spec=env_spec,
                                   name_scope='mlp_q',
+                                  name='mlp_q',
                                   mlp_config=[
                                       {
                                           "ACT": "RELU",

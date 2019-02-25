@@ -15,6 +15,7 @@ class TestExp(TestTensorflowSetup):
                            action_space=env.action_space)
 
         mlp_q = MLPQValueFunction(env_spec=env_spec,
+                                  name='mlp_q',
                                   name_scope='mlp_q',
                                   mlp_config=[
                                       {

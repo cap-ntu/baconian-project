@@ -1,13 +1,13 @@
 from copy import deepcopy
 from collections import Hashable
-
-_global_obj_arg_dict = {}
+from mobrl.common.util.exception import *
+from mobrl.core.global_var import get_all, reset
 
 
 def init_func_arg_record_decorator():
     def wrap(fn):
         def wrap_with_self(self, *args, **kwargs):
-            _global_obj_arg_dict[self] = dict(args=args, kwargs=kwargs, cls=type(self))
+            get_all()['_global_obj_arg_dict'][self] = dict(args=args, kwargs=kwargs, cls=type(self))
             res = fn(self, *args, **kwargs)
             return res
 
@@ -17,12 +17,12 @@ def init_func_arg_record_decorator():
 
 
 def get_global_arg_dict():
-    return _global_obj_arg_dict
+    return get_all()['_global_obj_arg_dict']
 
 
 def copy_globally(arg_dict, source_obj_list):
     new_obj_list = []
-
+    reset('_global_name_dict')
     for obj in source_obj_list:
         if obj not in arg_dict:
             raise ValueError('{} not in arg_dict'.format(obj))
@@ -30,6 +30,14 @@ def copy_globally(arg_dict, source_obj_list):
             new_obj_list.append(_make_copy_object(arg_dict, obj=obj))
 
     return new_obj_list
+
+
+def register_name_globally(name: str, obj):
+    # todo may need to reset
+    if name in get_all()['_global_name_dict'] and not id(obj) == id(get_all()['_global_name_dict'][name]):
+        raise GlobalNameExistedError('name : {} is existed with object: {}'.format(name, get_all()['_global_name_dict'][name]))
+    else:
+        get_all()['_global_name_dict'][name] = obj
 
 
 def _make_copy_object(arg_dict: dict, obj):

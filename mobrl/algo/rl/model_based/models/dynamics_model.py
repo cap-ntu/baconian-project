@@ -9,8 +9,8 @@ from tensorflow.python.ops.parallel_for.gradients import jacobian as tf_jacobian
 
 
 class DynamicsModel(Basic):
-    def __init__(self, env_spec: EnvSpec, parameters: Parameters = None, init_state=None):
-        super().__init__()
+    def __init__(self, env_spec: EnvSpec, parameters: Parameters = None, init_state=None, name='dynamics_model'):
+        super().__init__(name=name)
         self.env_space = env_spec
         self.state = init_state
         self.parameters = parameters

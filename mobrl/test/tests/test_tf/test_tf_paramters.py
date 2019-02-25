@@ -6,12 +6,14 @@ from mobrl.test.tests.test_setup import TestTensorflowSetup
 
 
 class Foo(Basic):
+    def __init__(self):
+        super().__init__(name='foo')
+
     required_key_list = dict(var1=1, var2=0.1)
 
 
 class TestTensorflowParameters(TestTensorflowSetup):
     def test_tf_param(self):
-
         with tf.variable_scope('test_tf_param'):
             a = tf.get_variable(shape=[3, 4], dtype=tf.float32, name='var_1')
             b = tf.get_variable(shape=[3, 4], dtype=tf.bool, name='var_2')

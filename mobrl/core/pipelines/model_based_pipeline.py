@@ -5,6 +5,7 @@ from mobrl.config.dict_config import DictConfig
 from mobrl.agent.agent import Agent
 import numpy as np
 from mobrl.common.misc import *
+from mobrl.common.util.logger import Logger, ConsoleLogger
 
 
 class ModelBasedPipeline(Pipeline):
@@ -68,7 +69,7 @@ class ModelBasedPipeline(Pipeline):
         self.agent.init()
 
     def on_exit_state_inited(self):
-        print('model-based pipeline finish inited')
+        ConsoleLogger().print('info', 'model-based pipeline finish inited')
 
     def on_enter_state_agent_testing(self):
         pass
@@ -79,9 +80,9 @@ class ModelBasedPipeline(Pipeline):
                                 store_flag=False,
                                 in_test_flag=True)
         self.total_test_samples += self.config('TEST_SAMPLES_COUNT')
-        print("Mean reward_func is {}".format(np.mean(res.reward_set)))
+        ConsoleLogger().print('info', "Mean reward_func is {}".format(np.mean(res.reward_set)))
 
-        print('model-based pipeline exit testing')
+        ConsoleLogger().print('info', 'model-based pipeline exit testing')
 
     def on_enter_state_agent_training(self):
         pass
@@ -93,9 +94,9 @@ class ModelBasedPipeline(Pipeline):
                                 in_test_flag=False)
         self.total_train_samples += self.config('TRAIN_SAMPLES_COUNT')
         info = self.agent.update(state=self.state)
-        print("Mean reward_func is {}".format(np.mean(res.reward_set)))
-        print("Train info is {}".format(info))
-        print('model-based pipeline exit training')
+        ConsoleLogger().print('info', "Mean reward_func is {}".format(np.mean(res.reward_set)))
+        ConsoleLogger().print('info', "Train info is {}".format(info))
+        ConsoleLogger().print('info', 'model-based pipeline exit training')
 
     def on_enter_state_dynamics_testing(self):
         pass
@@ -113,15 +114,15 @@ class ModelBasedPipeline(Pipeline):
                                 in_test_flag=False)
         self.total_train_samples += self.config('TRAIN_SAMPLES_COUNT')
         info = self.agent.update(batch_data=res, state=self.state)
-        print("Mean reward_func is {}".format(np.mean(res.reward_set)))
-        print("Train info is {}".format(info))
-        print('model-based pipeline exit training')
+        ConsoleLogger().print('info', "Mean reward_func is {}".format(np.mean(res.reward_set)))
+        ConsoleLogger().print('info', "Train info is {}".format(info))
+        ConsoleLogger().print('info', 'model-based pipeline exit training')
 
     def on_enter_state_ended(self):
-        print('model-based pipeline enter ended')
+        ConsoleLogger().print('info', 'model-based pipeline enter ended')
 
     def on_exit_state_ended(self):
-        print('model-based pipeline exit ended')
+        ConsoleLogger().print('info', 'model-based pipeline exit ended')
 
     def on_enter_state_corrupted(self):
         pass

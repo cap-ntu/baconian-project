@@ -6,6 +6,7 @@ from typeguard import typechecked
 from mobrl.common.util.logger import Logger
 from mobrl.common.util.recorder import Recorder
 
+
 # import numpy as np
 
 
@@ -16,13 +17,8 @@ class Algo(Basic, abc.ABC):
     @typechecked
     def __init__(self, env_spec: EnvSpec, name: str = 'algo'):
         self.env_spec = env_spec
-        self._name = name
         self.recorder = Recorder()
-        super().__init__(status=StatusWithSubInfo(obj=self))
-
-    @property
-    def name(self):
-        return self._name
+        super().__init__(status=StatusWithSubInfo(obj=self), name=name)
 
     def init(self):
         self._status.set_status('JUST_INITED')

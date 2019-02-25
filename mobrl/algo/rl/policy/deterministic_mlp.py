@@ -7,27 +7,29 @@ import tensorflow as tf
 from mobrl.tf.mlp import MLP
 from mobrl.tf.tf_parameters import TensorflowParameters
 from mobrl.common.special import *
+from mobrl.algo.rl.utils import _get_copy_arg_with_tf_reuse
 
 
 class DeterministicMLPPolicy(DeterministicPolicy):
 
     def __init__(self, env_spec: EnvSpec,
-                 name_scope: str, mlp_config: list,
+                 name_scope: str,
+                 name: str, mlp_config: list,
                  input_norm: np.ndarray = None,
                  output_norm: np.ndarray = None,
                  output_low: np.ndarray = None,
                  output_high: np.ndarray = None,
                  reuse=False):
-        super(DeterministicMLPPolicy, self).__init__(env_spec, parameters=None)
+        super(DeterministicMLPPolicy, self).__init__(env_spec=env_spec, name=name, parameters=None)
         obs_dim = env_spec.flat_obs_dim
         action_dim = env_spec.flat_action_dim
         assert action_dim == mlp_config[-1]['N_UNITS']
-        self.name_scope = name_scope
         self.mlp_config = mlp_config
         self.input_norm = input_norm
         self.output_norm = output_norm
         self.output_low = output_low
         self.output_high = output_high
+        self.name_scope = name_scope
 
         with tf.variable_scope(name_scope):
             self.state_input = tf.placeholder(shape=[None, obs_dim], dtype=tf.float32, name='state_ph')
@@ -70,18 +72,7 @@ class DeterministicMLPPolicy(DeterministicPolicy):
         return super().copy_from(obj)
 
     def make_copy(self, *args, **kwargs):
-        if 'reuse' in kwargs:
-            if kwargs['reuse'] is True:
-                if 'name_scope' in kwargs and kwargs['name_scope'] != self.name_scope:
-                    raise ValueError('If reuse, the name scope should be same, but is different now: {} and {}'.format(
-                        kwargs['name_scope'], self.name_scope))
-                else:
-                    kwargs.update(name_scope=self.name_scope)
-            else:
-                if 'name_scope' in kwargs and kwargs['name_scope'] == self.name_scope:
-                    raise ValueError(
-                        'If not reuse, the name scope should be different, but is same now: {} and {}'.format(
-                            kwargs['name_scope'], self.name_scope))
+        kwargs = _get_copy_arg_with_tf_reuse(obj=self, kwargs=kwargs)
 
         copy_mlp_policy = DeterministicMLPPolicy(env_spec=self.env_spec,
                                                  input_norm=self.input_norm,

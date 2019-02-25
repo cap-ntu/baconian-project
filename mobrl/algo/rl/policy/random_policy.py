@@ -7,8 +7,8 @@ from overrides.overrides import overrides
 class UniformRandomPolicy(Policy):
 
     @typechecked
-    def __init__(self, env_spec: EnvSpec):
-        super().__init__(env_spec)
+    def __init__(self, name: str, env_spec: EnvSpec):
+        super().__init__(env_spec=env_spec, name=name)
 
     @overrides
     def forward(self, obs, **kwargs):

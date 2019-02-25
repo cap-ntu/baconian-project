@@ -35,17 +35,18 @@ class GlobalConfig(object):
                                                   'ddpg.json')
 
     DEFAULT_PPO_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS, 'ppo.json')
+    DEFAULT_EXPERIMENT_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS, 'experiment.json')
 
     # LOGGING CONFIG
 
     DEFAULT_ALLOWED_LOG_FILE_TYPES = ('json', 'csv', 'h5py')
     # todo more detailed define on this
     DEFAULT_LOG_LEVEL = 'DEBUG'
-    DEFAULT_LOG_PATH = '/home/dls/CAP/ModelBasedRLFramework/mobrl/test/tests/tmp_path'
+    DEFAULT_LOG_PATH = '/home/dls/CAP/mobrl/mobrl/test/tests/tmp_path'
     DEFAULT_LOG_CONFIG_DICT = dict()
     DEFAULT_LOG_USE_GLOBAL_MEMO_FLAG = True,
 
-    DEFAULT_LOGGING_FORMAT = '%(asctime)-15s in path %(pathname)s: %(message)s'
+    DEFAULT_LOGGING_FORMAT = '%(levelname)s:%(asctime)-15s: %(message)s'
     DEFAULT_WRITE_CONSOLE_LOG_TO_FILE_FLAG = True,
     DEFAULT_CONSOLE_LOG_FILE_NAME = 'console.log'
 

@@ -13,10 +13,10 @@ from mobrl.common.util.recorder import Recorder
 class Agent(Basic):
 
     @typechecked
-    def __init__(self, env: GlobalConfig.DEFAULT_ALLOWED_GYM_ENV_TYPE + (Env,), algo: Algo, env_spec: EnvSpec,
+    def __init__(self, name, env: GlobalConfig.DEFAULT_ALLOWED_GYM_ENV_TYPE + (Env,), algo: Algo, env_spec: EnvSpec,
                  sampler: Sampler = None,
                  exploration_strategy=None):
-        super(Agent, self).__init__()
+        super(Agent, self).__init__(name=name)
         self.env = env
         self.algo = algo
         self._env_step_count = 0
@@ -25,7 +25,7 @@ class Agent(Basic):
         if exploration_strategy:
             assert isinstance(exploration_strategy, ExplorationStrategy)
             self.explorations_strategy = exploration_strategy
-        self.sampler = sampler if sampler else Sampler(env_spec=env_spec)
+        self.sampler = sampler if sampler else Sampler(env_spec=env_spec, name='{}_sampler'.format(name))
 
     @property
     def env_sample_count(self):
@@ -53,7 +53,6 @@ class Agent(Basic):
 
     def init(self):
         self.algo.init()
-        print("%s init finished" % type(self).__name__)
 
     @typechecked
     def store_samples(self, samples: SampleData):

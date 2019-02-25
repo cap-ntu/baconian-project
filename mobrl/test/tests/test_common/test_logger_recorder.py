@@ -1,4 +1,4 @@
-from mobrl.test.tests.test_setup import BaseTestCase, TestWithLogSet
+from mobrl.test.tests.test_setup import BaseTestCase, TestWithLogSet, TestWithAll
 from mobrl.common.util.logger import ConsoleLogger, Logger
 from mobrl.common.util.recorder import record_return_decorator
 import numpy as np
@@ -12,8 +12,8 @@ from mobrl.common.util.recorder import Recorder
 
 
 class Foo(Basic):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, name='foo'):
+        super().__init__(name=name)
         self.loss = 1.0
         self.recorder = Recorder()
 
@@ -61,7 +61,7 @@ class TestLogger(TestWithLogSet):
         self.assertTrue(b._registered_log_attr_by_get_dict is not a._registered_log_attr_by_get_dict)
 
     def test_return_record(self):
-        obj = Foo()
+        obj = Foo(name='foo')
         obj.get_by_return(res=10, num=2)
         obj.get_by_return(res=1, num=2)
         obj.get_by_return(res=2, num=4)
@@ -80,7 +80,7 @@ class TestLogger(TestWithLogSet):
         self.assertTrue(obj.recorder._obj_log[obj]['val2'][1]['log_val'] == 1)
         self.assertTrue(obj.recorder._obj_log[obj]['val2'][2]['log_val'] == 2)
 
-        obj = Foo()
+        obj = Foo(name='foo2')
         obj.get_by_return(res=10, num=2)
         obj.get_by_return(res=1, num=2)
         obj.get_by_return(res=2, num=4)
@@ -99,16 +99,7 @@ class TestLogger(TestWithLogSet):
         self.assertTrue(obj.recorder._obj_log[obj]['val2'][2]['log_val'] == 2)
 
 
-class TesTLoggerWithDQN(TestTensorflowSetup, TestWithLogSet):
-
-    def setUp(self):
-        self.assertFalse(ConsoleLogger().inited_flag)
-        self.assertFalse(Logger().inited_flag)
-        TestWithLogSet.setUp(self)
-        TestTensorflowSetup.setUp(self)
-
-        self.assertTrue(ConsoleLogger().inited_flag)
-        self.assertTrue(Logger().inited_flag)
+class TesTLoggerWithDQN(TestWithAll):
 
     def test_integration_with_dqn(self):
         env = make('Acrobot-v1')
@@ -116,6 +107,7 @@ class TesTLoggerWithDQN(TestTensorflowSetup, TestWithLogSet):
                            action_space=env.action_space)
 
         mlp_q = MLPQValueFunction(env_spec=env_spec,
+                                  name='mlp_q',
                                   name_scope='mlp_q',
                                   mlp_config=[
                                       {
@@ -178,16 +170,12 @@ class TesTLoggerWithDQN(TestTensorflowSetup, TestWithLogSet):
         self.assertTrue(ConsoleLogger().inited_flag)
         logger = ConsoleLogger()
         self.assertTrue(logger.inited_flag)
-        self.assertTrue(logger.inited_flag)
         logger.print('info', 'this is for test %s', 'args')
+        logger.print('info', 'this is for test {}'.format('args'))
 
         logger2 = ConsoleLogger()
         self.assertEqual(id(logger), id(logger2))
         logger.flush()
-
-    def tearDown(self):
-        TestTensorflowSetup.tearDown(self)
-        TestWithLogSet.tearDown(self)
 
 
 if __name__ == '__main__':

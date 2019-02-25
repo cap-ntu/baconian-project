@@ -4,6 +4,10 @@ from mobrl.core.parameters import Parameters
 from mobrl.envs.env_spec import EnvSpec
 from mobrl.algo.rl.value_func.value_func import PlaceholderInputValueFunction
 
+"""
+to be done in the v0.2 maybe
+"""
+
 
 class MLPQValueOnActions(PlaceholderInputValueFunction):
 

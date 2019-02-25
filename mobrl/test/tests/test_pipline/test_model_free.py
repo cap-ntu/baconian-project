@@ -5,18 +5,18 @@ from mobrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
 from mobrl.agent.agent import Agent
 from mobrl.algo.rl.misc.exploration_strategy.epsilon_greedy import EpsilonGreedy
 from mobrl.core.pipelines.model_free_pipelines import ModelFreePipeline
-from mobrl.test.tests.test_setup import TestTensorflowSetup
+from mobrl.test.tests.test_setup import TestWithAll
 
 
-class TestModelFreePipline(TestTensorflowSetup):
+class TestModelFreePipeline(TestWithAll):
     def test_agent(self):
-
         env = make('Acrobot-v1')
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
 
         mlp_q = MLPQValueFunction(env_spec=env_spec,
                                   name_scope='mlp_q',
+                                  name='mlp_q',
                                   mlp_config=[
                                       {
                                           "ACT": "RELU",
@@ -45,9 +45,11 @@ class TestModelFreePipline(TestTensorflowSetup):
                                              LEARNING_RATE=0.001,
                                              DECAY=0.5),
                   value_func=mlp_q)
-        agent = Agent(env=env, algo=dqn, exploration_strategy=EpsilonGreedy(action_space=dqn.env_spec.action_space,
-                                                                            init_random_prob=0.5,
-                                                                            decay_type=None),
+        agent = Agent(env=env, algo=dqn,
+                      name='agent',
+                      exploration_strategy=EpsilonGreedy(action_space=dqn.env_spec.action_space,
+                                                         init_random_prob=0.5,
+                                                         decay_type=None),
                       env_spec=env_spec)
         model_free = ModelFreePipeline(agent=agent, env=env,
                                        config_or_config_dict=dict(TEST_SAMPLES_COUNT=100,

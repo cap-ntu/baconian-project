@@ -14,6 +14,7 @@ from mobrl.tf.util import *
 class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics):
     def __init__(self, env_spec: EnvSpec,
                  name_scope: str,
+                 name: str,
                  mlp_config: list,
                  learning_rate: float,
                  l1_norm_scale: float,
@@ -24,6 +25,7 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics):
                  output_high: np.ndarray = None,
                  init_state=None):
         super(ContinuousMLPGlobalDynamicsModel, self).__init__(env_spec=env_spec, parameters=None,
+                                                               name=name,
                                                                init_state=init_state)
 
         self.mlp_config = mlp_config

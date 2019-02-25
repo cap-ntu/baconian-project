@@ -16,6 +16,7 @@ class TestPPO(TestTensorflowSetup):
 
         mlp_v = MLPVValueFunc(env_spec=env_spec,
                               name_scope='mlp_v',
+                              name='mlp_v',
                               mlp_config=[
                                   {
                                       "ACT": "RELU",
@@ -36,6 +37,7 @@ class TestPPO(TestTensorflowSetup):
                               ])
         policy = NormalDistributionMLPPolicy(env_spec=env_spec,
                                              name_scope='mlp_policy',
+                                             name='mlp_policy',
                                              mlp_config=[
                                                  {
                                                      "ACT": "RELU",

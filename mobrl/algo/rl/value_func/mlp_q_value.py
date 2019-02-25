@@ -9,6 +9,7 @@ from mobrl.tf.tf_parameters import TensorflowParameters
 from mobrl.tf.mlp import MLP
 from mobrl.common.special import *
 from mobrl.core.util import init_func_arg_record_decorator
+from mobrl.algo.rl.utils import _get_copy_arg_with_tf_reuse
 
 
 class MLPQValueFunction(PlaceholderInputValueFunction):
@@ -21,6 +22,7 @@ class MLPQValueFunction(PlaceholderInputValueFunction):
     @tg.typechecked
     def __init__(self,
                  env_spec: EnvSpec,
+                 name: str,
                  name_scope: str,
                  mlp_config: list,
                  state_input: tf.Tensor = None,
@@ -31,7 +33,9 @@ class MLPQValueFunction(PlaceholderInputValueFunction):
                  output_low: np.ndarray = None,
                  output_high: np.ndarray = None,
                  ):
-        with tf.name_scope(name_scope):
+        # todo have to set name first because of tf parameters late initialization
+        self._name = name
+        with tf.name_scope(self.name):
             self.state_input = state_input if state_input is not None else tf.placeholder(
                 shape=[None, env_spec.flat_obs_dim],
                 dtype=tf.float32,
@@ -40,13 +44,12 @@ class MLPQValueFunction(PlaceholderInputValueFunction):
                 shape=[None, env_spec.flat_action_dim],
                 dtype=tf.float32,
                 name='action_ph')
-        self.name_scope = name_scope
         self.mlp_config = mlp_config
         self.input_norm = input_norm
         self.output_norm = output_norm
         self.output_low = output_low
         self.output_high = output_high
-
+        self.name_scope = name_scope
         with tf.variable_scope(self.name_scope):
             self.mlp_input_ph = tf.concat([self.state_input, self.action_input], axis=1, name='state_action_input')
 
@@ -57,14 +60,15 @@ class MLPQValueFunction(PlaceholderInputValueFunction):
                            output_norm=output_norm,
                            output_high=output_high,
                            output_low=output_low,
-                           name_scope=name_scope,
+                           name_scope=self.name_scope,
                            net_name='mlp')
         self.q_tensor = self.mlp_net.output
         parameters = TensorflowParameters(tf_var_list=self.mlp_net.var_list,
                                           rest_parameters=dict(),
-                                          name='mlp_q_value_function_tf_param',
+                                          name='{}_tf_param'.format(self.name),
                                           auto_init=False)
         super(MLPQValueFunction, self).__init__(env_spec=env_spec,
+                                                name=name,
                                                 parameters=parameters,
                                                 input=self.mlp_input_ph)
 
@@ -100,18 +104,7 @@ class MLPQValueFunction(PlaceholderInputValueFunction):
             self.copy(obj=source_obj)
 
     def make_copy(self, *args, **kwargs):
-        if 'reuse' in kwargs:
-            if kwargs['reuse'] is True:
-                if 'name_scope' in kwargs and kwargs['name_scope'] != self.name_scope:
-                    raise ValueError('If reuse, the name scope should be same, but is different now: {} and {}'.format(
-                        kwargs['name_scope'], self.name_scope))
-                else:
-                    kwargs.update(name_scope=self.name_scope)
-            else:
-                if 'name_scope' in kwargs and kwargs['name_scope'] == self.name_scope:
-                    raise ValueError(
-                        'If not reuse, the name scope should be different, but is same now: {} and {}'.format(
-                            kwargs['name_scope'], self.name_scope))
+        kwargs = _get_copy_arg_with_tf_reuse(obj=self, kwargs=kwargs)
 
         copy_mlp_q_value = MLPQValueFunction(env_spec=self.env_spec,
                                              input_norm=self.input_norm,

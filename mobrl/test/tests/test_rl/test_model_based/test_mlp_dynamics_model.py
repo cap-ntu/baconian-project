@@ -17,6 +17,7 @@ class TestDynamicsModel(TestTensorflowSetup):
         mlp_dyna = ContinuousMLPGlobalDynamicsModel(
             env_spec=env_spec,
             name_scope='mlp_dyna',
+            name='mlp_dyna',
             output_low=env_spec.obs_space.low,
             output_high=env_spec.obs_space.high,
             l1_norm_scale=1.0,
@@ -59,6 +60,7 @@ class TestDynamicsModel(TestTensorflowSetup):
         mlp_dyna_2 = ContinuousMLPGlobalDynamicsModel(
             env_spec=env_spec,
             name_scope='mlp_dyna2',
+            name='mlp_dyna2',
             output_low=env_spec.obs_space.low,
             output_high=env_spec.obs_space.high,
             l1_norm_scale=1.0,

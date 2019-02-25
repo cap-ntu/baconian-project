@@ -8,6 +8,7 @@ from typeguard import typechecked
 from mobrl.tf.tf_parameters import TensorflowParameters
 from mobrl.tf.mlp import MLP
 from mobrl.common.special import *
+from mobrl.algo.rl.utils import _get_copy_arg_with_tf_reuse
 
 
 class MLPVValueFunc(PlaceholderInputValueFunction):
@@ -20,6 +21,7 @@ class MLPVValueFunc(PlaceholderInputValueFunction):
     def __init__(self,
                  env_spec: EnvSpec,
                  name_scope: str,
+                 name: str,
                  mlp_config: list,
                  state_input: tf.Tensor = None,
                  reuse=False,
@@ -58,6 +60,7 @@ class MLPVValueFunc(PlaceholderInputValueFunction):
                                           name='mlp_v_value_function_tf_param',
                                           auto_init=False)
         super(MLPVValueFunc, self).__init__(env_spec=env_spec,
+                                            name=name,
                                             parameters=parameters,
                                             input=self.mlp_input_ph)
 
@@ -90,18 +93,7 @@ class MLPVValueFunc(PlaceholderInputValueFunction):
             self.copy(obj=source_obj)
 
     def make_copy(self, *args, **kwargs):
-        if 'reuse' in kwargs:
-            if kwargs['reuse'] is True:
-                if 'name_scope' in kwargs and kwargs['name_scope'] != self.name_scope:
-                    raise ValueError('If reuse, the name scope should be same, but is different now: {} and {}'.format(
-                        kwargs['name_scope'], self.name_scope))
-                else:
-                    kwargs.update(name_scope=self.name_scope)
-            else:
-                if 'name_scope' in kwargs and kwargs['name_scope'] == self.name_scope:
-                    raise ValueError(
-                        'If not reuse, the name scope should be different, but is same now: {} and {}'.format(
-                            kwargs['name_scope'], self.name_scope))
+        kwargs = _get_copy_arg_with_tf_reuse(obj=self, kwargs=kwargs)
 
         copy_mlp_v_value = MLPVValueFunc(env_spec=self.env_spec,
                                          input_norm=self.input_norm,

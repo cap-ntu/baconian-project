@@ -6,6 +6,7 @@ import abc
 from mobrl.agent.agent import Agent
 import numpy as np
 from mobrl.common.misc import *
+from mobrl.common.util.logger import ConsoleLogger
 
 
 class ModelFreePipeline(Pipeline):
@@ -58,10 +59,10 @@ class ModelFreePipeline(Pipeline):
         self.env.init()
 
     def on_exit_state_inited(self):
-        print('model-free pipeline finish inited')
+        ConsoleLogger().print('info', 'model-free pipeline finish inited')
 
     def on_enter_state_agent_testing(self):
-        print('model-free pipeline enter testing')
+        ConsoleLogger().print('info', 'model-free pipeline enter testing')
 
     def on_exit_state_agent_testing(self):
 
@@ -70,12 +71,12 @@ class ModelFreePipeline(Pipeline):
                                 store_flag=False,
                                 in_test_flag=True)
         self.total_test_samples += self.config('TEST_SAMPLES_COUNT')
-        print("Mean reward_func is {}".format(np.mean(res.reward_set)))
+        ConsoleLogger().print('info', "Mean reward_func is {}".format(np.mean(res.reward_set)))
 
-        print('model-free pipeline exit testing')
+        ConsoleLogger().print('info', 'model-free pipeline exit testing')
 
     def on_enter_state_agent_training(self):
-        print('model-free pipeline enter training')
+        ConsoleLogger().print('info', 'model-free pipeline enter training')
 
     def on_exit_state_agent_training(self):
         res = self.agent.sample(env=self.agent.env,
@@ -84,15 +85,15 @@ class ModelFreePipeline(Pipeline):
                                 in_test_flag=False)
         self.total_train_samples += self.config('TRAIN_SAMPLES_COUNT')
         info = self.agent.update()
-        print("Mean reward_func is {}".format(np.mean(res.reward_set)))
-        print("Train info is {}".format(info))
-        print('model-free pipeline exit training')
+        ConsoleLogger().print('info', "Mean reward_func is {}".format(np.mean(res.reward_set)))
+        ConsoleLogger().print('info', "Train info is {}".format(info))
+        ConsoleLogger().print('info', 'model-free pipeline exit training')
 
     def on_enter_state_ended(self):
-        print('model-free pipeline enter ended')
+        ConsoleLogger().print('info', 'model-free pipeline enter ended')
 
     def on_exit_state_ended(self):
-        print('model-free pipeline exit ended')
+        ConsoleLogger().print('info', 'model-free pipeline exit ended')
 
     def on_enter_state_corrupted(self):
         raise NotImplementedError

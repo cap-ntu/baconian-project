@@ -6,11 +6,11 @@ from mobrl.algo.rl.misc.exploration_strategy.epsilon_greedy import EpsilonGreedy
 from mobrl.core.pipelines.model_based_pipeline import ModelBasedPipeline
 from mobrl.algo.rl.model_based.models.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
 from mobrl.algo.rl.model_based.sample_with_model import SampleWithDynamics
-from mobrl.test.tests.test_setup import TestTensorflowSetup
+from mobrl.test.tests.test_setup import TestWithAll
 from mobrl.algo.rl.model_free.dqn import DQN
 
 
-class TestModelFreePipeline(TestTensorflowSetup):
+class TestModelFreePipeline(TestWithAll):
     def test_agent(self):
         env = make('Acrobot-v1')
         env_spec = EnvSpec(obs_space=env.observation_space,
@@ -18,6 +18,7 @@ class TestModelFreePipeline(TestTensorflowSetup):
 
         mlp_q = MLPQValueFunction(env_spec=env_spec,
                                   name_scope='mlp_q',
+                                  name='mlp_q',
                                   output_low=None,
                                   output_high=None,
                                   mlp_config=[
@@ -52,6 +53,7 @@ class TestModelFreePipeline(TestTensorflowSetup):
         mlp_dyna = ContinuousMLPGlobalDynamicsModel(
             env_spec=env_spec,
             name_scope='mlp_dyna',
+            name='mlp_dyna',
             output_low=env_spec.obs_space.low,
             output_high=env_spec.obs_space.high,
             l1_norm_scale=1.0,
@@ -83,9 +85,10 @@ class TestModelFreePipeline(TestTensorflowSetup):
                                       model_free_algo_train_iter=10
                                   ))
 
-        agent = Agent(env=env, algo=algo, exploration_strategy=EpsilonGreedy(action_space=dqn.env_spec.action_space,
-                                                                             init_random_prob=0.5,
-                                                                             decay_type=None),
+        agent = Agent(env=env, algo=algo, name='agent',
+                      exploration_strategy=EpsilonGreedy(action_space=dqn.env_spec.action_space,
+                                                         init_random_prob=0.5,
+                                                         decay_type=None),
                       env_spec=env_spec)
         pipeline = ModelBasedPipeline(agent=agent, env=env,
                                       config_or_config_dict=dict(TEST_SAMPLES_COUNT=100,
