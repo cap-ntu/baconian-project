@@ -59,7 +59,6 @@ class TestNormalDistMLPPolicy(TestTensorflowSetup):
 
         p3 = policy.make_copy(name='mlp_policy_ttt',
                               name_scope='mlp_policy',
-
                               reuse=True)
         p3.init()
         self.assertGreater(len(p3.parameters('tf_var_list')), 0)
@@ -67,17 +66,24 @@ class TestNormalDistMLPPolicy(TestTensorflowSetup):
             self.assertEqual(var1.shape, var2.shape)
             self.assertEqual(id(var1), id(var2))
 
-        policy.copy_from(p2)
-        res = []
-        res2 = []
+        # policy.copy_from(p2)]
+        res_not_true = []
         for var1, var2, var3 in zip(policy.parameters('tf_var_list'), p2.parameters('tf_var_list'),
                                     p3.parameters('tf_var_list')):
             re1, re2, re3 = self.sess.run([var1, var2, var3])
-            res.append(np.isclose(re1, re2).all())
+            res_not_true.append(np.isclose(re1, re2).all())
+            res_not_true.append(np.isclose(re3, re2).all())
             self.assertTrue(np.isclose(re1, re3).all())
-            res2.append(np.isclose(re3, re2).all())
-        self.assertFalse(np.array(res).all())
-        self.assertFalse(np.array(res2).all())
+        self.assertFalse(np.array(res_not_true).all())
+
+        policy.copy_from(p2)
+
+        for var1, var2, var3 in zip(policy.parameters('tf_var_list'), p2.parameters('tf_var_list'),
+                                    p3.parameters('tf_var_list')):
+            re1, re2, re3 = self.sess.run([var1, var2, var3])
+            self.assertTrue(np.isclose(re1, re3).all())
+            self.assertTrue(np.isclose(re2, re3).all())
+            self.assertTrue(np.isclose(re1, re2).all())
 
     def test_func(self):
         env = make('Swimmer-v1')

@@ -10,70 +10,94 @@ For experiments, it's functionality should include:
 from mobrl.core.basic import Basic
 from mobrl.core.status import StatusWithSingleInfo
 from mobrl.core.pipeline import Pipeline
-from mobrl.common.util.logger import global_logger, global_console_logger
+from mobrl.common.util.logger import Logger, ConsoleLogger
 from mobrl.config.global_config import GlobalConfig
 from mobrl.core.tuner import Tuner
 from typeguard import typechecked
 from mobrl.config.dict_config import DictConfig
 from mobrl.common.misc import *
 from mobrl.core.util import init_func_arg_record_decorator
+import tensorflow as tf
+import numpy as np
+import random
+import GPUtil.GPUtil as Gpu
+import os
+from typeguard import typechecked
+import time
+from mobrl.tf.util import create_new_tf_session
 
 
 class Experiment(Basic):
     STATUS_LIST = ('NOT_INIT', 'INITED', 'RUNNING', 'FINISHED', 'CORRUPTED')
     INIT_STATUS = 'NOT_INIT'
+    required_key_list = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_EXPERIMENT_REQUIRED_KEY_LIST)
 
     @init_func_arg_record_decorator()
     @typechecked
     def __init__(self,
+                 name: str,
                  pipeline: Pipeline,
-                 tuner: Tuner,
                  config_or_config_dict: (DictConfig, dict),
-                 # todo simplify the parameters
-                 log_path: str = GlobalConfig.DEFAULT_LOG_PATH,
-                 log_level: str = GlobalConfig.DEFAULT_LOG_LEVEL,
-                 log_use_global_memo=GlobalConfig.DEFAULT_LOG_USE_GLOBAL_MEMO_FLAG,
-                 console_log_to_file_flag=GlobalConfig.DEFAULT_WRITE_CONSOLE_LOG_TO_FILE_FLAG,
-                 console_log_to_file_name=GlobalConfig.DEFAULT_CONSOLE_LOG_FILE_NAME,
+                 tuner: Tuner = None,
                  ):
-        super().__init__(StatusWithSingleInfo(obj=self))
-        self._name = 'experiment'
+        super().__init__(status=StatusWithSingleInfo(obj=self), name=name)
         self.config = construct_dict_config(config_or_config_dict, self)
         self.pipeline = pipeline
         self.tuner = tuner
         self._logger_kwargs = dict(config_or_config_dict=dict(),
-                                   log_path=log_path,
-                                   log_level=log_level,
-                                   use_global_memo=log_use_global_memo)
+                                   log_path=self.config('log_path'),
+                                   log_level=self.config('log_level'))
         self._console_logger_kwargs = dict(
-            to_file_flag=console_log_to_file_flag,
-            to_file_name=console_log_to_file_name,
-            level=log_level,
+            to_file_flag=self.config('console_logger_to_file_flag'),
+            to_file_name=self.config('console_logger_to_file_name'),
+            level=self.config('log_level'),
             logger_name='console_logger'
         )
 
     def init(self):
-        global_logger.init(**self._logger_kwargs)
-        global_console_logger.init(**self._console_logger_kwargs)
+        Logger().init(**self._logger_kwargs)
+        ConsoleLogger().init(**self._console_logger_kwargs)
+        sess = create_new_tf_session(cuda_device=0)
+        self.set_status(val='INITED')
 
     @property
     def name(self):
         return self._name
 
     def run(self):
+        self.init()
+        self.set_status('RUNNING')
         self.pipeline.launch()
+        self.set_status('FINISHED')
+        self._exit()
 
     def _reset(self):
         pass
 
     def _exit(self):
-        pass
+        sess = tf.get_default_session()
+        if sess:
+            sess.__exit__(None, None, None)
+        tf.reset_default_graph()
 
 
-class ExperimentSetter(object):
-    """
-    recursively set up a experiment object
-    """
+def _reset_global_seed(seed):
+    tf.reset_default_graph()
+    tf.set_random_seed(seed)
+    np.random.seed(seed)
+    random.seed(seed)
 
-    def set_experiment(self, source_exp: Experiment, exp_dict: dict):
-        pass
+
+@typechecked
+def exp_runner(task_fn, auto_choose_gpu_flag=True, gpu_id: int = None, seed=None, **task_fn_kwargs):
+    if auto_choose_gpu_flag is True:
+        os.environ['CUDA_DEVICE_ORDER'] = "PCI_BUS_ID"
+        DEVICE_ID_LIST = Gpu.getFirstAvailable()
+        DEVICE_ID = DEVICE_ID_LIST[0]
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(DEVICE_ID)
+    else:
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
+    if not seed:
+        seed = int(round(time.time() * 1000)) % (2 ** 32 - 1)
+    _reset_global_seed(seed)
+    task_fn(**task_fn_kwargs)

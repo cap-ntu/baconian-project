@@ -10,9 +10,10 @@ from mobrl.common.special import *
 import tensorflow_probability as tfp
 from mobrl.tf.util import *
 from mobrl.algo.rl.utils import _get_copy_arg_with_tf_reuse
+from mobrl.algo.placeholder_input import PlaceholderInput
 
 
-class NormalDistributionMLPPolicy(StochasticPolicy):
+class NormalDistributionMLPPolicy(StochasticPolicy, PlaceholderInput):
 
     def __init__(self, env_spec: EnvSpec,
                  name: str,
@@ -25,7 +26,7 @@ class NormalDistributionMLPPolicy(StochasticPolicy):
                  reuse=False,
                  distribution_tensors_tuple: tuple = None
                  ):
-        super(NormalDistributionMLPPolicy, self).__init__(env_spec=env_spec, name=name, parameters=None)
+        StochasticPolicy.__init__(self, env_spec=env_spec, name=name, parameters=None)
         obs_dim = env_spec.flat_obs_dim
         action_dim = env_spec.flat_action_dim
         assert action_dim == mlp_config[-1]['N_UNITS']
@@ -36,7 +37,7 @@ class NormalDistributionMLPPolicy(StochasticPolicy):
         self.output_high = output_high
         self.mlp_config = mlp_config
         self.name_scope = name_scope
-
+        ph_inputs = []
         if distribution_tensors_tuple is not None:
             self.mean_output = distribution_tensors_tuple[0][0]
             self.logvar_output = distribution_tensors_tuple[1][0]
@@ -46,6 +47,7 @@ class NormalDistributionMLPPolicy(StochasticPolicy):
         else:
             with tf.variable_scope(self.name_scope):
                 self.state_input = tf.placeholder(shape=[None, obs_dim], dtype=tf.float32, name='state_ph')
+                ph_inputs.append(self.state_input)
             self.mlp_net = MLP(input_ph=self.state_input,
                                reuse=reuse,
                                input_norm=input_norm,
@@ -67,6 +69,7 @@ class NormalDistributionMLPPolicy(StochasticPolicy):
                     self.logvar_output = tf.reduce_sum(logvar_output, axis=0)
         with tf.variable_scope(name_scope, reuse=reuse):
             self.action_input = tf.placeholder(shape=[None, action_dim], dtype=tf.float32, name='action_ph')
+            ph_inputs.append(self.action_input)
             with tf.variable_scope('norm_dist', reuse=reuse):
                 self.stddev_output = tf.exp(self.logvar_output / 2.0, name='std_dev')
                 self.var_output = tf.exp(self.logvar_output, name='variance')
@@ -93,6 +96,7 @@ class NormalDistributionMLPPolicy(StochasticPolicy):
                                                ),
                                                name='normal_distribution_mlp_tf_param',
                                                auto_init=False)
+        PlaceholderInput.__init__(self, parameters=self.parameters, inputs=tuple(ph_inputs))
 
     @typechecked
     @overrides.overrides
@@ -111,9 +115,7 @@ class NormalDistributionMLPPolicy(StochasticPolicy):
 
     @overrides.overrides
     def copy_from(self, obj) -> bool:
-        assert isinstance(obj, type(self))
-        self.mlp_net.copy_from(obj=obj.mlp_net)
-        return super().copy_from(obj)
+        return PlaceholderInput.copy_from(self, obj)
 
     def make_copy(self, **kwargs):
         kwargs = _get_copy_arg_with_tf_reuse(obj=self, kwargs=kwargs)
@@ -183,6 +185,12 @@ class NormalDistributionMLPPolicy(StochasticPolicy):
             if id(attr) != id(re['obj']):
                 raise ValueError('key name {} should be same as the obj {} name'.format(re['name'], re['obj']))
         return res
+
+    def save(self, *args, **kwargs):
+        return PlaceholderInput.save(self, *args, **kwargs)
+
+    def load(self, *args, **kwargs):
+        return PlaceholderInput.load(self, *args, **kwargs)
 
 
 if __name__ == '__main__':

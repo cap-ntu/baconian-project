@@ -63,13 +63,6 @@ class StochasticPolicy(Policy):
         pass
 
 
-# class MLPStochasticPolicy(Policy):
-#
-#     def __init__(self, env_spec: EnvSpec, parameters: Parameters = None):
-#         super().__init__(env_spec, parameters)
-#         self.distribution_tensor_dict = None
-
-
 class DeterministicPolicy(Policy):
     pass
 

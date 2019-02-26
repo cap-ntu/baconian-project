@@ -8,9 +8,10 @@ from mobrl.tf.mlp import MLP
 from mobrl.tf.tf_parameters import TensorflowParameters
 from mobrl.common.special import *
 from mobrl.algo.rl.utils import _get_copy_arg_with_tf_reuse
+from mobrl.algo.placeholder_input import PlaceholderInput
 
 
-class DeterministicMLPPolicy(DeterministicPolicy):
+class DeterministicMLPPolicy(DeterministicPolicy, PlaceholderInput):
 
     def __init__(self, env_spec: EnvSpec,
                  name_scope: str,
@@ -20,7 +21,7 @@ class DeterministicMLPPolicy(DeterministicPolicy):
                  output_low: np.ndarray = None,
                  output_high: np.ndarray = None,
                  reuse=False):
-        super(DeterministicMLPPolicy, self).__init__(env_spec=env_spec, name=name, parameters=None)
+        DeterministicPolicy.__init__(self, env_spec=env_spec, name=name, parameters=None)
         obs_dim = env_spec.flat_obs_dim
         action_dim = env_spec.flat_action_dim
         assert action_dim == mlp_config[-1]['N_UNITS']
@@ -49,6 +50,7 @@ class DeterministicMLPPolicy(DeterministicPolicy):
                                                rest_parameters=dict(),
                                                name='deterministic_mlp_policy_tf_param',
                                                auto_init=False)
+        PlaceholderInput.__init__(self, inputs=self.state_input, parameters=self.parameters)
 
     @typechecked
     @overrides.overrides
@@ -67,9 +69,7 @@ class DeterministicMLPPolicy(DeterministicPolicy):
 
     @overrides.overrides
     def copy_from(self, obj) -> bool:
-        assert isinstance(obj, (type(self), MLP))
-        self.mlp_net.copy_from(obj=obj.mlp_net if isinstance(obj, type(self)) else obj)
-        return super().copy_from(obj)
+        return PlaceholderInput.copy_from(self, obj)
 
     def make_copy(self, *args, **kwargs):
         kwargs = _get_copy_arg_with_tf_reuse(obj=self, kwargs=kwargs)
@@ -87,3 +87,9 @@ class DeterministicMLPPolicy(DeterministicPolicy):
         self.parameters.init()
         if source_obj:
             self.copy_from(obj=source_obj)
+
+    def save(self, *args, **kwargs):
+        return PlaceholderInput.save(self, *args, **kwargs)
+
+    def load(self, *args, **kwargs):
+        return PlaceholderInput.load(self, *args, **kwargs)

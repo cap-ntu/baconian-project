@@ -1,4 +1,3 @@
-from mobrl.algo.rl.value_func.value_func import PlaceholderInputValueFunction
 import typeguard as tg
 from mobrl.envs.env_spec import EnvSpec
 import overrides
@@ -10,9 +9,11 @@ from mobrl.tf.mlp import MLP
 from mobrl.common.special import *
 from mobrl.core.util import init_func_arg_record_decorator
 from mobrl.algo.rl.utils import _get_copy_arg_with_tf_reuse
+from mobrl.algo.placeholder_input import PlaceholderInput
+from mobrl.algo.rl.value_func.value_func import ValueFunction
 
 
-class MLPQValueFunction(PlaceholderInputValueFunction):
+class MLPQValueFunction(ValueFunction, PlaceholderInput):
     """
     Multi Layer Q Value Function, based on Tensorflow, take the state and action as input,
     return the Q value for all action/ input action.
@@ -65,18 +66,18 @@ class MLPQValueFunction(PlaceholderInputValueFunction):
         self.q_tensor = self.mlp_net.output
         parameters = TensorflowParameters(tf_var_list=self.mlp_net.var_list,
                                           rest_parameters=dict(),
+                                          default_save_type='tf',
                                           name='{}_tf_param'.format(self.name),
                                           auto_init=False)
-        super(MLPQValueFunction, self).__init__(env_spec=env_spec,
-                                                name=name,
-                                                parameters=parameters,
-                                                input=self.mlp_input_ph)
+        ValueFunction.__init__(self,
+                               env_spec=env_spec,
+                               name=name,
+                               parameters=parameters)
+        PlaceholderInput.__init__(self, parameters=parameters, inputs=self.mlp_input_ph)
 
     @overrides.overrides
-    def copy(self, obj: PlaceholderInputValueFunction) -> bool:
-        assert super().copy(obj) is True
-        self.parameters.copy_from(source_parameter=obj.parameters)
-        return True
+    def copy_from(self, obj: PlaceholderInput) -> bool:
+        return PlaceholderInput.copy_from(self, obj)
 
     @typechecked
     @overrides.overrides
@@ -101,7 +102,7 @@ class MLPQValueFunction(PlaceholderInputValueFunction):
     def init(self, source_obj=None):
         self.parameters.init()
         if source_obj:
-            self.copy(obj=source_obj)
+            self.copy_from(obj=source_obj)
 
     def make_copy(self, *args, **kwargs):
         kwargs = _get_copy_arg_with_tf_reuse(obj=self, kwargs=kwargs)
@@ -114,3 +115,9 @@ class MLPQValueFunction(PlaceholderInputValueFunction):
                                              mlp_config=self.mlp_config,
                                              **kwargs)
         return copy_mlp_q_value
+
+    def save(self, *args, **kwargs):
+        return PlaceholderInput.save(self, *args, **kwargs)
+
+    def load(self, *args, **kwargs):
+        return PlaceholderInput.load(self, *args, **kwargs)

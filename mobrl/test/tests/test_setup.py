@@ -6,6 +6,18 @@ import shutil
 import os
 from mobrl.common.util.logger import Logger, ConsoleLogger
 from mobrl.core.global_var import reset_all, get_all
+import numpy as np
+from mobrl.tf.tf_parameters import TensorflowParameters
+from mobrl.config.dict_config import DictConfig
+from mobrl.core.basic import Basic
+from mobrl.config.global_config import GlobalConfig
+from mobrl.tf.util import create_new_tf_session
+from mobrl.algo.rl.model_free.dqn import DQN
+from mobrl.envs.gym_env import make
+from mobrl.envs.env_spec import EnvSpec
+from mobrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
+from mobrl.algo.placeholder_input import PlaceholderInput, MultiPlaceholderInput
+import glob
 
 
 class BaseTestCase(unittest.TestCase):
@@ -41,6 +53,73 @@ class TestTensorflowSetup(BaseTestCase):
             sess = tf.get_default_session()
             sess.close()
         BaseTestCase.tearDown(self)
+
+    def assert_var_list_equal(self, var_list1, var_list2):
+        for var1, var2 in zip(var_list1, var_list2):
+            res1, res2 = self.sess.run([var1, var2])
+            self.assertTrue(np.equal(res1, res2).all())
+
+    def assert_var_list_at_least_not_equal(self, var_list1, var_list2):
+        res = []
+        for var1, var2 in zip(var_list1, var_list2):
+            res1, res2 = self.sess.run([var1, var2])
+            res.append(np.equal(res1, res2).all())
+        self.assertFalse(np.array(res).all())
+
+    def create_dqn(self, env_spec, name):
+        mlp_q = MLPQValueFunction(env_spec=env_spec,
+                                  name_scope=name + 'mlp_q',
+                                  name=name + 'mlp_q',
+                                  mlp_config=[
+                                      {
+                                          "ACT": "RELU",
+                                          "B_INIT_VALUE": 0.0,
+                                          "NAME": "1",
+                                          "N_UNITS": 16,
+                                          "TYPE": "DENSE",
+                                          "W_NORMAL_STDDEV": 0.03
+                                      },
+                                      {
+                                          "ACT": "LINEAR",
+                                          "B_INIT_VALUE": 0.0,
+                                          "NAME": "OUPTUT",
+                                          "N_UNITS": 1,
+                                          "TYPE": "DENSE",
+                                          "W_NORMAL_STDDEV": 0.03
+                                      }
+                                  ])
+        dqn = DQN(env_spec=env_spec,
+                  adaptive_learning_rate=True,
+                  config_or_config_dict=dict(REPLAY_BUFFER_SIZE=1000,
+                                             GAMMA=0.99,
+                                             BATCH_SIZE=10,
+                                             Q_NET_L1_NORM_SCALE=0.001,
+                                             Q_NET_L2_NORM_SCALE=0.001,
+                                             LEARNING_RATE=0.001,
+                                             TRAIN_ITERATION=1,
+                                             DECAY=0.5),
+                  name=name + 'dqn',
+                  value_func=mlp_q)
+        dqn.init()
+        return dqn
+
+    def create_ph(self, name):
+        with tf.variable_scope(name):
+            a = tf.get_variable(shape=[3, 4], dtype=tf.float32, name='var_1')
+
+        conf = DictConfig(required_key_dict=Foo.required_key_list,
+                          config_dict=dict(var1=1, var2=0.01))
+        param = TensorflowParameters(tf_var_list=[a],
+                                     rest_parameters=dict(var3='sss'),
+                                     name=name,
+                                     source_config=conf,
+                                     require_snapshot=True,
+                                     to_ph_parameter_dict=dict(var1=tf.placeholder(shape=(), dtype=tf.int32)),
+                                     auto_init=False)
+        param.init()
+        a = PlaceholderInput(parameters=param, inputs=None)
+
+        return a
 
 
 class TestWithLogSet(BaseTestCase):

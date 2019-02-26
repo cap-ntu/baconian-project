@@ -2,7 +2,6 @@ from mobrl.common.special import flatten_n
 from mobrl.algo.rl.rl_algo import ModelFreeAlgo, OffPolicyAlgo
 from mobrl.config.dict_config import DictConfig
 from typeguard import typechecked
-from copy import deepcopy
 from mobrl.core.util import init_func_arg_record_decorator
 from mobrl.tf.util import *
 from mobrl.algo.rl.util.replay_buffer import UniformRandomReplayBuffer, BaseReplayBuffer
@@ -16,9 +15,10 @@ from mobrl.common.misc import *
 from mobrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
 from mobrl.common.util.recorder import record_return_decorator
 from mobrl.core.status import register_counter_info_to_status_decorator
+from mobrl.algo.placeholder_input import MultiPlaceholderInput
 
 
-class DQN(ModelFreeAlgo, OffPolicyAlgo):
+class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
     required_key_list = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_DQN_REQUIRED_KEY_LIST)
 
     @init_func_arg_record_decorator()
@@ -32,7 +32,7 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo):
                  name: str = 'dqn',
                  replay_buffer=None):
         # todo add the action iterator
-        super(DQN, self).__init__(env_spec=env_spec, name=name)
+        ModelFreeAlgo.__init__(self, env_spec=env_spec, name=name)
         config = construct_dict_config(config_or_config_dict, self)
         self.config = config
 
@@ -84,13 +84,24 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo):
                                                            static_flag=False,
                                                            get_method=lambda x: x['obj'].parameters('LEARNING_RATE',
                                                                                                     require_true_value=True))
+        MultiPlaceholderInput.__init__(self,
+                                       sub_placeholder_input_list=[dict(obj=self.q_value_func,
+                                                                        attr_name='q_value_func',
+                                                                        ),
+                                                                   dict(obj=self.target_q_value_func,
+                                                                        attr_name='target_q_value_func')],
+                                       inputs=(self.state_input, self.action_input),
+                                       parameters=self.parameters)
 
     @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='JUST_INITED')
-    def init(self, sess=None):
+    def init(self, sess=None, source_obj=None):
+        # todo did not support from other objs
         super().init()
         self.q_value_func.init()
         self.target_q_value_func.init()
         self.parameters.init()
+        if source_obj:
+            self.copy_from(source_obj)
 
     @record_return_decorator(which_recorder='self')
     @register_counter_info_to_status_decorator(increment=1, info_key='train_counter', under_status='TRAIN')
@@ -183,6 +194,15 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo):
                                       terminal1=terminal1)
             data_count += 1
         self._status.update_info(info_key='replay_buffer_data_total_count', increment=data_count)
+
+    def save(self, save_path, global_step, name, **kwargs):
+        # todo every time a checkpoint is saved, write some log output
+
+        MultiPlaceholderInput.save(self, save_path, global_step, name, **kwargs)
+
+    def load(self, path_to_model, model_name, global_step=None, **kwargs):
+
+        MultiPlaceholderInput.load(self, path_to_model, model_name, global_step, **kwargs)
 
     def _predict_action(self, obs: np.ndarray, q_value_tensor: tf.Tensor, action_ph: tf.Tensor, state_ph: tf.Tensor,
                         sess=None):

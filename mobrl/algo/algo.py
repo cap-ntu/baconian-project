@@ -10,7 +10,7 @@ from mobrl.common.util.recorder import Recorder
 # import numpy as np
 
 
-class Algo(Basic, abc.ABC):
+class Algo(Basic):
     STATUS_LIST = ['NOT_INIT', 'JUST_INITED', 'TRAIN', 'TEST']
     INIT_STATUS = 'NOT_INIT'
 
@@ -31,14 +31,13 @@ class Algo(Basic, abc.ABC):
         self._status.set_status('TEST')
         return dict()
 
+    @abc.abstractmethod
     def predict(self, *arg, **kwargs):
         raise NotImplementedError
 
+    @abc.abstractmethod
     def append_to_memory(self, *args, **kwargs):
         raise NotImplementedError
 
-    def register_logger(self, logger: Logger):
-        raise NotImplementedError
-
-    def get_status(self) -> dict:
-        return self._status.get_status()
+    # def register_logger(self, logger: Logger):
+    #     raise NotImplementedError

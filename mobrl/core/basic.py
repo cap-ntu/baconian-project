@@ -34,3 +34,9 @@ class Basic(object):
     @property
     def status_list(self):
         return self.STATUS_LIST
+
+    def save(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def load(self, *args, **kwargs):
+        raise NotImplementedError

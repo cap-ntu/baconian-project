@@ -16,9 +16,10 @@ from mobrl.tf.util import *
 from mobrl.common.misc import *
 from mobrl.common.util.recorder import record_return_decorator
 from mobrl.core.status import register_counter_info_to_status_decorator
+from mobrl.algo.placeholder_input import MultiPlaceholderInput
 
 
-class DDPG(ModelFreeAlgo, OffPolicyAlgo):
+class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
     required_key_list = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_DDPG_REQUIRED_KEY_LIST)
 
     @typechecked
@@ -31,7 +32,7 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo):
                  adaptive_learning_rate=False,
                  name='ddpg',
                  replay_buffer=None):
-        super(DDPG, self).__init__(env_spec, name=name)
+        ModelFreeAlgo.__init__(self, env_spec=env_spec, name=name)
         config = construct_dict_config(config_or_config_dict, self)
 
         self.config = config
@@ -91,18 +92,30 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo):
         var_list = get_tf_collection_var_list(
             '{}/train'.format(name)) + self.critic_optimizer.variables() + self.action_optimizer.variables()
         self.parameters.set_tf_var_list(tf_var_list=sorted(list(set(var_list)), key=lambda x: x.name))
+        MultiPlaceholderInput.__init__(self,
+                                       sub_placeholder_input_list=[dict(obj=self.target_actor,
+                                                                        attr_name='target_actor',
+                                                                        ),
+                                                                   dict(obj=self.actor,
+                                                                        attr_name='actor'),
+                                                                   dict(obj=self.critic,
+                                                                        attr_name='critic'),
+                                                                   dict(obj=self.target_critic,
+                                                                        attr_name='target_critic')
+                                                                   ],
+                                       inputs=(self.state_input, self.reward_input, self.next_state_input,
+                                               self.done_input, self.target_q_input),
+                                       parameters=self.parameters)
 
     @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='JUST_INITED')
-    def init(self, sess=None):
+    def init(self, sess=None, source_obj=None):
         self.actor.init()
         self.critic.init()
         self.target_actor.init()
         self.target_critic.init(source_obj=self.critic)
-        # tf_sess = sess if sess else tf.get_default_session()
-        # feed_dict = self.parameters.return_tf_parameter_feed_dict()
-        # tf_sess.run(tf.variables_initializer(var_list=self.parameters('tf_var_list')),
-        #             feed_dict=feed_dict)
         self.parameters.init()
+        if source_obj:
+            self.copy_from(source_obj)
         super().init()
 
     @record_return_decorator(which_recorder='self')
@@ -194,6 +207,14 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo):
                                       action=action,
                                       reward=reward,
                                       terminal1=terminal1)
+
+    def save(self, save_path, global_step, name, **kwargs):
+
+        MultiPlaceholderInput.save(self, save_path, global_step, name, **kwargs)
+
+    def load(self, path_to_model, model_name, global_step=None, **kwargs):
+
+        MultiPlaceholderInput.load(self, path_to_model, model_name, global_step, **kwargs)
 
     def _setup_critic_loss(self):
         l1_l2 = tf_contrib.layers.l1_l2_regularizer(scale_l1=self.parameters('Q_NET_L1_NORM_SCALE'),

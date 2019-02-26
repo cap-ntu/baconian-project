@@ -14,9 +14,10 @@ from mobrl.common.misc import *
 from mobrl.algo.rl.misc.sample_processor import SampleProcessor
 from mobrl.common.util.recorder import record_return_decorator
 from mobrl.core.status import register_counter_info_to_status_decorator
+from mobrl.algo.placeholder_input import MultiPlaceholderInput
 
 
-class PPO(ModelFreeAlgo, OnPolicyAlgo):
+class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
     required_key_list = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_PPO_REQUIRED_KEY_LIST)
 
     @typechecked
@@ -27,7 +28,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo):
                  value_func: MLPVValueFunc,
                  adaptive_learning_rate=False,
                  name='ppo'):
-        super(PPO, self).__init__(env_spec, name)
+        ModelFreeAlgo.__init__(self, env_spec=env_spec, name=name)
 
         config = construct_dict_config(config_or_config_dict, self)
         self.config = config
@@ -86,13 +87,22 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo):
             '{}/train'.format(name)) + self.policy_optimizer.variables() + self.value_func_optimizer.variables()
         self.parameters.set_tf_var_list(tf_var_list=sorted(list(set(var_list)), key=lambda x: x.name))
 
+        MultiPlaceholderInput.__init__(self,
+                                       sub_placeholder_input_list=[dict(obj=self.value_func,
+                                                                        attr_name='value_func',
+                                                                        ),
+                                                                   dict(obj=self.policy,
+                                                                        attr_name='policy')],
+                                       inputs=(self.advantages_ph, self.v_func_val_ph),
+                                       parameters=self.parameters)
+
     @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='JUST_INITED')
-    def init(self):
+    def init(self, sess=None, source_obj=None):
         self.policy.init()
         self.value_func.init()
         self.parameters.init()
-        # sess = tf.get_default_session()
-        # sess.run(tf.variables_initializer(var_list=self.parameters('tf_var_list')))
+        if source_obj:
+            self.copy_from(source_obj)
         super().init()
 
     @record_return_decorator(which_recorder='self')
@@ -150,6 +160,15 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo):
             if terminal1 is True:
                 self.trajectory_memory.append(self.transition_data_for_trajectory)
                 self.transition_data_for_trajectory.reset()
+
+    def save(self, save_path, global_step, name, **kwargs):
+        # todo every time a checkpoint is saved, write some log output
+
+        MultiPlaceholderInput.save(self, save_path, global_step, name, **kwargs)
+
+    def load(self, path_to_model, model_name, global_step=None, **kwargs):
+
+        MultiPlaceholderInput.load(self, path_to_model, model_name, global_step, **kwargs)
 
     def _setup_policy_loss(self):
         """

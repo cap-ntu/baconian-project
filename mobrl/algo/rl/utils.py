@@ -8,7 +8,6 @@ import os
 import shutil
 import glob
 import csv
-from copy import deepcopy
 
 
 class Scaler(object):
