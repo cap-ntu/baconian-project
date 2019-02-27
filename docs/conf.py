@@ -23,7 +23,7 @@ source_parsers = {
 
 # -- Project information -----------------------------------------------------
 
-project = 'Model-BasedRLFramework'
+project = 'mobrl'
 copyright = '2018, Linsen Dong'
 author = 'Linsen Dong'
 
@@ -103,7 +103,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Model-BasedRLFrameworkdoc'
+htmlhelp_basename = 'mobrl'
 
 # -- Options for LaTeX output ------------------------------------------------
 
@@ -129,7 +129,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'Model-BasedRLFramework.tex', 'Model-BasedRLFramework Documentation',
+    (master_doc, 'mobrl.tex', 'mobrl Documentation',
      'Linsen Dong', 'manual'),
 ]
 
@@ -138,7 +138,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'rl-basedrlframework', 'Model-BasedRLFramework Documentation',
+    (master_doc, 'mobrl', 'A unified and light-weight model-based reinforcment learning toolbox',
      [author], 1)
 ]
 

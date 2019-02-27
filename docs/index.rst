@@ -12,6 +12,9 @@ Welcome to Model-BasedRLFramework!
 
    installation_guide
    tutorial
+   how_to_log
+
+
 
 
 Indices and tables
