@@ -2,7 +2,7 @@ from mobrl.common.sampler.sample_data import TransitionData
 from mobrl.envs import make
 from mobrl.envs.env_spec import EnvSpec
 import numpy as np
-from mobrl.test.tests.test_setup import BaseTestCase
+from mobrl.test.tests.set_up.setup import BaseTestCase
 
 
 class TestSampleData(BaseTestCase):

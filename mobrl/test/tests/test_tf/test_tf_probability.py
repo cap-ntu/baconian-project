@@ -5,7 +5,7 @@ from mobrl.envs.env_spec import EnvSpec
 import numpy as np
 from mobrl.envs.gym_env import make
 from mobrl.common.special import *
-from mobrl.test.tests.test_setup import TestTensorflowSetup
+from mobrl.test.tests.set_up.setup import TestTensorflowSetup
 
 
 def describe_sample_tensor_shape(sample_shape, distribution):

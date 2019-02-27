@@ -4,7 +4,7 @@ from mobrl.config.global_config import GlobalConfig
 from overrides.overrides import overrides
 from typeguard import typechecked
 import os
-from mobrl.common.util.logger import ConsoleLogger
+import mobrl.common.util.files as files
 
 
 class TensorflowParameters(Parameters):
@@ -17,9 +17,8 @@ class TensorflowParameters(Parameters):
                  source_config=None,
                  to_ph_parameter_dict=None,
                  require_snapshot=False):
-        para_dict = {**dict(tf_var_list=tf_var_list), **rest_parameters}
-
-        super(TensorflowParameters, self).__init__(parameters=para_dict,
+        self._tf_var_list = tf_var_list
+        super(TensorflowParameters, self).__init__(parameters=rest_parameters,
                                                    auto_init=False,
                                                    name=name,
                                                    source_config=source_config)
@@ -43,13 +42,13 @@ class TensorflowParameters(Parameters):
     @overrides
     def init(self):
         sess = tf.get_default_session()
-        sess.run(tf.variables_initializer(var_list=self._parameters['tf_var_list']))
+        sess.run(tf.variables_initializer(var_list=self._tf_var_list))
         if self.require_snapshot is True:
             if len(self.snapshot_var) == 0:
                 # add the snapshot op after the init
                 sess = tf.get_default_session()
                 with tf.variable_scope('snapshot'):
-                    for var in self._parameters['tf_var_list']:
+                    for var in self._tf_var_list:
                         snap_var = tf.Variable(initial_value=sess.run(var),
                                                expected_shape=var.get_shape().as_list(),
                                                name=str(var.name).split(':')[0])
@@ -59,7 +58,7 @@ class TensorflowParameters(Parameters):
             sess.run(tf.variables_initializer(var_list=self.snapshot_var))
             sess.run(self.save_snapshot_op)
         self.saver = tf.train.Saver(max_to_keep=self.max_to_keep,
-                                    var_list=self._parameters['tf_var_list'])
+                                    var_list=self._tf_var_list)
 
     @typechecked
     def return_tf_parameter_feed_dict(self) -> dict:
@@ -73,7 +72,7 @@ class TensorflowParameters(Parameters):
         sess = tf.get_default_session()
         if len(self.save_snapshot_op) == 0:
             with tf.variable_scope('snapshot'):
-                for var in self._parameters['tf_var_list']:
+                for var in self._tf_var_list:
                     snap_var = tf.Variable(initial_value=sess.run(var),
                                            expected_shape=var.get_shape().as_list(),
                                            name=var.name)
@@ -85,7 +84,7 @@ class TensorflowParameters(Parameters):
         sess = tf.get_default_session()
         if len(self.load_snapshot_op) == 0:
             with tf.variable_scope('snapshot'):
-                for var in self._parameters['tf_var_list']:
+                for var in self._tf_var_list:
                     snap_var = tf.Variable(initial_value=sess.run(var),
                                            expected_shape=var.get_shape().as_list(),
                                            name=var.name)
@@ -100,18 +99,29 @@ class TensorflowParameters(Parameters):
                              sess=sess,
                              name=name)
         elif self.default_checkpoint_type == 'h5py':
-            self._save_to_h5py(*args, **kwargs)
+            raise NotImplementedError
+        Parameters.save(self,
+                        save_path=save_path,
+                        global_step=global_step,
+                        name=name)
 
     def load(self, path_to_model, global_step=None, sess=None, model_name=None, *args, **kwargs):
+        if not model_name:
+            model_name = self.name
         if self.default_checkpoint_type == 'tf':
             self._load_from_tf(path_to_model=path_to_model,
                                global_step=global_step,
                                sess=sess, model_name=model_name)
         elif self.default_checkpoint_type == 'h5py':
             self._load_from_h5py(*args, **kwargs)
+        # todo support for auto get last checkpoint
+        Parameters.load(self,
+                        load_path=path_to_model,
+                        global_step=global_step,
+                        name=model_name)
 
     def _save_to_tf(self, save_path, global_step, sess=None, name=None):
-        name = name if name else self.name
+        name = name if name is not None else self.name
         sess = sess if sess else tf.get_default_session()
         if not os.path.exists(os.path.join(save_path)):
             os.makedirs(os.path.join(save_path))
@@ -140,19 +150,23 @@ class TensorflowParameters(Parameters):
     def __call__(self, key=None, require_true_value=False):
         if key in self._registered_tf_ph_dict.keys():
             if require_true_value is True:
-                # todo debug here
                 return super().__call__(key)
             else:
                 return self._registered_tf_ph_dict[key]
         else:
-            return super().__call__(key)
+            if key == 'tf_var_list':
+                return self._tf_var_list
+            else:
+                return super().__call__(key)
 
     def set(self, key, new_val):
         if not isinstance(new_val, type(self(key))):
             raise TypeError('new value of parameters {} should be type {} instead of {}'.format(key, type(self(key)),
                                                                                                 type(new_val)))
         else:
-            if key in self._parameters:
+            if key == 'tf_var_list':
+                self.set_tf_var_list(new_val)
+            elif key in self._parameters:
                 self._parameters[key] = new_val
             else:
                 self._source_config[key] = new_val
@@ -163,7 +177,7 @@ class TensorflowParameters(Parameters):
             raise ValueError('Redundant tf variable in tf_var_list')
         for var in tf_var_list:
             assert isinstance(var, (tf.Tensor, tf.Variable))
-        self._parameters['tf_var_list'] += tf_var_list
+        self._tf_var_list += tf_var_list
 
     @typechecked
     def to_tf_ph(self, key, ph: tf.Tensor):
@@ -173,9 +187,11 @@ class TensorflowParameters(Parameters):
 
     @typechecked
     @overrides
-    def copy_from(self, source_parameter: Parameters):
+    def copy_from(self, source_parameter):
+        # todo do we need to copy the basic config and parameters also?
+        assert isinstance(source_parameter, type(self))
         tmp_op_list = []
-        for t_para, s_para in zip(self._parameters['tf_var_list'], source_parameter._parameters['tf_var_list']):
+        for t_para, s_para in zip(self._tf_var_list, source_parameter._tf_var_list):
             tmp_op_list.append(tf.assign(t_para, s_para))
         sess = tf.get_default_session()
         sess.run(tmp_op_list)

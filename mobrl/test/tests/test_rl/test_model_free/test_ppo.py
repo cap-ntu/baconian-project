@@ -1,83 +1,15 @@
 from mobrl.envs.gym_env import make
 from mobrl.envs.env_spec import EnvSpec
 from mobrl.common.sampler.sample_data import TransitionData, TrajectoryData
-from mobrl.algo.rl.value_func.mlp_v_value import MLPVValueFunc
-from mobrl.algo.rl.policy.normal_distribution_mlp import NormalDistributionMLPPolicy
-from mobrl.algo.rl.model_free.ppo import PPO
-from mobrl.test.tests.test_setup import TestTensorflowSetup
+from mobrl.test.tests.set_up.setup import TestTensorflowSetup
 import tensorflow as tf
 
 
 class TestPPO(TestTensorflowSetup):
     def test_init(self):
-        env = make('Swimmer-v1')
-        env_spec = EnvSpec(obs_space=env.observation_space,
-                           action_space=env.action_space)
-
-        mlp_v = MLPVValueFunc(env_spec=env_spec,
-                              name_scope='mlp_v',
-                              name='mlp_v',
-                              mlp_config=[
-                                  {
-                                      "ACT": "RELU",
-                                      "B_INIT_VALUE": 0.0,
-                                      "NAME": "1",
-                                      "N_UNITS": 16,
-                                      "TYPE": "DENSE",
-                                      "W_NORMAL_STDDEV": 0.03
-                                  },
-                                  {
-                                      "ACT": "LINEAR",
-                                      "B_INIT_VALUE": 0.0,
-                                      "NAME": "OUPTUT",
-                                      "N_UNITS": 1,
-                                      "TYPE": "DENSE",
-                                      "W_NORMAL_STDDEV": 0.03
-                                  }
-                              ])
-        policy = NormalDistributionMLPPolicy(env_spec=env_spec,
-                                             name_scope='mlp_policy',
-                                             name='mlp_policy',
-                                             mlp_config=[
-                                                 {
-                                                     "ACT": "RELU",
-                                                     "B_INIT_VALUE": 0.0,
-                                                     "NAME": "1",
-                                                     "N_UNITS": 16,
-                                                     "TYPE": "DENSE",
-                                                     "W_NORMAL_STDDEV": 0.03
-                                                 },
-                                                 {
-                                                     "ACT": "LINEAR",
-                                                     "B_INIT_VALUE": 0.0,
-                                                     "NAME": "OUPTUT",
-                                                     "N_UNITS": env_spec.flat_action_dim,
-                                                     "TYPE": "DENSE",
-                                                     "W_NORMAL_STDDEV": 0.03
-                                                 }
-                                             ],
-                                             reuse=False)
-        ppo = PPO(
-            env_spec=env_spec,
-            config_or_config_dict={
-                "gamma": 0.995,
-                "lam": 0.98,
-                "policy_train_iter": 10,
-                "value_func_train_iter": 10,
-                "clipping_range": None,
-                "beta": 1.0,
-                "eta": 50,
-                "log_var_init": -1.0,
-                "kl_target": 0.003,
-                "policy_lr": 0.01,
-                "value_func_lr": 0.01,
-                "value_func_train_batch_size": 10
-            },
-            value_func=mlp_v,
-            stochastic_policy=policy,
-            adaptive_learning_rate=True,
-            name='ppo',
-        )
+        ppo, locals = self.create_ppo()
+        env = locals['env']
+        env_spec = locals['env_spec']
         ppo.init()
         print(tf.report_uninitialized_variables())
         data = TransitionData(env_spec)

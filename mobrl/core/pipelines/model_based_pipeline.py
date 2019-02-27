@@ -16,7 +16,7 @@ class ModelBasedPipeline(Pipeline):
     STATE_LIST = ['state_not_inited', 'state_inited', 'state_agent_testing', 'state_agent_training', 'state_ended',
                   'state_dynamics_testing', 'state_dynamics_training']
     INIT_STATE = 'state_not_inited'
-    required_key_list = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_MODEL_BASED_PIPELINE_REQUIRED_KEY_LIST)
+    required_key_dict = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_MODEL_BASED_PIPELINE_REQUIRED_KEY_LIST)
 
     def __init__(self, config_or_config_dict: (DictConfig, dict), agent: Agent, env: Env):
         transitions = []

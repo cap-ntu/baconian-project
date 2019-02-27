@@ -1,4 +1,4 @@
-from mobrl.test.tests.test_setup import TestTensorflowSetup
+from mobrl.test.tests.set_up.setup import TestTensorflowSetup
 
 from mobrl.algo.rl.model_free.dqn import DQN
 from mobrl.envs.gym_env import make

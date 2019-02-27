@@ -6,7 +6,7 @@ from mobrl.algo.rl.misc.exploration_strategy.epsilon_greedy import EpsilonGreedy
 from mobrl.core.pipelines.model_based_pipeline import ModelBasedPipeline
 from mobrl.algo.rl.model_based.models.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
 from mobrl.algo.rl.model_based.sample_with_model import SampleWithDynamics
-from mobrl.test.tests.test_setup import BaseTestCase
+from mobrl.test.tests.set_up.setup import BaseTestCase
 from mobrl.algo.rl.model_free.dqn import DQN
 from mobrl.core.experiment import Experiment, exp_runner
 

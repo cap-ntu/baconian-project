@@ -9,9 +9,10 @@ from mobrl.common.sampler.sample_data import TransitionData
 from typeguard import typechecked
 import numpy as np
 from mobrl.tf.util import *
+from mobrl.algo.placeholder_input import PlaceholderInput
 
 
-class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics):
+class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, PlaceholderInput):
     def __init__(self, env_spec: EnvSpec,
                  name_scope: str,
                  name: str,
@@ -24,9 +25,9 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics):
                  output_low: np.ndarray = None,
                  output_high: np.ndarray = None,
                  init_state=None):
-        super(ContinuousMLPGlobalDynamicsModel, self).__init__(env_spec=env_spec, parameters=None,
-                                                               name=name,
-                                                               init_state=init_state)
+        GlobalDynamicsModel.__init__(self, env_spec=env_spec, parameters=None,
+                                     name=name,
+                                     init_state=init_state)
 
         self.mlp_config = mlp_config
         self.name_scope = name_scope
@@ -71,17 +72,14 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics):
                                    input_node_dict=dict(state_input=self.state_input,
                                                         action_action_input=self.action_input),
                                    output_node_dict=dict(new_state_output=self.new_state_output))
+        PlaceholderInput.__init__(self,
+                                  inputs=(self.state_input, self.action_input, self.delta_state_label_ph),
+                                  parameters=self.parameters)
 
     def init(self, source_obj=None):
         self.parameters.init()
         if source_obj:
             self.copy_from(obj=source_obj)
-
-    def copy_from(self, obj) -> bool:
-        super().copy_from(obj)
-        self.mlp_net.copy_from(obj=obj.mlp_net)
-        self.parameters.copy_from(source_parameter=obj.parameters)
-        return True
 
     def _state_transit(self, state, action, **kwargs) -> np.ndarray:
         if 'sess' in kwargs:
@@ -127,3 +125,9 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics):
                                   feed_dict=feed_dict)
             average_loss += loss
         return dict(average_loss=average_loss / train_iter)
+
+    def save(self, *args, **kwargs):
+        return PlaceholderInput.save(self, *args, **kwargs)
+
+    def load(self, *args, **kwargs):
+        return PlaceholderInput.load(self, *args, **kwargs)

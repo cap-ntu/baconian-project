@@ -5,7 +5,7 @@ from mobrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
 from mobrl.agent.agent import Agent
 from mobrl.algo.rl.misc.exploration_strategy.epsilon_greedy import EpsilonGreedy
 from mobrl.core.pipelines.model_free_pipelines import ModelFreePipeline
-from mobrl.test.tests.test_setup import TestWithAll
+from mobrl.test.tests.set_up.setup import TestWithAll
 
 
 class TestModelFreePipeline(TestWithAll):

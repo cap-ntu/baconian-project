@@ -30,7 +30,7 @@ from mobrl.tf.util import create_new_tf_session
 class Experiment(Basic):
     STATUS_LIST = ('NOT_INIT', 'INITED', 'RUNNING', 'FINISHED', 'CORRUPTED')
     INIT_STATUS = 'NOT_INIT'
-    required_key_list = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_EXPERIMENT_REQUIRED_KEY_LIST)
+    required_key_dict = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_EXPERIMENT_REQUIRED_KEY_LIST)
 
     @init_func_arg_record_decorator()
     @typechecked

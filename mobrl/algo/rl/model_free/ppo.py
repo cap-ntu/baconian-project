@@ -18,7 +18,7 @@ from mobrl.algo.placeholder_input import MultiPlaceholderInput
 
 
 class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
-    required_key_list = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_PPO_REQUIRED_KEY_LIST)
+    required_key_dict = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_PPO_REQUIRED_KEY_LIST)
 
     @typechecked
     def __init__(self, env_spec: EnvSpec,

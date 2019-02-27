@@ -35,11 +35,6 @@ class DynamicsModel(Basic):
     def _state_transit(self, state, action, **kwargs) -> np.ndarray:
         raise NotImplementedError
 
-    def copy_from(self, obj) -> bool:
-        if not isinstance(obj, type(self)):
-            raise TypeError('Wrong type of obj %s to be copied, which should be %s' % (type(obj), type(self)))
-        return True
-
 
 class LocalDyanmicsModel(DynamicsModel):
     pass

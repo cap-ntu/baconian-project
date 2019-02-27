@@ -7,7 +7,7 @@ import unittest
 from mobrl.algo.rl.model_based.misc.terminal_func.terminal_func import RandomTerminalFunc
 from mobrl.algo.rl.model_based.misc.reward_func.reward_func import RandomRewardFunc
 import numpy as np
-from mobrl.test.tests.test_setup import TestTensorflowSetup
+from mobrl.test.tests.set_up.setup import TestTensorflowSetup
 from mobrl.algo.rl.policy.random_policy import UniformRandomPolicy
 from mobrl.algo.rl.policy.random_policy import UniformRandomPolicy
 

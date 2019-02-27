@@ -12,7 +12,7 @@ class SampleWithDynamics(ModelBasedAlgo):
     """
     The naive model based method by approximating a dynamics with nn and sample from it to train the agent.
     """
-    required_key_list = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_ALGO_SAMPLE_WITH_DYNAMICS_REQUIRED_KEY_LIST)
+    required_key_dict = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_ALGO_SAMPLE_WITH_DYNAMICS_REQUIRED_KEY_LIST)
 
     @typechecked
     def __init__(self, env_spec, dynamics_model: DynamicsModel,

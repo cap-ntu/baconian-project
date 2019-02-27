@@ -2,7 +2,7 @@ import unittest
 from mobrl.envs import make
 from mobrl.envs.env_spec import EnvSpec
 from mobrl.algo.rl.value_func.mlp_v_value import MLPVValueFunc
-from mobrl.test.tests.test_setup import TestTensorflowSetup
+from mobrl.test.tests.set_up.setup import TestTensorflowSetup
 import tensorflow as tf
 
 

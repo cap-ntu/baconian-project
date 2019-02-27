@@ -4,7 +4,7 @@ from mobrl.common.spaces import *
 from mobrl.common.special import *
 from mobrl.envs.gym_env import make
 import numpy as np
-from mobrl.test.tests.test_setup import BaseTestCase
+from mobrl.test.tests.set_up.setup import BaseTestCase
 
 
 class TestMisc(BaseTestCase):

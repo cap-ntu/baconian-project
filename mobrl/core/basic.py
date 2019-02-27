@@ -8,7 +8,7 @@ class Basic(object):
     """ Basic class within the whole framework"""
     STATUS_LIST = GlobalConfig.DEFAULT_BASIC_STATUS_LIST
     INIT_STATUS = GlobalConfig.DEFAULT_BASIC_INIT_STATUS
-    required_key_list = ()
+    required_key_dict = ()
 
     def __init__(self, name: str, status=None, ):
         if not status:

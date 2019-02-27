@@ -11,7 +11,7 @@ from mobrl.algo.rl.policy.policy import Policy
 
 
 class ModelPredictiveControl(ModelBasedAlgo):
-    required_key_list = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_MPC_REQUIRED_KEY_LIST)
+    required_key_dict = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_MPC_REQUIRED_KEY_LIST)
 
     def __init__(self, env_spec, dynamics_model: DynamicsModel,
                  config_or_config_dict: (DictConfig, dict),

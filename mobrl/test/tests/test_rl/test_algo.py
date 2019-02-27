@@ -1,4 +1,4 @@
-from mobrl.test.tests.test_setup import TestTensorflowSetup
+from mobrl.test.tests.set_up.setup import TestTensorflowSetup
 import tensorflow as tf
 from mobrl.algo.rl.model_based.models.dynamics_model import DerivableDynamics
 import numpy as np

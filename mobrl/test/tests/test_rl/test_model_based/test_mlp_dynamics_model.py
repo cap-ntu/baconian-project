@@ -2,7 +2,7 @@ from mobrl.algo.rl.model_based.models.mlp_dynamics_model import ContinuousMLPGlo
 from mobrl.envs.gym_env import make
 from mobrl.envs.env_spec import EnvSpec
 from mobrl.common.sampler.sample_data import TransitionData
-from mobrl.test.tests.test_setup import TestTensorflowSetup
+from mobrl.test.tests.set_up.setup import TestTensorflowSetup
 from mobrl.common.special import *
 
 

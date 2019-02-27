@@ -19,7 +19,7 @@ from mobrl.algo.placeholder_input import MultiPlaceholderInput
 
 
 class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
-    required_key_list = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_DQN_REQUIRED_KEY_LIST)
+    required_key_dict = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_DQN_REQUIRED_KEY_LIST)
 
     @init_func_arg_record_decorator()
     @typechecked
@@ -145,7 +145,7 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
     def test(self, *arg, **kwargs):
         super().test()
 
-    @register_counter_info_to_status_decorator(increment=1, info_key='test_counter')
+    @register_counter_info_to_status_decorator(increment=1, info_key='predict_counter')
     @typechecked
     def predict(self, obs: np.ndarray, sess=None, batch_flag: bool = False):
         if batch_flag:

@@ -1,4 +1,4 @@
-import json
+import json_tricks as json
 import os
 import typeguard as tg
 

@@ -3,7 +3,7 @@ from mobrl.envs.gym_env import make
 from mobrl.envs.env_spec import EnvSpec
 from mobrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
 from mobrl.algo.rl.misc.exploration_strategy.epsilon_greedy import EpsilonGreedy
-from mobrl.test.tests.test_setup import TestTensorflowSetup
+from mobrl.test.tests.set_up.setup import TestTensorflowSetup
 
 
 class TestExplorationStrategy(TestTensorflowSetup):

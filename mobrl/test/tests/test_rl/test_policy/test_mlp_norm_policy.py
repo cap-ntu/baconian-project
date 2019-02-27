@@ -4,7 +4,7 @@ from mobrl.envs.env_spec import EnvSpec
 import numpy as np
 from mobrl.algo.rl.policy.normal_distribution_mlp import NormalDistributionMLPPolicy
 from mobrl.common.special import *
-from mobrl.test.tests.test_setup import TestTensorflowSetup
+from mobrl.test.tests.set_up.setup import TestTensorflowSetup
 
 
 class TestNormalDistMLPPolicy(TestTensorflowSetup):

@@ -1,10 +1,9 @@
 from mobrl.core.status import Status, StatusWithSingleInfo
-from mobrl.test.tests.test_setup import BaseTestCase
+from mobrl.test.tests.set_up.setup import BaseTestCase, TestTensorflowSetup
 from mobrl.algo.rl.model_free.dqn import DQN
 from mobrl.envs.gym_env import make
 from mobrl.envs.env_spec import EnvSpec
 from mobrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
-from mobrl.test.tests.test_setup import TestTensorflowSetup
 
 
 class TestStatus(BaseTestCase):

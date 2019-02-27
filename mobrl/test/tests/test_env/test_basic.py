@@ -1,5 +1,5 @@
 from mobrl.envs.gym_env import GymEnv
-from mobrl.test.tests.test_setup import BaseTestCase
+from mobrl.test.tests.set_up.setup import BaseTestCase
 
 
 class TestEnv(BaseTestCase):
