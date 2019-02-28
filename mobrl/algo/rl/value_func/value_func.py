@@ -1,11 +1,10 @@
-from mobrl.core.basic import Basic
+from mobrl.core.core import Basic, EnvSpec
 import typeguard as tg
 from mobrl.core.parameters import Parameters
-from mobrl.envs.env_spec import EnvSpec
 import abc
 import tensorflow as tf
 from mobrl.tf.tf_parameters import TensorflowParameters
-from mobrl.common.util.logger import ConsoleLogger
+from mobrl.common.util.logging import ConsoleLogger
 
 
 class ValueFunction(Basic):

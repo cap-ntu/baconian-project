@@ -15,6 +15,7 @@ class TensorflowParameters(Parameters):
                  auto_init=False,
                  default_save_type='tf',
                  source_config=None,
+                 save_rest_param_flag=False,
                  to_ph_parameter_dict=None,
                  require_snapshot=False):
         self._tf_var_list = tf_var_list
@@ -30,6 +31,7 @@ class TensorflowParameters(Parameters):
         self.max_to_keep = max_to_keep
         self.require_snapshot = require_snapshot
         self.default_checkpoint_type = default_save_type
+        self.save_rest_param_flag = save_rest_param_flag
         if default_save_type != 'tf':
             raise NotImplementedError('only support saving tf')
         self._registered_tf_ph_dict = dict()
@@ -100,9 +102,14 @@ class TensorflowParameters(Parameters):
                              name=name)
         elif self.default_checkpoint_type == 'h5py':
             raise NotImplementedError
+        if self.save_rest_param_flag is False:
+            to_save_dict = dict(_source_config=self._source_config.config_dict)
+        else:
+            to_save_dict = dict(_parameters=self._parameters, _source_config=self._source_config.config_dict)
         Parameters.save(self,
                         save_path=save_path,
                         global_step=global_step,
+                        default_save_param=to_save_dict,
                         name=name)
 
     def load(self, path_to_model, global_step=None, sess=None, model_name=None, *args, **kwargs):

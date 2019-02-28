@@ -30,10 +30,12 @@ class ModelPredictiveControl(ModelBasedAlgo):
                                      auto_init=True,
                                      name='mpc_param')
 
-    def init(self):
+    def init(self, source_obj=None):
         super().init()
         self.dynamics_model.init()
         self.policy.init()
+        if source_obj:
+            self.copy_from(source_obj)
 
     def train(self, *arg, **kwargs) -> dict:
         # only train dynamics model
@@ -79,3 +81,11 @@ class ModelPredictiveControl(ModelBasedAlgo):
 
     def append_to_memory(self, *args, **kwargs):
         raise NotImplementedError
+
+    def copy_from(self, obj) -> bool:
+        if not isinstance(obj, type(self)):
+            raise TypeError('Wrong type of obj %s to be copied, which should be %s' % (type(obj), type(self)))
+        self.parameters.copy_from(obj.parameters)
+        self.dynamics_model
+        ConsoleLogger().print('info', 'model: {} copyed from {}'.format(self, obj))
+        return True

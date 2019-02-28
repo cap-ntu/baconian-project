@@ -1,13 +1,10 @@
 from mobrl.test.tests.set_up.setup import BaseTestCase, TestTensorflowSetup, TestWithLogSet, TestWithAll
-from mobrl.common.util.logger import ConsoleLogger, Logger
-from mobrl.common.util.recorder import record_return_decorator
+from mobrl.common.util.logging import Logger, ConsoleLogger, Recorder, record_return_decorator
 import numpy as np
-from mobrl.core.basic import Basic
+from mobrl.core.core import Basic, EnvSpec
 from mobrl.algo.rl.model_free.dqn import DQN
 from mobrl.envs.gym_env import make
-from mobrl.envs.env_spec import EnvSpec
 from mobrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
-from mobrl.common.util.recorder import Recorder
 
 
 class Foo(Basic):

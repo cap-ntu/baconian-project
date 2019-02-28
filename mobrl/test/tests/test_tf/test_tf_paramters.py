@@ -2,12 +2,11 @@ import numpy as np
 import tensorflow as tf
 from mobrl.tf.tf_parameters import TensorflowParameters
 from mobrl.config.dict_config import DictConfig
-from mobrl.core.basic import Basic
+from mobrl.core.core import Basic, EnvSpec
 from mobrl.config.global_config import GlobalConfig
 from mobrl.tf.util import create_new_tf_session
 from mobrl.algo.rl.model_free.dqn import DQN
 from mobrl.envs.gym_env import make
-from mobrl.envs.env_spec import EnvSpec
 from mobrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
 from mobrl.test.tests.set_up.setup import TestTensorflowSetup, TestWithAll
 

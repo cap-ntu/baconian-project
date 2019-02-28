@@ -1,7 +1,5 @@
-import numpy as np
-from typeguard import typechecked
 from mobrl.common.special import *
-from mobrl.envs.env_spec import EnvSpec
+from mobrl.core.core import EnvSpec
 from copy import deepcopy
 
 
@@ -10,31 +8,28 @@ class SampleData(object):
         if env_spec is None and (obs_shape is None or action_shape is None):
             raise ValueError('At least env_spec or (obs_shape, action_shape) should be passed in')
 
-        self._state_set = []
-        self._action_set = []
-        self._reward_set = []
-        self._done_set = []
-        self._new_state_set = []
+        # self._state_set = []
+        # self._action_set = []
+        # self._reward_set = []
+        # self._done_set = []
+        # self._new_state_set = []
         self.cumulative_reward = 0.0
         self.step_count_per_episode = 0
         self.env_spec = env_spec
         self.obs_shape = env_spec.obs_shape if env_spec else obs_shape
         self.action_shape = env_spec.action_shape if env_spec else action_shape
         self._internal_data_dict = {
-            'state_set': [self._state_set, self.obs_shape],
-            'new_state_set': [self._new_state_set, self.obs_shape],
-            'action_set': [self._action_set, self.action_shape],
-            'reward_set': [self._reward_set, [1]],
-            'done_set': [self._done_set, [1]],
+            'state_set': [[], self.obs_shape],
+            'new_state_set': [[], self.obs_shape],
+            'action_set': [[], self.action_shape],
+            'reward_set': [[], [1]],
+            'done_set': [[], [1]],
         }
         assert isinstance(self.obs_shape, (list, tuple))
         assert isinstance(self.action_shape, (list, tuple))
-        # self._allowed_data_set_keys = ['state_set', 'action_set', 'new_state_set', 'reward_set', 'done_set']
-        # for key, val in self._internal_data_dict.items():
-        #     self._register_data_set(name=key)
 
     def __len__(self):
-        return len(self._state_set)
+        return len(self._internal_data_dict['state_set'][0])
 
     def reset(self):
         for key, data_set in self._internal_data_dict.items():
@@ -68,12 +63,15 @@ class SampleData(object):
         if batch_size or shuffle_flag:
             raise NotImplementedError
         else:
-            for obs0, obs1, action, reward, terminal1 in zip(self._state_set, self._new_state_set, self._action_set,
-                                                             self._reward_set, self._done_set):
+            for obs0, obs1, action, reward, terminal1 in zip(self._internal_data_dict['state_set'][0],
+                                                             self._internal_data_dict['new_state_set'][0],
+                                                             self._internal_data_dict['action_set'][0],
+                                                             self._internal_data_dict['reward_set'][0],
+                                                             self._internal_data_dict['done_set'][0]):
                 yield obs0, obs1, action, reward, terminal1
 
     def append_new_set(self, name, data_set: (list, np.ndarray), shape: (tuple, list)):
-        assert len(data_set) == len(self._action_set)
+        assert len(data_set) == len(self)
         assert len(np.array(data_set).shape) - 1 == len(shape)
         if len(shape) > 0:
             assert np.equal(np.array(data_set).shape[1:], shape).all()
@@ -125,21 +123,20 @@ class TransitionData(SampleData):
     def sample_batch(self, batch_size, shuffle_flag=True, **kwargs) -> dict:
         if shuffle_flag is False:
             raise NotImplementedError
-        total_num = len(self._state_set)
+        total_num = len(self)
         id_index = np.random.randint(low=0, high=total_num, size=batch_size)
         batch_data = dict()
         for key in self._internal_data_dict.keys():
             batch_data[key] = self(key)[id_index]
         return batch_data
 
-    # @typechecked
     def append(self, state: np.ndarray, action: np.ndarray, new_state: np.ndarray, done: bool, reward: float):
         # todo some type check should be here
-        self._state_set.append(state)
-        self._new_state_set.append(new_state)
-        self._reward_set.append(reward)
-        self._done_set.append(done)
-        self._action_set.append(action)
+        self._internal_data_dict['state_set'][0].append(state)
+        self._internal_data_dict['new_state_set'][0].append(new_state)
+        self._internal_data_dict['reward_set'][0].append(reward)
+        self._internal_data_dict['done_set'][0].append(done)
+        self._internal_data_dict['action_set'][0].append(action)
         self.cumulative_reward += reward
 
 
@@ -165,5 +162,5 @@ class TrajectoryData(SampleData):
             raise NotImplementedError
         transition_set = self.trajectories[0].get_copy()
         for i in range(1, len(self.trajectories)):
-            transition_set.union(self.trajectories[i].make_copy())
+            transition_set.union(self.trajectories[i].get_copy())
         return transition_set

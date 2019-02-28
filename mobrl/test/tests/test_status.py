@@ -1,8 +1,8 @@
-from mobrl.core.status import Status, StatusWithSingleInfo
+from mobrl.core.status import StatusWithSingleInfo, Status
+from mobrl.core.core import EnvSpec
 from mobrl.test.tests.set_up.setup import BaseTestCase, TestTensorflowSetup
 from mobrl.algo.rl.model_free.dqn import DQN
 from mobrl.envs.gym_env import make
-from mobrl.envs.env_spec import EnvSpec
 from mobrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
 
 

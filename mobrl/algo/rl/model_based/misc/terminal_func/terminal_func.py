@@ -1,4 +1,4 @@
-from mobrl.core.basic import Basic
+from mobrl.core.core import Basic
 import abc
 import numpy as np
 

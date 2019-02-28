@@ -1,11 +1,8 @@
-from mobrl.algo.rl.model_free.dqn import DQN
-from mobrl.envs.gym_env import make
-from mobrl.envs.env_spec import EnvSpec
-from mobrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
-from mobrl.test.tests.set_up.setup import TestTensorflowSetup
+from mobrl.test.tests.set_up.setup import TestWithAll
+from mobrl.config.global_config import GlobalConfig
 
 
-class TestDQN(TestTensorflowSetup):
+class TestDQN(TestWithAll):
     def test_init(self):
         dqn, locals = self.create_dqn()
         env = locals['env']
@@ -18,8 +15,39 @@ class TestDQN(TestTensorflowSetup):
             ac = dqn.predict(obs=st, sess=self.sess, batch_flag=False)
             st_new, re, done, _ = env.step(action=ac)
             a.append(state=st, new_state=st_new, action=ac, done=done, reward=re)
+            st = st_new
             dqn.append_to_memory(a)
-            print(a.new_state_set - a.state_set)
-            print(st)
-        print(dqn.train(batch_data=a, train_iter=10, sess=None, update_target=True))
-        print(dqn.train(batch_data=None, train_iter=10, sess=None, update_target=True))
+        new_dqn, _ = self.create_dqn(name='new_dqn')
+        new_dqn.copy_from(dqn)
+        self.assert_var_list_id_no_equal(dqn.q_value_func.parameters('tf_var_list'),
+                                         new_dqn.q_value_func.parameters('tf_var_list'))
+        self.assert_var_list_id_no_equal(dqn.target_q_value_func.parameters('tf_var_list'),
+                                         new_dqn.target_q_value_func.parameters('tf_var_list'))
+
+        self.assert_var_list_equal(dqn.q_value_func.parameters('tf_var_list'),
+                                   new_dqn.q_value_func.parameters('tf_var_list'))
+        self.assert_var_list_equal(dqn.target_q_value_func.parameters('tf_var_list'),
+                                   new_dqn.target_q_value_func.parameters('tf_var_list'))
+
+        dqn.save(save_path=GlobalConfig.DEFAULT_LOG_PATH + '/dqn_test',
+                 global_step=0,
+                 name=dqn.name)
+
+        for i in range(20):
+            print(dqn.train(batch_data=a, train_iter=10, sess=None, update_target=True))
+            # print(dqn.train(batch_data=None, train_iter=10, sess=None, update_target=True))
+
+        self.assert_var_list_at_least_not_equal(dqn.q_value_func.parameters('tf_var_list'),
+                                                new_dqn.q_value_func.parameters('tf_var_list'))
+
+        self.assert_var_list_at_least_not_equal(dqn.target_q_value_func.parameters('tf_var_list'),
+                                                new_dqn.target_q_value_func.parameters('tf_var_list'))
+
+        dqn.load(path_to_model=GlobalConfig.DEFAULT_LOG_PATH + '/dqn_test',
+                 model_name=dqn.name,
+                 global_step=0)
+
+        self.assert_var_list_equal(dqn.q_value_func.parameters('tf_var_list'),
+                                   new_dqn.q_value_func.parameters('tf_var_list'))
+        self.assert_var_list_equal(dqn.target_q_value_func.parameters('tf_var_list'),
+                                   new_dqn.target_q_value_func.parameters('tf_var_list'))

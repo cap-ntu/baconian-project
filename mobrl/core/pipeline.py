@@ -1,7 +1,7 @@
 from mobrl.config.dict_config import DictConfig
 from typeguard import typechecked
 from transitions import Machine
-from mobrl.common.util.recorder import Recorder
+from mobrl.common.util.logging import Recorder
 
 
 class Pipeline(object):

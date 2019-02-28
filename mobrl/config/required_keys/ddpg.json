@@ -6,9 +6,9 @@
   "CRITIC_LEARNING_RATE": 0.001,
   "ACTOR_LEARNING_RATE": 0.001,
   "DECAY": 0.5,
-  "ACTOR_BATCH_SIZE": 5,
-  "CRITIC_BATCH_SIZE": 5,
+  "BATCH_SIZE": 5,
   "CRITIC_TRAIN_ITERATION": 1,
   "ACTOR_TRAIN_ITERATION": 1,
-  "critic_clip_norm": 0.01
+  "critic_clip_norm": 0.1,
+  "actor_clip_norm": 0.1
 }

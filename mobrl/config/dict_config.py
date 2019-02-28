@@ -1,7 +1,6 @@
-import json
 import os
-import typeguard as tg
 from mobrl.core.util import init_func_arg_record_decorator
+import mobrl.common.util.files as files
 
 
 class Config(object):
@@ -35,9 +34,11 @@ class DictConfig(Config):
                 setattr(self, key, val)
 
     def save_config(self, path, name):
+        # todo check this
         DictConfig.save_to_json(dict=self.config_dict, path=path, file_name=name)
 
     def load_config(self, path):
+        # todo check this
         res = DictConfig.load_json(file_path=path)
         self.config_dict = res
 
@@ -49,16 +50,13 @@ class DictConfig(Config):
 
     @staticmethod
     def load_json(file_path):
-        with open(file_path, 'r') as f:
-            res = json.load(f)
-            return res
+        return files.load_json(file_path)
 
     @staticmethod
     def save_to_json(dict, path, file_name=None):
         if file_name is not None:
             path = os.path.join(path, file_name)
-        with open(path, 'w') as f:
-            json.dump(obj=dict, fp=f, indent=4, sort_keys=True)
+        files.save_to_json(dict, path=path, file_name=file_name)
 
     def check_dict_key(self, check_dict: dict, required_key_dict: dict) -> bool:
         for key, val in required_key_dict.items():

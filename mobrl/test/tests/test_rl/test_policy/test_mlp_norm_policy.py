@@ -1,6 +1,6 @@
 import unittest
 from mobrl.envs.gym_env import make
-from mobrl.envs.env_spec import EnvSpec
+from mobrl.core.core import EnvSpec
 import numpy as np
 from mobrl.algo.rl.policy.normal_distribution_mlp import NormalDistributionMLPPolicy
 from mobrl.common.special import *

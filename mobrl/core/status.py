@@ -1,6 +1,9 @@
-import typeguard as tg
 import abc
+
+import typeguard as tg
 from typeguard import typechecked
+from copy import deepcopy
+from mobrl.common.util.logging import ConsoleLogger
 
 
 class Status(object):
@@ -52,6 +55,10 @@ class StatusWithInfo(Status):
     def reset(self):
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def get_specific_info_key_status(self, info_key, *args, **kwargs):
+        raise NotImplementedError
+
 
 class StatusWithSingleInfo(StatusWithInfo):
     # todo StatusWithInfo
@@ -79,7 +86,15 @@ class StatusWithSingleInfo(StatusWithInfo):
         else:
             self._info_dict[info_key] = init_value
 
-    def has_info(self, info_key):
+    def get_specific_info_key_status(self, info_key, *args, **kwargs):
+        try:
+            return self._info_dict[info_key]
+        except KeyError:
+            ConsoleLogger().print('ERROR',
+                                  'try to access info key status: {} of obj: {}'.format(info_key, self.obj.name))
+            return None
+
+    def has_info(self, info_key, **kwargs):
         return info_key in self._info_dict
 
     def update_info(self, info_key, increment, under_status=None):
@@ -113,6 +128,14 @@ class StatusWithSubInfo(StatusWithInfo):
     def get_status(self) -> dict:
         return self()
 
+    def get_specific_info_key_status(self, info_key, under_status, *args, **kwargs):
+        try:
+            return self._info_dict_with_sub_info[under_status][info_key]
+        except KeyError:
+            ConsoleLogger().print('ERROR', 'try to access info key status: {} under status {} of obj: {}'.
+                                  format(info_key, under_status, self.obj.name))
+            return None
+
     def append_new_info(self, info_key: str, init_value, under_status=None):
         if not under_status:
             under_status = self._status_val
@@ -138,6 +161,30 @@ class StatusWithSubInfo(StatusWithInfo):
     def reset(self):
         for key in self._status_list:
             self._info_dict_with_sub_info[key] = {}
+
+
+class StatusCollector(object):
+
+    def __init__(self):
+        self._register_status_dict = {}
+
+    def __call__(self, *args, **kwargs):
+        stat_dict = dict()
+        for obj, val in self._register_status_dict.items():
+            assert hasattr(obj, 'status')
+            assert isinstance(getattr(obj, 'status'), StatusWithInfo)
+            assert getattr(obj, 'status').has_info(info_key=val['info_key'], under_status=val['under_status'])
+
+            res = obj.status.get_specific_key_status(under_status=val['under_status'],
+                                                     key=val['info_key'])
+            stat_dict['{}_{}_{}'.format(obj.name, val['under_status'], val['info_key'])] = deepcopy(res)
+        return stat_dict
+
+    def get_status(self) -> dict:
+        return self()
+
+    def register_info_key_status(self, obj, info_key: str, under_status=None):
+        self._register_status_dict[obj] = dict(obj=obj, status_key=info_key, under_status=under_status)
 
 
 def register_counter_info_to_status_decorator(increment, info_key, under_status=None):
@@ -167,3 +214,20 @@ def register_counter_info_to_status_decorator(increment, info_key, under_status=
         return wrap_with_self
 
     return wrap
+
+
+_global_experiment_status = StatusWithSingleInfo(obj=None)
+
+from mobrl.config.global_config import GlobalConfig
+
+for key in GlobalConfig.DEFAULT_EXPERIMENT_END_POINT.keys():
+    _global_experiment_status.append_new_info(info_key=key, init_value=0)
+
+
+def get_global_experiment_status() -> StatusWithSingleInfo:
+    # todo how to use global status
+    return globals()['_global_experiment_status']
+
+
+def reset_global_experiment_status():
+    globals()['_global_experiment_status'].reset()

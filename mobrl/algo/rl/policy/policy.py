@@ -1,7 +1,6 @@
-from mobrl.core.basic import Basic
+from mobrl.core.core import Basic, EnvSpec
 import typeguard as tg
 from mobrl.core.parameters import Parameters
-from mobrl.envs.env_spec import EnvSpec
 import abc
 
 
@@ -65,11 +64,3 @@ class StochasticPolicy(Policy):
 
 class DeterministicPolicy(Policy):
     pass
-
-
-if __name__ == '__main__':
-    def test(*arg, **kwargs):
-        print(arg, kwargs)
-
-
-    test(1, 2, 3, s=1, t=2)

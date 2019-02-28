@@ -1,20 +1,19 @@
 import numpy as np
 import unittest
 import tensorflow as tf
+from mobrl.algo.rl.model_based.models.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
 from mobrl.envs.gym_env import make
-from mobrl.envs.env_spec import EnvSpec
 from mobrl.algo.placeholder_input import PlaceholderInput
 from mobrl.algo.rl.model_free.dqn import DQN
 from mobrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
-from mobrl.common.util.logger import ConsoleLogger, Logger
+from mobrl.common.util.logging import Logger, ConsoleLogger
 from mobrl.config.dict_config import DictConfig
 from mobrl.config.global_config import GlobalConfig
 from mobrl.core.global_var import reset_all, get_all
 from mobrl.tf.tf_parameters import TensorflowParameters
 from mobrl.tf.util import create_new_tf_session
-from mobrl.core.basic import Basic
+from mobrl.core.core import Basic, EnvSpec
 from mobrl.envs.gym_env import make
-from mobrl.envs.env_spec import EnvSpec
 from mobrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
 from mobrl.algo.rl.model_free.ddpg import DDPG
 from mobrl.algo.rl.policy.deterministic_mlp import DeterministicMLPPolicy
@@ -22,6 +21,10 @@ from mobrl.algo.rl.value_func.mlp_v_value import MLPVValueFunc
 from mobrl.algo.rl.policy.normal_distribution_mlp import NormalDistributionMLPPolicy
 from mobrl.algo.rl.model_free.ppo import PPO
 from mobrl.core.parameters import Parameters, DictConfig
+from mobrl.algo.rl.model_based.mpc import ModelPredictiveControl
+from mobrl.algo.rl.model_based.misc.terminal_func.terminal_func import RandomTerminalFunc
+from mobrl.algo.rl.model_based.misc.reward_func.reward_func import RandomRewardFunc
+from mobrl.algo.rl.policy.random_policy import UniformRandomPolicy
 
 
 class Foo(Basic):
@@ -132,6 +135,7 @@ class ClassCreatorSetup(unittest.TestCase):
                                           "W_NORMAL_STDDEV": 0.03
                                       }
                                   ])
+        self.assertTrue(len(mlp_q.parameters('tf_var_list')) == 4)
         policy = DeterministicMLPPolicy(env_spec=env_spec,
                                         name_scope=name + 'mlp_policy',
                                         name=name + 'mlp_policy',
@@ -154,6 +158,8 @@ class ClassCreatorSetup(unittest.TestCase):
                                             }
                                         ],
                                         reuse=False)
+        self.assertTrue(len(policy.parameters('tf_var_list')) == 4)
+
         ddpg = DDPG(
             env_spec=env_spec,
             config_or_config_dict={
@@ -164,11 +170,11 @@ class ClassCreatorSetup(unittest.TestCase):
                 "CRITIC_LEARNING_RATE": 0.001,
                 "ACTOR_LEARNING_RATE": 0.001,
                 "DECAY": 0.5,
-                "ACTOR_BATCH_SIZE": 5,
-                "CRITIC_BATCH_SIZE": 5,
+                "BATCH_SIZE": 50,
                 "CRITIC_TRAIN_ITERATION": 1,
                 "ACTOR_TRAIN_ITERATION": 1,
-                "critic_clip_norm": 0.001
+                "critic_clip_norm": 0.1,
+                "actor_clip_norm": 0.1,
             },
             value_func=mlp_q,
             policy=policy,
@@ -264,3 +270,56 @@ class ClassCreatorSetup(unittest.TestCase):
                        auto_init=False,
                        name='test_params')
         return a, locals()
+
+    def create_continue_dynamics_model(self, env_id='Acrobot-v1', name='mlp_dyna'):
+        env = make(env_id)
+        env_spec = EnvSpec(obs_space=env.observation_space,
+                           action_space=env.action_space)
+
+        mlp_dyna = ContinuousMLPGlobalDynamicsModel(
+            env_spec=env_spec,
+            name_scope=name + 'mlp_dyna',
+            name=name + 'mlp_dyna',
+            output_low=env_spec.obs_space.low,
+            output_high=env_spec.obs_space.high,
+            l1_norm_scale=1.0,
+            l2_norm_scale=1.0,
+            learning_rate=0.01,
+            mlp_config=[
+                {
+                    "ACT": "RELU",
+                    "B_INIT_VALUE": 0.0,
+                    "NAME": "1",
+                    "N_UNITS": 16,
+                    "TYPE": "DENSE",
+                    "W_NORMAL_STDDEV": 0.03
+                },
+                {
+                    "ACT": "LINEAR",
+                    "B_INIT_VALUE": 0.0,
+                    "NAME": "OUPTUT",
+                    "N_UNITS": env_spec.flat_obs_dim,
+                    "TYPE": "DENSE",
+                    "W_NORMAL_STDDEV": 0.03
+                }
+            ])
+        return mlp_dyna, locals()
+
+    def create_mpc(self, env_id='Acrobot-v1', name='mpc'):
+        mlp_dyna, local = self.create_continue_dynamics_model(env_id, name)
+        env_spec = local['env_spec']
+        env = local['env']
+        algo = ModelPredictiveControl(
+            dynamics_model=mlp_dyna,
+            env_spec=env_spec,
+            config_or_config_dict=dict(
+                SAMPLED_HORIZON=2,
+                SAMPLED_PATH_NUM=5,
+                dynamics_model_train_iter=10
+            ),
+            name=name,
+            reward_func=RandomRewardFunc('re_fun'),
+            terminal_func=RandomTerminalFunc(name='random_p'),
+            policy=UniformRandomPolicy(env_spec=env_spec, name='unp')
+        )
+        return algo, locals()

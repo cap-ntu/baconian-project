@@ -15,8 +15,9 @@ def reset(key: str):
     globals()[key] = {}
 
 
-def get_all():
+def get_all() -> dict:
     return dict(
         _global_obj_arg_dict=globals()['_global_obj_arg_dict'],
         _global_name_dict=globals()['_global_name_dict']
     )
+

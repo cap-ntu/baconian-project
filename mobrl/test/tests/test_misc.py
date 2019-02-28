@@ -1,5 +1,5 @@
 import unittest
-from mobrl.envs.env_spec import EnvSpec
+from mobrl.core.core import EnvSpec
 from mobrl.common.spaces import *
 from mobrl.common.special import *
 from mobrl.envs.gym_env import make

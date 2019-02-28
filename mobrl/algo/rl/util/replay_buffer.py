@@ -1,6 +1,7 @@
 import numpy as np
 from typeguard import typechecked
 from mobrl.common.sampler.sample_data import TransitionData, TrajectoryData, SampleData
+from copy import deepcopy
 
 
 class RingBuffer(object):
@@ -103,10 +104,7 @@ class UniformRandomReplayBuffer(BaseReplayBuffer):
         }
 
         res = TransitionData(obs_shape=self.obs_shape, action_shape=self.action_shape)
-        res._state_set = result['obs0']
-        res._new_state_set = result['obs1']
-        res._action_set = result['actions']
-        res._done_set = result['terminals1']
-        res._reward_set = result['rewards']
-
+        for obs0, obs1, action, terminal, re in zip(result['obs0'], result['obs1'], result['actions'],
+                                                    result['terminals1'], result['rewards']):
+            res.append(state=obs0, new_state=obs1, action=action, done=terminal, reward=re)
         return res

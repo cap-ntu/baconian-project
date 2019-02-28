@@ -8,7 +8,7 @@ import tensorflow as tf
 from mobrl.algo.placeholder_input import PlaceholderInput
 from mobrl.algo.rl.model_free.dqn import DQN
 from mobrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
-from mobrl.common.util.logger import ConsoleLogger, Logger
+from mobrl.common.util.logging import Logger, ConsoleLogger
 from mobrl.config.dict_config import DictConfig
 from mobrl.config.global_config import GlobalConfig
 from mobrl.core.global_var import reset_all, get_all
@@ -62,6 +62,14 @@ class TestTensorflowSetup(BaseTestCase):
             res1, res2 = self.sess.run([var1, var2])
             res.append(np.equal(res1, res2).all())
         self.assertFalse(np.array(res).all())
+
+    def assert_var_list_id_equal(self, var_list1, var_list2):
+        for var1, var2 in zip(var_list1, var_list2):
+            self.assertTrue(id(var1) == id(var2))
+
+    def assert_var_list_id_no_equal(self, var_list1, var_list2):
+        for var1, var2 in zip(var_list1, var_list2):
+            self.assertTrue(id(var1) != id(var2))
 
 
 class TestWithLogSet(BaseTestCase):

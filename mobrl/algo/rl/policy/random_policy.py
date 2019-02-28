@@ -1,4 +1,4 @@
-from mobrl.envs.env_spec import EnvSpec
+from mobrl.core.core import EnvSpec
 from mobrl.algo.rl.policy.policy import Policy
 from typeguard import typechecked
 from overrides.overrides import overrides

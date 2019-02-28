@@ -1,10 +1,8 @@
-from mobrl.core.basic import Basic
+from mobrl.core.core import Basic, EnvSpec
 from mobrl.core.status import StatusWithSingleInfo, StatusWithSubInfo
 import abc
-from mobrl.envs.env_spec import EnvSpec
 from typeguard import typechecked
-from mobrl.common.util.logger import Logger
-from mobrl.common.util.recorder import Recorder
+from mobrl.common.util.logging import Logger, Recorder
 
 
 # import numpy as np

@@ -1,5 +1,5 @@
 from mobrl.common.special import flatten_n
-from mobrl.envs.env_spec import EnvSpec
+from mobrl.core.core import EnvSpec
 from mobrl.algo.rl.model_based.models.dynamics_model import GlobalDynamicsModel, DerivableDynamics
 import tensorflow as tf
 from mobrl.tf.tf_parameters import TensorflowParameters

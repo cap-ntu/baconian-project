@@ -2,7 +2,7 @@ from mobrl.algo.rl.model_based.sample_with_model import SampleWithDynamics
 import unittest
 from mobrl.algo.rl.model_free.dqn import DQN
 from mobrl.envs.gym_env import make
-from mobrl.envs.env_spec import EnvSpec
+from mobrl.core.core import EnvSpec
 from mobrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
 from mobrl.algo.rl.model_based.models.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
 from mobrl.common.sampler.sample_data import TransitionData

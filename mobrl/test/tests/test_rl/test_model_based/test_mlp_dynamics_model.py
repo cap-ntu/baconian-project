@@ -1,46 +1,18 @@
 from mobrl.algo.rl.model_based.models.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
 from mobrl.envs.gym_env import make
-from mobrl.envs.env_spec import EnvSpec
+from mobrl.core.core import EnvSpec
 from mobrl.common.sampler.sample_data import TransitionData
-from mobrl.test.tests.set_up.setup import TestTensorflowSetup
+from mobrl.test.tests.set_up.setup import TestWithAll
 from mobrl.common.special import *
 
 
-class TestDynamicsModel(TestTensorflowSetup):
+class TestDynamicsModel(TestWithAll):
 
     def test_mlp_dynamics_model(self):
-
-        env = make('Acrobot-v1')
+        mlp_dyna, local = self.create_continue_dynamics_model()
+        env = local['env']
+        env_spec = local['env_spec']
         env.reset()
-        env_spec = EnvSpec(obs_space=env.observation_space,
-                           action_space=env.action_space)
-        mlp_dyna = ContinuousMLPGlobalDynamicsModel(
-            env_spec=env_spec,
-            name_scope='mlp_dyna',
-            name='mlp_dyna',
-            output_low=env_spec.obs_space.low,
-            output_high=env_spec.obs_space.high,
-            l1_norm_scale=1.0,
-            l2_norm_scale=1.0,
-            learning_rate=0.01,
-            mlp_config=[
-                {
-                    "ACT": "RELU",
-                    "B_INIT_VALUE": 0.0,
-                    "NAME": "1",
-                    "N_UNITS": 16,
-                    "TYPE": "DENSE",
-                    "W_NORMAL_STDDEV": 0.03
-                },
-                {
-                    "ACT": "LINEAR",
-                    "B_INIT_VALUE": 0.0,
-                    "NAME": "OUPTUT",
-                    "N_UNITS": 6,
-                    "TYPE": "DENSE",
-                    "W_NORMAL_STDDEV": 0.03
-                }
-            ])
         mlp_dyna.init()
         mlp_dyna.step(action=env_spec.action_space.sample(),
                       state=env_spec.obs_space.sample())
@@ -56,33 +28,26 @@ class TestDynamicsModel(TestTensorflowSetup):
                         reward=re)
             st = new_st
         print(mlp_dyna.train(batch_data=data, train_iter=10))
+        mlp_dyna_2, _ = self.create_continue_dynamics_model(name='model_2')
+        mlp_dyna_2.init()
+        self.assert_var_list_at_least_not_equal(var_list1=mlp_dyna.parameters('tf_var_list'),
+                                                var_list2=mlp_dyna_2.parameters('tf_var_list'))
 
-        mlp_dyna_2 = ContinuousMLPGlobalDynamicsModel(
-            env_spec=env_spec,
-            name_scope='mlp_dyna2',
-            name='mlp_dyna2',
-            output_low=env_spec.obs_space.low,
-            output_high=env_spec.obs_space.high,
-            l1_norm_scale=1.0,
-            l2_norm_scale=1.0,
-            learning_rate=0.01,
-            mlp_config=[
-                {
-                    "ACT": "RELU",
-                    "B_INIT_VALUE": 0.0,
-                    "NAME": "1",
-                    "N_UNITS": 16,
-                    "TYPE": "DENSE",
-                    "W_NORMAL_STDDEV": 0.03
-                },
-                {
-                    "ACT": "LINEAR",
-                    "B_INIT_VALUE": 0.0,
-                    "NAME": "OUPTUT",
-                    "N_UNITS": 6,
-                    "TYPE": "DENSE",
-                    "W_NORMAL_STDDEV": 0.03
-                }
-            ])
+        self.assert_var_list_id_no_equal(var_list1=mlp_dyna.parameters('tf_var_list'),
+                                         var_list2=mlp_dyna_2.parameters('tf_var_list'))
+
         mlp_dyna_2.init(source_obj=mlp_dyna)
+
+        self.assert_var_list_equal(var_list1=mlp_dyna.parameters('tf_var_list'),
+                                   var_list2=mlp_dyna_2.parameters('tf_var_list'))
+
+        self.assert_var_list_id_no_equal(var_list1=mlp_dyna.parameters('tf_var_list'),
+                                         var_list2=mlp_dyna_2.parameters('tf_var_list'))
+
         mlp_dyna_2.copy_from(mlp_dyna)
+
+        self.assert_var_list_equal(var_list1=mlp_dyna.parameters('tf_var_list'),
+                                   var_list2=mlp_dyna_2.parameters('tf_var_list'))
+
+        self.assert_var_list_id_no_equal(var_list1=mlp_dyna.parameters('tf_var_list'),
+                                         var_list2=mlp_dyna_2.parameters('tf_var_list'))

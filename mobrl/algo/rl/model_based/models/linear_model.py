@@ -1,7 +1,7 @@
 import numpy as np
 from mobrl.algo.rl.model_based.models.dynamics_model import DynamicsModel
 from mobrl.core.parameters import Parameters
-from mobrl.envs.env_spec import EnvSpec
+from mobrl.core.core import EnvSpec
 
 
 class LinearGlobalDynamicsModel(DynamicsModel):

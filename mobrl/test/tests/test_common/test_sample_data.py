@@ -1,6 +1,6 @@
 from mobrl.common.sampler.sample_data import TransitionData
-from mobrl.envs import make
-from mobrl.envs.env_spec import EnvSpec
+from mobrl.envs.gym_env import make
+from mobrl.core.core import EnvSpec
 import numpy as np
 from mobrl.test.tests.set_up.setup import BaseTestCase
 
@@ -71,7 +71,20 @@ class TestSampleData(BaseTestCase):
             self.assertTrue(isinstance(terminal, bool))
         self.assertEqual(count, 100)
 
+        a.reset()
+        self.assertEqual(a.reward_set.shape[0], 0)
+        self.assertEqual(a.done_set.shape[0], 0)
+
+        self.assertEqual(a.action_set.shape[0], 0)
+        self.assertEqual(a.state_set.shape[0], 0)
+        self.assertEqual(a.new_state_set.shape[0], 0)
+
+        self.assertEqual(a('reward_set').shape[0], 0)
+        self.assertEqual(a('done_set').shape[0], 0)
+
+        self.assertEqual(a('state_set').shape[0], 0)
+        self.assertEqual(a('new_state_set').shape[0], 0)
+        self.assertEqual(a('action_set').shape[0], 0)
+
     def test_trajectory_data(self):
-        env = make('Acrobot-v1')
-        env_spec = EnvSpec(obs_space=env.observation_space,
-                           action_space=env.action_space)
+        pass

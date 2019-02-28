@@ -1,6 +1,5 @@
 import tensorflow as tf
-from mobrl.core.basic import Basic
-from mobrl.envs.env_spec import EnvSpec
+from mobrl.core.core import Basic, EnvSpec
 import numpy as np
 import abc
 from mobrl.core.parameters import Parameters

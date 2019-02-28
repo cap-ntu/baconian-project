@@ -1,4 +1,4 @@
-from mobrl.envs.env_spec import EnvSpec
+from mobrl.core.core import EnvSpec
 from mobrl.algo.rl.rl_algo import ModelFreeAlgo, OffPolicyAlgo
 from mobrl.config.dict_config import DictConfig
 from typeguard import typechecked
@@ -6,7 +6,6 @@ from mobrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
 from mobrl.algo.rl.util.replay_buffer import UniformRandomReplayBuffer, BaseReplayBuffer
 import tensorflow as tf
 import tensorflow.contrib as tf_contrib
-import numpy as np
 from mobrl.common.sampler.sample_data import TransitionData
 from mobrl.tf.tf_parameters import TensorflowParameters
 from mobrl.config.global_config import GlobalConfig
@@ -14,7 +13,7 @@ from mobrl.common.special import *
 from mobrl.algo.rl.policy.deterministic_mlp import DeterministicMLPPolicy
 from mobrl.tf.util import *
 from mobrl.common.misc import *
-from mobrl.common.util.recorder import record_return_decorator
+from mobrl.common.util.logging import record_return_decorator
 from mobrl.core.status import register_counter_info_to_status_decorator
 from mobrl.algo.placeholder_input import MultiPlaceholderInput
 
@@ -22,7 +21,7 @@ from mobrl.algo.placeholder_input import MultiPlaceholderInput
 class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
     required_key_dict = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_DDPG_REQUIRED_KEY_LIST)
 
-    @typechecked
+    @typechecked()
     def __init__(self,
                  env_spec: EnvSpec,
                  config_or_config_dict: (DictConfig, dict),
@@ -72,6 +71,7 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
         # todo check this reuse utility
         self._critic_with_actor_output = self.critic.make_copy(reuse=True,
                                                                name='actor_input_{}'.format(self.critic.name),
+                                                               state_input=self.state_input,
                                                                action_input=self.actor.action_tensor)
         self._target_critic_with_target_actor_output = self.target_critic.make_copy(reuse=True,
                                                                                     name='target_critic_with_target_actor_output_{}'.format(
@@ -86,8 +86,8 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
             done = tf.cast(self.done_input, dtype=tf.float32)
             self.predict_q_value = (1. - done) * self.config('GAMMA') * self.target_q_input + self.reward_input
             with tf.variable_scope('train'):
-                self.critic_loss, self.critic_update_op, self.target_critic_update_op, self.critic_optimizer = self._setup_critic_loss()
-                self.actor_loss, self.actor_update_op, self.target_actor_update_op, self.action_optimizer = self._set_up_actor_loss()
+                self.critic_loss, self.critic_update_op, self.target_critic_update_op, self.critic_optimizer, self.critic_grads = self._setup_critic_loss()
+                self.actor_loss, self.actor_update_op, self.target_actor_update_op, self.action_optimizer, self.actor_grads = self._set_up_actor_loss()
 
         var_list = get_tf_collection_var_list(
             '{}/train'.format(name)) + self.critic_optimizer.variables() + self.action_optimizer.variables()
@@ -125,19 +125,16 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
         super(DDPG, self).train()
         tf_sess = sess if sess else tf.get_default_session()
 
-        batch_data_critic = self.replay_buffer.sample(
-            batch_size=self.parameters('CRITIC_BATCH_SIZE')) if batch_data is None else batch_data
-        assert isinstance(batch_data_critic, TransitionData)
+        batch_data = self.replay_buffer.sample(
+            batch_size=self.parameters('BATCH_SIZE')) if batch_data is None else batch_data
+        assert isinstance(batch_data, TransitionData)
         train_iter_critic = self.parameters("CRITIC_TRAIN_ITERATION") if not train_iter else train_iter
 
-        critic_res = self._critic_train(batch_data_critic, train_iter_critic, tf_sess, update_target)
+        critic_res = self._critic_train(batch_data, train_iter_critic, tf_sess, update_target)
 
-        batch_data_actor = self.replay_buffer.sample(
-            batch_size=self.parameters('ACTOR_BATCH_SIZE')) if batch_data is None else batch_data
-        assert isinstance(batch_data_actor, TransitionData)
         train_iter_actor = self.parameters("ACTOR_TRAIN_ITERATION") if not train_iter else train_iter
 
-        actor_res = self._actor_train(batch_data_actor, train_iter_actor, tf_sess, update_target)
+        actor_res = self._actor_train(batch_data, train_iter_actor, tf_sess, update_target)
 
         return {**critic_res, **actor_res}
 
@@ -149,10 +146,12 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
                 self.target_actor.state_input: batch_data.new_state_set
             }
         )
+        average_grads = None
         average_loss = 0.0
         for _ in range(train_iter):
-            loss, _ = sess.run(
-                [self.critic_loss, self.critic_update_op],
+            loss, _, grads = sess.run(
+                [self.critic_loss, self.critic_update_op, self.critic_grads
+                 ],
                 feed_dict={
                     self.target_q_input: target_q,
                     self.critic.state_input: batch_data.state_set,
@@ -162,27 +161,38 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
                     **self.parameters.return_tf_parameter_feed_dict()
                 }
             )
+            if not average_grads:
+                average_grads = np.array(grads)
+            else:
+                average_grads += np.array(grads)
             average_loss += loss
 
         if update_target is True:
             sess.run(self.target_critic_update_op)
         return dict(critic_average_loss=average_loss / train_iter)
+        # critic_avarge_grads=average_grads / train_iter)
 
     def _actor_train(self, batch_data, train_iter, sess, update_target) -> dict:
         average_loss = 0.0
+        average_grads = None
         for _ in range(train_iter):
-            loss, _ = sess.run(
-                [self.actor_loss, self.actor_update_op],
+            target_q, loss, _, grads = sess.run(
+                [self._critic_with_actor_output.q_tensor, self.actor_loss, self.actor_update_op, self.actor_grads],
                 feed_dict={
                     self.actor.state_input: batch_data.state_set,
                     self._critic_with_actor_output.state_input: batch_data.state_set,
                     **self.parameters.return_tf_parameter_feed_dict()
                 }
             )
+            if not average_grads:
+                average_grads = np.array(grads)
+            else:
+                average_grads += np.array(grads)
             average_loss += loss
         if update_target is True:
             sess.run(self.target_actor_update_op)
         return dict(actor_average_loss=average_loss / train_iter)
+        # actor_average_grad=average_grads / train_iter)
 
     @register_counter_info_to_status_decorator(increment=1, info_key='test', under_status='TEST')
     def test(self, *arg, **kwargs) -> dict:
@@ -222,21 +232,24 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
         loss = tf.reduce_sum((self.predict_q_value - self.critic.q_tensor) ** 2) + \
                tf_contrib.layers.apply_regularization(l1_l2, weights_list=self.critic.parameters('tf_var_list'))
         optimizer = tf.train.AdamOptimizer(learning_rate=self.parameters('CRITIC_LEARNING_RATE'))
-        optimize_op = optimizer.minimize(loss=loss, var_list=self.critic.parameters('tf_var_list'))
-
+        grads = tf.gradients(loss, self.critic.parameters('tf_var_list'))
+        if self.parameters('critic_clip_norm') is not None:
+            grads = [tf.clip_by_norm(grad, clip_norm=self.parameters('critic_clip_norm')) for grad in grads]
+        grads_var_pair = zip(grads, self.critic.parameters('tf_var_list'))
+        optimize_op = optimizer.apply_gradients(grads_var_pair)
         op = []
         for var, target_var in zip(self.critic.parameters('tf_var_list'),
                                    self.target_critic.parameters('tf_var_list')):
             ref_val = self.parameters('DECAY') * target_var + (1.0 - self.parameters('DECAY')) * var
             op.append(tf.assign(target_var, ref_val))
 
-        return loss, optimize_op, op, optimizer
+        return loss, optimize_op, op, optimizer, grads
 
     def _set_up_actor_loss(self):
         loss = -tf.reduce_mean(self._critic_with_actor_output.q_tensor)
         grads = tf.gradients(loss, self.actor.parameters('tf_var_list'))
-        if self.parameters('critic_clip_norm') is not None:
-            grads = [tf.clip_by_norm(grad, clip_norm=self.parameters('critic_clip_norm')) for grad in grads]
+        if self.parameters('actor_clip_norm') is not None:
+            grads = [tf.clip_by_norm(grad, clip_norm=self.parameters('actor_clip_norm')) for grad in grads]
         grads_var_pair = zip(grads, self.actor.parameters('tf_var_list'))
         optimizer = tf.train.AdamOptimizer(learning_rate=self.parameters('ACTOR_LEARNING_RATE'))
         optimize_op = optimizer.apply_gradients(grads_var_pair)
@@ -246,4 +259,4 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
             ref_val = self.parameters('DECAY') * target_var + (1.0 - self.parameters('DECAY')) * var
             op.append(tf.assign(target_var, ref_val))
 
-        return loss, optimize_op, op, optimizer
+        return loss, optimize_op, op, optimizer, grads

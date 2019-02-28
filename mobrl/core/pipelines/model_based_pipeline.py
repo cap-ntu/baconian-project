@@ -1,11 +1,11 @@
 from mobrl.core.pipeline import Pipeline
 from mobrl.config.global_config import GlobalConfig
-from mobrl.envs.env import Env
+from mobrl.core.core import Env
 from mobrl.config.dict_config import DictConfig
 from mobrl.agent.agent import Agent
 import numpy as np
 from mobrl.common.misc import *
-from mobrl.common.util.logger import Logger, ConsoleLogger
+from mobrl.common.util.logging import Logger, ConsoleLogger
 
 
 class ModelBasedPipeline(Pipeline):

@@ -8,6 +8,7 @@ import tensorflow as tf
 from gym.wrappers import TimeLimit, SkipWrapper, Monitor
 import os
 from mobrl.config.required_keys import SRC_UTIL_REQUIRED_KEYS
+import operator
 
 
 class DefaultGlobalConfig(object):
@@ -40,7 +41,6 @@ class DefaultGlobalConfig(object):
     # LOGGING CONFIG
 
     DEFAULT_ALLOWED_LOG_FILE_TYPES = ('json', 'csv', 'h5py')
-    # todo more detailed define on this
     DEFAULT_LOG_LEVEL = 'DEBUG'
     DEFAULT_LOG_PATH = '/home/dls/CAP/mobrl/mobrl/test/tests/tmp_path'
     DEFAULT_MODEL_PATH = os.path.join(DEFAULT_LOG_PATH, 'model')
@@ -50,6 +50,11 @@ class DefaultGlobalConfig(object):
     DEFAULT_LOGGING_FORMAT = '%(levelname)s:%(asctime)-15s: %(message)s'
     DEFAULT_WRITE_CONSOLE_LOG_TO_FILE_FLAG = True,
     DEFAULT_CONSOLE_LOG_FILE_NAME = 'console.log'
+    # todo how to define
+    DEFAULT_EXPERIMENT_END_POINT = dict(TOTAL_SAMPLE_TRANSITION_COUNT=1000,
+                                        TOTAL_SAMPLE_TRAJECTORY_COUNT=None,
+                                        TOTAL_AGENT_TRAIN_COUNT=None,
+                                        TOTAL_AGENT_TEST_COUNT=None)
 
     # For internal use
     SAMPLE_TYPE_SAMPLE_TRANSITION_DATA = 'transition_data'
@@ -57,6 +62,13 @@ class DefaultGlobalConfig(object):
 
 
 class GlobalConfig(DefaultGlobalConfig):
+
+    def __new__(cls, *args, **kwargs):
+        raise TypeError('GlobalConfig can only be accessed by cls')
+
+    def __init__(self):
+        raise TypeError('GlobalConfig can only be accessed by cls')
+
     @staticmethod
     @typechecked
     def set_new_config(config_dict: dict):

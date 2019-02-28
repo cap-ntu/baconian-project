@@ -2,9 +2,9 @@ import tensorflow as tf
 import typeguard as tg
 import os
 
-from mobrl.common.util.logger import ConsoleLogger
+from mobrl.common.util.logging import ConsoleLogger
 from mobrl.tf.tf_parameters import TensorflowParameters
-from mobrl.core.basic import Basic
+from mobrl.core.core import Basic
 
 
 class PlaceholderInput(object):

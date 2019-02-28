@@ -1,5 +1,5 @@
 import typeguard as tg
-from mobrl.envs.env_spec import EnvSpec
+from mobrl.core.core import EnvSpec
 import overrides
 import numpy as np
 import tensorflow as tf

@@ -1,8 +1,7 @@
-from mobrl.core.basic import Basic
+from mobrl.core.core import Basic, Env
 from mobrl.common.sampler.sample_data import TransitionData, TrajectoryData
 from mobrl.config.global_config import GlobalConfig
 from typeguard import typechecked
-from mobrl.envs.env import Env
 
 
 class Sampler(Basic):

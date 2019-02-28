@@ -1,8 +1,6 @@
 import numpy as np
-from mobrl.config.dict_config import DictConfig
 
 __all__ = ['generate_n_actions_hot_code', 'repeat_ndarray', 'construct_dict_config']
-
 
 
 def generate_n_actions_hot_code(n):
@@ -18,9 +16,12 @@ def repeat_ndarray(np_array: np.ndarray, repeats):
     return np_array
 
 
+from mobrl.config.dict_config import DictConfig
+
+
 def construct_dict_config(config_or_config_dict, obj):
     if isinstance(config_or_config_dict, dict):
-        return DictConfig(required_key_dict=obj.required_key_list,
+        return DictConfig(required_key_dict=obj.required_key_dict,
                           config_dict=config_or_config_dict,
                           cls_name=type(obj).__name__)
     elif isinstance(config_or_config_dict, dict):

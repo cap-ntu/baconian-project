@@ -1,5 +1,5 @@
 from mobrl.envs.gym_env import make
-from mobrl.envs.env_spec import EnvSpec
+from mobrl.core.core import EnvSpec
 from mobrl.algo.rl.policy .deterministic_mlp import DeterministicMLPPolicy
 from mobrl.test.tests.set_up.setup import TestTensorflowSetup
 

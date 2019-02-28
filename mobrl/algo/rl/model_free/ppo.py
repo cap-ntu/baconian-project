@@ -1,4 +1,4 @@
-from mobrl.envs.env_spec import EnvSpec
+from mobrl.core.core import EnvSpec
 from mobrl.algo.rl.rl_algo import ModelFreeAlgo, OnPolicyAlgo
 from mobrl.config.dict_config import DictConfig
 from typeguard import typechecked
@@ -12,7 +12,7 @@ from mobrl.algo.rl.value_func.mlp_v_value import MLPVValueFunc
 from mobrl.tf.util import *
 from mobrl.common.misc import *
 from mobrl.algo.rl.misc.sample_processor import SampleProcessor
-from mobrl.common.util.recorder import record_return_decorator
+from mobrl.common.util.logging import record_return_decorator
 from mobrl.core.status import register_counter_info_to_status_decorator
 from mobrl.algo.placeholder_input import MultiPlaceholderInput
 
@@ -75,6 +75,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                                                ),
                                                to_ph_parameter_dict=to_ph_parameter_dict,
                                                name='ppo_param',
+                                               save_rest_param_flag=False,
                                                auto_init=False,
                                                source_config=config,
                                                require_snapshot=False)

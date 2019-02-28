@@ -13,7 +13,7 @@ from mobrl.tf.tf_parameters import TensorflowParameters
 from mobrl.config.global_config import GlobalConfig
 from mobrl.common.misc import *
 from mobrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
-from mobrl.common.util.recorder import record_return_decorator
+from mobrl.common.util.logging import record_return_decorator
 from mobrl.core.status import register_counter_info_to_status_decorator
 from mobrl.algo.placeholder_input import MultiPlaceholderInput
 

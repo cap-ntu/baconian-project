@@ -1,4 +1,4 @@
-from mobrl.common.util.recorder import Recorder
+from mobrl.common.util.logging import Recorder
 
 
 class Tuner(object):

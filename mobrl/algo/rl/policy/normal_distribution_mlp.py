@@ -1,6 +1,6 @@
 from mobrl.algo.rl.policy.policy import StochasticPolicy
 from typeguard import typechecked
-from mobrl.envs.env_spec import EnvSpec
+from mobrl.core.core import EnvSpec
 import overrides
 import numpy as np
 import tensorflow as tf

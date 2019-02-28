@@ -3,6 +3,8 @@ import os
 import tensorflow as tf
 from tensorflow.contrib.layers import variance_scaling_initializer as contrib_W_init
 from typeguard import typechecked
+import collections
+import multiprocessing
 
 __all__ = ['get_tf_collection_var_list', 'MLPCreator']
 
@@ -12,14 +14,42 @@ def get_tf_collection_var_list(scope, key=tf.GraphKeys.GLOBAL_VARIABLES):
     return sorted(list(set(var_list)), key=lambda x: x.name)
 
 
-def create_new_tf_session(cuda_device: int):
-    os.environ["CUDA_VISIBLE_DEVICES"] = str(cuda_device)
-    tf_config = tf.ConfigProto()
-    tf_config.gpu_options.allow_growth = True
-    sess = tf.Session(config=tf_config)
+# def create_new_tf_session(cuda_device: int):
+#     os.environ["CUDA_VISIBLE_DEVICES"] = str(cuda_device)
+#     tf_config = tf.ConfigProto()
+#     tf_config.gpu_options.allow_growth = True
+#     sess = tf.Session(config=tf_config)
+#     sess.__enter__()
+#     assert tf.get_default_session()
+#     return sess
+
+
+def create_new_tf_session(cuda_device: int, **kwargs):
+    """Get default session or create one with a given config"""
+    sess = tf.get_default_session()
+    if sess is None:
+        sess = make_session(cuda_device=cuda_device, **kwargs)
     sess.__enter__()
     assert tf.get_default_session()
     return sess
+
+
+def make_session(cuda_device: int, config=None, num_cpu=None, make_default=False, graph=None):
+    """Returns a session that will use <num_cpu> CPU's only"""
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(cuda_device)
+    if num_cpu is None:
+        num_cpu = int(os.getenv('RCALL_NUM_CPU', multiprocessing.cpu_count()))
+    if config is None:
+        config = tf.ConfigProto(
+            allow_soft_placement=True,
+            inter_op_parallelism_threads=num_cpu,
+            intra_op_parallelism_threads=num_cpu)
+        config.gpu_options.allow_growth = True
+
+    if make_default:
+        return tf.InteractiveSession(config=config, graph=graph)
+    else:
+        return tf.Session(config=config, graph=graph)
 
 
 # class TensorInput(object):

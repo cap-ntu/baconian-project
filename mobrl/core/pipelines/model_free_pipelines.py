@@ -1,12 +1,14 @@
 from mobrl.config.global_config import GlobalConfig
 from mobrl.config.dict_config import DictConfig
 from mobrl.core.pipeline import Pipeline
-from mobrl.envs.env import Env
+from mobrl.core.core import Env
 import abc
 from mobrl.agent.agent import Agent
 import numpy as np
 from mobrl.common.misc import *
-from mobrl.common.util.logger import ConsoleLogger
+from mobrl.common.util.logging import ConsoleLogger
+# from mobrl.core.global_var import get_global_experiment_status
+from mobrl.core.status import StatusCollector
 
 
 class ModelFreePipeline(Pipeline):
@@ -35,6 +37,9 @@ class ModelFreePipeline(Pipeline):
                                                   'state_not_inited'],
                                                  'state_ended',
                                                  conditions='_is_flow_ended')
+        self.status_collector = StatusCollector()
+        self.status_collector.register_info_key_status(obj=agent, under_status='TRAIN', info_key='update_counter')
+        self.status_collector.register_info_key_status(obj=agent, under_status='TRAIN', info_key='sample_counter')
 
     def launch(self):
         assert self.is_state_not_inited()

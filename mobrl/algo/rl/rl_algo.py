@@ -1,6 +1,6 @@
 from mobrl.algo.algo import Algo
 from mobrl.algo.rl.model_based.models.dynamics_model import DynamicsModel
-from mobrl.envs.env_spec import EnvSpec
+from mobrl.core.core import EnvSpec
 
 
 class ModelFreeAlgo(Algo):

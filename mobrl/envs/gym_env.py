@@ -1,11 +1,10 @@
-from mobrl.envs.env import Env
+from mobrl.core.core import Env, EnvSpec
 import gym.envs
 from gym.envs.registration import registry
 from gym.envs.mujoco import mujoco_env
 import numpy as np
 from mobrl.common.spaces.base import Space
 import types
-from mobrl.envs.env_spec import EnvSpec
 from gym.spaces import *
 from gym.core import Space as GymSpace
 import mobrl.common.spaces as garage_space

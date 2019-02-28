@@ -7,10 +7,10 @@ For experiments, it's functionality should include:
 5. any related experiment utility
 ...
 """
-from mobrl.core.basic import Basic
+from mobrl.core.core import Basic
 from mobrl.core.status import StatusWithSingleInfo
 from mobrl.core.pipeline import Pipeline
-from mobrl.common.util.logger import Logger, ConsoleLogger
+from mobrl.common.util.logging import Logger, ConsoleLogger
 from mobrl.config.global_config import GlobalConfig
 from mobrl.core.tuner import Tuner
 from typeguard import typechecked

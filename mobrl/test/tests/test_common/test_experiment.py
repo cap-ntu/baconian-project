@@ -1,6 +1,6 @@
 from mobrl.algo.rl.model_free.dqn import DQN
 from mobrl.envs.gym_env import make
-from mobrl.envs.env_spec import EnvSpec
+from mobrl.core.core import EnvSpec
 from mobrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
 from mobrl.test.tests.set_up.setup import TestTensorflowSetup
 from mobrl.core.util import get_global_arg_dict, copy_globally
