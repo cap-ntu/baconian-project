@@ -24,6 +24,11 @@ import os
 from typeguard import typechecked
 import time
 from mobrl.tf.util import create_new_tf_session
+from mobrl.core.core import Env
+import abc
+from mobrl.agent.agent import Agent
+from mobrl.common.util.logging import Recorder
+from mobrl.core.status import StatusCollector, StatusWithSingleInfo
 
 
 class Experiment(Basic):
@@ -35,14 +40,19 @@ class Experiment(Basic):
     @typechecked
     def __init__(self,
                  name: str,
-                 pipeline: Pipeline,
+                 agent: Agent,
+                 env: Env,
                  config_or_config_dict: (DictConfig, dict),
                  tuner: Tuner = None,
                  ):
         super().__init__(status=StatusWithSingleInfo(obj=self), name=name)
         self.config = construct_dict_config(config_or_config_dict, self)
-        self.pipeline = pipeline
+        self.agent = agent
+        self.env = env
         self.tuner = tuner
+        self.recorder = Recorder(flush_by_split_status=False)
+        self.status_collector = StatusCollector()
+
         self._logger_kwargs = dict(config_or_config_dict=dict(),
                                    log_path=self.config('log_path'),
                                    log_level=self.config('log_level'))
@@ -52,21 +62,33 @@ class Experiment(Basic):
             level=self.config('log_level'),
             logger_name='console_logger'
         )
+        self.status_collector.register_info_key_status(obj=agent, info_key='predict_counter',
+                                                       under_status='TRAIN',
+                                                       return_name='TOTAL_AGENT_TRAIN_SAMPLE_COUNT')
+        self.status_collector.register_info_key_status(obj=agent, info_key='predict_counter',
+                                                       under_status='TEST',
+                                                       return_name='TOTAL_AGENT_TEST_SAMPLE_COUNT')
+        self.status_collector.register_info_key_status(obj=agent,
+                                                       info_key='update_counter',
+                                                       under_status='TRAIN',
+                                                       return_name='TOTAL_AGENT_UPDATE_COUNT')
 
     def init(self):
+        self.agent.init()
+        self.env.init()
         Logger().init(**self._logger_kwargs)
         ConsoleLogger().init(**self._console_logger_kwargs)
-        create_new_tf_session(cuda_device=0)
         self.set_status(val='INITED')
 
-    @property
-    def name(self):
-        return self._name
+    def train(self):
+        self.agent.train()
+
+    def test(self):
+        self.agent.test()
 
     def run(self):
         self.init()
         self.set_status('RUNNING')
-        self.pipeline.launch()
         self.set_status('FINISHED')
         self._exit()
 
@@ -78,11 +100,23 @@ class Experiment(Basic):
         Logger().flush_recorder()
         ConsoleLogger().close()
         Logger().close()
-
         sess = tf.get_default_session()
         if sess:
             sess.__exit__(None, None, None)
         tf.reset_default_graph()
+
+    def _is_ended(self):
+        res = self.status_collector()
+        for key in GlobalConfig.DEFAULT_EXPERIMENT_END_POINT:
+            if key in res and GlobalConfig.DEFAULT_EXPERIMENT_END_POINT[key] and res[key] >= \
+                    GlobalConfig.DEFAULT_EXPERIMENT_END_POINT[key]:
+                ConsoleLogger().print('info',
+                                      'pipeline ended because {}: {} >= end point value {}'.format(key, res[key],
+                                                                                                   GlobalConfig.DEFAULT_EXPERIMENT_END_POINT[
+                                                                                                       key]))
+                return True
+
+        return False
 
 
 def _reset_global_seed(seed):
