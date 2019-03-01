@@ -115,6 +115,10 @@ class SampleData(object):
     def done_set(self):
         return self('done_set')
 
+    def get_mean_of(self, set_name):
+        return make_batch(np.array(self._internal_data_dict[set_name][0]),
+                          original_shape=self._internal_data_dict[set_name][1]).mean()
+
 
 class TransitionData(SampleData):
     def __init__(self, env_spec=None, obs_shape=None, action_shape=None):
@@ -157,10 +161,14 @@ class TrajectoryData(SampleData):
         assert isinstance(sample_data, typechecked(self))
         self.trajectories += sample_data.trajectories
 
-    def return_as_transition_data(self, shuffle_flag=False):
+    def return_as_transition_data(self, shuffle_flag=False) -> TransitionData:
         if shuffle_flag:
             raise NotImplementedError
         transition_set = self.trajectories[0].get_copy()
         for i in range(1, len(self.trajectories)):
             transition_set.union(self.trajectories[i].get_copy())
         return transition_set
+
+    def get_mean_of(self, set_name):
+        tran = self.return_as_transition_data()
+        return tran.get_mean_of(set_name)

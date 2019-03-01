@@ -1,6 +1,6 @@
 from mobrl.algo.rl.policy.policy import DeterministicPolicy
 from mobrl.core.parameters import Parameters
-from mobrl.envs.env_spec import EnvSpec
+from mobrl.core.core import EnvSpec
 from mobrl.algo.rl.model_based.models.dynamics_model import DynamicsModel, DerivableDynamics
 from typeguard import typechecked
 

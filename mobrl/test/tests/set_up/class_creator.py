@@ -2,16 +2,9 @@ import numpy as np
 import unittest
 import tensorflow as tf
 from mobrl.algo.rl.model_based.models.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
-from mobrl.envs.gym_env import make
 from mobrl.algo.placeholder_input import PlaceholderInput
 from mobrl.algo.rl.model_free.dqn import DQN
-from mobrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
-from mobrl.common.util.logging import Logger, ConsoleLogger
-from mobrl.config.dict_config import DictConfig
-from mobrl.config.global_config import GlobalConfig
-from mobrl.core.global_var import reset_all, get_all
 from mobrl.tf.tf_parameters import TensorflowParameters
-from mobrl.tf.util import create_new_tf_session
 from mobrl.core.core import Basic, EnvSpec
 from mobrl.envs.gym_env import make
 from mobrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
@@ -25,6 +18,10 @@ from mobrl.algo.rl.model_based.mpc import ModelPredictiveControl
 from mobrl.algo.rl.model_based.misc.terminal_func.terminal_func import RandomTerminalFunc
 from mobrl.algo.rl.model_based.misc.reward_func.reward_func import RandomRewardFunc
 from mobrl.algo.rl.policy.random_policy import UniformRandomPolicy
+from mobrl.agent.agent import Agent
+from mobrl.algo.rl.misc.exploration_strategy.epsilon_greedy import EpsilonGreedy
+from mobrl.core.pipelines.model_free_pipelines import ModelFreePipeline
+from mobrl.core.experiment import Experiment
 
 
 class Foo(Basic):
@@ -323,3 +320,36 @@ class ClassCreatorSetup(unittest.TestCase):
             policy=UniformRandomPolicy(env_spec=env_spec, name='unp')
         )
         return algo, locals()
+
+    def create_eps(self, env_spec):
+        return EpsilonGreedy(action_space=env_spec.action_space,
+                             init_random_prob=0.5,
+                             decay_type=None), locals()
+
+    def create_agent(self, algo, env, env_spec, eps=None):
+        agent = Agent(env=env, env_spec=env_spec,
+                      algo=algo,
+                      name='agent',
+                      exploration_strategy=eps)
+        return agent, locals()
+
+    def create_model_free_pipeline(self, env, agent):
+        model_free = ModelFreePipeline(agent=agent, env=env,
+                                       config_or_config_dict=dict(TEST_SAMPLES_COUNT=100,
+                                                                  TRAIN_SAMPLES_COUNT=100,
+                                                                  TOTAL_SAMPLES_COUNT=1000))
+        return model_free, locals()
+
+    def create_exp(self, pipeline, name):
+        experiment = Experiment(
+            pipeline=pipeline,
+            tuner=None,
+            config_or_config_dict={
+                "console_logger_to_file_flag": True,
+                "console_logger_to_file_name": "console_test.log",
+                "log_path": "/home/dls/CAP/mobrl/mobrl/test/tests/tmp_path",
+                "log_level": "DEBUG"
+            },
+            name=name + 'experiment_debug'
+        )
+        return experiment

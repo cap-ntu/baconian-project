@@ -50,11 +50,9 @@ class DefaultGlobalConfig(object):
     DEFAULT_LOGGING_FORMAT = '%(levelname)s:%(asctime)-15s: %(message)s'
     DEFAULT_WRITE_CONSOLE_LOG_TO_FILE_FLAG = True,
     DEFAULT_CONSOLE_LOG_FILE_NAME = 'console.log'
-    # todo how to define
-    DEFAULT_EXPERIMENT_END_POINT = dict(TOTAL_SAMPLE_TRANSITION_COUNT=1000,
-                                        TOTAL_SAMPLE_TRAJECTORY_COUNT=None,
-                                        TOTAL_AGENT_TRAIN_COUNT=None,
-                                        TOTAL_AGENT_TEST_COUNT=None)
+    DEFAULT_EXPERIMENT_END_POINT = dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=1000,
+                                        TOTAL_AGENT_TEST_SAMPLE_COUNT=None,
+                                        TOTAL_AGENT_UPDATE_COUNT=None)
 
     # For internal use
     SAMPLE_TYPE_SAMPLE_TRANSITION_DATA = 'transition_data'

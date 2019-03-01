@@ -50,6 +50,16 @@ class ModelBasedPipeline(Pipeline):
                                                   'state_not_inited'],
                                                  'state_ended',
                                                  conditions='_is_flow_ended')
+        self.status_collector.register_info_key_status(obj=agent, info_key='predict_counter',
+                                                       under_status='TRAIN',
+                                                       return_name='TOTAL_AGENT_TRAIN_SAMPLE_COUNT')
+        self.status_collector.register_info_key_status(obj=agent, info_key='predict_counter',
+                                                       under_status='TEST',
+                                                       return_name='TOTAL_AGENT_TEST_SAMPLE_COUNT')
+        self.status_collector.register_info_key_status(obj=agent,
+                                                       info_key='update_counter',
+                                                       under_status='TRAIN',
+                                                       return_name='TOTAL_AGENT_UPDATE_COUNT')
 
     def launch(self):
         assert self.is_state_not_inited()

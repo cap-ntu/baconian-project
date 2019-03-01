@@ -76,7 +76,7 @@ ilqr = ILqr(lambda x, u: env._state_eq(x, u),  # x(i+1) = f(x(i), u)
             env.max_force,
             env.observation_space.shape[0])
 u_seq = [np.zeros(1) for _ in range(ilqr.pred_time)]
-x_seq = [obs.copy()]
+x_seq = [obs.copy_from()]
 for t in range(ilqr.pred_time):
     x_seq.append(env._state_eq(x_seq[-1], u_seq[t]))
 
@@ -91,5 +91,5 @@ while True:
 
     print(u_seq.T)
     obs, _, _, _ = env.step(u_seq[0])
-    x_seq[0] = obs.copy()
+    x_seq[0] = obs.copy_from()
     cnt += 1

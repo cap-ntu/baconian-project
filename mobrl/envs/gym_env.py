@@ -9,6 +9,7 @@ from gym.spaces import *
 from gym.core import Space as GymSpace
 import mobrl.common.spaces as garage_space
 from typeguard import typechecked
+from mobrl.core.status import register_counter_info_to_status_decorator
 
 _env_inited_count = dict()
 
@@ -64,6 +65,7 @@ class GymEnv(Env):
 
         self.reward_range = self._gym_env.reward_range
 
+    @register_counter_info_to_status_decorator(increment=1, info_key='step')
     def step(self, action):
         super().step(action)
         return self.unwrapped.step(action=action)

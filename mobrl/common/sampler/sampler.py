@@ -19,8 +19,8 @@ class Sampler(Basic):
                in_test_flag: bool,
                sample_count: int,
                sample_type='transition',
-
                reset_at_start=False) -> (TransitionData, TrajectoryData):
+        self.set_status(val='TEST' if in_test_flag else 'TRAIN')
         if reset_at_start is True:
             state = env.reset()
         else:

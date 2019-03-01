@@ -40,6 +40,8 @@ class Agent(Basic):
     #     assert isinstance(new_value, int) and new_value >= 0
     #     self._env_step_count = new_value
 
+    @register_counter_info_to_status_decorator(increment=1, info_key='predict_counter', under_status=('TRAIN', 'TEST'),
+                                               ignore_wrong_status=True)
     def predict(self, in_test_flag, **kwargs):
         if in_test_flag:
             self.set_status('TEST')
@@ -50,7 +52,8 @@ class Agent(Basic):
         else:
             return self.algo.predict(**kwargs)
 
-    @register_counter_info_to_status_decorator(increment=1, info_key='sample_counter', under_status='TRAIN')
+    @register_counter_info_to_status_decorator(increment=1, info_key='sample_counter', under_status=('TRAIN', 'TEST'),
+                                               ignore_wrong_status=True)
     def sample(self, env, sample_count: int, in_test_flag: bool, store_flag=False):
         if in_test_flag:
             self.set_status('TEST')

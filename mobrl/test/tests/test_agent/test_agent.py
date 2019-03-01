@@ -1,58 +1,15 @@
 from mobrl.test.tests.set_up.setup import TestTensorflowSetup
 
-from mobrl.algo.rl.model_free.dqn import DQN
-from mobrl.envs.gym_env import make
-from mobrl.core.core import EnvSpec
-from mobrl.algo.rl.value_func.mlp_q_value import MLPQValueFunction
-from mobrl.agent.agent import Agent
-from mobrl.algo.rl.misc.exploration_strategy.epsilon_greedy import EpsilonGreedy
-
 
 class TestAgent(TestTensorflowSetup):
     def test_agent(self):
-        env = make('Acrobot-v1')
-        env_spec = EnvSpec(obs_space=env.observation_space,
-                           action_space=env.action_space)
+        algo, local = self.create_dqn()
+        env = local['env']
+        env_spec = local['env_spec']
+        agent, _ = self.create_agent(algo=algo, env=env,
+                                     env_spec=env_spec,
+                                     eps=self.create_eps(env_spec=env_spec)[0])
 
-        mlp_q = MLPQValueFunction(env_spec=env_spec,
-                                  name='mlp_q',
-                                  name_scope='mlp_q',
-                                  output_low=None,
-                                  output_high=None,
-                                  mlp_config=[
-                                      {
-                                          "ACT": "RELU",
-                                          "B_INIT_VALUE": 0.0,
-                                          "NAME": "1",
-                                          "N_UNITS": 16,
-                                          "TYPE": "DENSE",
-                                          "W_NORMAL_STDDEV": 0.03
-                                      },
-                                      {
-                                          "ACT": "LINEAR",
-                                          "B_INIT_VALUE": 0.0,
-                                          "NAME": "OUPTUT",
-                                          "N_UNITS": 1,
-                                          "TYPE": "DENSE",
-                                          "W_NORMAL_STDDEV": 0.03
-                                      }
-                                  ])
-        dqn = DQN(env_spec=env_spec,
-                  config_or_config_dict=dict(REPLAY_BUFFER_SIZE=1000,
-                                             GAMMA=0.99,
-                                             BATCH_SIZE=10,
-                                             Q_NET_L1_NORM_SCALE=0.001,
-                                             Q_NET_L2_NORM_SCALE=0.001,
-                                             LEARNING_RATE=0.001,
-                                             TRAIN_ITERATION=10,
-                                             DECAY=0.5),
-                  value_func=mlp_q)
-        agent = Agent(env=env, env_spec=env_spec,
-                      algo=dqn,
-                      name='agent',
-                      exploration_strategy=EpsilonGreedy(action_space=dqn.env_spec.action_space,
-                                                         init_random_prob=0.5,
-                                                         decay_type=None))
         agent.init()
         env.reset()
         data = agent.sample(env=env, sample_count=10, store_flag=True, in_test_flag=False)

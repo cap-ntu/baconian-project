@@ -166,29 +166,44 @@ class StatusWithSubInfo(StatusWithInfo):
 class StatusCollector(object):
 
     def __init__(self):
-        self._register_status_dict = {}
+        self._register_status_dict = []
 
     def __call__(self, *args, **kwargs):
         stat_dict = dict()
-        for obj, val in self._register_status_dict.items():
-            assert hasattr(obj, 'status')
-            assert isinstance(getattr(obj, 'status'), StatusWithInfo)
-            assert getattr(obj, 'status').has_info(info_key=val['info_key'], under_status=val['under_status'])
+        for val in self._register_status_dict:
+            obj = val['obj']
+            assert hasattr(obj, '_status')
+            assert isinstance(getattr(obj, '_status'), StatusWithInfo)
+            assert getattr(obj, '_status').has_info(info_key=val['info_key'], under_status=val['under_status'])
 
-            res = obj.status.get_specific_key_status(under_status=val['under_status'],
-                                                     key=val['info_key'])
-            stat_dict['{}_{}_{}'.format(obj.name, val['under_status'], val['info_key'])] = deepcopy(res)
+            res = obj._status.get_specific_info_key_status(under_status=val['under_status'],
+                                                           info_key=val['info_key'])
+            stat_dict[val['return_name']] = deepcopy(res)
         return stat_dict
 
     def get_status(self) -> dict:
         return self()
 
-    def register_info_key_status(self, obj, info_key: str, under_status=None):
-        self._register_status_dict[obj] = dict(obj=obj, status_key=info_key, under_status=under_status)
+    def register_info_key_status(self, obj, info_key: str, return_name: str, under_status=None):
+        for val in self._register_status_dict:
+            assert return_name != val['return_name']
+        self._register_status_dict.append(
+            dict(obj=obj, info_key=info_key, under_status=under_status, return_name=return_name))
 
 
-def register_counter_info_to_status_decorator(increment, info_key, under_status=None):
+def register_counter_info_to_status_decorator(increment, info_key, under_status: (str, tuple) = None,
+                                              ignore_wrong_status=False):
     def wrap(fn):
+        if under_status:
+            assert isinstance(under_status, (str, tuple))
+            if isinstance(under_status, str):
+                final_st = tuple([under_status])
+            else:
+                final_st = under_status
+
+        else:
+            final_st = (None,)
+
         def wrap_with_self(self, *args, **kwargs):
             # todo call the fn first in order to get a correct status
             # todo a bug here, which is record() called in fn will lost the just appended info_key at the very first
@@ -200,15 +215,16 @@ def register_counter_info_to_status_decorator(increment, info_key, under_status=
 
             assert isinstance(getattr(obj, '_status'), StatusWithInfo)
             obj_status = getattr(obj, '_status')
-            # if isinstance(obj_status, StatusWithSubInfo):
-            #     assert under_status
-            if under_status:
-                assert under_status in obj.STATUS_LIST
-            obj_status.append_new_info(info_key=info_key, init_value=0, under_status=under_status)
+            for st in final_st:
+                obj_status.append_new_info(info_key=info_key, init_value=0, under_status=st)
             res = fn(self, *args, **kwargs)
-            if under_status:
-                assert under_status == obj.get_status()['status']
-            obj_status.update_info(info_key=info_key, increment=increment, under_status=under_status)
+            for st in final_st:
+                if st and st != obj.get_status()['status'] and not ignore_wrong_status:
+                    raise ValueError('register counter info under status: {} but got status {}'.format(st,
+                                                                                                       obj.get_status()[
+                                                                                                           'status']))
+            obj_status.update_info(info_key=info_key, increment=increment,
+                                   under_status=obj.get_status()['status'])
             return res
 
         return wrap_with_self

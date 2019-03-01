@@ -13,7 +13,6 @@ from mobrl.core.pipeline import Pipeline
 from mobrl.common.util.logging import Logger, ConsoleLogger
 from mobrl.config.global_config import GlobalConfig
 from mobrl.core.tuner import Tuner
-from typeguard import typechecked
 from mobrl.config.dict_config import DictConfig
 from mobrl.common.misc import *
 from mobrl.core.util import init_func_arg_record_decorator
@@ -57,7 +56,7 @@ class Experiment(Basic):
     def init(self):
         Logger().init(**self._logger_kwargs)
         ConsoleLogger().init(**self._console_logger_kwargs)
-        sess = create_new_tf_session(cuda_device=0)
+        create_new_tf_session(cuda_device=0)
         self.set_status(val='INITED')
 
     @property
@@ -75,6 +74,11 @@ class Experiment(Basic):
         pass
 
     def _exit(self):
+        ConsoleLogger().flush()
+        Logger().flush_recorder()
+        ConsoleLogger().close()
+        Logger().close()
+
         sess = tf.get_default_session()
         if sess:
             sess.__exit__(None, None, None)
