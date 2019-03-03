@@ -9,7 +9,7 @@ from baconian.core.core import Basic
 
 class PlaceholderInput(object):
     @tg.typechecked
-    def __init__(self, inputs: (tuple, tf.Tensor), parameters: TensorflowParameters):
+    def __init__(self, inputs: (tuple, tf.Tensor), parameters: TensorflowParameters = None):
         if isinstance(inputs, tuple):
             for input in inputs:
                 assert isinstance(input, tf.Tensor)

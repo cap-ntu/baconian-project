@@ -1,9 +1,15 @@
-from baconian.algo.rl.misc.exploration_strategy.base import ExplorationStrategy
 from baconian.common.spaces.base import Space
 from baconian.common.random import Random
 from typeguard import typechecked
 from baconian.core.parameters import Parameters
-from baconian.common.util.schedules import Schedule, ConstantSchedule
+
+
+class ExplorationStrategy(object):
+    def __init__(self):
+        self.parameters = None
+
+    def predict(self, **kwargs):
+        raise NotImplementedError
 
 
 class EpsilonGreedy(ExplorationStrategy):
@@ -18,7 +24,7 @@ class EpsilonGreedy(ExplorationStrategy):
         self.random_state = random_state
 
         self.parameters = Parameters(parameters=dict(init_random_prob=self.init_random_prob),
-                                    name='eps_greedy_params')
+                                     name='eps_greedy_params')
 
     def predict(self, **kwargs):
         if self.random_state.unwrapped().random() < self.parameters('init_random_prob'):
@@ -26,4 +32,3 @@ class EpsilonGreedy(ExplorationStrategy):
         else:
             algo = kwargs.pop('algo')
             return algo.predict(**kwargs)
-

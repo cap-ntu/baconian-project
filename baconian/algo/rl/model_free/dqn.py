@@ -32,9 +32,8 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
                  name: str = 'dqn',
                  replay_buffer=None):
         # todo add the action iterator
-        config = construct_dict_config(config_or_config_dict, self)
         ModelFreeAlgo.__init__(self, env_spec=env_spec, name=name)
-        self.config = config
+        self.config = construct_dict_config(config_or_config_dict, self)
 
         if replay_buffer:
             assert issubclass(replay_buffer, BaseReplayBuffer)
@@ -51,7 +50,7 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
                                                rest_parameters=dict(),
                                                to_scheduler_param_tuple=schedule_param_list,
                                                name='{}_param'.format(name),
-                                               source_config=config,
+                                               source_config=self.config,
                                                require_snapshot=False)
 
         with tf.variable_scope(name):

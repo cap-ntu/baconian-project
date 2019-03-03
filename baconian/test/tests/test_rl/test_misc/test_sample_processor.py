@@ -4,4 +4,5 @@ from baconian.algo.rl.misc.sample_processor import SampleProcessor
 
 class TestSampleProcessor(TestWithAll):
     def test_init(self):
-        ppo = self.create_ppo()
+        ppo = self.create_ppo()[0]
+        ppo.init()

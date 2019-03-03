@@ -1,7 +1,6 @@
 import numpy as np
 from typeguard import typechecked
 from baconian.common.sampler.sample_data import TransitionData, TrajectoryData, SampleData
-from copy import deepcopy
 
 
 class RingBuffer(object):

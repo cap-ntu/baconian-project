@@ -40,13 +40,13 @@ class TestPPO(TestWithAll):
         ppo.save(save_path=GlobalConfig.DEFAULT_LOG_PATH + '/ppo_test',
                  global_step=0,
                  name=ppo.name)
-        for i in range(20):
+        for i in range(1):
             print(ppo.train())
             traj_data = TrajectoryData(env_spec=env_spec)
             traj_data.append(data)
             print(
                 ppo.train(trajectory_data=traj_data,
-                          train_iter=10,
+                          train_iter=5,
                           sess=self.sess))
 
         self.assert_var_list_at_least_not_equal(ppo.value_func.parameters('tf_var_list'),

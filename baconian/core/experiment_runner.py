@@ -14,6 +14,9 @@ from copy import deepcopy
 
 
 def _reset_global_seed(seed):
+    sess = tf.get_default_session()
+    if sess:
+        sess.__exit__(None, None, None)
     tf.reset_default_graph()
     tf.set_random_seed(seed)
     np.random.seed(seed)

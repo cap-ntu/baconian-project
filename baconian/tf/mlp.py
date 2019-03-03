@@ -13,11 +13,12 @@ class MLP(object):
                  name_scope: str,
                  net_name: str,
                  reuse,
-                 input_norm: (list, np.ndarray, None),
-                 output_norm: (list, np.ndarray, None),
-                 output_low: (list, np.ndarray, None),
-                 output_high: (list, np.ndarray, None),
-                 mlp_config: list):
+                 mlp_config: list,
+                 input_norm: np.ndarray = None,
+                 output_norm: np.ndarray = None,
+                 output_low: np.ndarray = None,
+                 output_high: np.ndarray = None,
+                 ):
         self.input_ph = input_ph
         self.name_scope = name_scope
         self.mlp_config = mlp_config

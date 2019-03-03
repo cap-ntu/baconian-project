@@ -26,15 +26,12 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                  config_or_config_dict: (DictConfig, dict),
                  # todo bug on mlp value function and its placeholder which is crushed with the dqn placeholder
                  value_func: MLPVValueFunc,
-                 adaptive_learning_rate=False,
                  name='ppo'):
         ModelFreeAlgo.__init__(self, env_spec=env_spec, name=name)
 
-        config = construct_dict_config(config_or_config_dict, self)
-        self.config = config
+        self.config = construct_dict_config(config_or_config_dict, self)
         self.policy = stochastic_policy
         self.value_func = value_func
-        self.adaptive_learning_rate = adaptive_learning_rate
         to_ph_parameter_dict = dict()
         self.trajectory_memory = TrajectoryData(env_spec=env_spec)
         self.transition_data_for_trajectory = TransitionData(env_spec=env_spec)
@@ -59,11 +56,11 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                                                     name_scope='old_{}'.format(self.policy.name),
                                                     name='old_{}'.format(self.policy.name),
                                                     distribution_tensors_tuple=tuple(self.old_dist_tensor))
-            if adaptive_learning_rate is not False:
-                to_ph_parameter_dict['policy_lr'] = tf.placeholder(shape=(), dtype=tf.float32,
-                                                                   name='policy_lr')
-                to_ph_parameter_dict['value_func_lr'] = tf.placeholder(shape=(), dtype=tf.float32,
-                                                                       name='value_func_lr')
+            # if adaptive_learning_rate is not False:
+            #     to_ph_parameter_dict['policy_lr'] = tf.placeholder(shape=(), dtype=tf.float32,
+            #                                                        name='policy_lr')
+            #     to_ph_parameter_dict['value_func_lr'] = tf.placeholder(shape=(), dtype=tf.float32,
+            #                                                            name='value_func_lr')
             to_ph_parameter_dict['beta'] = tf.placeholder(tf.float32, (), 'beta')
             to_ph_parameter_dict['eta'] = tf.placeholder(tf.float32, (), 'eta')
             to_ph_parameter_dict['kl_target'] = tf.placeholder(tf.float32, (), 'kl_target')
@@ -76,7 +73,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                                                to_ph_parameter_dict=to_ph_parameter_dict,
                                                name='ppo_param',
                                                save_rest_param_flag=False,
-                                               source_config=config,
+                                               source_config=self.config,
                                                require_snapshot=False)
         with tf.variable_scope(name):
             with tf.variable_scope('train'):

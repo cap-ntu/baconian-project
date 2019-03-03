@@ -1,9 +1,7 @@
 import typeguard as tg
 from baconian.core.core import EnvSpec
 import overrides
-import numpy as np
 import tensorflow as tf
-from typeguard import typechecked
 from baconian.tf.tf_parameters import TensorflowParameters
 from baconian.tf.mlp import MLP
 from baconian.common.special import *
@@ -34,45 +32,48 @@ class MLPQValueFunction(ValueFunction, PlaceholderInput):
                  output_low: np.ndarray = None,
                  output_high: np.ndarray = None,
                  ):
-        # todo have to set name first because of tf parameters late initialization
-        self._name = name
-        with tf.name_scope(self.name):
-            self.state_input = state_input if state_input is not None else tf.placeholder(
+        with tf.name_scope(name):
+            state_input = state_input if state_input is not None else tf.placeholder(
                 shape=[None, env_spec.flat_obs_dim],
                 dtype=tf.float32,
                 name='state_ph')
-            self.action_input = action_input if action_input is not None else tf.placeholder(
+            action_input = action_input if action_input is not None else tf.placeholder(
                 shape=[None, env_spec.flat_action_dim],
                 dtype=tf.float32,
                 name='action_ph')
+        with tf.variable_scope(name_scope):
+            mlp_input_ph = tf.concat([state_input, action_input], axis=1, name='state_action_input')
+
+        mlp_net = MLP(input_ph=mlp_input_ph,
+                      reuse=reuse,
+                      mlp_config=mlp_config,
+                      input_norm=input_norm,
+                      output_norm=output_norm,
+                      output_high=output_high,
+                      output_low=output_low,
+                      name_scope=name_scope,
+                      net_name='mlp')
+        parameters = TensorflowParameters(tf_var_list=mlp_net.var_list,
+                                          rest_parameters=dict(),
+                                          default_save_type='tf',
+                                          name='{}_tf_param'.format(name))
+        ValueFunction.__init__(self,
+                               env_spec=env_spec,
+                               name=name,
+                               parameters=None)
+        PlaceholderInput.__init__(self, parameters=parameters, inputs=mlp_input_ph)
+
         self.mlp_config = mlp_config
         self.input_norm = input_norm
         self.output_norm = output_norm
         self.output_low = output_low
         self.output_high = output_high
         self.name_scope = name_scope
-        with tf.variable_scope(self.name_scope):
-            self.mlp_input_ph = tf.concat([self.state_input, self.action_input], axis=1, name='state_action_input')
-
-        self.mlp_net = MLP(input_ph=self.mlp_input_ph,
-                           reuse=reuse,
-                           mlp_config=mlp_config,
-                           input_norm=input_norm,
-                           output_norm=output_norm,
-                           output_high=output_high,
-                           output_low=output_low,
-                           name_scope=self.name_scope,
-                           net_name='mlp')
+        self.state_input = state_input
+        self.action_input = action_input
+        self.mlp_input_ph = mlp_input_ph
+        self.mlp_net = mlp_net
         self.q_tensor = self.mlp_net.output
-        parameters = TensorflowParameters(tf_var_list=self.mlp_net.var_list,
-                                          rest_parameters=dict(),
-                                          default_save_type='tf',
-                                          name='{}_tf_param'.format(self.name))
-        ValueFunction.__init__(self,
-                               env_spec=env_spec,
-                               name=name,
-                               parameters=parameters)
-        PlaceholderInput.__init__(self, parameters=parameters, inputs=self.mlp_input_ph)
 
     @overrides.overrides
     def copy_from(self, obj: PlaceholderInput) -> bool:
@@ -85,7 +86,7 @@ class MLPQValueFunction(ValueFunction, PlaceholderInput):
                 **kwargs):
         sess = sess if sess else tf.get_default_session()
         obs = make_batch(obs, original_shape=self.env_spec.obs_shape)
-        action = make_batch(action, original_shape=self.env_spec.action_shape)
+        action = make_batch(action, original_shape=[self.env_spec.flat_action_dim])
         feed_dict = {
             self.state_input: obs,
             self.action_input: action,

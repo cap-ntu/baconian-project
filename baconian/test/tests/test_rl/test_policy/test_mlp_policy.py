@@ -6,37 +6,8 @@ from baconian.test.tests.set_up.setup import TestTensorflowSetup
 
 class TestDeterministicMLPPolicy(TestTensorflowSetup):
     def test_mlp_deterministic_policy(self):
-        env = make('Swimmer-v1')
-        env.reset()
-        env_spec = EnvSpec(obs_space=env.observation_space,
-                           action_space=env.action_space)
-
-        policy = DeterministicMLPPolicy(env_spec=env_spec,
-                                        name='mlp_policy',
-                                        name_scope='mlp_policy',
-                                        mlp_config=[
-                                            {
-                                                "ACT": "RELU",
-                                                "B_INIT_VALUE": 0.0,
-                                                "NAME": "1",
-                                                "N_UNITS": 16,
-                                                "TYPE": "DENSE",
-                                                "W_NORMAL_STDDEV": 0.03
-                                            },
-                                            {
-                                                "ACT": "LINEAR",
-                                                "B_INIT_VALUE": 0.0,
-                                                "NAME": "OUPTUT",
-                                                "N_UNITS": env_spec.flat_action_dim,
-                                                "TYPE": "DENSE",
-                                                "W_NORMAL_STDDEV": 0.03
-                                            }
-                                        ],
-                                        output_high=None,
-                                        output_low=None,
-                                        output_norm=None,
-                                        input_norm=None,
-                                        reuse=False)
+        policy, locals = self.create_mlp_deterministic_policy(name='mlp_policy')
+        env = locals['env']
         policy.init()
         for _ in range(10):
             ac = policy.forward(obs=env.observation_space.sample())

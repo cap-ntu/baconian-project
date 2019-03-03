@@ -6,6 +6,7 @@ from baconian.core.core import EnvSpec
 
 class LinearGlobalDynamicsModel(DynamicsModel):
     def __init__(self, env_spec: EnvSpec, parameters: Parameters = None, init_state=None):
+        raise NotImplementedError
         super().__init__(env_spec, parameters, init_state)
 
     def init(self):

@@ -71,7 +71,7 @@ class ModelBasedPipeline(Pipeline):
                 self.trigger('train agent')
                 self.trigger('test agent')
                 self.trigger('end')
-        except GlobalConfig.DEFAULT_CATCHED_EXCEPTION_OR_ERROR_LIST as e:
+        except GlobalConfig.DEFAULT_ALLOWED_EXCEPTION_OR_ERROR_LIST as e:
             self.to_state_corrupted()
 
     def on_enter_state_inited(self):

@@ -34,8 +34,8 @@ class TestDQN(TestWithAll):
                  name=dqn.name)
 
         for i in range(20):
-            print(dqn.train(batch_data=a, train_iter=10, sess=None, update_target=True))
-            # print(dqn.train(batch_data=None, train_iter=10, sess=None, update_target=True))
+            # print(dqn.train(batch_data=a, train_iter=10, sess=None, update_target=True))
+            print(dqn.train(batch_data=None, train_iter=10, sess=None, update_target=True))
 
         self.assert_var_list_at_least_not_equal(dqn.q_value_func.parameters('tf_var_list'),
                                                 new_dqn.q_value_func.parameters('tf_var_list'))

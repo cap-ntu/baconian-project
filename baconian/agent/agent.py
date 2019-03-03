@@ -3,7 +3,7 @@ from baconian.common.sampler.sampler import Sampler
 from baconian.config.global_config import GlobalConfig
 from baconian.algo.algo import Algo
 from typeguard import typechecked
-from baconian.algo.rl.misc.exploration_strategy.base import ExplorationStrategy
+from baconian.algo.rl.misc.epsilon_greedy import ExplorationStrategy
 from baconian.common.sampler.sample_data import SampleData
 from baconian.common.util.logging import Recorder, record_return_decorator
 from baconian.core.status import StatusWithSingleInfo, StatusWithSubInfo

@@ -17,6 +17,7 @@ class TensorflowParameters(Parameters):
                  source_config=None,
                  to_scheduler_param_tuple: list = None,
                  save_rest_param_flag=False,
+                 to_ph_parameter_dict: dict = None,
                  require_snapshot=False):
         super(TensorflowParameters, self).__init__(parameters=rest_parameters,
                                                    name=name,
@@ -34,6 +35,9 @@ class TensorflowParameters(Parameters):
         if default_save_type != 'tf':
             raise NotImplementedError('only support saving tf')
         self._registered_tf_ph_dict = dict()
+        if to_ph_parameter_dict:
+            for key, val in to_ph_parameter_dict.items():
+                self.to_tf_ph(key=key, ph=val)
 
     @overrides
     def init(self):

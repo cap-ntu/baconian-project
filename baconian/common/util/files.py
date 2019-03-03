@@ -12,7 +12,7 @@ def create_path(path, del_if_existed=True):
             shutil.rmtree(path)
         except FileNotFoundError:
             pass
-    os.mkdir(path)
+    os.makedirs(path)
 
 
 def load_json(file_path) -> (dict, list):

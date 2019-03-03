@@ -19,7 +19,7 @@ from baconian.algo.rl.model_based.misc.terminal_func.terminal_func import Random
 from baconian.algo.rl.model_based.misc.reward_func.reward_func import RandomRewardFunc
 from baconian.algo.rl.policy.random_policy import UniformRandomPolicy
 from baconian.agent.agent import Agent
-from baconian.algo.rl.misc.exploration_strategy.epsilon_greedy import EpsilonGreedy
+from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
 from baconian.core.pipelines.model_free_pipelines import ModelFreePipeline
 from baconian.core.experiment import Experiment
 from baconian.core.pipelines.train_test_flow import TrainTestFlow
@@ -50,14 +50,14 @@ class ClassCreatorSetup(unittest.TestCase):
                                      to_ph_parameter_dict=dict(var1=tf.placeholder(shape=(), dtype=tf.int32)))
         return param, locals()
 
-    def create_dqn(self, env_id='Acrobot-v1', name='dqn'):
+    def create_mlp_q_func(self, env_id='Acrobot-v1', name='mlp_q'):
         env = make(env_id)
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
 
         mlp_q = MLPQValueFunction(env_spec=env_spec,
-                                  name_scope=name + 'mlp_q',
-                                  name=name + 'mlp_q',
+                                  name_scope=name,
+                                  name=name,
                                   mlp_config=[
                                       {
                                           "ACT": "RELU",
@@ -76,6 +76,12 @@ class ClassCreatorSetup(unittest.TestCase):
                                           "W_NORMAL_STDDEV": 0.03
                                       }
                                   ])
+        return mlp_q, locals()
+
+    def create_dqn(self, env_id='Acrobot-v1', name='dqn'):
+        mlp_q, local = self.create_mlp_q_func(env_id, name)
+        env_spec = local['env_spec']
+        env = local['env']
         dqn = DQN(env_spec=env_spec,
                   config_or_config_dict=dict(REPLAY_BUFFER_SIZE=1000,
                                              GAMMA=0.99,
@@ -181,7 +187,7 @@ class ClassCreatorSetup(unittest.TestCase):
         )
         return ddpg, locals()
 
-    def create_ppo(self, env_id='Swimmer-v1', name='ppo'):
+    def create_mlp_v(self, env_id='Swimmer-v1', name='mlp_v'):
         env = make(env_id)
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
@@ -207,6 +213,9 @@ class ClassCreatorSetup(unittest.TestCase):
                                       "W_NORMAL_STDDEV": 0.03
                                   }
                               ])
+        return mlp_v, locals()
+
+    def create_normal_dist_mlp_policy(self, env_spec, name):
         policy = NormalDistributionMLPPolicy(env_spec=env_spec,
                                              name_scope=name + 'mlp_policy',
                                              name=name + 'mlp_policy',
@@ -229,6 +238,13 @@ class ClassCreatorSetup(unittest.TestCase):
                                                  }
                                              ],
                                              reuse=False)
+        return policy, locals()
+
+    def create_ppo(self, env_id='Swimmer-v1', name='ppo'):
+        mlp_v, local = self.create_mlp_v(env_id, name)
+        env_spec = local['env_spec']
+        env = local['env']
+        policy = self.create_normal_dist_mlp_policy(env_spec=env_spec, name=name)[0]
         ppo = PPO(
             env_spec=env_spec,
             config_or_config_dict={
@@ -247,8 +263,7 @@ class ClassCreatorSetup(unittest.TestCase):
             },
             value_func=mlp_v,
             stochastic_policy=policy,
-            adaptive_learning_rate=True,
-            name=name + 'ppo',
+            name=name
         )
         return ppo, locals()
 
@@ -399,3 +414,37 @@ class ClassCreatorSetup(unittest.TestCase):
                 }
             ])
         return mlp_dyna, locals()
+
+    def create_mlp_deterministic_policy(self, name='mlp_policy', env_id='Swimmer-v1'):
+        env = make('Swimmer-v1')
+        env.reset()
+        env_spec = EnvSpec(obs_space=env.observation_space,
+                           action_space=env.action_space)
+
+        policy = DeterministicMLPPolicy(env_spec=env_spec,
+                                        name=name,
+                                        name_scope=name,
+                                        mlp_config=[
+                                            {
+                                                "ACT": "RELU",
+                                                "B_INIT_VALUE": 0.0,
+                                                "NAME": "1",
+                                                "N_UNITS": 16,
+                                                "TYPE": "DENSE",
+                                                "W_NORMAL_STDDEV": 0.03
+                                            },
+                                            {
+                                                "ACT": "LINEAR",
+                                                "B_INIT_VALUE": 0.0,
+                                                "NAME": "OUPTUT",
+                                                "N_UNITS": env_spec.flat_action_dim,
+                                                "TYPE": "DENSE",
+                                                "W_NORMAL_STDDEV": 0.03
+                                            }
+                                        ],
+                                        output_high=None,
+                                        output_low=None,
+                                        output_norm=None,
+                                        input_norm=None,
+                                        reuse=False)
+        return policy, locals()

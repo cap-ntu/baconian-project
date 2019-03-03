@@ -7,6 +7,7 @@ time throughout the execution of the algorithm, such as:
 Each schedule has a function `value(t)` which returns the current value
 of the parameter given the timestep t of the optimization procedure.
 """
+from typeguard import typechecked
 
 
 class Schedule(object):
@@ -84,7 +85,8 @@ class PiecewiseSchedule(Schedule):
 
 
 class LinearSchedule(Schedule):
-    def __init__(self, t_fn, schedule_timesteps, final_p, initial_p=1.0):
+    @typechecked
+    def __init__(self, t_fn, schedule_timesteps: int, final_p: float, initial_p=1.0):
         """Linear interpolation between initial_p and final_p over
         schedule_timesteps. After this many timesteps pass final_p is
         returned.

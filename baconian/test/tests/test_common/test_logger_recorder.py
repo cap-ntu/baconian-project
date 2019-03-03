@@ -11,7 +11,7 @@ class Foo(Basic):
     def __init__(self, name='foo'):
         super().__init__(name=name)
         self.loss = 1.0
-        self.recorder = Recorder()
+        self.recorder = Recorder(flush_by_split_status=False)
 
     def get_status(self):
         return dict(x=1)
@@ -28,12 +28,12 @@ class Foo(Basic):
         return 'foo'
 
 
-class TestLogger(TestWithLogSet):
+class TestLogger(TestWithAll):
     def test_register(self):
         obj = Foo()
 
-        a = Recorder()
-        a.register_logging_attribute_by_record(obj=obj, attr_name='val', get_method=lambda x: x['obj'].get_val,
+        a = Recorder(flush_by_split_status=False)
+        a.register_logging_attribute_by_record(obj=obj, attr_name='val', get_method=lambda x: x['obj'].get_val(),
                                                static_flag=False)
         a.register_logging_attribute_by_record(obj=obj, attr_name='loss', static_flag=True)
         a.record()
@@ -43,8 +43,8 @@ class TestLogger(TestWithLogSet):
         obj.loss = 10.0
         a.record()
 
-        b = Recorder()
-        b.register_logging_attribute_by_record(obj=obj, attr_name='val', get_method=lambda x: x['obj'].get_val,
+        b = Recorder(flush_by_split_status=False)
+        b.register_logging_attribute_by_record(obj=obj, attr_name='val', get_method=lambda x: x['obj'].get_val(),
                                                static_flag=False)
         b.register_logging_attribute_by_record(obj=obj, attr_name='loss', static_flag=True)
 
@@ -125,7 +125,6 @@ class TesTLoggerWithDQN(TestWithAll):
                                   ])
         dqn = DQN(env_spec=env_spec,
                   name='dqn_test',
-                  decay_learning_rate=True,
                   config_or_config_dict=dict(REPLAY_BUFFER_SIZE=1000,
                                              GAMMA=0.99,
                                              BATCH_SIZE=10,

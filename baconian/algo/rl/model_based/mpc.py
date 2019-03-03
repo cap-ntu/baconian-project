@@ -8,6 +8,7 @@ from baconian.algo.rl.model_based.misc.reward_func.reward_func import RewardFunc
 from baconian.algo.rl.model_based.misc.terminal_func.terminal_func import TerminalFunc
 from baconian.common.misc import *
 from baconian.algo.rl.policy.policy import Policy
+from baconian.common.util.logging import ConsoleLogger
 
 
 class ModelPredictiveControl(ModelBasedAlgo):
@@ -27,7 +28,7 @@ class ModelPredictiveControl(ModelBasedAlgo):
         self.terminal_func = terminal_func
         self.parameters = Parameters(parameters=dict(),
                                      source_config=self.config,
-                                     name='mpc_param')
+                                     name=name + '_' + 'mpc_param')
 
     def init(self, source_obj=None):
         super().init()
@@ -38,7 +39,6 @@ class ModelPredictiveControl(ModelBasedAlgo):
             self.copy_from(source_obj)
 
     def train(self, *arg, **kwargs) -> dict:
-        # only train dynamics model
         super(ModelPredictiveControl, self).train()
         res_dict = {}
         batch_data = kwargs['batch_data'] if 'batch_data' in kwargs else None
@@ -86,6 +86,6 @@ class ModelPredictiveControl(ModelBasedAlgo):
         if not isinstance(obj, type(self)):
             raise TypeError('Wrong type of obj %s to be copied, which should be %s' % (type(obj), type(self)))
         self.parameters.copy_from(obj.parameters)
-        self.dynamics_model
-        ConsoleLogger().print('info', 'model: {} copyed from {}'.format(self, obj))
+        self.dynamics_model.copy_from(obj.dynamics_model)
+        ConsoleLogger().print('info', 'model: {} copied from {}'.format(self, obj))
         return True

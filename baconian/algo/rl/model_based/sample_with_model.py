@@ -56,11 +56,11 @@ class SampleWithDynamics(ModelBasedAlgo, MultiPlaceholderInput):
                  name='sample_with_dynamics'
                  ):
         super().__init__(env_spec, dynamics_model, name)
-
+        config = construct_dict_config(config_or_config_dict, self)
         parameters = TensorflowParameters(tf_var_list=[],
                                           rest_parameters=dict(),
                                           name='sample_with_model_param',
-                                          source_config=self.config,
+                                          source_config=config,
                                           require_snapshot=False)
         sub_placeholder_input_list = []
         if isinstance(dynamics_model, PlaceholderInput):
@@ -74,7 +74,7 @@ class SampleWithDynamics(ModelBasedAlgo, MultiPlaceholderInput):
                                        inputs=(),
                                        parameters=parameters)
         self.model_free_algo = model_free_algo
-        self.config = construct_dict_config(config_or_config_dict, self)
+        self.config = config
         self.parameters = parameters
 
     @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='JUST_INITED')

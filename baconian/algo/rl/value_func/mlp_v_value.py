@@ -32,40 +32,42 @@ class MLPVValueFunc(ValueFunction, PlaceholderInput):
                  output_high: np.ndarray = None,
                  ):
         with tf.variable_scope(name_scope):
-            self.state_input = state_input if state_input is not None else tf.placeholder(
+            state_input = state_input if state_input is not None else tf.placeholder(
                 shape=[None, env_spec.flat_obs_dim],
                 dtype=tf.float32,
                 name='state_ph')
+
+        mlp_input_ph = state_input
+        mlp_net = MLP(input_ph=mlp_input_ph,
+                      reuse=reuse,
+                      mlp_config=mlp_config,
+                      input_norm=input_norm,
+                      output_norm=output_norm,
+                      output_high=output_high,
+                      output_low=output_low,
+                      name_scope=name_scope,
+                      net_name='mlp')
+        parameters = TensorflowParameters(tf_var_list=mlp_net.var_list,
+                                          rest_parameters=dict(state_input=state_input),
+                                          name='mlp_v_value_function_tf_param')
+        ValueFunction.__init__(self,
+                               env_spec=env_spec,
+                               name=name,
+                               parameters=None)
+        PlaceholderInput.__init__(self,
+                                  inputs=mlp_input_ph,
+                                  parameters=parameters)
+
         self.name_scope = name_scope
         self.mlp_config = mlp_config
         self.input_norm = input_norm
         self.output_norm = output_norm
         self.output_low = output_low
         self.output_high = output_high
-
-        with tf.variable_scope(self.name_scope):
-            self.mlp_input_ph = self.state_input
-
-        self.mlp_net = MLP(input_ph=self.mlp_input_ph,
-                           reuse=reuse,
-                           mlp_config=mlp_config,
-                           input_norm=input_norm,
-                           output_norm=output_norm,
-                           output_high=output_high,
-                           output_low=output_low,
-                           name_scope=name_scope,
-                           net_name='mlp')
+        self.state_input = state_input
+        self.mlp_input_ph = mlp_input_ph
+        self.mlp_net = mlp_net
         self.v_tensor = self.mlp_net.output
-        parameters = TensorflowParameters(tf_var_list=self.mlp_net.var_list,
-                                          rest_parameters=dict(state_input=self.state_input),
-                                          name='mlp_v_value_function_tf_param')
-        ValueFunction.__init__(self,
-                               env_spec=env_spec,
-                               name=name,
-                               parameters=parameters)
-        PlaceholderInput.__init__(self,
-                                  inputs=self.mlp_input_ph,
-                                  parameters=parameters)
 
     @overrides.overrides
     def copy_from(self, obj: PlaceholderInput) -> bool:

@@ -25,31 +25,33 @@ class DeterministicMLPPolicy(DeterministicPolicy, PlaceholderInput):
         obs_dim = env_spec.flat_obs_dim
         action_dim = env_spec.flat_action_dim
         assert action_dim == mlp_config[-1]['N_UNITS']
+
+        with tf.variable_scope(name_scope):
+            state_input = tf.placeholder(shape=[None, obs_dim], dtype=tf.float32, name='state_ph')
+        mlp_net = MLP(input_ph=state_input,
+                      reuse=reuse,
+                      input_norm=input_norm,
+                      output_norm=output_norm,
+                      output_low=output_low,
+                      output_high=output_high,
+                      net_name='deterministic_mlp_policy',
+                      mlp_config=mlp_config,
+                      name_scope=name_scope)
+
+        PlaceholderInput.__init__(self, inputs=state_input, parameters=None)
+        self.parameters = TensorflowParameters(tf_var_list=mlp_net.var_list,
+                                               rest_parameters=dict(),
+                                               name='deterministic_mlp_policy_tf_param')
+        self.state_input = state_input
+        self.mlp_net = mlp_net
+        self.action_tensor = mlp_net.output
+        self.mlp_config = mlp_config
         self.mlp_config = mlp_config
         self.input_norm = input_norm
         self.output_norm = output_norm
         self.output_low = output_low
         self.output_high = output_high
         self.name_scope = name_scope
-
-        with tf.variable_scope(name_scope):
-            self.state_input = tf.placeholder(shape=[None, obs_dim], dtype=tf.float32, name='state_ph')
-        self.mlp_net = MLP(input_ph=self.state_input,
-                           reuse=reuse,
-                           input_norm=input_norm,
-                           output_norm=output_norm,
-                           output_low=output_low,
-                           output_high=output_high,
-                           net_name='deterministic_mlp_policy',
-                           mlp_config=mlp_config,
-                           name_scope=name_scope)
-
-        self.action_tensor = self.mlp_net.output
-        self.mlp_config = mlp_config
-        self.parameters = TensorflowParameters(tf_var_list=self.mlp_net.var_list,
-                                               rest_parameters=dict(),
-                                               name='deterministic_mlp_policy_tf_param')
-        PlaceholderInput.__init__(self, inputs=self.state_input, parameters=self.parameters)
 
     @typechecked
     @overrides.overrides

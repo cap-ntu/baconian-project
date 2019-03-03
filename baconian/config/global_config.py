@@ -57,8 +57,8 @@ class DefaultGlobalConfig(object):
     DEFAULT_WRITE_CONSOLE_LOG_TO_FILE_FLAG = True
     DEFAULT_CONSOLE_LOG_FILE_NAME = 'console.log'
     DEFAULT_CONSOLE_LOGGER_NAME = 'console_logger'
-    DEFAULT_EXPERIMENT_END_POINT = dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=None,
-                                        TOTAL_AGENT_TEST_SAMPLE_COUNT=500,
+    DEFAULT_EXPERIMENT_END_POINT = dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=500,
+                                        TOTAL_AGENT_TEST_SAMPLE_COUNT=None,
                                         TOTAL_AGENT_UPDATE_COUNT=None)
 
     # For internal use

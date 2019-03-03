@@ -34,11 +34,6 @@ class Policy(Basic):
         raise NotImplementedError
 
 
-# todo do we need this inheritance?
-# class PlaceholderInputPolicy(Policy):
-#     pass
-
-
 class StochasticPolicy(Policy):
     @tg.typechecked
     def __init__(self, env_spec: EnvSpec, parameters: Parameters = None, name: str = 'stochastic_policy'):

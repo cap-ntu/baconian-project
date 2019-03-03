@@ -10,6 +10,7 @@ from typeguard import typechecked
 import numpy as np
 from baconian.tf.util import *
 from baconian.algo.placeholder_input import PlaceholderInput
+import overrides
 
 
 class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, PlaceholderInput):
@@ -25,55 +26,69 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
                  output_low: np.ndarray = None,
                  output_high: np.ndarray = None,
                  init_state=None):
-        GlobalDynamicsModel.__init__(self, env_spec=env_spec, parameters=None,
+        GlobalDynamicsModel.__init__(self,
+                                     env_spec=env_spec,
+                                     parameters=None,
                                      name=name,
                                      init_state=init_state)
 
+        with tf.variable_scope(name_scope):
+            state_input = tf.placeholder(shape=[None, env_spec.flat_obs_dim], dtype=tf.float32, name='state_ph')
+            action_input = tf.placeholder(shape=[None, env_spec.flat_action_dim], dtype=tf.float32,
+                                          name='action_ph')
+            mlp_input_ph = tf.concat([state_input, action_input], axis=1, name='state_action_input')
+            delta_state_label_ph = tf.placeholder(shape=[None, env_spec.flat_obs_dim], dtype=tf.float32,
+                                                  name='delta_state_label_ph')
+        mlp_net = MLP(input_ph=mlp_input_ph,
+                      reuse=False,
+                      mlp_config=mlp_config,
+                      input_norm=input_norm,
+                      output_norm=output_norm,
+                      # todo have a running-up mean module
+                      # output_high=output_high - output_low,
+                      # output_low=output_low - output_high,
+                      name_scope=name_scope,
+                      net_name=name + '_' + 'mlp')
+        assert mlp_net.output.shape[1] == env_spec.flat_obs_dim
+
+        parameters = TensorflowParameters(tf_var_list=mlp_net.var_list,
+                                          name=name + '_''mlp_continuous_dynamics_model',
+                                          rest_parameters=dict(l1_norm_scale=l1_norm_scale,
+                                                               l2_norm_scale=l2_norm_scale,
+                                                               output_low=output_low,
+                                                               output_high=output_high,
+                                                               input_norm=input_norm,
+                                                               learning_rate=learning_rate))
+        with tf.variable_scope(name_scope):
+            with tf.variable_scope('train'):
+                new_state_output = mlp_net.output + state_input
+
+        DerivableDynamics.__init__(self,
+                                   input_node_dict=dict(state_input=state_input,
+                                                        action_action_input=action_input),
+                                   output_node_dict=dict(new_state_output=new_state_output))
+        PlaceholderInput.__init__(self,
+                                  inputs=(state_input, action_input, delta_state_label_ph),
+                                  parameters=parameters)
+
         self.mlp_config = mlp_config
         self.name_scope = name_scope
-        with tf.variable_scope(self.name_scope):
-            self.state_input = tf.placeholder(shape=[None, env_spec.flat_obs_dim], dtype=tf.float32, name='state_ph')
-            self.action_input = tf.placeholder(shape=[None, env_spec.flat_action_dim], dtype=tf.float32,
-                                               name='action_ph')
-            self.mlp_input_ph = tf.concat([self.state_input, self.action_input], axis=1, name='state_action_input')
-            self.delta_state_label_ph = tf.placeholder(shape=[None, env_spec.flat_obs_dim], dtype=tf.float32,
-                                                       name='delta_state_label_ph')
-        self.mlp_net = MLP(input_ph=self.mlp_input_ph,
-                           reuse=False,
-                           mlp_config=mlp_config,
-                           input_norm=input_norm,
-                           output_norm=output_norm,
-                           output_high=output_high - output_low,
-                           output_low=output_low - output_high,
-                           name_scope=name_scope,
-                           net_name='mlp')
-        assert self.mlp_net.output.shape[1] == env_spec.flat_obs_dim
+        self.action_input = action_input
+        self.state_input = state_input
+        self.mlp_input_ph = mlp_input_ph
+        self.delta_state_label_ph = delta_state_label_ph
+        self.new_state_output = new_state_output
+        self.mlp_net = mlp_net
 
-        self.parameters = TensorflowParameters(tf_var_list=self.mlp_net.var_list,
-                                               name='mlp_continuous_dynamics_model',
-                                               rest_parameters=dict(l1_norm_scale=l1_norm_scale,
-                                                                    l2_norm_scale=l2_norm_scale,
-                                                                    output_low=output_low,
-                                                                    output_high=output_high,
-                                                                    input_norm=input_norm,
-                                                                    learning_rate=learning_rate))
-        with tf.variable_scope(self.name_scope):
+        with tf.variable_scope(name_scope):
             with tf.variable_scope('train'):
-                self.new_state_output = self.mlp_net.output + self.state_input
                 self.loss, self.optimizer, self.optimize_op = self._setup_loss(l1_norm_scale=l1_norm_scale,
                                                                                l2_norm_scale=l2_norm_scale)
         train_var_list = get_tf_collection_var_list(key=tf.GraphKeys.GLOBAL_VARIABLES,
                                                     scope='{}/train'.format(
-                                                        self.name_scope)) + self.optimizer.variables()
+                                                        name_scope)) + self.optimizer.variables()
 
         self.parameters.set_tf_var_list(sorted(list(set(train_var_list)), key=lambda x: x.name))
-        DerivableDynamics.__init__(self,
-                                   input_node_dict=dict(state_input=self.state_input,
-                                                        action_action_input=self.action_input),
-                                   output_node_dict=dict(new_state_output=self.new_state_output))
-        PlaceholderInput.__init__(self,
-                                  inputs=(self.state_input, self.action_input, self.delta_state_label_ph),
-                                  parameters=self.parameters)
 
     def init(self, source_obj=None):
         self.parameters.init()
@@ -130,3 +145,7 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
 
     def load(self, *args, **kwargs):
         return PlaceholderInput.load(self, *args, **kwargs)
+
+    @overrides.overrides
+    def copy_from(self, obj: PlaceholderInput) -> bool:
+        return PlaceholderInput.copy_from(self, obj)

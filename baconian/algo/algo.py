@@ -5,18 +5,15 @@ from typeguard import typechecked
 from baconian.common.util.logging import Logger, Recorder
 
 
-# import numpy as np
-
-
 class Algo(Basic):
     STATUS_LIST = ['NOT_INIT', 'JUST_INITED', 'TRAIN', 'TEST']
     INIT_STATUS = 'NOT_INIT'
 
     @typechecked
     def __init__(self, env_spec: EnvSpec, name: str = 'algo'):
+        super().__init__(status=StatusWithSubInfo(obj=self), name=name)
         self.env_spec = env_spec
         self.recorder = Recorder()
-        super().__init__(status=StatusWithSubInfo(obj=self), name=name)
 
     def init(self):
         self._status.set_status('JUST_INITED')
@@ -36,6 +33,3 @@ class Algo(Basic):
     @abc.abstractmethod
     def append_to_memory(self, *args, **kwargs):
         raise NotImplementedError
-
-    # def register_logger(self, logger: Logger):
-    #     raise NotImplementedError

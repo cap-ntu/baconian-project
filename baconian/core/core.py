@@ -101,11 +101,11 @@ class EnvSpec(object):
 
     @property
     def flat_obs_dim(self) -> int:
-        return flat_dim(self.obs_space)
+        return int(flat_dim(self.obs_space))
 
     @property
     def flat_action_dim(self) -> int:
-        return flat_dim(self.action_space)
+        return int(flat_dim(self.action_space))
 
     @staticmethod
     def flat(space: Space, obs_or_action: (np.ndarray, list)):
