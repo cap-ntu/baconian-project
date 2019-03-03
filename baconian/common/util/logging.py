@@ -1,0 +1,349 @@
+import abc
+import logging
+import os
+from copy import deepcopy
+
+from typeguard import typechecked
+
+from baconian.common.misc import construct_dict_config
+from baconian.common.util import files as files
+
+from baconian.config.global_config import GlobalConfig
+
+"""
+Logger Module
+1. a global console output file
+2. each module/instance will have a single log file
+3. support for tf related utility, tf model, tensorboard
+4. support for different log file types
+5. support for different level of logging
+"""
+
+
+class BaseLogger(object):
+    required_key_dict = ()
+
+    def __init__(self):
+        self.inited_flag = False
+
+    @abc.abstractmethod
+    def close(self, *args, **kwargs):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def init(self, *args, **kwargs):
+        raise NotImplementedError
+
+
+class _SingletonConsoleLogger(BaseLogger):
+    """
+    A private class that should never be instanced, it is used to implement the singleton design pattern for
+    ConsoleLogger
+    """
+    ALLOWED_LOG_LEVEL = ('CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'NOTSET')
+    ALLOWED_PRINT_TYPE = ('info', 'warning', 'debug', 'critical', 'log', 'critical')
+
+    def __init__(self):
+        super(_SingletonConsoleLogger, self).__init__()
+        self.name = None
+        self.logger = None
+
+    def init(self, to_file_flag, level: str, to_file_name: str = None, logger_name: str = 'console_logger'):
+        if self.inited_flag is True:
+            return
+        self.name = logger_name
+        if level not in self.ALLOWED_LOG_LEVEL:
+            raise ValueError('Wrong log level use {} instead'.format(self.ALLOWED_LOG_LEVEL))
+        self.logger = logging.getLogger(self.name)
+        self.logger.setLevel(getattr(logging, level))
+
+        for handler in self.logger.root.handlers[:] + self.logger.handlers[:]:
+            self.logger.removeHandler(handler)
+            self.logger.root.removeHandler(handler)
+
+        self.logger.addHandler(logging.StreamHandler())
+
+        if to_file_flag is True:
+            self.logger.addHandler(logging.FileHandler(filename=to_file_name))
+        for handler in self.logger.root.handlers[:] + self.logger.handlers[:]:
+            handler.setFormatter(fmt=logging.Formatter(fmt=GlobalConfig.DEFAULT_LOGGING_FORMAT))
+            handler.setLevel(getattr(logging, level))
+
+        self.inited_flag = True
+
+    def print(self, p_type: str, p_str: str, *arg, **kwargs):
+        if p_type not in self.ALLOWED_PRINT_TYPE:
+            raise ValueError('use print type from {}'.format(self.ALLOWED_PRINT_TYPE))
+        getattr(self.logger, p_type)(p_str, *arg, **kwargs)
+        self.flush()
+
+    def close(self):
+        self.flush()
+        for handler in self.logger.root.handlers[:] + self.logger.handlers[:]:
+            handler.close()
+            self.logger.removeHandler(handler)
+            self.logger.root.removeHandler(handler)
+
+    def reset(self):
+        self.close()
+        self.inited_flag = False
+
+    def flush(self):
+        for handler in self.logger.root.handlers[:] + self.logger.handlers[:]:
+            handler.flush()
+
+
+class _SingletonLogger(BaseLogger):
+    """
+    A private class that should never be instanced, it is used to implement the singleton design pattern for Logger
+    """
+
+    def __init__(self):
+        super(_SingletonLogger, self).__init__()
+        self._registered_recorders = []
+        self._log_dir = None
+        self._config_file_log_dir = None
+        self._record_file_log_dir = None
+        self.logger_config = None
+        self.log_level = None
+
+    def init(self, config_or_config_dict,
+             log_path, log_level=None, **kwargs):
+        if self.inited_flag:
+            return
+        self._log_dir = log_path
+        # todo debug only
+        # if os.path.exists(self._log_dir):
+        #     raise FileExistsError('%s path is existed' % self._log_dir)
+        self._config_file_log_dir = os.path.join(self._log_dir, 'config')
+        self._record_file_log_dir = os.path.join(self._log_dir, 'record')
+
+        self.logger_config = construct_dict_config(config_or_config_dict, obj=self)
+        self.log_level = log_level
+        self.inited_flag = True
+
+    @property
+    def log_dir(self):
+        if os.path.exists(self._log_dir) is False:
+            os.makedirs(self._log_dir)
+        return self._log_dir
+
+    def flush_recorder(self, recorder=None):
+        if not recorder:
+            for re in self._registered_recorders:
+                self._flush(re)
+        else:
+            self._flush(recorder)
+
+    def close(self):
+        self.flush_recorder()
+        self._registered_recorders = []
+
+    def append_recorder(self, recorder):
+        self._registered_recorders.append(recorder)
+
+    def reset(self):
+        self.close()
+        for re in self._registered_recorders:
+            re.reset()
+        self._registered_recorders = []
+        self.inited_flag = False
+
+    def _flush(self, recorder):
+        if recorder.is_empty():
+            return
+        log_dict, by_status_flag = recorder.get_obj_log_to_flush(clear_obj_log_flag=True)
+        for obj_name, obj_log_dict in log_dict.items():
+            if by_status_flag is True:
+                for status, status_log_dict in obj_log_dict.items():
+                    self.out_to_file(
+                        file_path=os.path.join(self._record_file_log_dir, str(obj_name), str(status)),
+                        content=status_log_dict,
+                        file_name='log.json')
+            else:
+                self.out_to_file(file_path=os.path.join(self._record_file_log_dir, str(obj_name)),
+                                 content=obj_log_dict,
+                                 file_name='log.json')
+
+        # by_status_flag = true: [obj][status][attr_name]
+        # by_status_flag = false: [obj][attr_name]
+
+    @staticmethod
+    @typechecked
+    def out_to_file(file_path: str, content: (tuple, list, dict), file_name: str):
+
+        if len(content) == 0:
+            return
+        mode = 'a'
+        if not os.path.exists(file_path):
+            os.makedirs(file_path)
+            mode = 'w'
+        try:
+            f = open(os.path.join(file_path, file_name), mode)
+        except FileNotFoundError:
+            f = open(file_path, 'w')
+        files.save_to_json(content, fp=f)
+
+
+class Logger(object):
+    only_instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if Logger.only_instance is None:
+            Logger.only_instance = _SingletonLogger()
+        return Logger.only_instance
+
+
+class ConsoleLogger(object):
+    only_instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not ConsoleLogger.only_instance:
+            ConsoleLogger.only_instance = _SingletonConsoleLogger()
+        return ConsoleLogger.only_instance
+
+
+class Recorder(object):
+    def __init__(self, flush_by_split_status=True):
+        self._obj_log = {}
+        self._registered_log_attr_by_get_dict = {}
+        Logger().append_recorder(self)
+        self.flush_by_split_status = flush_by_split_status
+
+    @typechecked
+    def append_to_obj_log(self, obj, attr_name: str, status_info: dict, log_val):
+        assert hasattr(obj, 'name')
+        if obj not in self._obj_log:
+            self._obj_log[obj] = {}
+        if attr_name not in self._obj_log[obj]:
+            self._obj_log[obj][attr_name] = []
+        info = deepcopy(status_info)
+        info['attr_name'] = deepcopy(attr_name)
+        info['log_val'] = deepcopy(log_val)
+        self._obj_log[obj][attr_name].append(info)
+
+    def is_empty(self):
+        return len(self._obj_log) == 0
+
+    def record(self):
+        # todo how to call this function should be indicated
+        self._record_by_getter()
+
+    @typechecked
+    def register_logging_attribute_by_record(self, obj, attr_name: str, static_flag: bool,
+                                             get_method=None):
+        """
+        register an attribute that will be recorded periodically during training, duplicated registered will be ignored
+        :param obj:
+        :param obj_name:
+        :param attr_name:
+        :param static_flag:
+        :param get_method:
+        :return:
+        """
+        if not hasattr(obj, 'get_status') or not callable(obj.get_status):
+            raise ValueError('registered obj {} mush have callable method get_status()'.format(type(obj)))
+        if obj not in self._registered_log_attr_by_get_dict:
+            self._registered_log_attr_by_get_dict[obj] = {}
+        if attr_name in self._registered_log_attr_by_get_dict[obj]:
+            return
+        self._registered_log_attr_by_get_dict[obj][attr_name] = dict(obj=obj,
+                                                                     attr_name=attr_name,
+                                                                     get_method=get_method,
+                                                                     static_flag=static_flag)
+
+    def _filter_by_main_status(self, clear_obj_log_flag=True):
+        filtered_res = dict()
+        for obj in self._obj_log:
+            filtered_res[obj.name] = dict()
+            status_list = obj.status_list
+            for stat in status_list:
+                filtered_res[obj.name][stat] = dict()
+                for attr in self._obj_log[obj]:
+                    filtered_res[obj.name][stat][attr] = []
+            for attr in self._obj_log[obj]:
+                for val_dict in self._obj_log[obj][attr]:
+                    res = deepcopy(val_dict)
+                    res.pop('status'), res.pop('attr_name')
+                    filtered_res[obj.name][val_dict['status']][val_dict['attr_name']].append(res)
+        if clear_obj_log_flag is True:
+            self._obj_log = {}
+        return filtered_res
+
+    def get_obj_log_to_flush(self, clear_obj_log_flag) -> (dict, bool):
+        if self.flush_by_split_status is True:
+            return self._filter_by_main_status(clear_obj_log_flag), self.flush_by_split_status
+        else:
+            filtered_res = {}
+            for obj in self._obj_log:
+                filtered_res[obj.name] = dict()
+                for attr in self._obj_log[obj]:
+                    filtered_res[obj.name][attr] = []
+                    for val_dict in self._obj_log[obj][attr]:
+                        res = deepcopy(val_dict)
+                        res.pop('attr_name')
+                        filtered_res[obj.name][val_dict['attr_name']].append(res)
+            self._obj_log = {}
+            return filtered_res, self.flush_by_split_status
+
+    def reset(self):
+        self._obj_log = {}
+        self._registered_log_attr_by_get_dict = {}
+
+    def flush(self):
+        Logger().flush_recorder(recorder=self)
+
+    def _record_by_getter(self):
+        for key, obj_dict in self._registered_log_attr_by_get_dict.items():
+            for _, val in obj_dict.items():
+                if val['get_method'] is None:
+                    res = val['obj'].__getattribute__(val['attr_name'])
+                else:
+                    res = val['get_method'](val)
+                self.append_to_obj_log(obj=val['obj'],
+                                       attr_name=val['attr_name'],
+                                       log_val=res,
+                                       status_info=val['obj'].get_status())
+
+
+def record_return_decorator(which_recorder: str = 'global'):
+    def wrap(fn):
+        def wrap_with_self(self, *args, **kwargs):
+            obj = self
+            if which_recorder == 'global':
+                recorder = get_global_recorder()
+            elif which_recorder == 'self':
+                recorder = getattr(obj, 'recorder')
+            else:
+                raise ValueError('Not supported recorder indicator: {}, use {}'.format(which_recorder, 'gloabl, self'))
+            if not hasattr(obj, 'get_status') or not callable(obj.get_status):
+                raise ValueError('registered obj {} mush have callable method get_status()'.format(type(obj)))
+            res = fn(self, *args, **kwargs)
+            info = obj.get_status()
+            if not isinstance(res, dict):
+                raise TypeError('returned value by {} must be a dict in order to be recorded'.format(fn.__name__))
+            for key, val in res.items():
+                recorder.append_to_obj_log(obj=obj, attr_name=key, status_info=info,
+                                           log_val=val)
+            return res
+
+        return wrap_with_self
+
+    return wrap
+
+
+_global_recorder = Recorder()
+
+
+def get_global_recorder() -> Recorder:
+    return globals()['_global_recorder']
+
+
+def reset_global_recorder():
+    globals()['_global_recorder'].reset()
+
+
+def reset_logging():
+    ConsoleLogger().reset()
+    Logger().reset()
+    reset_global_recorder()
