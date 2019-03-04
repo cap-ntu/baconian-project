@@ -43,7 +43,6 @@ def task_fn():
                                   }
                               ])
     dqn = DQN(env_spec=env_spec,
-              decay_learning_rate=True,
               config_or_config_dict=dict(REPLAY_BUFFER_SIZE=1000,
                                          GAMMA=0.99,
                                          BATCH_SIZE=10,
@@ -63,8 +62,7 @@ def task_fn():
                   },
                   name=name + '_agent',
                   exploration_strategy=EpsilonGreedy(action_space=env_spec.action_space,
-                                                     init_random_prob=0.5,
-                                                     decay_type=None))
+                                                     init_random_prob=0.5))
     experiment = Experiment(
         tuner=None,
         env=env,
@@ -73,17 +71,16 @@ def task_fn():
         name=name + 'experiment_debug'
     )
 
-    dqn.parameters.set_scheduler(key='LEARNING_RATE',
+    dqn.parameters.set_scheduler(param_key='LEARNING_RATE',
                                  scheduler=LinearSchedule(
-                                     t_fn=lambda _: experiment.status_collector()['TOTAL_AGENT_TRAIN_SAMPLE_COUNT'],
+                                     t_fn=experiment.TOTAL_AGENT_TRAIN_SAMPLE_COUNT,
                                      schedule_timesteps=GlobalConfig.DEFAULT_EXPERIMENT_END_POINT[
                                          'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'],
                                      final_p=0.0001,
                                      initial_p=0.01))
     agent.explorations_strategy.parameters.set_scheduler(param_key='init_random_prob',
                                                          scheduler=PiecewiseSchedule(
-                                                             t_fn=lambda _: experiment.status_collector()[
-                                                                 'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'],
+                                                             t_fn=experiment.TOTAL_AGENT_TRAIN_SAMPLE_COUNT,
                                                              endpoints=((10, 0.3), (100, 0.1), (200, 0.0)),
                                                              outside_value=0.0
                                                              ))
