@@ -19,18 +19,22 @@ class Wrapper(Env):
         Env.__init__(self, name='wrapped_{}'.format(env.name))
         if isinstance(env, GymEnv):
             self.env = env.unwrapped_gym
+            self.src_env = env
         else:
             self.env = env
+            self.src_env = env
         # Merge with the base metadata
         metadata = self.metadata
         self.metadata = self.env.metadata.copy()
-        self.metadata._update_algo(metadata)
+        self.metadata.update(metadata)
 
         self.action_space = self.env.action_space
         self.observation_space = self.env.observation_space
         self.reward_range = self.env.reward_range
         self._spec = self.env.spec
         self._unwrapped = self.env.unwrapped
+        self.step_count = self.src_env.step_count
+        self.recorder = self.src_env.recorder
 
         self._update_wrapper_stack()
         if env and env._configured:
@@ -53,18 +57,18 @@ class Wrapper(Env):
     def class_name(cls):
         return cls.__name__
 
-    def _step(self, action):
+    def step(self, action):
         return self.env.step(action)
 
-    def _reset(self):
+    def reset(self):
         return self.env.reset()
 
-    def _render(self, mode='human', close=False):
+    def render(self, mode='human', close=False):
         if self.env is None:
             return
         return self.env.render(mode, close)
 
-    def _close(self):
+    def close(self):
         if self.env is None:
             return
         return self.env.close()
@@ -100,7 +104,7 @@ class ObservationWrapper(Wrapper):
         observation = self.env.reset()
         return self._observation(observation)
 
-    def _step(self, action):
+    def step(self, action):
         observation, reward, done, info = self.env.step(action)
         return self.observation(observation), reward, done, info
 
@@ -112,7 +116,7 @@ class ObservationWrapper(Wrapper):
 
 
 class RewardWrapper(Wrapper):
-    def _step(self, action):
+    def step(self, action):
         observation, reward, done, info = self.env.step(action)
         return observation, self.reward(observation, action, reward, done, info), done, info
 
@@ -124,7 +128,7 @@ class RewardWrapper(Wrapper):
 
 
 class ActionWrapper(Wrapper):
-    def _step(self, action):
+    def step(self, action):
         action = self.action(action)
         return self.env.step(action)
 

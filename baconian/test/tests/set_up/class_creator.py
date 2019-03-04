@@ -364,12 +364,6 @@ class ClassCreatorSetup(unittest.TestCase):
             env=env,
             agent=agent,
             flow=TrainTestFlow(),
-            config_or_config_dict={
-                "console_logger_to_file_flag": True,
-                "console_logger_to_file_name": "console_test.log",
-                "log_path": GlobalConfig.DEFAULT_LOG_PATH,
-                "log_level": "DEBUG"
-            },
             name=name + 'experiment_debug'
         )
         return experiment

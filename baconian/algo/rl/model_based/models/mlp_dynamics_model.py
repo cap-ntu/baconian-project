@@ -12,8 +12,14 @@ from baconian.tf.util import *
 from baconian.algo.placeholder_input import PlaceholderInput
 import overrides
 
+from baconian.common.util.logging import record_return_decorator
+from baconian.core.status import register_counter_info_to_status_decorator, StatusWithSubInfo
+
 
 class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, PlaceholderInput):
+    STATUS_LIST = ['NOT_INIT', 'INITED', 'TRAIN']
+    INIT_STATUS = 'NOT_INIT'
+
     def __init__(self, env_spec: EnvSpec,
                  name_scope: str,
                  name: str,
@@ -48,7 +54,7 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
                       # output_high=output_high - output_low,
                       # output_low=output_low - output_high,
                       name_scope=name_scope,
-                      net_name=name + '_' + 'mlp')
+                      net_name='mlp')
         assert mlp_net.output.shape[1] == env_spec.flat_obs_dim
 
         parameters = TensorflowParameters(tf_var_list=mlp_net.var_list,
@@ -80,6 +86,8 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
         self.new_state_output = new_state_output
         self.mlp_net = mlp_net
 
+        self._status = StatusWithSubInfo(obj=self)
+
         with tf.variable_scope(name_scope):
             with tf.variable_scope('train'):
                 self.loss, self.optimizer, self.optimize_op = self._setup_loss(l1_norm_scale=l1_norm_scale,
@@ -94,6 +102,41 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
         self.parameters.init()
         if source_obj:
             self.copy_from(obj=source_obj)
+
+    @register_counter_info_to_status_decorator(increment=1, info_key='step')
+    def step(self, action: np.ndarray, state=None, **kwargs_for_transit):
+        return super().step(action, state, **kwargs_for_transit)
+
+    @record_return_decorator(which_recorder='self')
+    @register_counter_info_to_status_decorator(increment=1, info_key='train_counter', under_status='TRAIN')
+    @typechecked
+    def train(self, batch_data: TransitionData, **kwargs) -> dict:
+        self.set_status('TRAIN')
+        tf_sess = kwargs['sess'] if ('sess' in kwargs and kwargs['sess']) else tf.get_default_session()
+        train_iter = self.parameters('train_iter') if 'train_iter' not in kwargs else kwargs['train_iter']
+        feed_dict = {
+            self.state_input: batch_data.state_set,
+            self.action_input: flatten_n(self.env_space.action_space, batch_data.action_set),
+            self.delta_state_label_ph: batch_data.new_state_set - batch_data.state_set,
+            **self.parameters.return_tf_parameter_feed_dict()
+        }
+        average_loss = 0.0
+
+        for i in range(train_iter):
+            loss, _ = tf_sess.run([self.loss, self.optimize_op],
+                                  feed_dict=feed_dict)
+            average_loss += loss
+        return dict(average_loss=average_loss / train_iter)
+
+    def save(self, *args, **kwargs):
+        return PlaceholderInput.save(self, *args, **kwargs)
+
+    def load(self, *args, **kwargs):
+        return PlaceholderInput.load(self, *args, **kwargs)
+
+    @overrides.overrides
+    def copy_from(self, obj: PlaceholderInput) -> bool:
+        return PlaceholderInput.copy_from(self, obj)
 
     def _state_transit(self, state, action, **kwargs) -> np.ndarray:
         if 'sess' in kwargs:
@@ -120,32 +163,3 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
         optimizer = tf.train.AdamOptimizer(learning_rate=self.parameters('learning_rate'))
         optimize_op = optimizer.minimize(loss=loss, var_list=self.parameters('tf_var_list'))
         return loss, optimizer, optimize_op
-
-    @typechecked
-    def train(self, batch_data: TransitionData, **kwargs) -> dict:
-
-        tf_sess = kwargs['sess'] if ('sess' in kwargs and kwargs['sess']) else tf.get_default_session()
-        train_iter = self.parameters('train_iter') if 'train_iter' not in kwargs else kwargs['train_iter']
-        feed_dict = {
-            self.state_input: batch_data.state_set,
-            self.action_input: flatten_n(self.env_space.action_space, batch_data.action_set),
-            self.delta_state_label_ph: batch_data.new_state_set - batch_data.state_set,
-            **self.parameters.return_tf_parameter_feed_dict()
-        }
-        average_loss = 0.0
-
-        for i in range(train_iter):
-            loss, _ = tf_sess.run([self.loss, self.optimize_op],
-                                  feed_dict=feed_dict)
-            average_loss += loss
-        return dict(average_loss=average_loss / train_iter)
-
-    def save(self, *args, **kwargs):
-        return PlaceholderInput.save(self, *args, **kwargs)
-
-    def load(self, *args, **kwargs):
-        return PlaceholderInput.load(self, *args, **kwargs)
-
-    @overrides.overrides
-    def copy_from(self, obj: PlaceholderInput) -> bool:
-        return PlaceholderInput.copy_from(self, obj)

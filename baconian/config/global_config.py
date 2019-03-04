@@ -43,7 +43,6 @@ class DefaultGlobalConfig(object):
 
     DEFAULT_EXPERIMENT_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS, 'experiment.json')
 
-
     # LOGGING CONFIG
 
     DEFAULT_ALLOWED_LOG_FILE_TYPES = ('json', 'csv', 'h5py')

@@ -24,9 +24,9 @@ def _reset_global_seed(seed):
 
 
 @typechecked
-def single_exp_runner(task_fn, auto_choose_gpu_flag=True, gpu_id: int = None, seed=None, **task_fn_kwargs):
+def single_exp_runner(task_fn, auto_choose_gpu_flag=False, gpu_id: int = 0, seed=None, **task_fn_kwargs):
+    os.environ['CUDA_DEVICE_ORDER'] = "PCI_BUS_ID"
     if auto_choose_gpu_flag is True:
-        os.environ['CUDA_DEVICE_ORDER'] = "PCI_BUS_ID"
         DEVICE_ID_LIST = Gpu.getFirstAvailable()
         DEVICE_ID = DEVICE_ID_LIST[0]
         os.environ["CUDA_VISIBLE_DEVICES"] = str(DEVICE_ID)

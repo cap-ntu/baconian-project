@@ -5,9 +5,14 @@ import abc
 from baconian.core.parameters import Parameters
 from typeguard import typechecked
 from tensorflow.python.ops.parallel_for.gradients import jacobian as tf_jacobian, batch_jacobian as tf_batch_jacobian
+from baconian.common.util.logging import Recorder
+from baconian.core.status import register_counter_info_to_status_decorator, StatusWithSingleInfo
 
 
 class DynamicsModel(Basic):
+    STATUS_LIST = ['NOT_INIT', 'INITED']
+    INIT_STATUS = 'NOT_INIT'
+
     def __init__(self, env_spec: EnvSpec, parameters: Parameters = None, init_state=None, name='dynamics_model'):
         super().__init__(name=name)
         self.env_space = env_spec
@@ -16,10 +21,13 @@ class DynamicsModel(Basic):
         self.state_input = None
         self.action_input = None
         self.new_state_output = None
+        self.recorder = Recorder(flush_by_split_status=False)
+        self._status = StatusWithSingleInfo(obj=self)
 
     def init(self):
-        raise NotImplementedError
+        self.set_status('INITED')
 
+    @register_counter_info_to_status_decorator(increment=1, info_key='step_counter')
     def step(self, action: np.ndarray, state=None, **kwargs_for_transit):
         state = state if state is not None else self.state
         assert self.env_space.action_space.contains(action)

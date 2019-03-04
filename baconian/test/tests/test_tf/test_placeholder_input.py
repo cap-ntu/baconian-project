@@ -37,16 +37,13 @@ class TestPlaceholderInput(TestWithAll):
                                    b.parameters('tf_var_list'))
 
     def test_save_load_with_dqn(self):
-        env = make('Acrobot-v1')
-        env_spec = EnvSpec(obs_space=env.observation_space,
-                           action_space=env.action_space)
-        dqn, _ = self.create_dqn(env_spec, 'test_')
-
+        dqn, locals = self.create_dqn()
+        dqn.init()
         for i in range(5):
             dqn.save(save_path=GlobalConfig.DEFAULT_LOG_PATH + '/test_placehoder_input', global_step=i, name='dqn')
         file = glob.glob(GlobalConfig.DEFAULT_LOG_PATH + '/test_placehoder_input/dqn*.meta')
         self.assertTrue(len(file) == 5)
-        dqn2, _ = self.create_dqn(env_spec, 'test2')
+        dqn2, _ = self.create_dqn(name='dqn_2')
         dqn2.copy_from(dqn)
 
         self.assert_var_list_equal(dqn.parameters('tf_var_list'), dqn2.parameters('tf_var_list'))

@@ -14,8 +14,9 @@ class TestDynamicsModel(TestWithAll):
         env_spec = local['env_spec']
         env.reset()
         mlp_dyna.init()
-        mlp_dyna.step(action=env_spec.action_space.sample(),
-                      state=env_spec.obs_space.sample())
+        for i in range(100):
+            mlp_dyna.step(action=env_spec.action_space.sample(),
+                          state=env_spec.obs_space.sample())
         data = TransitionData(env_spec)
         st = env.get_state()
         for i in range(10):

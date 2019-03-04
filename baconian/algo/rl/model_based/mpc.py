@@ -9,6 +9,7 @@ from baconian.algo.rl.model_based.misc.terminal_func.terminal_func import Termin
 from baconian.common.misc import *
 from baconian.algo.rl.policy.policy import Policy
 from baconian.common.util.logging import ConsoleLogger
+from baconian.common.sampler.sample_data import TransitionData
 
 
 class ModelPredictiveControl(ModelBasedAlgo):
@@ -19,7 +20,7 @@ class ModelPredictiveControl(ModelBasedAlgo):
                  reward_func: RewardFunc,
                  terminal_func: TerminalFunc,
                  policy: Policy,
-                 name='mpc'
+                 name='mpc',
                  ):
         super().__init__(env_spec, dynamics_model, name)
         self.config = construct_dict_config(config_or_config_dict, self)
@@ -29,6 +30,7 @@ class ModelPredictiveControl(ModelBasedAlgo):
         self.parameters = Parameters(parameters=dict(),
                                      source_config=self.config,
                                      name=name + '_' + 'mpc_param')
+        self.memory = TransitionData(env_spec=env_spec)
 
     def init(self, source_obj=None):
         super().init()
@@ -41,7 +43,7 @@ class ModelPredictiveControl(ModelBasedAlgo):
     def train(self, *arg, **kwargs) -> dict:
         super(ModelPredictiveControl, self).train()
         res_dict = {}
-        batch_data = kwargs['batch_data'] if 'batch_data' in kwargs else None
+        batch_data = kwargs['batch_data'] if 'batch_data' in kwargs else self.memory
 
         dynamics_train_res_dict = self._fit_dynamics_model(batch_data=batch_data,
                                                            train_iter=self.parameters('dynamics_model_train_iter'))
@@ -79,8 +81,8 @@ class ModelPredictiveControl(ModelBasedAlgo):
         assert self.env_spec.action_space.contains(ac)
         return ac
 
-    def append_to_memory(self, *args, **kwargs):
-        raise NotImplementedError
+    def append_to_memory(self, samples: TransitionData):
+        self.memory.union(samples)
 
     def copy_from(self, obj) -> bool:
         if not isinstance(obj, type(self)):

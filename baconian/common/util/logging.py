@@ -156,17 +156,24 @@ class _SingletonLogger(BaseLogger):
         for obj_name, obj_log_dict in log_dict.items():
             if by_status_flag is True:
                 for status, status_log_dict in obj_log_dict.items():
+                    ConsoleLogger().print('info', 'save {}, with status: {} log into {}'.format(str(obj_name),
+                                                                                                str(status),
+                                                                                                os.path.join(
+                                                                                                    self._record_file_log_dir,
+                                                                                                    str(obj_name),
+                                                                                                    str(status))))
                     self.out_to_file(
                         file_path=os.path.join(self._record_file_log_dir, str(obj_name), str(status)),
                         content=status_log_dict,
                         file_name='log.json')
             else:
+                ConsoleLogger().print('info', 'save {} log into {}'.format(str(obj_name),
+                                                                           os.path.join(
+                                                                               self._record_file_log_dir,
+                                                                               str(obj_name))))
                 self.out_to_file(file_path=os.path.join(self._record_file_log_dir, str(obj_name)),
                                  content=obj_log_dict,
                                  file_name='log.json')
-
-        # by_status_flag = true: [obj][status][attr_name]
-        # by_status_flag = false: [obj][attr_name]
 
     @staticmethod
     @typechecked

@@ -29,7 +29,8 @@ from baconian.common.util.logging import reset_logging
 class Experiment(Basic):
     STATUS_LIST = ('NOT_INIT', 'INITED', 'RUNNING', 'FINISHED', 'CORRUPTED')
     INIT_STATUS = 'NOT_INIT'
-    required_key_dict = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_EXPERIMENT_REQUIRED_KEY_LIST)
+    # required_key_dict = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_EXPERIMENT_REQUIRED_KEY_LIST)
+    required_key_dict = dict()
 
     @init_func_arg_record_decorator()
     @typechecked
@@ -37,12 +38,10 @@ class Experiment(Basic):
                  name: str,
                  agent: Agent,
                  env: Env,
-                 config_or_config_dict: (DictConfig, dict),
                  flow: Flow = TrainTestFlow(),
                  tuner: Tuner = None,
                  ):
         super().__init__(status=StatusWithSingleInfo(obj=self), name=name)
-        self.config = construct_dict_config(config_or_config_dict, self)
         self.agent = agent
         self.env = env
         self.tuner = tuner

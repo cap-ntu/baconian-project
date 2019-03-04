@@ -8,11 +8,6 @@ class SampleData(object):
         if env_spec is None and (obs_shape is None or action_shape is None):
             raise ValueError('At least env_spec or (obs_shape, action_shape) should be passed in')
 
-        # self._state_set = []
-        # self._action_set = []
-        # self._reward_set = []
-        # self._done_set = []
-        # self._new_state_set = []
         self.cumulative_reward = 0.0
         self.step_count_per_episode = 0
         self.env_spec = env_spec
