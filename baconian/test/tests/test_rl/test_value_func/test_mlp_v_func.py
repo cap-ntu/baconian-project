@@ -8,7 +8,7 @@ import tensorflow as tf
 
 class TestMLPVValueFunc(TestTensorflowSetup):
     def test_init(self):
-        env = make('Swimmer-v1')
+        env = make('Pendulum-v0')
 
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
@@ -44,7 +44,7 @@ class TestMLPVValueFunc(TestTensorflowSetup):
         mlp_v.forward(obs=env.observation_space.sample())
 
     def test_copy(self):
-        env = make('Swimmer-v1')
+        env = make('Pendulum-v0')
 
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)

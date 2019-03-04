@@ -36,7 +36,7 @@ class TestMPC(TestTensorflowSetup):
         print(algo.train(batch_data=data))
 
     def test_init_continuous(self):
-        algo, locals = self.create_mpc(env_id='Swimmer-v1')
+        algo, locals = self.create_mpc(env_id='Pendulum-v0')
         env_spec = locals['env_spec']
         env = locals['env']
         algo.init()

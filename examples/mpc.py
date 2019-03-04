@@ -15,7 +15,7 @@ from baconian.algo.rl.model_based.models.mlp_dynamics_model import ContinuousMLP
 
 
 def task_fn():
-    env = make('Swimmer-v1')
+    env = make('Pendulum-v0')
     name = 'demo_exp'
     env_spec = EnvSpec(obs_space=env.observation_space,
                        action_space=env.action_space)

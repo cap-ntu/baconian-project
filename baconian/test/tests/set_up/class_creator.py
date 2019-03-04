@@ -112,7 +112,7 @@ class ClassCreatorSetup(unittest.TestCase):
 
         return a, locals()
 
-    def create_ddpg(self, env_id='Swimmer-v1', name='ddpg'):
+    def create_ddpg(self, env_id='Pendulum-v0', name='ddpg'):
         env = make(env_id)
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
@@ -187,7 +187,7 @@ class ClassCreatorSetup(unittest.TestCase):
         )
         return ddpg, locals()
 
-    def create_mlp_v(self, env_id='Swimmer-v1', name='mlp_v'):
+    def create_mlp_v(self, env_id='Pendulum-v0', name='mlp_v'):
         env = make(env_id)
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
@@ -240,7 +240,7 @@ class ClassCreatorSetup(unittest.TestCase):
                                              reuse=False)
         return policy, locals()
 
-    def create_ppo(self, env_id='Swimmer-v1', name='ppo'):
+    def create_ppo(self, env_id='Pendulum-v0', name='ppo'):
         mlp_v, local = self.create_mlp_v(env_id, name)
         env_spec = local['env_spec']
         env = local['env']
@@ -409,8 +409,8 @@ class ClassCreatorSetup(unittest.TestCase):
             ])
         return mlp_dyna, locals()
 
-    def create_mlp_deterministic_policy(self, name='mlp_policy', env_id='Swimmer-v1'):
-        env = make('Swimmer-v1')
+    def create_mlp_deterministic_policy(self, name='mlp_policy', env_id='Pendulum-v0'):
+        env = make('Pendulum-v0')
         env.reset()
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)

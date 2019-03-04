@@ -13,7 +13,7 @@ from baconian.core.pipelines.train_test_flow import TrainTestFlow
 
 
 def task_fn():
-    env = make('Swimmer-v1')
+    env = make('Pendulum-v0')
     name = 'demo_exp'
     env_spec = EnvSpec(obs_space=env.observation_space,
                        action_space=env.action_space)

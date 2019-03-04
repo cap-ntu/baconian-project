@@ -9,7 +9,7 @@ from baconian.test.tests.set_up.setup import TestTensorflowSetup
 
 class TestNormalDistMLPPolicy(TestTensorflowSetup):
     def test_mlp_norm_dist_policy(self):
-        env = make('Swimmer-v1')
+        env = make('Pendulum-v0')
         env.reset()
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
@@ -86,7 +86,7 @@ class TestNormalDistMLPPolicy(TestTensorflowSetup):
             self.assertTrue(np.isclose(re1, re2).all())
 
     def test_func(self):
-        env = make('Swimmer-v1')
+        env = make('Pendulum-v0')
         env.reset()
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)

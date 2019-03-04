@@ -131,11 +131,11 @@ class TransitionData(SampleData):
 
     def append(self, state: np.ndarray, action: np.ndarray, new_state: np.ndarray, done: bool, reward: float):
         # todo some type check should be here
-        self._internal_data_dict['state_set'][0].append(state)
-        self._internal_data_dict['new_state_set'][0].append(new_state)
+        self._internal_data_dict['state_set'][0].append(np.reshape(state, self.obs_shape))
+        self._internal_data_dict['new_state_set'][0].append(np.reshape(new_state, self.obs_shape))
         self._internal_data_dict['reward_set'][0].append(reward)
         self._internal_data_dict['done_set'][0].append(done)
-        self._internal_data_dict['action_set'][0].append(action)
+        self._internal_data_dict['action_set'][0].append(np.reshape(action, self.action_shape))
         self.cumulative_reward += reward
 
 

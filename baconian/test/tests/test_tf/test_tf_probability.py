@@ -64,7 +64,7 @@ def kl_entropy_logprob_from_pat_cody(old_mean, old_var, mean, var, sess, action_
 class TestTFP(TestTensorflowSetup):
     def test_init(self):
         sess = self.sess
-        env = make('Swimmer-v1')
+        env = make('Pendulum-v0')
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
         action_dim = env_spec.flat_action_dim

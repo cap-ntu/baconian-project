@@ -24,7 +24,7 @@ class TestMisc(BaseTestCase):
         self.assertEqual(env.flat_action_dim, 2)
 
     def test_misc_func(self):
-        env = make('Swimmer-v1')
+        env = make('Pendulum-v0')
         a = make_batch(v=np.array([env.action_space.sample() for _ in range(10)]),
                        original_shape=env.env_spec.action_shape)
         self.assertEqual(a.shape[0], 10)

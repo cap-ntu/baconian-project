@@ -19,6 +19,7 @@ Keras-Preprocessing==1.0.9
 lockfile==0.12.2
 Markdown==3.0.1
 mock==2.0.0
+mujoco-py==1.50.1.68
 numpy==1.16.2
 overrides==1.9
 pbr==5.1.3

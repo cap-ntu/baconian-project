@@ -1,11 +1,17 @@
 from baconian.core.core import Env, EnvSpec
 import gym.envs
 from gym.envs.registration import registry
-from gym.envs.mujoco import mujoco_env
+
+have_mujoco_flag = True
+try:
+    from gym.envs.mujoco import mujoco_env
+except Exception:
+    have_mujoco_flag = False
+
 import numpy as np
 import types
 from gym.spaces import *
-from gym.core import Space as GymSpace
+from gym.spaces import Space as GymSpace
 import baconian.common.spaces as garage_space
 from typeguard import typechecked
 from baconian.core.status import register_counter_info_to_status_decorator
@@ -83,7 +89,7 @@ class GymEnv(Env):
         return super().seed(seed)
 
     def get_state(self):
-        if isinstance(self.unwrapped_gym, mujoco_env.MujocoEnv) or (
+        if (have_mujoco_flag is True and isinstance(self.unwrapped_gym, mujoco_env.MujocoEnv)) or (
                 hasattr(self.unwrapped_gym, '_get_obs') and callable(self.unwrapped_gym._get_obs)):
             return self.unwrapped_gym._get_obs()
         elif hasattr(self.unwrapped_gym, '_get_ob') and callable(self.unwrapped_gym._get_ob):
