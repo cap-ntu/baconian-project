@@ -1,12 +1,13 @@
 language: python
 python:
   - "3.5"
-
+before_install:
+  - "export PYTHONPATH=$PYTHONPATH:$(pwd)"
 install:
   - pip install -r requirement.txt
 
 script: python baconian/test/run_all_tests.py
-
+env: PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR/baconian-internal
 branches:
   only:
   - master
