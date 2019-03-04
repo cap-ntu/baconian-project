@@ -14,8 +14,12 @@ offered.
 ### Release news:
 - 2019.03.04 Release the v0.1 within CAP group
 ### Documentation
-Documentation is available at http://baconian.readthedocs.io/ 
-
+Documentation is available at http://baconian.readthedocs.io/ (release soon, the configuration is undergoing)
+#### How to install
+(`source activate you_env` if you are using anaconda or consider creating a new env by `conda env create -name some_env`)
+```
+pip install -r requirment.txt
+```
 ### Acknowledgement 
 Thanks to the following open-source projects:
 
