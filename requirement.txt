@@ -33,7 +33,6 @@ decorator==4.3.0
 dill==0.2.7.1
 docutils==0.14
 easy-tf-log==1.1
-flatbuffers==2015.12.22.1
 funcsigs==1.0.2
 future==0.16.0
 gast==0.2.0
@@ -105,15 +104,14 @@ sphinxcontrib-websupport==1.1.0
 statsmodels==0.8.0
 stochastic==0.3.0
 tensorboard==1.12.2
-tensorflow==1.12.0
 tensorflow-gpu==1.12.0
 tensorflow-probability==0.5.0
 tensorlayer==1.8.4
 termcolor==1.1.0
--e git+https://github.com/openai/mlsh.git@58f527ab7e3397eeb723a7309852b6d8791d5c24#egg=test_envs&subdirectory=test_envs
 tqdm==4.23.0
 transitions==0.6.9
 typeguard==2.2.2
 urllib3==1.22
 Werkzeug==0.14.1
 zmq==0.0.0
+GPUtil==1.4.0
