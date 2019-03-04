@@ -27,7 +27,12 @@ There are some examples placed at `examples` which you can have a test.
 
 
 ### Todo
-[] sss
+
+- [ ] Visualization module
+- [ ] Optimal control algorithms: LQR, Ilqr
+- [ ] State-of-art model-based algorithms
+- [ ] Benchmark tests on multiple tasks
+
 ### Acknowledgement 
 Thanks to the following open-source projects:
 
