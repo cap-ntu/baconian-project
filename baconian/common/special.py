@@ -172,7 +172,8 @@ def make_batch(v, original_shape: (list, tuple)):
     if not isinstance(v, np.ndarray):
         v = np.ndarray(v)
     # assert len(v.shape) <= len(original_shape) + 1
-    if len(v.shape) == len(original_shape) + 1:
+    if len(v.shape) == len(original_shape) + 1 and np.equal(np.array(v.shape[1:]),
+                                                            np.array(original_shape)).all() is True:
         return v
     else:
         bs = np.prod(list(v.shape)) / np.prod(original_shape)
