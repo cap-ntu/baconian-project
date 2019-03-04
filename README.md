@@ -1,7 +1,6 @@
 # Baconian:  Boosting the model-based reinforcement learning 
  
-
-[![Build Status](https://travis-ci.com/Lukeeeeee/ModelBasedRLFramework.svg?token=dTo6wB1jmzxu58xyRPX6&branch=master)](https://travis-ci.com/Lukeeeeee/ModelBasedRLFramework)
+[![Build Status](https://travis-ci.com/Lukeeeeee/baconian-internal.svg?token=dTo6wB1jmzxu58xyRPX6&branch=master)](https://travis-ci.com/Lukeeeeee/baconian-internal)
 [![Documentation Status](https://readthedocs.org/projects/baconian/badge/?version=latest)](https://baconian.readthedocs.io/en/latest/?badge=latest)
 
 Baconian [beˈkonin] is a toolbox for model-based reinforcement learning with user-friendly experiment setting-up, logging 
@@ -20,6 +19,15 @@ Documentation is available at http://baconian.readthedocs.io/ (release soon, the
 ```
 pip install -r requirment.txt
 ```
+Then you are free to go. If you want to use the full environments of gym, e.g., Mujoco, please refer to its  project 
+page to install the requirements (you may need to re-install gym after that.)
+
+#### Examples
+There are some examples placed at `examples` which you can have a test. 
+
+
+### Todo
+[] sss
 ### Acknowledgement 
 Thanks to the following open-source projects:
 
