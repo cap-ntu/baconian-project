@@ -74,7 +74,7 @@ class TestWithLogSet(BaseTestCase):
             shutil.rmtree(GlobalConfig.DEFAULT_LOG_PATH)
         except FileNotFoundError:
             pass
-        os.mkdir(GlobalConfig.DEFAULT_LOG_PATH)
+        os.makedirs(GlobalConfig.DEFAULT_LOG_PATH)
         self.assertFalse(ConsoleLogger().inited_flag)
         self.assertFalse(Logger().inited_flag)
 
@@ -115,7 +115,7 @@ class SimpleTestSetup(BaseTestCase):
             shutil.rmtree(GlobalConfig.DEFAULT_LOG_PATH)
         except FileNotFoundError:
             pass
-        os.mkdir(GlobalConfig.DEFAULT_LOG_PATH)
+        os.makedirs(GlobalConfig.DEFAULT_LOG_PATH)
         self.assertFalse(ConsoleLogger().inited_flag)
         self.assertFalse(Logger().inited_flag)
 

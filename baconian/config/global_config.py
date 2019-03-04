@@ -47,7 +47,8 @@ class DefaultGlobalConfig(object):
 
     DEFAULT_ALLOWED_LOG_FILE_TYPES = ('json', 'csv', 'h5py')
     DEFAULT_LOG_LEVEL = 'DEBUG'
-    DEFAULT_LOG_PATH = '/home/dls/CAP/baconian-internal/baconian/test/tests/tmp_path'
+    from baconian import ROOT_PATH
+    DEFAULT_LOG_PATH = os.path.join(ROOT_PATH, 'test/tests/tmp_path')
     DEFAULT_MODEL_PATH = os.path.join(DEFAULT_LOG_PATH, 'model')
     DEFAULT_LOG_CONFIG_DICT = dict()
     DEFAULT_LOG_USE_GLOBAL_MEMO_FLAG = True
