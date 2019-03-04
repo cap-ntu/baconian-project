@@ -53,7 +53,6 @@ class TestPlaceholderInput(TestWithAll):
                                    dqn2.target_q_value_func.parameters('tf_var_list'))
 
         dqn.init()
-        # self.assert_var_list_at_least_not_equal(dqn.parameters('tf_var_list'), dqn2.parameters('tf_var_list'))
         self.assert_var_list_at_least_not_equal(dqn.q_value_func.parameters('tf_var_list'),
                                                 dqn2.q_value_func.parameters('tf_var_list'))
         self.assert_var_list_at_least_not_equal(dqn.target_q_value_func.parameters('tf_var_list'),

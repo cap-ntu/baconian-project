@@ -8,7 +8,7 @@ from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
 from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
 from baconian.agent.agent import Agent
-from baconian.algo.rl.misc.exploration_strategy.epsilon_greedy import EpsilonGreedy
+from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
 from baconian.core.experiment import Experiment
 from baconian.core.pipelines.train_test_flow import TrainTestFlow
 from baconian.config.global_config import GlobalConfig
@@ -70,12 +70,6 @@ def task_fn():
         env=env,
         agent=agent,
         flow=TrainTestFlow(),
-        config_or_config_dict={
-            "console_logger_to_file_flag": True,
-            "console_logger_to_file_name": "console_test.log",
-            "log_path": GlobalConfig.DEFAULT_LOG_PATH,
-            "log_level": "DEBUG"
-        },
         name=name + 'experiment_debug'
     )
 
