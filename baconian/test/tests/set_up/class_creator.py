@@ -20,7 +20,7 @@ from baconian.algo.rl.model_based.misc.reward_func.reward_func import RandomRewa
 from baconian.algo.rl.policy.random_policy import UniformRandomPolicy
 from baconian.agent.agent import Agent
 from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
-from baconian.core.pipelines.model_free_pipelines import ModelFreePipeline
+# from baconian.core.pipelines.model_free_pipelines import ModelFreePipeline
 from baconian.core.experiment import Experiment
 from baconian.core.pipelines.train_test_flow import TrainTestFlow
 from baconian.config.global_config import GlobalConfig
@@ -351,12 +351,12 @@ class ClassCreatorSetup(unittest.TestCase):
                       exploration_strategy=eps)
         return agent, locals()
 
-    def create_model_free_pipeline(self, env, agent):
-        model_free = ModelFreePipeline(agent=agent, env=env,
-                                       config_or_config_dict=dict(TEST_SAMPLES_COUNT=100,
-                                                                  TRAIN_SAMPLES_COUNT=100,
-                                                                  TOTAL_SAMPLES_COUNT=1000))
-        return model_free, locals()
+    # def create_model_free_pipeline(self, env, agent):
+    #     model_free = ModelFreePipeline(agent=agent, env=env,
+    #                                    config_or_config_dict=dict(TEST_SAMPLES_COUNT=100,
+    #                                                               TRAIN_SAMPLES_COUNT=100,
+    #                                                               TOTAL_SAMPLES_COUNT=1000))
+    #     return model_free, locals()
 
     def create_exp(self, name, env, agent):
         experiment = Experiment(

@@ -2,7 +2,7 @@ from baconian.config.global_config import GlobalConfig
 from baconian.test.tests.set_up.setup import TestWithLogSet
 import numpy as np
 from baconian.core.parameters import Parameters
-from baconian.common.util.schedules import LinearSchedule, PiecewiseSchedule
+from baconian.common.util.schedules import LinearSchedule, PiecewiseSchedule, PeriodicalEventSchedule
 
 x = 1
 
@@ -46,7 +46,7 @@ class TestParam(TestWithLogSet):
                                                  dict(param_key='param4',
                                                       scheduler=PiecewiseSchedule(t_fn=func,
                                                                                   endpoints=(
-                                                                                  (2, 0.5), (8, 0.2), (10, 0.0)),
+                                                                                      (2, 0.5), (8, 0.2), (10, 0.0)),
                                                                                   outside_value=0.0,
                                                                                   ))))
         a.init()
@@ -62,4 +62,20 @@ class TestParam(TestWithLogSet):
                 self.assertEqual(a('param4'), 0.2)
             if x >= 10:
                 self.assertEqual(a('param4'), 0.0)
+            x += 1
+
+    def test_event_schedule(self):
+        def func():
+            global x
+            return x
+
+        a = PeriodicalEventSchedule(t_fn=func,
+                                    trigger_every_step=5,
+                                    after_t=10)
+        for i in range(100):
+            if i % 5 != 0 or i < 10:
+                self.assertFalse(a.value())
+            else:
+                self.assertTrue(a.value())
+            global x
             x += 1
