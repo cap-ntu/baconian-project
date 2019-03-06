@@ -2,7 +2,7 @@ from baconian.algo.rl.model_based.models.dynamics_model import DynamicsModel
 from typeguard import typechecked
 from baconian.config.dict_config import DictConfig
 from baconian.common.sampler.sample_data import TransitionData
-from baconian.tf.tf_parameters import TensorflowParameters
+from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.config.global_config import GlobalConfig
 from baconian.algo.rl.rl_algo import ModelFreeAlgo, ModelBasedAlgo
 from baconian.common.misc import *
@@ -57,11 +57,11 @@ class SampleWithDynamics(ModelBasedAlgo, MultiPlaceholderInput):
                  ):
         super().__init__(env_spec, dynamics_model, name)
         config = construct_dict_config(config_or_config_dict, self)
-        parameters = TensorflowParameters(tf_var_list=[],
-                                          rest_parameters=dict(),
-                                          name='sample_with_model_param',
-                                          source_config=config,
-                                          require_snapshot=False)
+        parameters = ParametersWithTensorflowVariable(tf_var_list=[],
+                                                      rest_parameters=dict(),
+                                                      name='sample_with_model_param',
+                                                      source_config=config,
+                                                      require_snapshot=False)
         sub_placeholder_input_list = []
         if isinstance(dynamics_model, PlaceholderInput):
             sub_placeholder_input_list.append(dict(obj=dynamics_model,

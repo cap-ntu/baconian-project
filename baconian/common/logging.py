@@ -112,9 +112,8 @@ class _SingletonLogger(BaseLogger):
         if self.inited_flag:
             return
         self._log_dir = log_path
-        # todo debug only
-        # if os.path.exists(self._log_dir):
-        #     raise FileExistsError('%s path is existed' % self._log_dir)
+        if os.path.exists(self._log_dir):
+            raise FileExistsError('%s path is existed' % self._log_dir)
         self._config_file_log_dir = os.path.join(self._log_dir, 'config')
         self._record_file_log_dir = os.path.join(self._log_dir, 'record')
 
@@ -233,7 +232,6 @@ class Recorder(object):
         return len(self._obj_log) == 0
 
     def record(self):
-        # todo how to call this function should be indicated
         self._record_by_getter()
 
     @typechecked

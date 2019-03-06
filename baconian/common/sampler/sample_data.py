@@ -28,7 +28,6 @@ class SampleData(object):
 
     def reset(self):
         for key, data_set in self._internal_data_dict.items():
-            # todo how to define the reset value
             self._internal_data_dict[key][0] = []
         self.cumulative_reward = 0.0
         self.step_count_per_episode = 0
@@ -74,17 +73,9 @@ class SampleData(object):
             data_set = data_set.tolist()
         shape = tuple(shape)
         self._internal_data_dict[name] = [data_set, shape]
-        # self._allowed_data_set_keys.append(name)
-        # self._register_data_set(name=name)
 
     def sample_batch(self, *args, **kwargs):
         raise NotImplementedError
-
-    # todo in future version, use following api
-
-    # def _register_data_set(self, name):
-    #     self.__setattr__(name, )
-    #     setattr(self, name, property(fget=self()))
 
     @property
     def _allowed_data_set_keys(self):

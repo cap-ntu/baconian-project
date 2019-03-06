@@ -4,7 +4,7 @@ import overrides
 import numpy as np
 import tensorflow as tf
 from typeguard import typechecked
-from baconian.tf.tf_parameters import TensorflowParameters
+from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.tf.mlp import MLP
 from baconian.common.special import *
 from baconian.algo.rl.utils import _get_copy_arg_with_tf_reuse
@@ -47,9 +47,9 @@ class MLPVValueFunc(ValueFunction, PlaceholderInput):
                       output_low=output_low,
                       name_scope=name_scope,
                       net_name='mlp')
-        parameters = TensorflowParameters(tf_var_list=mlp_net.var_list,
-                                          rest_parameters=dict(state_input=state_input),
-                                          name='mlp_v_value_function_tf_param')
+        parameters = ParametersWithTensorflowVariable(tf_var_list=mlp_net.var_list,
+                                                      rest_parameters=dict(state_input=state_input),
+                                                      name='mlp_v_value_function_tf_param')
         ValueFunction.__init__(self,
                                env_spec=env_spec,
                                name=name,

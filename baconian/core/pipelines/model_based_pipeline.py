@@ -25,7 +25,6 @@
 #         config = construct_dict_config(config_or_config_dict, obj=self)
 #         super().__init__(config=config, init_state=self.INIT_STATE, states=self.STATE_LIST, transitions=transitions)
 #
-#         # todo move the hard code here
 #         self.finite_state_machine.add_transition('init', 'state_not_inited', 'state_inited')
 #         self.finite_state_machine.add_transition('train agent',
 #                                                  ['state_agent_testing', 'state_inited', 'state_agent_training',

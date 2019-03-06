@@ -2,7 +2,7 @@ from typeguard import typechecked
 from baconian.tf.util import MLPCreator
 import tensorflow as tf
 import numpy as np
-from baconian.tf.tf_parameters import TensorflowParameters
+from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 
 
 class MLP(object):
@@ -34,9 +34,9 @@ class MLP(object):
                                                                                         output_norm=output_norm)
         for var in self.var_list:
             assert name_scope in var.name
-        self.parameters = TensorflowParameters(tf_var_list=self.var_list,
-                                               name='parameters_{}'.format(self.mlp_net_name),
-                                               rest_parameters=dict())
+        self.parameters = ParametersWithTensorflowVariable(tf_var_list=self.var_list,
+                                                           name='parameters_{}'.format(self.mlp_net_name),
+                                                           rest_parameters=dict())
 
     def forward(self, input: np.ndarray, sess=tf.get_default_session()) -> np.ndarray:
         feed_dict = {

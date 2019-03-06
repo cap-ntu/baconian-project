@@ -9,7 +9,7 @@ import tensorflow as tf
 import tensorflow.contrib as tfcontrib
 import numpy as np
 from baconian.common.sampler.sample_data import TransitionData
-from baconian.tf.tf_parameters import TensorflowParameters
+from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.config.global_config import GlobalConfig
 from baconian.common.misc import *
 from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
@@ -26,12 +26,10 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
     def __init__(self,
                  env_spec,
                  config_or_config_dict: (DictConfig, dict),
-                 # todo bug on mlp value function and its placeholder which is crushed with the dqn placeholder
                  value_func: MLPQValueFunction,
                  schedule_param_list=None,
                  name: str = 'dqn',
                  replay_buffer=None):
-        # todo add the action iterator
         ModelFreeAlgo.__init__(self, env_spec=env_spec, name=name)
         self.config = construct_dict_config(config_or_config_dict, self)
 
@@ -46,12 +44,12 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
         self.state_input = self.q_value_func.state_input
         self.action_input = self.q_value_func.action_input
 
-        self.parameters = TensorflowParameters(tf_var_list=[],
-                                               rest_parameters=dict(),
-                                               to_scheduler_param_tuple=schedule_param_list,
-                                               name='{}_param'.format(name),
-                                               source_config=self.config,
-                                               require_snapshot=False)
+        self.parameters = ParametersWithTensorflowVariable(tf_var_list=[],
+                                                           rest_parameters=dict(),
+                                                           to_scheduler_param_tuple=schedule_param_list,
+                                                           name='{}_param'.format(name),
+                                                           source_config=self.config,
+                                                           require_snapshot=False)
 
         with tf.variable_scope(name):
             self.reward_input = tf.placeholder(shape=[None, 1], dtype=tf.float32)
@@ -70,12 +68,6 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
                                               scope='{}/train'.format(name)) + self.optimizer.variables()
         self.parameters.set_tf_var_list(tf_var_list=sorted(list(set(var_list)), key=lambda x: x.name))
 
-        # todo for test record only
-        self.recorder.register_logging_attribute_by_record(obj=self,
-                                                           attr_name='dqn_adaptive_learning_rate',
-                                                           static_flag=False,
-                                                           get_method=lambda x: x['obj'].parameters('LEARNING_RATE',
-                                                                                                    require_true_value=True))
         MultiPlaceholderInput.__init__(self,
                                        sub_placeholder_input_list=[dict(obj=self.q_value_func,
                                                                         attr_name='q_value_func',
@@ -87,7 +79,6 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
 
     @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='JUST_INITED')
     def init(self, sess=None, source_obj=None):
-        # todo did not support from other objs
         super().init()
         self.q_value_func.init()
         self.target_q_value_func.init()
@@ -97,7 +88,6 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
 
     @record_return_decorator(which_recorder='self')
     @register_counter_info_to_status_decorator(increment=1, info_key='train_counter', under_status='TRAIN')
-    # todo check two decorator will crush each other or not
     @typechecked
     def train(self, batch_data=None, train_iter=None, sess=None, update_target=True) -> dict:
         super(DQN, self).train()
@@ -225,11 +215,10 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
         return np.array(actions), np.array(q_values)
 
     def _set_up_loss(self):
-        l1_l2 = tfcontrib.layers.l1_l2_regularizer(scale_l1=self.parameters('Q_NET_L1_NORM_SCALE'),
-                                                   scale_l2=self.parameters('Q_NET_L2_NORM_SCALE'))
         # todo bug here of l1 l2
-        loss = tf.reduce_sum((self.predict_q_value - self.q_value_func.q_tensor) ** 2) + \
-               tfcontrib.layers.apply_regularization(l1_l2, weights_list=self.q_value_func.parameters('tf_var_list'))
+        reg_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES, scope=self.q_value_func.name_scope)
+        loss = tf.reduce_sum((self.predict_q_value - self.q_value_func.q_tensor) ** 2) + tf.reduce_sum(reg_loss)
+
         optimizer = tf.train.AdamOptimizer(learning_rate=self.parameters('LEARNING_RATE'))
         optimize_op = optimizer.minimize(loss=loss, var_list=self.q_value_func.parameters('tf_var_list'))
         return loss, optimizer, optimize_op

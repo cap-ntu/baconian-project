@@ -5,6 +5,8 @@ from tensorflow.contrib.layers import variance_scaling_initializer as contrib_W_
 from typeguard import typechecked
 import collections
 import multiprocessing
+import tensorflow.contrib as tf_contrib
+
 
 __all__ = ['get_tf_collection_var_list', 'MLPCreator']
 
@@ -107,15 +109,19 @@ class MLPCreator(object):
         last_layer_act = None
         for layer_config in network_config:
             if layer_config['TYPE'] == 'DENSE':
-                if layer_config['B_INIT_VALUE'] == 'None':
+                if layer_config['B_INIT_VALUE'] is None:
                     b_init = None
                 else:
                     b_init = tf.constant_initializer(value=layer_config['B_INIT_VALUE'])
+                l1_norm = layer_config['L1_NORM'] if 'L1_NORM' in layer_config else 0.0
+                l2_norm = layer_config['L2_NORM'] if 'L2_NORM' in layer_config else 0.0
                 net = tf.layers.dense(inputs=net,
                                       units=layer_config['N_UNITS'],
                                       activation=MLPCreator.act_dict[layer_config['ACT']],
                                       use_bias=b_init is not None,
                                       kernel_initializer=contrib_W_init(),
+                                      kernel_regularizer=tf_contrib.layers.l1_l2_regularizer(l1_norm, l2_norm),
+                                      bias_regularizer=tf_contrib.layers.l1_l2_regularizer(l1_norm, l2_norm),
                                       bias_initializer=b_init,
                                       name=net_name + '_' + layer_config['NAME'],
                                       reuse=reuse

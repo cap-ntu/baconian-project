@@ -11,7 +11,6 @@ def reset_all():
 
 
 def reset(key: str):
-    # todo default reset value
     globals()[key] = {}
 
 

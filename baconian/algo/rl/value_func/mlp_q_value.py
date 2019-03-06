@@ -2,7 +2,7 @@ import typeguard as tg
 from baconian.core.core import EnvSpec
 import overrides
 import tensorflow as tf
-from baconian.tf.tf_parameters import TensorflowParameters
+from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.tf.mlp import MLP
 from baconian.common.special import *
 from baconian.core.util import init_func_arg_record_decorator
@@ -53,10 +53,10 @@ class MLPQValueFunction(ValueFunction, PlaceholderInput):
                       output_low=output_low,
                       name_scope=name_scope,
                       net_name='mlp')
-        parameters = TensorflowParameters(tf_var_list=mlp_net.var_list,
-                                          rest_parameters=dict(),
-                                          default_save_type='tf',
-                                          name='{}_tf_param'.format(name))
+        parameters = ParametersWithTensorflowVariable(tf_var_list=mlp_net.var_list,
+                                                      rest_parameters=dict(),
+                                                      default_save_type='tf',
+                                                      name='{}_tf_param'.format(name))
         ValueFunction.__init__(self,
                                env_spec=env_spec,
                                name=name,

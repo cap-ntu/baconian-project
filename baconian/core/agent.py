@@ -25,7 +25,8 @@ class Agent(Basic):
     @typechecked
     def __init__(self, name,
                  config_or_config_dict: (DictConfig, dict),
-                 env: GlobalConfig.DEFAULT_ALLOWED_GYM_ENV_TYPE + (Env,), algo: Algo, env_spec: EnvSpec,
+                 env: Env,
+                 algo: Algo, env_spec: EnvSpec,
                  sampler: Sampler = None,
                  exploration_strategy: ExplorationStrategy = None,
                  algo_saving_scheduler: EventSchedule = None):

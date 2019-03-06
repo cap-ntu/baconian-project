@@ -5,7 +5,7 @@ from typeguard import typechecked
 import tensorflow as tf
 import numpy as np
 from baconian.common.sampler.sample_data import TrajectoryData, TransitionData
-from baconian.tf.tf_parameters import TensorflowParameters
+from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.config.global_config import GlobalConfig
 from baconian.algo.rl.policy.policy import StochasticPolicy
 from baconian.algo.rl.value_func.mlp_v_value import MLPVValueFunc
@@ -14,7 +14,7 @@ from baconian.common.misc import *
 from baconian.algo.rl.misc.sample_processor import SampleProcessor
 from baconian.common.logging import record_return_decorator
 from baconian.core.status import register_counter_info_to_status_decorator
-from baconian.algo.placeholder_input import MultiPlaceholderInput
+from baconian.algo.placeholder_input import MultiPlaceholderInput, PlaceholderInput
 
 
 class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
@@ -24,7 +24,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
     def __init__(self, env_spec: EnvSpec,
                  stochastic_policy: StochasticPolicy,
                  config_or_config_dict: (DictConfig, dict),
-                 # todo bug on mlp value function and its placeholder which is crushed with the dqn placeholder
+                 # todo value func type is too hard
                  value_func: MLPVValueFunc,
                  name='ppo'):
         ModelFreeAlgo.__init__(self, env_spec=env_spec, name=name)
@@ -40,10 +40,6 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         with tf.variable_scope(name):
             self.advantages_ph = tf.placeholder(tf.float32, (None,), 'advantages')
             self.v_func_val_ph = tf.placeholder(tf.float32, (None,), 'val_valfunc')
-            # todo old_log_vars_ph and old_policy would limit the policy to be normal distribution
-
-            # self.old_log_vars_ph = tf.placeholder(tf.float32, (self.env_spec.flat_action_dim,), 'old_log_vars')
-            # self.old_means_ph = tf.placeholder(tf.float32, (None, self.env_spec.flat_action_dim), 'old_means')
             dist_info_list = self.policy.get_dist_info()
             self.old_dist_tensor = [
                 (tf.placeholder(**dict(dtype=dist_info['dtype'],
@@ -56,25 +52,21 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                                                     name_scope='old_{}'.format(self.policy.name),
                                                     name='old_{}'.format(self.policy.name),
                                                     distribution_tensors_tuple=tuple(self.old_dist_tensor))
-            # if adaptive_learning_rate is not False:
-            #     to_ph_parameter_dict['policy_lr'] = tf.placeholder(shape=(), dtype=tf.float32,
-            #                                                        name='policy_lr')
-            #     to_ph_parameter_dict['value_func_lr'] = tf.placeholder(shape=(), dtype=tf.float32,
-            #                                                            name='value_func_lr')
             to_ph_parameter_dict['beta'] = tf.placeholder(tf.float32, (), 'beta')
             to_ph_parameter_dict['eta'] = tf.placeholder(tf.float32, (), 'eta')
             to_ph_parameter_dict['kl_target'] = tf.placeholder(tf.float32, (), 'kl_target')
+            to_ph_parameter_dict['lr_multiplier'] = tf.placeholder(tf.float32, (), 'lr_multiplier')
 
-        self.parameters = TensorflowParameters(tf_var_list=[],
-                                               rest_parameters=dict(
-                                                   advantages_ph=self.advantages_ph,
-                                                   v_func_val_ph=self.v_func_val_ph,
-                                               ),
-                                               to_ph_parameter_dict=to_ph_parameter_dict,
-                                               name='ppo_param',
-                                               save_rest_param_flag=False,
-                                               source_config=self.config,
-                                               require_snapshot=False)
+        self.parameters = ParametersWithTensorflowVariable(tf_var_list=[],
+                                                           rest_parameters=dict(
+                                                               advantages_ph=self.advantages_ph,
+                                                               v_func_val_ph=self.v_func_val_ph,
+                                                           ),
+                                                           to_ph_parameter_dict=to_ph_parameter_dict,
+                                                           name='ppo_param',
+                                                           save_rest_param_flag=False,
+                                                           source_config=self.config,
+                                                           require_snapshot=False)
         with tf.variable_scope(name):
             with tf.variable_scope('train'):
                 self.kl = tf.reduce_mean(self.old_policy.kl(other=self.policy))
@@ -178,7 +170,6 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         """
 
         if self.parameters('clipping_range') is not None:
-            print('setting up loss with clipping objective')
             pg_ratio = tf.exp(self.policy.log_prob() - self.old_policy.log_prob())
             clipped_pg_ratio = tf.clip_by_value(pg_ratio, 1 - self.parameters('clipping_range')[0],
                                                 1 + self.parameters('clipping_range')[1])
@@ -186,19 +177,25 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                                         self.advantages_ph * clipped_pg_ratio)
             loss = -tf.reduce_mean(surrogate_loss)
         else:
-            print('setting up loss with KL penalty')
             loss1 = -tf.reduce_mean(self.advantages_ph *
                                     tf.exp(self.policy.log_prob() - self.old_policy.log_prob()))
             loss2 = tf.reduce_mean(self.parameters('beta') * self.kl)
             loss3 = self.parameters('eta') * tf.square(
                 tf.maximum(0.0, self.kl - 2.0 * self.parameters('kl_target')))
             loss = loss1 + loss2 + loss3
-        optimizer = tf.train.AdamOptimizer(learning_rate=self.parameters('policy_lr'))
+        if isinstance(self.policy, PlaceholderInput):
+            reg_loss = tf.reduce_sum(
+                tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES, scope=self.policy.name_scope))
+            loss += reg_loss
+
+        optimizer = tf.train.AdamOptimizer(
+            learning_rate=self.parameters('policy_lr') * self.parameters('lr_multiplier'))
         train_op = optimizer.minimize(loss, var_list=self.policy.parameters('tf_var_list'))
         return loss, optimizer, train_op
 
     def _setup_value_func_loss(self):
-        loss = tf.reduce_mean(tf.square(self.value_func.v_tensor - self.v_func_val_ph))
+        reg_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES, scope=self.value_func.name_scope)
+        loss = tf.reduce_mean(tf.square(self.value_func.v_tensor - self.v_func_val_ph)) + tf.reduce_sum(reg_loss)
         optimizer = tf.train.AdamOptimizer(self.parameters('value_func_lr'))
         train_op = optimizer.minimize(loss, var_list=self.value_func.parameters('tf_var_list'))
         return loss, optimizer, train_op
@@ -226,6 +223,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         }
         average_loss, average_kl, average_entropy = 0.0, 0.0, 0.0
         total_epoch = 0
+        kl = None
         for i in range(train_iter):
             loss, kl, entropy, _ = sess.run(
                 [self.policy_loss, self.kl, tf.reduce_mean(self.policy.entropy()), self.policy_update_op],
@@ -239,15 +237,18 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
             # early stopping if D_KL diverges badly
         average_loss, average_kl, average_entropy = average_loss / total_epoch, average_kl / total_epoch, average_entropy / total_epoch
 
-        # todo how to set parameters value
-        # if kl > self.parameters('kl_target') * 2:  # servo beta to reach D_KL target
-        #     self.beta = np.minimum(35, 1.5 * self.beta)  # max clip beta
-        #     if self.beta > 30 and self.lr_multiplier > 0.1:
-        #         self.lr_multiplier /= 1.5
-        # elif kl < self.kl_targ / 2:
-        #     self.beta = np.maximum(1 / 35, self.beta / 1.5)  # min clip beta
-        #     if self.beta < (1 / 30) and self.lr_multiplier < 10:
-        #         self.lr_multiplier *= 1.5
+        if kl > self.parameters('kl_target', require_true_value=True) * 2:  # servo beta to reach D_KL target
+            self.parameters.set(key='beta',
+                                new_val=np.minimum(35, 1.5 * self.parameters('beta', require_true_value=True)))
+            if self.parameters('kl_target', require_true_value=True) > 30 and self.parameters('lr_multiplier',
+                                                                                              require_true_value=True) > 0.1:
+                self.parameters.set(key='lr_multiplier',
+                                    new_val=self.parameters('lr_multiplier', require_true_value=True) / 1.5)
+            elif kl < self.parameters('kl_target', require_true_value=True) / 2:
+                self.beta = np.maximum(1 / 35, self.beta / 1.5)  # min clip beta
+                if self.beta < (1 / 30) and self.parameters('lr_multiplier') < 10:
+                    self.parameters.set(key='lr_multiplier',
+                                        new_val=self.parameters('lr_multiplier', require_true_value=True) * 1.5)
         return dict(
             policy_average_loss=average_loss,
             policy_average_kl=average_kl,

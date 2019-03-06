@@ -34,11 +34,9 @@ class DictConfig(Config):
                 setattr(self, key, val)
 
     def save_config(self, path, name):
-        # todo check this
         DictConfig.save_to_json(dict=self.config_dict, path=path, file_name=name)
 
     def load_config(self, path):
-        # todo check this
         res = DictConfig.load_json(file_path=path)
         self.config_dict = res
 

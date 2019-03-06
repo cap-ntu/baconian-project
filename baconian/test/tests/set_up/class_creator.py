@@ -4,7 +4,7 @@ import tensorflow as tf
 from baconian.algo.rl.model_based.models.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
 from baconian.algo.placeholder_input import PlaceholderInput
 from baconian.algo.rl.model_free.dqn import DQN
-from baconian.tf.tf_parameters import TensorflowParameters
+from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.core.core import Basic, EnvSpec
 from baconian.envs.gym_env import make
 from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
@@ -44,12 +44,13 @@ class ClassCreatorSetup(unittest.TestCase):
 
         conf = DictConfig(required_key_dict=Foo.required_key_dict,
                           config_dict=dict(var1=1, var2=0.01))
-        param = TensorflowParameters(tf_var_list=[a, b],
-                                     rest_parameters=dict(var3='sss'),
-                                     name=name,
-                                     source_config=conf,
-                                     require_snapshot=True,
-                                     to_ph_parameter_dict=dict(var1=tf.placeholder(shape=(), dtype=tf.int32)))
+        param = ParametersWithTensorflowVariable(tf_var_list=[a, b],
+                                                 rest_parameters=dict(var3='sss'),
+                                                 name=name,
+                                                 source_config=conf,
+                                                 require_snapshot=True,
+                                                 to_ph_parameter_dict=dict(
+                                                     var1=tf.placeholder(shape=(), dtype=tf.int32)))
         return param, locals()
 
     def create_mlp_q_func(self, env_id='Acrobot-v1', name='mlp_q'):
@@ -67,7 +68,9 @@ class ClassCreatorSetup(unittest.TestCase):
                                           "NAME": "1",
                                           "N_UNITS": 16,
                                           "TYPE": "DENSE",
-                                          "W_NORMAL_STDDEV": 0.03
+                                          "W_NORMAL_STDDEV": 0.03,
+                                          "L1_NORM": 0.2,
+                                          "L2_NORM": 0.1
                                       },
                                       {
                                           "ACT": "LINEAR",
@@ -81,7 +84,7 @@ class ClassCreatorSetup(unittest.TestCase):
         return mlp_q, locals()
 
     def create_dqn(self, env_id='Acrobot-v1', name='dqn'):
-        mlp_q, local = self.create_mlp_q_func(env_id, name)
+        mlp_q, local = self.create_mlp_q_func(env_id, name='{}_mlp_q'.format(name))
         env_spec = local['env_spec']
         env = local['env']
         dqn = DQN(env_spec=env_spec,
@@ -93,7 +96,7 @@ class ClassCreatorSetup(unittest.TestCase):
                                              LEARNING_RATE=0.001,
                                              TRAIN_ITERATION=1,
                                              DECAY=0.5),
-                  name=name + 'dqn',
+                  name=name,
                   value_func=mlp_q)
         return dqn, locals()
 
@@ -103,12 +106,13 @@ class ClassCreatorSetup(unittest.TestCase):
 
         conf = DictConfig(required_key_dict=Foo.required_key_dict,
                           config_dict=dict(var1=1, var2=0.01))
-        param = TensorflowParameters(tf_var_list=[a],
-                                     rest_parameters=dict(var3='sss'),
-                                     name=name,
-                                     source_config=conf,
-                                     require_snapshot=True,
-                                     to_ph_parameter_dict=dict(var1=tf.placeholder(shape=(), dtype=tf.int32)))
+        param = ParametersWithTensorflowVariable(tf_var_list=[a],
+                                                 rest_parameters=dict(var3='sss'),
+                                                 name=name,
+                                                 source_config=conf,
+                                                 require_snapshot=True,
+                                                 to_ph_parameter_dict=dict(
+                                                     var1=tf.placeholder(shape=(), dtype=tf.int32)))
         param.init()
         a = PlaceholderInput(parameters=param, inputs=None)
 
@@ -203,6 +207,8 @@ class ClassCreatorSetup(unittest.TestCase):
                                       "B_INIT_VALUE": 0.0,
                                       "NAME": "1",
                                       "N_UNITS": 16,
+                                      "L1_NORM": 0.01,
+                                      "L2_NORM": 0.01,
                                       "TYPE": "DENSE",
                                       "W_NORMAL_STDDEV": 0.03
                                   },
@@ -226,6 +232,8 @@ class ClassCreatorSetup(unittest.TestCase):
                                                      "ACT": "RELU",
                                                      "B_INIT_VALUE": 0.0,
                                                      "NAME": "1",
+                                                     "L1_NORM": 0.01,
+                                                     "L2_NORM": 0.01,
                                                      "N_UNITS": 16,
                                                      "TYPE": "DENSE",
                                                      "W_NORMAL_STDDEV": 0.03
@@ -261,7 +269,8 @@ class ClassCreatorSetup(unittest.TestCase):
                 "kl_target": 0.003,
                 "policy_lr": 0.01,
                 "value_func_lr": 0.01,
-                "value_func_train_batch_size": 10
+                "value_func_train_batch_size": 10,
+                "lr_multiplier": 1.0
             },
             value_func=mlp_v,
             stochastic_policy=policy,
@@ -301,7 +310,7 @@ class ClassCreatorSetup(unittest.TestCase):
             mlp_config=[
                 {
                     "ACT": "RELU",
-                    "B_INIT_VALUE": 0.0,
+                    "B_INIT_VALUE": None,
                     "NAME": "1",
                     "N_UNITS": 16,
                     "TYPE": "DENSE",

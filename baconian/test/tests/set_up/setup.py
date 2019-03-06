@@ -73,7 +73,7 @@ class TestWithLogSet(BaseTestCase):
             shutil.rmtree(GlobalConfig.DEFAULT_LOG_PATH)
         except FileNotFoundError:
             pass
-        os.makedirs(GlobalConfig.DEFAULT_LOG_PATH)
+        # os.makedirs(GlobalConfig.DEFAULT_LOG_PATH)
         self.assertFalse(ConsoleLogger().inited_flag)
         self.assertFalse(Logger().inited_flag)
 
@@ -83,13 +83,12 @@ class TestWithLogSet(BaseTestCase):
         ConsoleLogger().init(logger_name='console_logger',
                              to_file_flag=True,
                              level=GlobalConfig.DEFAULT_LOG_LEVEL,
-                             to_file_name=os.path.join(GlobalConfig.DEFAULT_LOG_PATH, 'console.log'))
+                             to_file_name=os.path.join(Logger().log_dir, 'console.log'))
 
         self.assertTrue(ConsoleLogger().inited_flag)
         self.assertTrue(Logger().inited_flag)
 
     def tearDown(self):
-        # todo a little bug here if to call super()
         BaseTestCase.tearDown(self)
         Logger().reset()
         ConsoleLogger().reset()

@@ -67,8 +67,6 @@ class ModelPredictiveControl(ModelBasedAlgo):
             path = TransitionData(env_spec=self.env_spec)
             # todo terminal_func signal problem to be consider?
             for _ in range(self.parameters('SAMPLED_HORIZON')):
-                # todo this is just _random_sampling method, use an abstract method e.g., policy to replace it.
-                # ac = self.env_spec.action_space.sample()
                 ac = self.policy.forward(obs=state)
                 new_state = self.dynamics_model.step(action=ac, state=state)
                 re = self.reward_func(state=state, action=ac, new_state=new_state)

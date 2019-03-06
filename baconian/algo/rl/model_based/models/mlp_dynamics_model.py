@@ -2,7 +2,7 @@ from baconian.common.special import flatten_n
 from baconian.core.core import EnvSpec
 from baconian.algo.rl.model_based.models.dynamics_model import GlobalDynamicsModel, DerivableDynamics
 import tensorflow as tf
-from baconian.tf.tf_parameters import TensorflowParameters
+from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.tf.mlp import MLP
 import tensorflow.contrib as tf_contrib
 from baconian.common.sampler.sample_data import TransitionData
@@ -57,14 +57,14 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
                       net_name='mlp')
         assert mlp_net.output.shape[1] == env_spec.flat_obs_dim
 
-        parameters = TensorflowParameters(tf_var_list=mlp_net.var_list,
-                                          name=name + '_''mlp_continuous_dynamics_model',
-                                          rest_parameters=dict(l1_norm_scale=l1_norm_scale,
-                                                               l2_norm_scale=l2_norm_scale,
-                                                               output_low=output_low,
-                                                               output_high=output_high,
-                                                               input_norm=input_norm,
-                                                               learning_rate=learning_rate))
+        parameters = ParametersWithTensorflowVariable(tf_var_list=mlp_net.var_list,
+                                                      name=name + '_''mlp_continuous_dynamics_model',
+                                                      rest_parameters=dict(l1_norm_scale=l1_norm_scale,
+                                                                           l2_norm_scale=l2_norm_scale,
+                                                                           output_low=output_low,
+                                                                           output_high=output_high,
+                                                                           input_norm=input_norm,
+                                                                           learning_rate=learning_rate))
         with tf.variable_scope(name_scope):
             with tf.variable_scope('train'):
                 new_state_output = mlp_net.output + state_input
@@ -104,6 +104,7 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
             self.copy_from(obj=source_obj)
 
     @register_counter_info_to_status_decorator(increment=1, info_key='step')
+    @typechecked
     def step(self, action: np.ndarray, state=None, **kwargs_for_transit):
         return super().step(action, state, **kwargs_for_transit)
 

@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-from baconian.tf.tf_parameters import TensorflowParameters
+from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.config.dict_config import DictConfig
 from baconian.core.core import Basic, EnvSpec
 from baconian.test.tests.set_up.setup import TestWithAll

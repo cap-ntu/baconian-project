@@ -99,7 +99,7 @@ class Experiment(Basic):
         tf.reset_default_graph()
         reset_global_var()
         reset_global_status_collect()
-        reset_global_experiment_status()
+        # reset_global_experiment_status()
         reset_logging()
 
     def _is_ended(self):

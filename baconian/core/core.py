@@ -78,6 +78,9 @@ class Env(gym.Env, Basic):
     def init(self):
         self._status.set_status('JUST_INITED')
 
+    def get_state(self):
+        raise NotImplementedError
+
 
 class EnvSpec(object):
     @init_func_arg_record_decorator()

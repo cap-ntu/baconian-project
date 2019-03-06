@@ -7,8 +7,7 @@ from baconian.common.logging import ConsoleLogger
 from baconian.common.error import *
 
 __all__ = ['Status', 'StatusWithSubInfo', 'StatusWithSingleInfo', 'StatusWithInfo', 'StatusCollector',
-           'reset_global_experiment_status', 'reset_global_status_collect',
-           'register_counter_info_to_status_decorator', 'get_global_status_collect', 'get_global_experiment_status']
+           'reset_global_status_collect', 'register_counter_info_to_status_decorator', 'get_global_status_collect']
 
 
 class Status(object):
@@ -66,7 +65,6 @@ class StatusWithInfo(Status):
 
 
 class StatusWithSingleInfo(StatusWithInfo):
-    # todo StatusWithInfo
     def __init__(self, obj):
         super().__init__(obj)
 
@@ -231,7 +229,6 @@ def register_counter_info_to_status_decorator(increment, info_key, under_status:
             final_st = (None,)
 
         def wrap_with_self(self, *args, **kwargs):
-            # todo call the fn first in order to get a correct status
             # todo a bug here, which is record() called in fn will lost the just appended info_key at the very first
             obj = self
             if not hasattr(obj, '_status') or not isinstance(getattr(obj, '_status'), StatusWithInfo):
@@ -258,22 +255,20 @@ def register_counter_info_to_status_decorator(increment, info_key, under_status:
     return wrap
 
 
-_global_experiment_status = StatusWithSingleInfo(obj=None)
+# _global_experiment_status = StatusWithSingleInfo(obj=None)
+#
+# from baconian.config.global_config import GlobalConfig
+#
+# for key in GlobalConfig.DEFAULT_EXPERIMENT_END_POINT.keys():
+#     _global_experiment_status.append_new_info(info_key=key, init_value=0)
 
-from baconian.config.global_config import GlobalConfig
+# def get_global_experiment_status() -> StatusWithSingleInfo:
+#     return globals()['_global_experiment_status']
+#
 
-for key in GlobalConfig.DEFAULT_EXPERIMENT_END_POINT.keys():
-    _global_experiment_status.append_new_info(info_key=key, init_value=0)
-
-
-def get_global_experiment_status() -> StatusWithSingleInfo:
-    # todo how to use global status
-    return globals()['_global_experiment_status']
-
-
-def reset_global_experiment_status():
-    globals()['_global_experiment_status'].reset()
-
+# def reset_global_experiment_status():
+#     globals()['_global_experiment_status'].reset()
+#
 
 _global_status_collector = StatusCollector()
 

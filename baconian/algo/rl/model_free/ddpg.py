@@ -6,7 +6,7 @@ from baconian.algo.rl.misc.replay_buffer import UniformRandomReplayBuffer, BaseR
 import tensorflow as tf
 import tensorflow.contrib as tf_contrib
 from baconian.common.sampler.sample_data import TransitionData
-from baconian.tf.tf_parameters import TensorflowParameters
+from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.config.global_config import GlobalConfig
 from baconian.common.special import *
 from baconian.algo.rl.policy.deterministic_mlp import DeterministicMLPPolicy
@@ -24,7 +24,7 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
     def __init__(self,
                  env_spec: EnvSpec,
                  config_or_config_dict: (DictConfig, dict),
-                 # todo bug on mlp value function and its placeholder which is crushed with the dqn placeholder
+                 # todo value func and policy type is too hard
                  value_func: MLPQValueFunction,
                  policy: DeterministicMLPPolicy,
                  adaptive_learning_rate=False,
@@ -60,13 +60,12 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
                 to_ph_parameter_dict['ACTOR_LEARNING_RATE'] = tf.placeholder(shape=(), dtype=tf.float32)
                 to_ph_parameter_dict['CRITIC_LEARNING_RATE'] = tf.placeholder(shape=(), dtype=tf.float32)
 
-        self.parameters = TensorflowParameters(tf_var_list=[],
-                                               rest_parameters=dict(),
-                                               to_ph_parameter_dict=to_ph_parameter_dict,
-                                               name='ddpg_param',
-                                               source_config=config,
-                                               require_snapshot=False)
-        # todo check this reuse utility
+        self.parameters = ParametersWithTensorflowVariable(tf_var_list=[],
+                                                           rest_parameters=dict(),
+                                                           to_ph_parameter_dict=to_ph_parameter_dict,
+                                                           name='ddpg_param',
+                                                           source_config=config,
+                                                           require_snapshot=False)
         self._critic_with_actor_output = self.critic.make_copy(reuse=True,
                                                                name='actor_input_{}'.format(self.critic.name),
                                                                state_input=self.state_input,
@@ -225,10 +224,8 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
         MultiPlaceholderInput.load(self, path_to_model, model_name, global_step, **kwargs)
 
     def _setup_critic_loss(self):
-        l1_l2 = tf_contrib.layers.l1_l2_regularizer(scale_l1=self.parameters('Q_NET_L1_NORM_SCALE'),
-                                                    scale_l2=self.parameters('Q_NET_L2_NORM_SCALE'))
-        loss = tf.reduce_sum((self.predict_q_value - self.critic.q_tensor) ** 2) + \
-               tf_contrib.layers.apply_regularization(l1_l2, weights_list=self.critic.parameters('tf_var_list'))
+        reg_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES, scope=self.critic.name_scope)
+        loss = tf.reduce_sum((self.predict_q_value - self.critic.q_tensor) ** 2) + tf.reduce_sum(reg_loss)
         optimizer = tf.train.AdamOptimizer(learning_rate=self.parameters('CRITIC_LEARNING_RATE'))
         grads = tf.gradients(loss, self.critic.parameters('tf_var_list'))
         if self.parameters('critic_clip_norm') is not None:
@@ -244,7 +241,9 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
         return loss, optimize_op, op, optimizer, grads
 
     def _set_up_actor_loss(self):
-        loss = -tf.reduce_mean(self._critic_with_actor_output.q_tensor)
+        reg_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES, scope=self.actor.name_scope)
+
+        loss = -tf.reduce_mean(self._critic_with_actor_output.q_tensor) + tf.reduce_sum(reg_loss)
         grads = tf.gradients(loss, self.actor.parameters('tf_var_list'))
         if self.parameters('actor_clip_norm') is not None:
             grads = [tf.clip_by_norm(grad, clip_norm=self.parameters('actor_clip_norm')) for grad in grads]

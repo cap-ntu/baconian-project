@@ -8,7 +8,7 @@ from baconian.common.schedules import Schedule
 import numpy as np
 
 
-class TensorflowParameters(Parameters):
+class ParametersWithTensorflowVariable(Parameters):
 
     @typechecked
     def __init__(self, tf_var_list: list, rest_parameters: dict, name: str,
@@ -19,10 +19,10 @@ class TensorflowParameters(Parameters):
                  save_rest_param_flag=False,
                  to_ph_parameter_dict: dict = None,
                  require_snapshot=False):
-        super(TensorflowParameters, self).__init__(parameters=rest_parameters,
-                                                   name=name,
-                                                   to_scheduler_param_tuple=to_scheduler_param_tuple,
-                                                   source_config=source_config)
+        super(ParametersWithTensorflowVariable, self).__init__(parameters=rest_parameters,
+                                                               name=name,
+                                                               to_scheduler_param_tuple=to_scheduler_param_tuple,
+                                                               source_config=source_config)
         self._tf_var_list = tf_var_list
         self.snapshot_var = []
         self.save_snapshot_op = []
@@ -63,7 +63,6 @@ class TensorflowParameters(Parameters):
 
     @typechecked
     def return_tf_parameter_feed_dict(self) -> dict:
-        # todo tuning or adaptive para setting here
         res = dict()
         for key, val in self._registered_tf_ph_dict.items():
             res[val] = self(key, require_true_value=True)
@@ -120,7 +119,6 @@ class TensorflowParameters(Parameters):
                                sess=sess, model_name=model_name)
         elif self.default_checkpoint_type == 'h5py':
             self._load_from_h5py(*args, **kwargs)
-        # todo support for auto get last checkpoint
         Parameters.load(self,
                         load_path=path_to_model,
                         global_step=global_step,
@@ -166,7 +164,7 @@ class TensorflowParameters(Parameters):
                 return super().__call__(key)
 
     def set(self, key, new_val):
-        if not isinstance(new_val, type(self(key))):
+        if not isinstance(new_val, type(self(key, require_true_value=True))):
             raise TypeError('new value of parameters {} should be type {} instead of {}'.format(key, type(self(key)),
                                                                                                 type(new_val)))
         else:
@@ -175,7 +173,7 @@ class TensorflowParameters(Parameters):
             elif key in self._parameters:
                 self._parameters[key] = new_val
             else:
-                self._source_config[key] = new_val
+                self._source_config.set(key, new_val)
 
     def set_tf_var_list(self, tf_var_list: list):
         temp_var_list = list(set(tf_var_list))
@@ -202,11 +200,6 @@ class TensorflowParameters(Parameters):
         sess = tf.get_default_session()
         sess.run(tmp_op_list)
         del tmp_op_list
-
-    def update(self, *args, **kwargs):
-        # todo the adaptive strategy of params goes here
-        self.set('LEARNING_RATE', new_val=self('LEARNING_RATE') * 0.99)
-        pass
 
     @typechecked
     def set_scheduler(self, param_key: str, scheduler: Schedule, to_tf_ph_flag=True):

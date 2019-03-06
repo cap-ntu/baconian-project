@@ -3,19 +3,22 @@ import typeguard as tg
 import os
 
 from baconian.common.logging import ConsoleLogger
-from baconian.tf.tf_parameters import TensorflowParameters
+from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.core.core import Basic
 from baconian.config.global_config import GlobalConfig
 
 
 class PlaceholderInput(object):
     @tg.typechecked
-    def __init__(self, inputs: (tuple, tf.Tensor), parameters: TensorflowParameters = None):
+    def __init__(self, inputs: (tuple, tf.Tensor), parameters: ParametersWithTensorflowVariable = None,
+                 name_scope=None):
         if isinstance(inputs, tuple):
             for input in inputs:
                 assert isinstance(input, tf.Tensor)
         self.inputs = inputs
         self.parameters = parameters
+        if name_scope:
+            self.name_scope = name_scope
 
     def save(self, global_step, save_path=None, name=None, **kwargs):
         save_path = save_path if save_path else GlobalConfig.DEFAULT_MODEL_CHECKPOINT_PATH
@@ -47,7 +50,7 @@ class PlaceholderInput(object):
 class MultiPlaceholderInput(object):
     @tg.typechecked
     def __init__(self, sub_placeholder_input_list: list, inputs: (tuple, tf.Tensor),
-                 parameters: TensorflowParameters):
+                 parameters: ParametersWithTensorflowVariable):
         self._placeholder_input_list = sub_placeholder_input_list
         for param in self._placeholder_input_list:
             assert isinstance(param, dict)

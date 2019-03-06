@@ -14,7 +14,7 @@ class Sampler(Basic):
         self._data.reset()
 
     @typechecked
-    def sample(self, env: GlobalConfig.DEFAULT_ALLOWED_GYM_ENV_TYPE + (Env,),
+    def sample(self, env: Env,
                agent,
                in_test_flag: bool,
                sample_count: int,

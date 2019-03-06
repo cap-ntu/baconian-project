@@ -8,14 +8,11 @@ import tensorflow as tf
 from gym.wrappers import TimeLimit, Monitor
 import os
 from baconian.config.required_keys import SRC_UTIL_REQUIRED_KEYS
-import operator
 
 
 class DefaultGlobalConfig(object):
     DEFAULT_MAX_TF_SAVER_KEEP = 5
     DEFAULT_ALLOWED_EXCEPTION_OR_ERROR_LIST = (tf.errors.ResourceExhaustedError,)
-    # todo check this type list
-    DEFAULT_ALLOWED_GYM_ENV_TYPE = (TimeLimit, Monitor)
     DEFAULT_BASIC_STATUS_LIST = ['TRAIN', 'TEST']
     DEFAULT_BASIC_INIT_STATUS = None
 

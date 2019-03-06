@@ -56,6 +56,7 @@ class Parameters(object):
     @abc.abstractmethod
     def copy_from(self, source_parameter):
         # todo implement this
+
         raise NotImplementedError
 
     def save(self, save_path, global_step, name=None, default_save_param=None, *args, **kwargs):
@@ -74,8 +75,6 @@ class Parameters(object):
             setattr(self, '_parameters', res['_parameters'])
         if '_source_config' in res:
             setattr(self._source_config, 'config_dict', res['_source_config'])
-        # for key, val in res.items():
-        #     setattr(self, key, val)
 
     @typechecked
     def set_scheduler(self, param_key: str, scheduler: Schedule, **kwargs):

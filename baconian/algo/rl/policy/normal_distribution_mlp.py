@@ -5,7 +5,7 @@ import overrides
 import numpy as np
 import tensorflow as tf
 from baconian.tf.mlp import MLP
-from baconian.tf.tf_parameters import TensorflowParameters
+from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.common.special import *
 import tensorflow_probability as tfp
 from baconian.tf.util import *
@@ -88,13 +88,13 @@ class NormalDistributionMLPPolicy(StochasticPolicy, PlaceholderInput):
         if self.mlp_net:
             var_list += self.mlp_net.var_list
 
-        self.parameters = TensorflowParameters(tf_var_list=sorted(list(set(var_list)),
-                                                                  key=lambda x: x.name),
-                                               rest_parameters=dict(
+        self.parameters = ParametersWithTensorflowVariable(tf_var_list=sorted(list(set(var_list)),
+                                                                              key=lambda x: x.name),
+                                                           rest_parameters=dict(
                                                    state_input=self.state_input,
                                                    action_input=self.action_input
                                                ),
-                                               name='normal_distribution_mlp_tf_param')
+                                                           name='normal_distribution_mlp_tf_param')
         PlaceholderInput.__init__(self, parameters=self.parameters, inputs=tuple(ph_inputs))
 
     @typechecked

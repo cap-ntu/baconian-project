@@ -33,7 +33,6 @@ def copy_globally(arg_dict, source_obj_list):
 
 
 def register_name_globally(name: str, obj):
-    # todo may need to reset
     if name in get_all()['_global_name_dict'] and not id(obj) == id(get_all()['_global_name_dict'][name]):
         raise GlobalNameExistedError('name : {} is existed with object: {}'.format(name, get_all()['_global_name_dict'][name]))
     else:

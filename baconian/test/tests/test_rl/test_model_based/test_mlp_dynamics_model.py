@@ -1,9 +1,6 @@
-from baconian.algo.rl.model_based.models.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
-from baconian.envs.gym_env import make
-from baconian.core.core import EnvSpec
 from baconian.common.sampler.sample_data import TransitionData
 from baconian.test.tests.set_up.setup import TestWithAll
-from baconian.common.special import *
+import numpy as np
 
 
 class TestDynamicsModel(TestWithAll):
@@ -15,7 +12,7 @@ class TestDynamicsModel(TestWithAll):
         env.reset()
         mlp_dyna.init()
         for i in range(100):
-            mlp_dyna.step(action=env_spec.action_space.sample(),
+            mlp_dyna.step(action=np.array(env_spec.action_space.sample()),
                           state=env_spec.obs_space.sample())
         data = TransitionData(env_spec)
         st = env.get_state()
