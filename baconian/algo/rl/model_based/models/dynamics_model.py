@@ -29,7 +29,9 @@ class DynamicsModel(Basic):
 
     @register_counter_info_to_status_decorator(increment=1, info_key='step_counter')
     def step(self, action: np.ndarray, state=None, **kwargs_for_transit):
-        state = state if state is not None else self.state
+        state = state.reshape(self.env_space.obs_shape) if state is not None else self.state
+
+        action = action.reshape(self.env_space.action_shape)
         assert self.env_space.action_space.contains(action)
         assert self.env_space.obs_space.contains(state)
         new_state = self._state_transit(state=state, action=self.env_space.flat_action(action),

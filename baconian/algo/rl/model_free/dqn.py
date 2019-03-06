@@ -190,7 +190,7 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
     @record_return_decorator(which_recorder='self')
     def save(self, global_step, save_path=None, name=None, **kwargs):
 
-        MultiPlaceholderInput.save(self, save_path, global_step, name, **kwargs)
+        MultiPlaceholderInput.save(self, save_path=save_path, global_step=global_step, name=name, **kwargs)
         return dict(save_path=save_path, global_step=global_step, name=name)
 
     @record_return_decorator(which_recorder='self')

@@ -10,6 +10,7 @@ from baconian.envs.gym_env import make
 from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
 from baconian.algo.rl.model_free.ddpg import DDPG
 from baconian.algo.rl.policy.deterministic_mlp import DeterministicMLPPolicy
+from baconian.algo.rl.policy.constant_action_policy import ConstantActionPolicy
 from baconian.algo.rl.value_func.mlp_v_value import MLPVValueFunc
 from baconian.algo.rl.policy.normal_distribution_mlp import NormalDistributionMLPPolicy
 from baconian.algo.rl.model_free.ppo import PPO
@@ -25,6 +26,8 @@ from baconian.core.experiment import Experiment
 from baconian.core.pipelines.train_test_flow import TrainTestFlow
 from baconian.config.global_config import GlobalConfig
 from baconian.algo.rl.model_based.sample_with_model import SampleWithDynamics
+from baconian.common.util.schedules import *
+from baconian.core.status import *
 
 
 class Foo(Basic):
@@ -215,7 +218,7 @@ class ClassCreatorSetup(unittest.TestCase):
                               ])
         return mlp_v, locals()
 
-    def create_normal_dist_mlp_policy(self, env_spec, name):
+    def create_normal_dist_mlp_policy(self, env_spec, name='norm_dist_p_'):
         policy = NormalDistributionMLPPolicy(env_spec=env_spec,
                                              name_scope=name + 'mlp_policy',
                                              name=name + 'mlp_policy',
@@ -316,10 +319,14 @@ class ClassCreatorSetup(unittest.TestCase):
             ])
         return mlp_dyna, locals()
 
-    def create_mpc(self, env_id='Acrobot-v1', name='mpc'):
-        mlp_dyna, local = self.create_continue_dynamics_model(env_id, name)
-        env_spec = local['env_spec']
-        env = local['env']
+    def create_mpc(self, env_id='Acrobot-v1', name='mpc', policy=None, mlp_dyna=None, env_spec=None, env=None):
+        if mlp_dyna is None:
+            mlp_dyna, local = self.create_continue_dynamics_model(env_id, name)
+            env_spec = local['env_spec']
+            env = local['env']
+
+        policy = policy if policy else UniformRandomPolicy(env_spec=env_spec, name='unp')
+
         algo = ModelPredictiveControl(
             dynamics_model=mlp_dyna,
             env_spec=env_spec,
@@ -331,7 +338,7 @@ class ClassCreatorSetup(unittest.TestCase):
             name=name,
             reward_func=RandomRewardFunc('re_fun'),
             terminal_func=RandomTerminalFunc(name='random_p'),
-            policy=UniformRandomPolicy(env_spec=env_spec, name='unp')
+            policy=policy
         )
         return algo, locals()
 
@@ -348,15 +355,12 @@ class ClassCreatorSetup(unittest.TestCase):
                           "TOTAL_SAMPLES_COUNT": 500
                       },
                       name=name,
+                      algo_saving_scheduler=PeriodicalEventSchedule(
+                          t_fn=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
+                          trigger_every_step=20,
+                          after_t=10),
                       exploration_strategy=eps)
         return agent, locals()
-
-    # def create_model_free_pipeline(self, env, agent):
-    #     model_free = ModelFreePipeline(agent=agent, env=env,
-    #                                    config_or_config_dict=dict(TEST_SAMPLES_COUNT=100,
-    #                                                               TRAIN_SAMPLES_COUNT=100,
-    #                                                               TOTAL_SAMPLES_COUNT=1000))
-    #     return model_free, locals()
 
     def create_exp(self, name, env, agent):
         experiment = Experiment(
@@ -368,7 +372,12 @@ class ClassCreatorSetup(unittest.TestCase):
         )
         return experiment
 
-    def create_sample_with_model_algo(self, env_spec, model_free_algo, dyanmics_model, name='sample_with_model'):
+    def create_sample_with_model_algo(self, env_spec=None, model_free_algo=None, dyanmics_model=None,
+                                      name='sample_with_model'):
+        if not env_spec:
+            model_free_algo, local = self.create_dqn()
+            dyanmics_model, _ = self.create_continuous_mlp_global_dynamics_model(env_spec=local['env_spec'])
+
         algo = SampleWithDynamics(env_spec=env_spec,
                                   name=name,
                                   model_free_algo=model_free_algo,
@@ -409,12 +418,7 @@ class ClassCreatorSetup(unittest.TestCase):
             ])
         return mlp_dyna, locals()
 
-    def create_mlp_deterministic_policy(self, name='mlp_policy', env_id='Pendulum-v0'):
-        env = make('Pendulum-v0')
-        env.reset()
-        env_spec = EnvSpec(obs_space=env.observation_space,
-                           action_space=env.action_space)
-
+    def create_mlp_deterministic_policy(self, env_spec, name='mlp_policy'):
         policy = DeterministicMLPPolicy(env_spec=env_spec,
                                         name=name,
                                         name_scope=name,
@@ -442,3 +446,13 @@ class ClassCreatorSetup(unittest.TestCase):
                                         input_norm=None,
                                         reuse=False)
         return policy, locals()
+
+    def create_uniform_policy(self, env_spec, name='uni_policy'):
+
+        return UniformRandomPolicy(env_spec=env_spec, name=name), locals()
+
+    def create_constant_action_policy(self, env_spec, name='constant_policy'):
+        return ConstantActionPolicy(env_spec=env_spec,
+                                    name=name,
+                                    config_or_config_dict=dict(
+                                        ACTION_VALUE=np.array(env_spec.action_space.sample()))), locals()

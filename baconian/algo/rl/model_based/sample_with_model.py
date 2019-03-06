@@ -117,7 +117,7 @@ class SampleWithDynamics(ModelBasedAlgo, MultiPlaceholderInput):
 
     def save(self, global_step, save_path=None, name=None, **kwargs):
 
-        MultiPlaceholderInput.save(self, save_path, global_step, name, **kwargs)
+        MultiPlaceholderInput.save(self, save_path=save_path, global_step=global_step, name=name, **kwargs)
 
     def load(self, path_to_model, model_name, global_step=None, **kwargs):
 

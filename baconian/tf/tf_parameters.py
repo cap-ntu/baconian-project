@@ -127,10 +127,10 @@ class TensorflowParameters(Parameters):
                         name=model_name)
 
     def _save_to_tf(self, save_path, global_step, sess=None, name=None):
-        name = name if name is not None else self.name
+        name = name if name else self.name
         sess = sess if sess else tf.get_default_session()
-        if not os.path.exists(os.path.join(save_path)):
-            os.makedirs(os.path.join(save_path))
+        if not os.path.exists(save_path):
+            os.makedirs(save_path)
         save_path = os.path.join(save_path, name)
         self.saver.save(sess=sess,
                         save_path=save_path,

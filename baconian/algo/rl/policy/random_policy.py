@@ -16,3 +16,9 @@ class UniformRandomPolicy(Policy):
 
     def init(self):
         pass
+
+    def save(self, global_step, save_path=None, name=None, **kwargs):
+        pass
+
+    def load(self, path_to_model, model_name, global_step=None, **kwargs):
+        pass

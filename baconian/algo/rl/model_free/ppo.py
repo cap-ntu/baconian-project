@@ -109,7 +109,8 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         super(PPO, self).train()
         if trajectory_data is None:
             trajectory_data = self.trajectory_memory
-
+        if len(trajectory_data) == 0:
+            return dict(msg='not enough data')
         tf_sess = sess if sess else tf.get_default_session()
         SampleProcessor.add_estimated_v_value(trajectory_data, value_func=self.value_func)
         SampleProcessor.add_discount_sum_reward(trajectory_data,
@@ -159,7 +160,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                 self.transition_data_for_trajectory.reset()
 
     def save(self, global_step, save_path=None, name=None, **kwargs):
-        MultiPlaceholderInput.save(self, save_path, global_step, name, **kwargs)
+        MultiPlaceholderInput.save(self, save_path=save_path, global_step=global_step, name=name, **kwargs)
 
     def load(self, path_to_model, model_name, global_step=None, **kwargs):
 

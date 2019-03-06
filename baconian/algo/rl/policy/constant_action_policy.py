@@ -33,3 +33,6 @@ class ConstantActionPolicy(DeterministicPolicy):
         return ConstantActionPolicy(env_spec=self.env_spec,
                                     config_or_config_dict=deepcopy(self.config_or_config_dict),
                                     *args, **kwargs)
+
+    def init(self):
+        pass

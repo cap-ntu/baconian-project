@@ -91,3 +91,13 @@ class ModelPredictiveControl(ModelBasedAlgo):
         self.dynamics_model.copy_from(obj.dynamics_model)
         ConsoleLogger().print('info', 'model: {} copied from {}'.format(self, obj))
         return True
+
+    def save(self, global_step, save_path=None, name=None, **kwargs):
+
+        self.dynamics_model.save(self, save_path=save_path, global_step=global_step, name=name, **kwargs)
+        self.policy.save(self, save_path=save_path, global_step=global_step, name=name, **kwargs)
+
+    def load(self, path_to_model, model_name, global_step=None, **kwargs):
+
+        self.dynamics_model.load(self, path_to_model, model_name, global_step, **kwargs)
+        self.policy.load(self, path_to_model, model_name, global_step, **kwargs)
