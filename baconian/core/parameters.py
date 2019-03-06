@@ -1,10 +1,10 @@
 from typeguard import typechecked
 from baconian.config.dict_config import DictConfig
 import abc
-from baconian.common.util.logging import Logger
-import baconian.common.util.files as files
+from baconian.common.logging import Logger
+import baconian.common.files as files
 import os
-from baconian.common.util.schedules import Schedule
+from baconian.common.schedules import Schedule
 
 
 class Parameters(object):

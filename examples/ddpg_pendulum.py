@@ -1,12 +1,12 @@
 """
 A simple example to show how to build up an experiment with ddpg training and testing on MountainCarContinuous-v0
 """
-from baconian.core.core import Basic, EnvSpec
+from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
 from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
 from baconian.algo.rl.model_free.ddpg import DDPG
 from baconian.algo.rl.policy.deterministic_mlp import DeterministicMLPPolicy
-from baconian.agent.agent import Agent
+from baconian.core.agent import Agent
 from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
 from baconian.core.experiment import Experiment
 from baconian.core.pipelines.train_test_flow import TrainTestFlow

@@ -1,4 +1,4 @@
-from baconian.common.util.logging import Recorder
+from baconian.common.logging import Recorder
 
 
 class Tuner(object):

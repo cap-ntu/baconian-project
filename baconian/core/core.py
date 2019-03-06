@@ -5,7 +5,7 @@ from typeguard import typechecked
 from baconian.common.spaces import Space
 from baconian.common.special import flat_dim, flatten
 
-from baconian.common.util.logging import Recorder
+from baconian.common.logging import Recorder
 from baconian.config.global_config import GlobalConfig
 from baconian.core.status import *
 from baconian.core.util import register_name_globally, init_func_arg_record_decorator

@@ -7,12 +7,12 @@ from baconian.algo.rl.model_free.dqn import DQN
 from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
 from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
-from baconian.agent.agent import Agent
+from baconian.core.agent import Agent
 from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
 from baconian.core.experiment import Experiment
 from baconian.core.pipelines.train_test_flow import TrainTestFlow
 from baconian.config.global_config import GlobalConfig
-from baconian.common.util.schedules import LinearSchedule, PiecewiseSchedule
+from baconian.common.schedules import LinearSchedule, PiecewiseSchedule
 
 
 def task_fn():

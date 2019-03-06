@@ -6,7 +6,7 @@ from baconian.tf.tf_parameters import TensorflowParameters
 from baconian.config.global_config import GlobalConfig
 from baconian.algo.rl.rl_algo import ModelFreeAlgo, ModelBasedAlgo
 from baconian.common.misc import *
-from baconian.common.util.logging import record_return_decorator
+from baconian.common.logging import record_return_decorator
 from baconian.core.status import register_counter_info_to_status_decorator
 from baconian.core.util import init_func_arg_record_decorator
 from baconian.algo.placeholder_input import MultiPlaceholderInput, PlaceholderInput

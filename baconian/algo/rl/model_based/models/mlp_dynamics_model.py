@@ -12,7 +12,7 @@ from baconian.tf.util import *
 from baconian.algo.placeholder_input import PlaceholderInput
 import overrides
 
-from baconian.common.util.logging import record_return_decorator
+from baconian.common.logging import record_return_decorator
 from baconian.core.status import register_counter_info_to_status_decorator, StatusWithSubInfo
 
 

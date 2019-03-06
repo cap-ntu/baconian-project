@@ -1,6 +1,6 @@
 from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
 from baconian.test.tests.set_up.setup import TestWithAll
-from baconian.common.util.schedules import LinearSchedule
+from baconian.common.schedules import LinearSchedule
 
 x = 0
 

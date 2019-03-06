@@ -4,7 +4,7 @@ from baconian.config.global_config import GlobalConfig
 from overrides.overrides import overrides
 from typeguard import typechecked
 import os
-from baconian.common.util.schedules import Schedule
+from baconian.common.schedules import Schedule
 import numpy as np
 
 

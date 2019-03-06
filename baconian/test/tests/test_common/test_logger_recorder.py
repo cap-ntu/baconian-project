@@ -1,5 +1,5 @@
-from baconian.test.tests.set_up.setup import BaseTestCase, TestTensorflowSetup, TestWithLogSet, TestWithAll
-from baconian.common.util.logging import Logger, ConsoleLogger, Recorder, record_return_decorator
+from baconian.test.tests.set_up.setup import TestWithAll
+from baconian.common.logging import Logger, ConsoleLogger, Recorder, record_return_decorator
 import numpy as np
 from baconian.core.core import Basic, EnvSpec
 from baconian.algo.rl.model_free.dqn import DQN

@@ -19,14 +19,13 @@ from baconian.algo.rl.model_based.mpc import ModelPredictiveControl
 from baconian.algo.rl.model_based.misc.terminal_func.terminal_func import RandomTerminalFunc
 from baconian.algo.rl.model_based.misc.reward_func.reward_func import RandomRewardFunc
 from baconian.algo.rl.policy.random_policy import UniformRandomPolicy
-from baconian.agent.agent import Agent
+from baconian.core.agent import Agent
 from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
 # from baconian.core.pipelines.model_free_pipelines import ModelFreePipeline
 from baconian.core.experiment import Experiment
 from baconian.core.pipelines.train_test_flow import TrainTestFlow
-from baconian.config.global_config import GlobalConfig
 from baconian.algo.rl.model_based.sample_with_model import SampleWithDynamics
-from baconian.common.util.schedules import *
+from baconian.common.schedules import *
 from baconian.core.status import *
 
 

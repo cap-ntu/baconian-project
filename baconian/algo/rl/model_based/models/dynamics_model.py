@@ -4,8 +4,8 @@ import numpy as np
 import abc
 from baconian.core.parameters import Parameters
 from typeguard import typechecked
-from tensorflow.python.ops.parallel_for.gradients import jacobian as tf_jacobian, batch_jacobian as tf_batch_jacobian
-from baconian.common.util.logging import Recorder
+from tensorflow.python.ops.parallel_for.gradients import batch_jacobian as tf_batch_jacobian
+from baconian.common.logging import Recorder
 from baconian.core.status import register_counter_info_to_status_decorator, StatusWithSingleInfo
 
 

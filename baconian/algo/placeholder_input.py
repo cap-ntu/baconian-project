@@ -2,7 +2,7 @@ import tensorflow as tf
 import typeguard as tg
 import os
 
-from baconian.common.util.logging import ConsoleLogger
+from baconian.common.logging import ConsoleLogger
 from baconian.tf.tf_parameters import TensorflowParameters
 from baconian.core.core import Basic
 from baconian.config.global_config import GlobalConfig

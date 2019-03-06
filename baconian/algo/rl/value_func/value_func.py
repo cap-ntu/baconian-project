@@ -2,9 +2,6 @@ from baconian.core.core import Basic, EnvSpec
 import typeguard as tg
 from baconian.core.parameters import Parameters
 import abc
-import tensorflow as tf
-from baconian.tf.tf_parameters import TensorflowParameters
-from baconian.common.util.logging import ConsoleLogger
 
 
 class ValueFunction(Basic):

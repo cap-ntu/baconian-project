@@ -1,7 +1,5 @@
 from baconian.core.core import Env
-from baconian.common.util.logging import ConsoleLogger
 from baconian.envs.gym_env import GymEnv
-import gym.error as error
 from gym.core import Wrapper as gym_wrapper
 
 

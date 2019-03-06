@@ -1,7 +1,7 @@
 from baconian.config.dict_config import DictConfig
 from typeguard import typechecked
 from transitions import Machine
-from baconian.common.util.logging import Recorder
+from baconian.common.logging import Recorder
 from baconian.core.status import StatusCollector, StatusWithSingleInfo
 from baconian.core.core import Basic
 

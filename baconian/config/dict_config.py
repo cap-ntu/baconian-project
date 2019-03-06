@@ -1,6 +1,6 @@
 import os
 from baconian.core.util import init_func_arg_record_decorator
-import baconian.common.util.files as files
+import baconian.common.files as files
 
 
 class Config(object):

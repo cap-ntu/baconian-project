@@ -1,11 +1,10 @@
 import os
 import shutil
-import unittest
 
 import numpy as np
 import tensorflow as tf
 
-from baconian.common.util.logging import Logger, ConsoleLogger
+from baconian.common.logging import Logger, ConsoleLogger
 from baconian.config.global_config import GlobalConfig
 from baconian.core.global_var import reset_all, get_all
 from baconian.tf.util import create_new_tf_session

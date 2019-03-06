@@ -13,7 +13,7 @@ from baconian.tf.tf_parameters import TensorflowParameters
 from baconian.config.global_config import GlobalConfig
 from baconian.common.misc import *
 from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
-from baconian.common.util.logging import record_return_decorator
+from baconian.common.logging import record_return_decorator
 from baconian.core.status import register_counter_info_to_status_decorator
 from baconian.algo.placeholder_input import MultiPlaceholderInput
 

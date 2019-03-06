@@ -1,8 +1,8 @@
 from baconian.core.core import Basic, EnvSpec
-from baconian.core.status import StatusWithSingleInfo, StatusWithSubInfo
+from baconian.core.status import StatusWithSubInfo
 import abc
 from typeguard import typechecked
-from baconian.common.util.logging import Logger, Recorder
+from baconian.common.logging import Recorder
 
 
 class Algo(Basic):

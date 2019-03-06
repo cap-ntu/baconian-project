@@ -5,15 +5,15 @@ from baconian.algo.algo import Algo
 from typeguard import typechecked
 from baconian.algo.rl.misc.epsilon_greedy import ExplorationStrategy
 from baconian.common.sampler.sample_data import SampleData
-from baconian.common.util.logging import Recorder, record_return_decorator
-from baconian.core.status import StatusWithSingleInfo, StatusWithSubInfo
-from baconian.core.status import register_counter_info_to_status_decorator, get_global_status_collect
+from baconian.common.logging import Recorder, record_return_decorator
+from baconian.core.status import StatusWithSubInfo
+from baconian.core.status import register_counter_info_to_status_decorator
 from baconian.core.util import init_func_arg_record_decorator
 from baconian.config.dict_config import DictConfig
 from baconian.common.misc import *
-from baconian.common.util.logging import ConsoleLogger
+from baconian.common.logging import ConsoleLogger
 from baconian.common.sampler.sample_data import TransitionData, TrajectoryData
-from baconian.common.util.schedules import EventSchedule
+from baconian.common.schedules import EventSchedule
 
 
 class Agent(Basic):

@@ -8,8 +8,8 @@ Each schedule has a function `value(t)` which returns the current value
 of the parameter given the timestep t of the optimization procedure.
 """
 from typeguard import typechecked
-from baconian.common.util.exception.error import *
-from baconian.common.util.logging import ConsoleLogger
+from baconian.common.error import *
+from baconian.common.logging import ConsoleLogger
 
 
 class Schedule(object):

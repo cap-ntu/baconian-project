@@ -1,6 +1,6 @@
 from baconian.test.tests.set_up.setup import BaseTestCase
 from baconian.core.experiment_runner import single_exp_runner, duplicate_exp_runner
-from baconian.common.util.schedules import LinearSchedule, PiecewiseSchedule
+from baconian.common.schedules import LinearSchedule, PiecewiseSchedule
 from baconian.config.global_config import GlobalConfig
 from baconian.core.status import get_global_status_collect
 

@@ -1,6 +1,6 @@
 from copy import deepcopy
 from collections import Hashable
-from baconian.common.util.exception import *
+from baconian.common.error import *
 from baconian.core.global_var import get_all, reset
 
 

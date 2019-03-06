@@ -8,22 +8,20 @@ For experiments, it's functionality should include:
 ...
 """
 from baconian.core.core import Basic
-from baconian.common.util.logging import Logger, ConsoleLogger
+from baconian.common.logging import ConsoleLogger
 from baconian.config.global_config import GlobalConfig
 from baconian.core.tuner import Tuner
-from baconian.config.dict_config import DictConfig
-from baconian.common.misc import *
 from baconian.core.util import init_func_arg_record_decorator
 import tensorflow as tf
 from typeguard import typechecked
 from baconian.tf.util import create_new_tf_session
 from baconian.core.core import Env
-from baconian.agent.agent import Agent
-from baconian.common.util.logging import Recorder
+from baconian.core.agent import Agent
+from baconian.common.logging import Recorder
 from baconian.core.status import *
 from baconian.core.pipelines.train_test_flow import Flow, TrainTestFlow
 from baconian.core.global_var import reset_all as reset_global_var
-from baconian.common.util.logging import reset_logging
+from baconian.common.logging import reset_logging
 
 
 class Experiment(Basic):

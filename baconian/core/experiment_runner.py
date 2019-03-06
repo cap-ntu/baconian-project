@@ -7,8 +7,8 @@ import tensorflow as tf
 from GPUtil import GPUtil as Gpu
 from typeguard import typechecked
 
-from baconian.common.util import files as file
-from baconian.common.util.logging import Logger, ConsoleLogger
+from baconian.common import files as file
+from baconian.common.logging import Logger, ConsoleLogger
 from baconian.config.global_config import GlobalConfig
 from copy import deepcopy
 

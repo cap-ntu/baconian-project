@@ -3,8 +3,8 @@ import abc
 import typeguard as tg
 from typeguard import typechecked
 from copy import deepcopy
-from baconian.common.util.logging import ConsoleLogger
-from baconian.common.util.exception.error import *
+from baconian.common.logging import ConsoleLogger
+from baconian.common.error import *
 
 __all__ = ['Status', 'StatusWithSubInfo', 'StatusWithSingleInfo', 'StatusWithInfo', 'StatusCollector',
            'reset_global_experiment_status', 'reset_global_status_collect',

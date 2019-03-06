@@ -2,7 +2,7 @@ from baconian.config.global_config import GlobalConfig
 from baconian.test.tests.set_up.setup import TestWithLogSet
 import numpy as np
 from baconian.core.parameters import Parameters
-from baconian.common.util.schedules import LinearSchedule, PiecewiseSchedule, PeriodicalEventSchedule
+from baconian.common.schedules import LinearSchedule, PiecewiseSchedule, PeriodicalEventSchedule
 
 x = 0
 

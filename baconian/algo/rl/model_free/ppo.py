@@ -12,7 +12,7 @@ from baconian.algo.rl.value_func.mlp_v_value import MLPVValueFunc
 from baconian.tf.util import *
 from baconian.common.misc import *
 from baconian.algo.rl.misc.sample_processor import SampleProcessor
-from baconian.common.util.logging import record_return_decorator
+from baconian.common.logging import record_return_decorator
 from baconian.core.status import register_counter_info_to_status_decorator
 from baconian.algo.placeholder_input import MultiPlaceholderInput
 

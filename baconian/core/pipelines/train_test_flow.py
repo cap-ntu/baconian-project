@@ -1,6 +1,6 @@
 import abc
 from baconian.config.global_config import GlobalConfig
-from baconian.common.util.logging import ConsoleLogger
+from baconian.common.logging import ConsoleLogger
 
 
 class Flow(abc.ABC):

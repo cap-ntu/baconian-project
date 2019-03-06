@@ -6,7 +6,7 @@ from copy import deepcopy
 from typeguard import typechecked
 
 from baconian.common.misc import construct_dict_config
-from baconian.common.util import files as files
+from baconian.common import files as files
 
 from baconian.config.global_config import GlobalConfig
 

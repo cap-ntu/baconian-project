@@ -1,14 +1,14 @@
 from baconian.algo.rl.rl_algo import ModelBasedAlgo
 from baconian.algo.rl.model_based.models.dynamics_model import DynamicsModel
 from baconian.config.dict_config import DictConfig
-from baconian.common.sampler.sample_data import TrajectoryData, TransitionData
+from baconian.common.sampler.sample_data import TrajectoryData
 from baconian.core.parameters import Parameters
 from baconian.config.global_config import GlobalConfig
 from baconian.algo.rl.model_based.misc.reward_func.reward_func import RewardFunc
 from baconian.algo.rl.model_based.misc.terminal_func.terminal_func import TerminalFunc
 from baconian.common.misc import *
 from baconian.algo.rl.policy.policy import Policy
-from baconian.common.util.logging import ConsoleLogger
+from baconian.common.logging import ConsoleLogger
 from baconian.common.sampler.sample_data import TransitionData
 
 
