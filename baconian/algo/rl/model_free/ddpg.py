@@ -216,7 +216,7 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
                                       reward=reward,
                                       terminal1=terminal1)
 
-    def save(self, save_path, global_step, name, **kwargs):
+    def save(self, global_step, save_path=None, name=None, **kwargs):
 
         MultiPlaceholderInput.save(self, save_path, global_step, name, **kwargs)
 

@@ -5,6 +5,7 @@ import os
 from baconian.common.util.logging import ConsoleLogger
 from baconian.tf.tf_parameters import TensorflowParameters
 from baconian.core.core import Basic
+from baconian.config.global_config import GlobalConfig
 
 
 class PlaceholderInput(object):
@@ -17,6 +18,8 @@ class PlaceholderInput(object):
         self.parameters = parameters
 
     def save(self, save_path, global_step, name, **kwargs):
+        save_path = save_path if save_path else GlobalConfig.DEFAULT_MODEL_CHECKPOINT_PATH
+        name = name if name else self.name
         sess = kwargs['sess'] if 'sess' in kwargs else None
         self.parameters.save(save_path=save_path,
                              global_step=global_step,
@@ -43,9 +46,9 @@ class PlaceholderInput(object):
 
 class MultiPlaceholderInput(object):
     @tg.typechecked
-    def __init__(self, sub_placeholder_input_list: list, inputs: (tuple, tf.Tensor), parameters: TensorflowParameters):
+    def __init__(self, sub_placeholder_input_list: list, inputs: (tuple, tf.Tensor),
+                 parameters: TensorflowParameters):
         self._placeholder_input_list = sub_placeholder_input_list
-        assert isinstance(self, Basic)
         for param in self._placeholder_input_list:
             assert isinstance(param, dict)
             assert 'attr_name' in param
@@ -53,7 +56,10 @@ class MultiPlaceholderInput(object):
 
         self._own_placeholder_input_obj = PlaceholderInput(inputs=inputs, parameters=parameters)
 
-    def save(self, save_path, global_step, name, **kwargs):
+    def save(self, global_step, save_path, name, **kwargs):
+        save_path = save_path if save_path else GlobalConfig.DEFAULT_MODEL_CHECKPOINT_PATH
+        name = name if name else self.name
+
         sess = kwargs['sess'] if 'sess' in kwargs else None
         self._own_placeholder_input_obj.parameters.save(save_path=save_path,
                                                         global_step=global_step,

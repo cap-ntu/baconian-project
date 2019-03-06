@@ -4,7 +4,7 @@ import numpy as np
 from baconian.core.parameters import Parameters
 from baconian.common.util.schedules import LinearSchedule, PiecewiseSchedule, PeriodicalEventSchedule
 
-x = 1
+x = 0
 
 
 class TestParam(TestWithLogSet):

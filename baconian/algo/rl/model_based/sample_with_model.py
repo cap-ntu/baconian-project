@@ -115,8 +115,7 @@ class SampleWithDynamics(ModelBasedAlgo, MultiPlaceholderInput):
     def append_to_memory(self, *args, **kwargs):
         self.model_free_algo.append_to_memory(kwargs['samples'])
 
-    def save(self, save_path, global_step, name, **kwargs):
-        # todo every time a checkpoint is saved, write some log output
+    def save(self, global_step, save_path=None, name=None, **kwargs):
 
         MultiPlaceholderInput.save(self, save_path, global_step, name, **kwargs)
 

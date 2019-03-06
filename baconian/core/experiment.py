@@ -20,7 +20,7 @@ from baconian.tf.util import create_new_tf_session
 from baconian.core.core import Env
 from baconian.agent.agent import Agent
 from baconian.common.util.logging import Recorder
-from baconian.core.status import StatusCollector, StatusWithSingleInfo
+from baconian.core.status import *
 from baconian.core.pipelines.train_test_flow import Flow, TrainTestFlow
 from baconian.core.global_var import reset_all as reset_global_var
 from baconian.common.util.logging import reset_logging
@@ -40,26 +40,36 @@ class Experiment(Basic):
                  env: Env,
                  flow: Flow = TrainTestFlow(),
                  tuner: Tuner = None,
+                 register_default_global_status=True
                  ):
         super().__init__(status=StatusWithSingleInfo(obj=self), name=name)
         self.agent = agent
         self.env = env
         self.tuner = tuner
         self.recorder = Recorder(flush_by_split_status=False)
-        self.status_collector = StatusCollector()
+        # self.status_collector = StatusCollector()
         self.flow = flow
-
-        self.status_collector.register_info_key_status(obj=agent, info_key='predict_counter',
-                                                       under_status='TRAIN',
-                                                       return_name='TOTAL_AGENT_TRAIN_SAMPLE_COUNT')
-        self.status_collector.register_info_key_status(obj=agent, info_key='predict_counter',
-                                                       under_status='TEST',
-                                                       return_name='TOTAL_AGENT_TEST_SAMPLE_COUNT')
-
-        self.status_collector.register_info_key_status(obj=agent,
-                                                       info_key='update_counter',
-                                                       under_status='TRAIN',
-                                                       return_name='TOTAL_AGENT_UPDATE_COUNT')
+        if register_default_global_status is True:
+            get_global_status_collect().register_info_key_status(obj=agent,
+                                                                 info_key='predict_counter',
+                                                                 under_status='TRAIN',
+                                                                 return_name='TOTAL_AGENT_TRAIN_SAMPLE_COUNT')
+            get_global_status_collect().register_info_key_status(obj=agent,
+                                                                 info_key='predict_counter',
+                                                                 under_status='TEST',
+                                                                 return_name='TOTAL_AGENT_TEST_SAMPLE_COUNT')
+            get_global_status_collect().register_info_key_status(obj=agent,
+                                                                 info_key='update_counter',
+                                                                 under_status='TRAIN',
+                                                                 return_name='TOTAL_AGENT_UPDATE_COUNT')
+            get_global_status_collect().register_info_key_status(obj=env,
+                                                                 info_key='step',
+                                                                 under_status='TEST',
+                                                                 return_name='TOTAL_ENV_STEP_TEST_SAMPLE_COUNT')
+            get_global_status_collect().register_info_key_status(obj=env,
+                                                                 info_key='step',
+                                                                 under_status='TRAIN',
+                                                                 return_name='TOTAL_ENV_STEP_TRAIN_SAMPLE_COUNT')
 
     def init(self):
         create_new_tf_session(cuda_device=0)
@@ -90,26 +100,40 @@ class Experiment(Basic):
             sess.__exit__(None, None, None)
         tf.reset_default_graph()
         reset_global_var()
+        reset_global_status_collect()
+        reset_global_experiment_status()
         reset_logging()
 
     def _is_ended(self):
-        res = self.status_collector()
+        res = get_global_status_collect()()
+        key_founded_flag = False
+        finished_flag = False
         for key in GlobalConfig.DEFAULT_EXPERIMENT_END_POINT:
-            if key in res and GlobalConfig.DEFAULT_EXPERIMENT_END_POINT[key] and res[key] >= \
-                    GlobalConfig.DEFAULT_EXPERIMENT_END_POINT[key]:
-                ConsoleLogger().print('info',
-                                      'pipeline ended because {}: {} >= end point value {}'.format(key, res[key],
-                                                                                                   GlobalConfig.DEFAULT_EXPERIMENT_END_POINT[
-                                                                                                       key]))
-                return True
-
-        return False
+            if key in res and GlobalConfig.DEFAULT_EXPERIMENT_END_POINT[key]:
+                key_founded_flag = True
+                if res[key] >= GlobalConfig.DEFAULT_EXPERIMENT_END_POINT[key]:
+                    ConsoleLogger().print('info',
+                                          'pipeline ended because {}: {} >= end point value {}'.format(key, res[key],
+                                                                                                       GlobalConfig.DEFAULT_EXPERIMENT_END_POINT[
+                                                                                                           key]))
+                    finished_flag = True
+        if key_founded_flag is False:
+            ConsoleLogger().print('warning',
+                                  '{} in experiment_end_point is not registered with global status collector: {}, experiment may not end'.format(
+                                      GlobalConfig.DEFAULT_EXPERIMENT_END_POINT, list(res.keys())))
+        return finished_flag
 
     def TOTAL_AGENT_UPDATE_COUNT(self):
-        return self.status_collector()['TOTAL_AGENT_UPDATE_COUNT']
+        return get_global_status_collect()('TOTAL_AGENT_UPDATE_COUNT')
 
     def TOTAL_AGENT_TRAIN_SAMPLE_COUNT(self):
-        return self.status_collector()['TOTAL_AGENT_TRAIN_SAMPLE_COUNT']
+        return get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT')
 
     def TOTAL_AGENT_TEST_SAMPLE_COUNT(self):
-        return self.status_collector()['TOTAL_AGENT_TEST_SAMPLE_COUNT']
+        return get_global_status_collect()('TOTAL_AGENT_TEST_SAMPLE_COUNT')
+
+    def TOTAL_ENV_STEP_TRAIN_SAMPLE_COUNT(self):
+        return get_global_status_collect()('TOTAL_ENV_STEP_TRAIN_SAMPLE_COUNT')
+
+    def TOTAL_ENV_STEP_TEST_SAMPLE_COUNT(self):
+        return get_global_status_collect()('TOTAL_ENV_STEP_TEST_SAMPLE_COUNT')

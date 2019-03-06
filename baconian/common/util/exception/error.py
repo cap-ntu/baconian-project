@@ -1,6 +1,10 @@
-class MobrlError(Exception):
+class BaconianError(Exception):
     pass
 
 
-class GlobalNameExistedError(MobrlError):
+class GlobalNameExistedError(BaconianError):
+    pass
+
+
+class StatusInfoNotRegisteredError(BaconianError):
     pass

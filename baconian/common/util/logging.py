@@ -41,7 +41,7 @@ class _SingletonConsoleLogger(BaseLogger):
     ConsoleLogger
     """
     ALLOWED_LOG_LEVEL = ('CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'NOTSET')
-    ALLOWED_PRINT_TYPE = ('info', 'warning', 'debug', 'critical', 'log', 'critical')
+    ALLOWED_PRINT_TYPE = ('info', 'warning', 'debug', 'critical', 'log', 'critical', 'error')
 
     def __init__(self):
         super(_SingletonConsoleLogger, self).__init__()

@@ -8,6 +8,8 @@ Each schedule has a function `value(t)` which returns the current value
 of the parameter given the timestep t of the optimization procedure.
 """
 from typeguard import typechecked
+from baconian.common.util.exception.error import *
+from baconian.common.util.logging import ConsoleLogger
 
 
 class Schedule(object):
@@ -73,7 +75,7 @@ class PiecewiseSchedule(Schedule):
 
     def value(self):
         """See Schedule.value"""
-        t = self.t_fn()
+        t = wrap_t_fn(self.t_fn)
         for (l_t, l), (r_t, r) in zip(self._endpoints[:-1], self._endpoints[1:]):
             if l_t <= t and t < r_t:
                 alpha = float(t - l_t) / (r_t - l_t)
@@ -109,7 +111,48 @@ class LinearSchedule(Schedule):
         assert callable(self.t_fn)
 
     def value(self):
-        t = self.t_fn()
+        t = wrap_t_fn(self.t_fn)
         """See Schedule.value"""
         fraction = min(float(t) / self.schedule_timesteps, 1.0)
         return self.initial_p + fraction * (self.final_p - self.initial_p)
+
+
+class EventSchedule(Schedule):
+    def value(self) -> bool:
+        return False
+
+
+class PeriodicalEventSchedule(EventSchedule):
+    """
+    Trigger an event with certain scheduled period
+    """
+
+    def __init__(self, t_fn, trigger_every_step, after_t=0):
+        super().__init__()
+        self.t_fn = t_fn
+        self.trigger_every_step = trigger_every_step
+        self.after_t = after_t
+        self.last_saved_t_value = -1
+
+    def value(self) -> bool:
+        """
+        return a boolean, true for trigger this event, false for not.
+        :return:
+        """
+        t = wrap_t_fn(self.t_fn)
+        if t < self.after_t:
+            return False
+        else:
+            if t - self.last_saved_t_value >= self.trigger_every_step:
+                self.last_saved_t_value = t
+                return True
+            else:
+                return False
+
+
+def wrap_t_fn(t_fn):
+    try:
+        return t_fn()
+    except StatusInfoNotRegisteredError:
+        ConsoleLogger().print('error', 'StatusInfoNotRegisteredError occurred, return with 0')
+        return 0

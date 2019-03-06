@@ -7,7 +7,7 @@ from baconian.common.special import flat_dim, flatten
 
 from baconian.common.util.logging import Recorder
 from baconian.config.global_config import GlobalConfig
-from baconian.core.status import StatusWithSingleInfo, register_counter_info_to_status_decorator, Status
+from baconian.core.status import *
 from baconian.core.util import register_name_globally, init_func_arg_record_decorator
 
 
@@ -54,20 +54,21 @@ class Env(gym.Env, Basic):
     Abstract class for environment
     """
     key_list = []
-    STATUS_LIST = ['JUST_RESET', 'JUST_INITED', 'STEPPING', 'NOT_INITED']
+    STATUS_LIST = ['JUST_RESET', 'JUST_INITED', 'TRAIN', 'TEST', 'NOT_INITED']
     INIT_STATUS = 'NOT_INITED'
 
     @typechecked
     def __init__(self, name='env'):
-        super(Env, self).__init__(status=StatusWithSingleInfo(obj=self), name=name)
+        super(Env, self).__init__(status=StatusWithSubInfo(obj=self), name=name)
         self.action_space = None
         self.observation_space = None
         self.step_count = None
         self.recorder = Recorder()
 
-    @register_counter_info_to_status_decorator(increment=1, info_key='step', under_status='STEPPING')
+    @register_counter_info_to_status_decorator(increment=1, info_key='step', under_status=('TRAIN', 'TEST'),
+                                               ignore_wrong_status=True)
     def step(self, action):
-        self._status.set_status('STEPPING')
+        pass
 
     @register_counter_info_to_status_decorator(increment=1, info_key='reset', under_status='JUST_RESET')
     def reset(self):

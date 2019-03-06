@@ -6,6 +6,7 @@ from baconian.agent.agent import Agent
 from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
 from baconian.core.experiment import Experiment
 from baconian.core.pipelines.train_test_flow import TrainTestFlow
+from baconian.common.util.schedules import PeriodicalEventSchedule
 
 
 def task_fn():

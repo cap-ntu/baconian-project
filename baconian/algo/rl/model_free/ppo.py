@@ -158,9 +158,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                 self.trajectory_memory.append(self.transition_data_for_trajectory)
                 self.transition_data_for_trajectory.reset()
 
-    def save(self, save_path, global_step, name, **kwargs):
-        # todo every time a checkpoint is saved, write some log output
-
+    def save(self, global_step, save_path=None, name=None, **kwargs):
         MultiPlaceholderInput.save(self, save_path, global_step, name, **kwargs)
 
     def load(self, path_to_model, model_name, global_step=None, **kwargs):

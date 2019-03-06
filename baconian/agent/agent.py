@@ -7,12 +7,13 @@ from baconian.algo.rl.misc.epsilon_greedy import ExplorationStrategy
 from baconian.common.sampler.sample_data import SampleData
 from baconian.common.util.logging import Recorder, record_return_decorator
 from baconian.core.status import StatusWithSingleInfo, StatusWithSubInfo
-from baconian.core.status import register_counter_info_to_status_decorator
+from baconian.core.status import register_counter_info_to_status_decorator, get_global_status_collect
 from baconian.core.util import init_func_arg_record_decorator
 from baconian.config.dict_config import DictConfig
 from baconian.common.misc import *
 from baconian.common.util.logging import ConsoleLogger
 from baconian.common.sampler.sample_data import TransitionData, TrajectoryData
+from baconian.common.util.schedules import EventSchedule
 
 
 class Agent(Basic):
@@ -26,7 +27,8 @@ class Agent(Basic):
                  config_or_config_dict: (DictConfig, dict),
                  env: GlobalConfig.DEFAULT_ALLOWED_GYM_ENV_TYPE + (Env,), algo: Algo, env_spec: EnvSpec,
                  sampler: Sampler = None,
-                 exploration_strategy=None):
+                 exploration_strategy: ExplorationStrategy = None,
+                 algo_saving_scheduler: EventSchedule = None):
         super(Agent, self).__init__(name=name, status=StatusWithSubInfo(self))
         self.config = construct_dict_config(config_or_config_dict, obj=self)
         self.total_test_samples = 0
@@ -41,6 +43,8 @@ class Agent(Basic):
             self.explorations_strategy = exploration_strategy
         self.sampler = sampler if sampler else Sampler(env_spec=env_spec, name='{}_sampler'.format(name))
 
+        self.algo_saving_scheduler = algo_saving_scheduler
+
     @record_return_decorator(which_recorder='self')
     @register_counter_info_to_status_decorator(increment=1, info_key='update_counter', under_status='TRAIN')
     def train(self):
@@ -54,6 +58,9 @@ class Agent(Basic):
         self.total_train_samples += len(res)
         self.algo.train()
         ConsoleLogger().print('info', "Mean reward_func is {}".format(res.get_mean_of(set_name='reward_set')))
+        if self.algo_saving_scheduler and self.algo_saving_scheduler.value() is True:
+            self.algo.save(global_step=self._status.get_specific_info_key_status(info_key='update_counter',
+                                                                                 under_status='TRAIN'))
         return dict(average_test_reward=res.get_mean_of(set_name='reward_set'))
 
     @record_return_decorator(which_recorder='self')
@@ -86,8 +93,10 @@ class Agent(Basic):
     def sample(self, env, sample_count: int, in_test_flag: bool, store_flag=False) -> (TransitionData, TrajectoryData):
         if in_test_flag:
             self.set_status('TEST')
+            env.set_status('TEST')
         else:
             self.set_status('TRAIN')
+            env.set_status('TRAIN')
         batch_data = self.sampler.sample(agent=self,
                                          env=env,
                                          in_test_flag=in_test_flag,

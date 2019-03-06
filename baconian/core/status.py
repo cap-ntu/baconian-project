@@ -4,6 +4,11 @@ import typeguard as tg
 from typeguard import typechecked
 from copy import deepcopy
 from baconian.common.util.logging import ConsoleLogger
+from baconian.common.util.exception.error import *
+
+__all__ = ['Status', 'StatusWithSubInfo', 'StatusWithSingleInfo', 'StatusWithInfo', 'StatusCollector',
+           'reset_global_experiment_status', 'reset_global_status_collect',
+           'register_counter_info_to_status_decorator', 'get_global_status_collect', 'get_global_experiment_status']
 
 
 class Status(object):
@@ -168,18 +173,36 @@ class StatusCollector(object):
     def __init__(self):
         self._register_status_dict = []
 
-    def __call__(self, *args, **kwargs):
-        stat_dict = dict()
-        for val in self._register_status_dict:
-            obj = val['obj']
-            assert hasattr(obj, '_status')
-            assert isinstance(getattr(obj, '_status'), StatusWithInfo)
-            assert getattr(obj, '_status').has_info(info_key=val['info_key'], under_status=val['under_status'])
+    def __call__(self, key: str = None, *args, **kwargs):
+        if key:
+            for val in self._register_status_dict:
+                if val['return_name'] == key:
+                    obj = val['obj']
+                    assert hasattr(obj, '_status')
+                    assert isinstance(getattr(obj, '_status'), StatusWithInfo)
+                    if getattr(obj, '_status').has_info(info_key=val['info_key'],
+                                                        under_status=val['under_status']) is False:
+                        raise StatusInfoNotRegisteredError(
+                            '{} do not have {} under {}'.format(obj, val['info_key'], val['under_status']))
 
-            res = obj._status.get_specific_info_key_status(under_status=val['under_status'],
-                                                           info_key=val['info_key'])
-            stat_dict[val['return_name']] = deepcopy(res)
-        return stat_dict
+                    res = obj._status.get_specific_info_key_status(under_status=val['under_status'],
+                                                                   info_key=val['info_key'])
+                    return deepcopy(res)
+        else:
+            stat_dict = dict()
+            for val in self._register_status_dict:
+                obj = val['obj']
+                assert hasattr(obj, '_status')
+                assert isinstance(getattr(obj, '_status'), StatusWithInfo)
+                if getattr(obj, '_status').has_info(info_key=val['info_key'],
+                                                    under_status=val['under_status']) is False:
+                    raise StatusInfoNotRegisteredError(
+                        '{} do not have {} under {}'.format(obj, val['info_key'], val['under_status']))
+
+                res = obj._status.get_specific_info_key_status(under_status=val['under_status'],
+                                                               info_key=val['info_key'])
+                stat_dict[val['return_name']] = deepcopy(res)
+            return stat_dict
 
     def get_status(self) -> dict:
         return self()
@@ -189,6 +212,9 @@ class StatusCollector(object):
             assert return_name != val['return_name']
         self._register_status_dict.append(
             dict(obj=obj, info_key=info_key, under_status=under_status, return_name=return_name))
+
+    def reset(self):
+        self._register_status_dict = []
 
 
 def register_counter_info_to_status_decorator(increment, info_key, under_status: (str, tuple) = None,
@@ -247,3 +273,14 @@ def get_global_experiment_status() -> StatusWithSingleInfo:
 
 def reset_global_experiment_status():
     globals()['_global_experiment_status'].reset()
+
+
+_global_status_collector = StatusCollector()
+
+
+def get_global_status_collect() -> StatusCollector:
+    return globals()['_global_status_collector']
+
+
+def reset_global_status_collect():
+    globals()['_global_status_collector'].reset()

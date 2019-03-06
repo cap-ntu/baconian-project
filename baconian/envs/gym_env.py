@@ -70,7 +70,8 @@ class GymEnv(Env):
 
         self.reward_range = self._gym_env.reward_range
 
-    @register_counter_info_to_status_decorator(increment=1, info_key='step')
+    @register_counter_info_to_status_decorator(increment=1, info_key='step', under_status=('TRAIN', 'TEST'),
+                                               ignore_wrong_status=True)
     def step(self, action):
         super().step(action)
         return self.unwrapped.step(action=action)

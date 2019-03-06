@@ -187,14 +187,17 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
             data_count += 1
         self._status.update_info(info_key='replay_buffer_data_total_count', increment=data_count)
 
-    def save(self, save_path, global_step, name, **kwargs):
-        # todo every time a checkpoint is saved, write some log output
+    @record_return_decorator(which_recorder='self')
+    def save(self, global_step, save_path=None, name=None, **kwargs):
 
         MultiPlaceholderInput.save(self, save_path, global_step, name, **kwargs)
+        return dict(save_path=save_path, global_step=global_step, name=name)
 
+    @record_return_decorator(which_recorder='self')
     def load(self, path_to_model, model_name, global_step=None, **kwargs):
 
         MultiPlaceholderInput.load(self, path_to_model, model_name, global_step, **kwargs)
+        return dict(save_path=path_to_model, global_step=global_step, name=model_name)
 
     def _predict_action(self, obs: np.ndarray, q_value_tensor: tf.Tensor, action_ph: tf.Tensor, state_ph: tf.Tensor,
                         sess=None):
@@ -238,4 +241,3 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
             ref_val = self.parameters('DECAY') * target_var + (1.0 - self.parameters('DECAY')) * var
             op.append(tf.assign(target_var, ref_val))
         return op
-
