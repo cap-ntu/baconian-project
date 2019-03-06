@@ -7,7 +7,7 @@ from typeguard import typechecked
 
 from baconian.common.misc import construct_dict_config
 from baconian.common import files as files
-
+from baconian.core.global_var import get_all
 from baconian.config.global_config import GlobalConfig
 
 """
@@ -112,8 +112,8 @@ class _SingletonLogger(BaseLogger):
         if self.inited_flag:
             return
         self._log_dir = log_path
-        if os.path.exists(self._log_dir):
-            raise FileExistsError('%s path is existed' % self._log_dir)
+        # if os.path.exists(self._log_dir):
+        #     raise FileExistsError('%s path is existed' % self._log_dir)
         self._config_file_log_dir = os.path.join(self._log_dir, 'config')
         self._record_file_log_dir = os.path.join(self._log_dir, 'record')
 
@@ -135,6 +135,7 @@ class _SingletonLogger(BaseLogger):
             self._flush(recorder)
 
     def close(self):
+        self._save_all_obj_final_status()
         self.flush_recorder()
         self._registered_recorders = []
 
@@ -173,6 +174,19 @@ class _SingletonLogger(BaseLogger):
                 self.out_to_file(file_path=os.path.join(self._record_file_log_dir, str(obj_name)),
                                  content=obj_log_dict,
                                  file_name='log.json')
+
+    def _save_all_obj_final_status(self):
+        final_status = dict()
+        for obj_name, obj in get_all()['_global_name_dict'].items():
+            if hasattr(obj, 'get_status') and callable(getattr(obj, 'get_status')):
+                tmp_dict = dict()
+                tmp_dict[obj_name] = obj.get_status()
+                final_status = {**final_status, **tmp_dict}
+        ConsoleLogger().print('info', 'save final_status into {}'.format(os.path.join(
+            self._record_file_log_dir)))
+        self.out_to_file(file_path=os.path.join(self._record_file_log_dir),
+                         content=final_status,
+                         file_name='final_status.json')
 
     @staticmethod
     @typechecked
@@ -298,6 +312,12 @@ class Recorder(object):
     def flush(self):
         Logger().flush_recorder(recorder=self)
 
+    # def save_snapshot_status(self) -> dict:
+    #     status_dict = {}
+    #     for obj in self._obj_log:
+    #         status_dict[obj.name] = deepcopy(obj.get_status())
+    #     return status_dict
+
     def _record_by_getter(self):
         for key, obj_dict in self._registered_log_attr_by_get_dict.items():
             for _, val in obj_dict.items():
@@ -349,6 +369,6 @@ def reset_global_recorder():
 
 
 def reset_logging():
-    ConsoleLogger().reset()
     Logger().reset()
+    ConsoleLogger().reset()
     reset_global_recorder()

@@ -97,10 +97,11 @@ class Experiment(Basic):
         if sess:
             sess.__exit__(None, None, None)
         tf.reset_default_graph()
-        reset_global_var()
         reset_global_status_collect()
-        # reset_global_experiment_status()
         reset_logging()
+        reset_global_var()
+
+        # reset_global_experiment_status()
 
     def _is_ended(self):
         res = get_global_status_collect()()
