@@ -2,6 +2,7 @@ from baconian.core.core import EnvSpec
 from baconian.algo.rl.policy.policy import Policy
 from typeguard import typechecked
 from overrides.overrides import overrides
+import numpy as np
 
 
 class UniformRandomPolicy(Policy):
@@ -12,7 +13,7 @@ class UniformRandomPolicy(Policy):
 
     @overrides
     def forward(self, obs, **kwargs):
-        return self.action_space.sample()
+        return np.array(self.action_space.sample())
 
     def init(self):
         pass

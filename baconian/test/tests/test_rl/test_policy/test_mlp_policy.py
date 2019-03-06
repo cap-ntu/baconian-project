@@ -2,12 +2,16 @@ from baconian.envs.gym_env import make
 from baconian.core.core import EnvSpec
 from baconian.algo.rl.policy.deterministic_mlp import DeterministicMLPPolicy
 from baconian.test.tests.set_up.setup import TestTensorflowSetup
+from baconian.envs.gym_env import make
 
 
 class TestDeterministicMLPPolicy(TestTensorflowSetup):
     def test_mlp_deterministic_policy(self):
-        policy, locals = self.create_mlp_deterministic_policy(name='mlp_policy')
-        env = locals['env']
+        env = make('Pendulum-v0')
+        env_spec = EnvSpec(obs_space=env.observation_space,
+                           action_space=env.action_space)
+
+        policy, locals = self.create_mlp_deterministic_policy(name='mlp_policy', env_spec=env_spec)
         policy.init()
         for _ in range(10):
             ac = policy.forward(obs=env.observation_space.sample())

@@ -385,7 +385,8 @@ class ClassCreatorSetup(unittest.TestCase):
         if not env_spec:
             model_free_algo, local = self.create_dqn()
             dyanmics_model, _ = self.create_continuous_mlp_global_dynamics_model(env_spec=local['env_spec'])
-
+            env_spec = local['env_spec']
+            env = local['env']
         algo = SampleWithDynamics(env_spec=env_spec,
                                   name=name,
                                   model_free_algo=model_free_algo,

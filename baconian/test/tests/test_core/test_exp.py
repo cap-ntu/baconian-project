@@ -83,7 +83,7 @@ class TestExperiment(BaseTestCase):
         duplicate_exp_runner(2, func, auto_choose_gpu_flag=False, gpu_id=0)
 
     def test_saving_scheduler_on_all_model_free_algo(self):
-        to_test_algo_func = (self.create_ppo, self.create_dqn, self.create_ddpg, self.create_sample_with_model_algo)
+        to_test_algo_func = (self.create_ppo, self.create_dqn, self.create_ddpg,)
         for func in to_test_algo_func:
             self.setUp()
             single_exp_runner(_saving_scheduler(self, func), auto_choose_gpu_flag=False, gpu_id=0)

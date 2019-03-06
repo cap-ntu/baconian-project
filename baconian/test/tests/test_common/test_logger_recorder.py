@@ -155,10 +155,6 @@ class TesTLoggerWithDQN(TestWithAll):
         self.assertTrue(len(Logger()._registered_recorders) > 0)
         self.assertTrue(dqn.recorder in Logger()._registered_recorders)
 
-        self.assertTrue('dqn_adaptive_learning_rate' in dqn.recorder._obj_log[dqn])
-        self.assertTrue(len(dqn.recorder._obj_log[dqn]['dqn_adaptive_learning_rate']) == 2)
-        print(dqn.recorder._obj_log[dqn]['dqn_adaptive_learning_rate'])
-
         Logger().flush_recorder()
 
     def test_console_logger(self):
