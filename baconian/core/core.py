@@ -58,7 +58,7 @@ class Env(gym.Env, Basic):
     INIT_STATUS = 'NOT_INITED'
 
     @typechecked
-    def __init__(self, name='env'):
+    def __init__(self, name: str = 'env'):
         super(Env, self).__init__(status=StatusWithSubInfo(obj=self), name=name)
         self.action_space = None
         self.observation_space = None

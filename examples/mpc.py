@@ -12,6 +12,7 @@ from baconian.algo.rl.model_based.misc.terminal_func.terminal_func import Random
 from baconian.algo.rl.model_based.misc.reward_func.reward_func import RandomRewardFunc
 from baconian.algo.rl.policy.random_policy import UniformRandomPolicy
 from baconian.algo.rl.model_based.models.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
+from baconian.config.global_config import GlobalConfig
 
 
 def task_fn():
@@ -83,4 +84,5 @@ def task_fn():
 if __name__ == '__main__':
     from baconian.core.experiment_runner import single_exp_runner
 
+    GlobalConfig.set('DEFAULT_LOG_PATH', './log_path')
     single_exp_runner(task_fn, gpu_id=3)
