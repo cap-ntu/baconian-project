@@ -13,14 +13,24 @@ offered.
 ![CAP](https://user-images.githubusercontent.com/9161548/40165577-eff023c4-59ee-11e8-8bf5-508325a23baa.png)
 
 ### Release news:
-- 2019.03.04 Release the v0.1 within CAP group
+- 2019.3.15 Release the v0.1.1, add model saving scheduler, fix some bugs and update pip installing flow.
+- 2019.03.04 Release the v0.1 within CAP group.
 ### Documentation
 Documentation is available at http://baconian.readthedocs.io/ (release soon, the configuration is undergoing)
 #### How to install
+
 (`source activate you_env` if you are using anaconda or consider creating a new env by `conda env create -name some_env`)
+##### install as a local package (if you want to modify the code or contribute)
 ```
-pip install -r requirment.txt
+cd /path/to/baconian
+pip install -e baconain 
 ```
+##### install as a third-party package (if you want to import some modules and re-use it in your own project)
+```
+cd /path/to/baconian
+pip install baconain 
+```
+
 Then you are free to go. If you want to use the full environments of gym, e.g., Mujoco, please refer to its  project 
 page to install the requirements (you may need to re-install gym after that.)
 
@@ -43,3 +53,7 @@ Thanks to the following open-source projects:
 - baselines: https://github.com/openai/baselines
 - gym: https://github.com/openai/gym
 - trpo: https://github.com/pat-coady/trpo
+
+### Report an issue 
+If you find any bugs on issues during your usage of the package, please open an issue or send an email to me 
+(linsen001@e.ntu.edu.sg) with detail information. I appreciate your helps!

@@ -1,6 +1,4 @@
-from baconian.envs.gym_env import make
 from baconian.core.core import EnvSpec
-from baconian.algo.rl.policy.deterministic_mlp import DeterministicMLPPolicy
 from baconian.test.tests.set_up.setup import TestTensorflowSetup
 from baconian.envs.gym_env import make
 

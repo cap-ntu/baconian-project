@@ -12,7 +12,8 @@ from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
 from baconian.core.experiment import Experiment
 from baconian.core.pipelines.train_test_flow import TrainTestFlow
 from baconian.config.global_config import GlobalConfig
-from baconian.common.schedules import LinearSchedule, PiecewiseSchedule
+from baconian.common.schedules import LinearSchedule, PiecewiseSchedule, PeriodicalEventSchedule
+from baconian.core.status import get_global_status_collect
 
 
 def task_fn():
@@ -61,6 +62,10 @@ def task_fn():
                       "TOTAL_SAMPLES_COUNT": 500
                   },
                   name=name + '_agent',
+                  algo_saving_scheduler=PeriodicalEventSchedule(
+                      t_fn=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
+                      trigger_every_step=20,
+                      after_t=10),
                   exploration_strategy=EpsilonGreedy(action_space=env_spec.action_space,
                                                      init_random_prob=0.5))
     experiment = Experiment(
@@ -90,4 +95,5 @@ def task_fn():
 if __name__ == '__main__':
     from baconian.core.experiment_runner import single_exp_runner
 
+    GlobalConfig.set('DEFAULT_LOG_PATH', './log_path')
     single_exp_runner(task_fn)

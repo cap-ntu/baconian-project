@@ -6,6 +6,7 @@ from baconian.core.agent import Agent
 from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
 from baconian.core.experiment import Experiment
 from baconian.core.pipelines.train_test_flow import TrainTestFlow
+from baconian.config.global_config import GlobalConfig
 
 
 def task_fn():
@@ -64,11 +65,11 @@ def task_fn():
         flow=TrainTestFlow(),
         name=name
     )
-
     experiment.run()
 
 
 if __name__ == '__main__':
     from baconian.core.experiment_runner import single_exp_runner
 
+    GlobalConfig.set('DEFAULT_LOG_PATH', './log_path')
     single_exp_runner(task_fn)
