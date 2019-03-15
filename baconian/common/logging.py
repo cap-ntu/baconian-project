@@ -187,6 +187,11 @@ class _SingletonLogger(BaseLogger):
         self.out_to_file(file_path=os.path.join(self._record_file_log_dir),
                          content=final_status,
                          file_name='final_status.json')
+        ConsoleLogger().print('info', 'save global_config into {}'.format(os.path.join(
+            self._record_file_log_dir)))
+        self.out_to_file(file_path=os.path.join(self._record_file_log_dir),
+                         content=GlobalConfig.return_all_as_dict(),
+                         file_name='global_config.json')
 
     @staticmethod
     @typechecked

@@ -3,14 +3,13 @@ The script to store some global configuration
 """
 
 from typeguard import typechecked
-import json
+import json_tricks as json
 import tensorflow as tf
-from gym.wrappers import TimeLimit, Monitor
 import os
 from baconian.config.required_keys import SRC_UTIL_REQUIRED_KEYS
 
 
-class DefaultGlobalConfig(object):
+class _DefaultGlobalConfig(object):
     DEFAULT_MAX_TF_SAVER_KEEP = 5
     DEFAULT_ALLOWED_EXCEPTION_OR_ERROR_LIST = (tf.errors.ResourceExhaustedError,)
     DEFAULT_BASIC_STATUS_LIST = ['TRAIN', 'TEST']
@@ -63,7 +62,7 @@ class DefaultGlobalConfig(object):
     SAMPLE_TYPE_SAMPLE_TRAJECTORY_DATA = 'trajectory_data'
 
 
-class GlobalConfig(DefaultGlobalConfig):
+class GlobalConfig(_DefaultGlobalConfig):
 
     def __new__(cls, *args, **kwargs):
         raise TypeError('GlobalConfig can only be accessed by cls')
@@ -96,7 +95,7 @@ class GlobalConfig(DefaultGlobalConfig):
 
     @staticmethod
     @typechecked
-    def set(key, val):
+    def set(key: str, val):
         if hasattr(GlobalConfig, key):
             attr = getattr(GlobalConfig, key)
             if attr is not None and not isinstance(val, type(attr)):
@@ -108,3 +107,16 @@ class GlobalConfig(DefaultGlobalConfig):
             setattr(GlobalConfig, key, val)
         else:
             setattr(GlobalConfig, key, val)
+
+    @staticmethod
+    def return_all_as_dict():
+        return_dict = {}
+        for key in dir(GlobalConfig):
+            if key.isupper() is True or 'DEFAULT' in key:
+                attr = getattr(GlobalConfig, key)
+                try:
+                    json.dumps(dict(key=attr))
+                except TypeError as e:
+                    attr = 'cannot be json dumped'
+                return_dict[key] = attr
+        return return_dict

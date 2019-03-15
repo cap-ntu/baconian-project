@@ -142,7 +142,6 @@ class TrajectoryData(SampleData):
     def append(self, transition_data: TransitionData):
         self.trajectories.append(transition_data.get_copy())
 
-    @typechecked
     def union(self, sample_data):
         assert isinstance(sample_data, typechecked(self))
         self.trajectories += sample_data.trajectories

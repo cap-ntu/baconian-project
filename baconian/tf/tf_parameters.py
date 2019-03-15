@@ -185,11 +185,10 @@ class ParametersWithTensorflowVariable(Parameters):
 
     @typechecked
     def to_tf_ph(self, key, ph: tf.Tensor):
-        # call the parameters first to make sure it have a init value
+        # call the parameters first to make sure it have an init value
         self(key)
         self._registered_tf_ph_dict[key] = ph
 
-    @typechecked
     @overrides
     def copy_from(self, source_parameter):
         # todo do we need to copy the basic config and parameters also?
