@@ -11,3 +11,4 @@ env: PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR/baconian-internal
 branches:
   only:
   - master
+  - travis_ci_test
