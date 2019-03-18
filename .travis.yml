@@ -4,7 +4,7 @@ python:
 before_install:
   - "export PYTHONPATH=$PYTHONPATH:$(pwd)"
 install:
-  - pip install -r requirement.txt
+  - pip install baconian-internal
 
 script: python baconian/test/run_all_tests.py
 env: PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR/baconian-internal

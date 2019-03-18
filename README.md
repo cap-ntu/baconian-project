@@ -16,7 +16,7 @@ offered.
 - 2019.3.15 Release the v0.1.1, add model saving scheduler, fix some bugs and update pip installing flow.
 - 2019.03.04 Release the v0.1 within CAP group.
 ### Documentation
-Documentation is available at http://baconian.readthedocs.io/ (release soon, the configuration is undergoing)
+Documentation is available at http://baconian.withcap.org (the documentations writing is undergoing)
 #### How to install
 
 (`source activate you_env` if you are using anaconda or consider creating a new env by `conda env create -name some_env`)
