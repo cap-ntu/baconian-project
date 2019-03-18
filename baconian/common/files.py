@@ -2,6 +2,7 @@ import json_tricks as json
 import os
 import numpy as np
 import shutil
+import pandas as pd
 
 
 def create_path(path, del_if_existed=True):
@@ -30,6 +31,18 @@ def save_to_json(dict, path=None, fp=None, file_name=None):
             path = os.path.join(path, file_name)
         with open(path, 'w') as f:
             json.dump(obj=dict, fp=f, indent=4, sort_keys=True)
+
+
+def convert_dict_to_csv(log_dict):
+    """
+    This function will convert a log dict into csv file by recursively find the list in the
+    dict and save the list with its key as a single csv file, the
+    :param log_dict:
+    :return: list, as the dict as each element with
+    {'csv_file_name', 'csv_keys', 'csv_row_data'}
+    """
+    for val in log_dict:
+        pass
 
 # def numpy_to_json_serializable(source_log_content):
 #     if isinstance(source_log_content, dict):

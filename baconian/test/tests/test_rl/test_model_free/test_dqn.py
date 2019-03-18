@@ -7,6 +7,7 @@ from baconian.envs.gym_env import make
 from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
 from baconian.common.sampler.sample_data import TransitionData
 import numpy as np
+import tensorflow as tf
 
 
 class TestDQN(TestWithAll):
@@ -57,6 +58,16 @@ class TestDQN(TestWithAll):
                                    new_dqn.q_value_func.parameters('tf_var_list'))
         self.assert_var_list_equal(dqn.target_q_value_func.parameters('tf_var_list'),
                                    new_dqn.target_q_value_func.parameters('tf_var_list'))
+        for i in range(10):
+            self.sess.run(dqn.update_target_q_value_func_op,
+                          feed_dict=dqn.parameters.return_tf_parameter_feed_dict())
+            var1 = self.sess.run(dqn.q_value_func.parameters('tf_var_list'))
+            var2 = self.sess.run(dqn.target_q_value_func.parameters('tf_var_list'))
+            import numpy as np
+            total_diff = 0.0
+            for v1, v2 in zip(var1, var2):
+                total_diff += np.mean(np.abs(np.array(v1) - np.array(v2)))
+            print('update target, difference mean', total_diff)
 
     def test_l1_l2_norm(self):
         env = make('Acrobot-v1')

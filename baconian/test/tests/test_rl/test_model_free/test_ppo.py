@@ -40,14 +40,17 @@ class TestPPO(TestWithAll):
         ppo.save(save_path=GlobalConfig.DEFAULT_LOG_PATH + '/ppo_test',
                  global_step=0,
                  name=ppo.name)
-        for i in range(1):
-            print(ppo.train())
+        for i in range(10):
+            res = ppo.train()
+            print('value_func_loss {}, policy_average_loss: {}'.format(res['value_func_loss'],
+                                                                       res['policy_average_loss']))
             traj_data = TrajectoryData(env_spec=env_spec)
             traj_data.append(data)
-            print(
-                ppo.train(trajectory_data=traj_data,
-                          train_iter=5,
-                          sess=self.sess))
+            res = ppo.train(trajectory_data=traj_data,
+                            train_iter=5,
+                            sess=self.sess)
+            print('value_func_loss {}, policy_average_loss: {}'.format(res['value_func_loss'],
+                                                                       res['policy_average_loss']))
 
         self.assert_var_list_at_least_not_equal(ppo.value_func.parameters('tf_var_list'),
                                                 new_ppo.value_func.parameters('tf_var_list'))

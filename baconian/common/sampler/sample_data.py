@@ -103,7 +103,7 @@ class SampleData(object):
 
     def get_mean_of(self, set_name):
         return make_batch(np.array(self._internal_data_dict[set_name][0]),
-                          original_shape=self._internal_data_dict[set_name][1]).mean()
+                          original_shape=self._internal_data_dict[set_name][1]).mean().item()
 
 
 class TransitionData(SampleData):

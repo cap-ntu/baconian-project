@@ -50,6 +50,7 @@ class Agent(Basic):
     @register_counter_info_to_status_decorator(increment=1, info_key='update_counter', under_status='TRAIN')
     def train(self):
         self.set_status('TRAIN')
+        self.algo.set_status('TRAIN')
         ConsoleLogger().print('info', 'agent enter training')
 
         res = self.sample(env=self.env,
@@ -62,11 +63,13 @@ class Agent(Basic):
         if self.algo_saving_scheduler and self.algo_saving_scheduler.value() is True:
             self.algo.save(global_step=self._status.get_specific_info_key_status(info_key='update_counter',
                                                                                  under_status='TRAIN'))
-        return dict(average_test_reward=res.get_mean_of(set_name='reward_set'))
+        return dict(average_reward=res.get_mean_of(set_name='reward_set'))
 
     @record_return_decorator(which_recorder='self')
     def test(self):
         self.set_status('TEST')
+        self.algo.set_status('TEST')
+
         ConsoleLogger().print('info', 'agent enter testing')
 
         res = self.sample(env=self.env,
@@ -75,15 +78,18 @@ class Agent(Basic):
                           in_test_flag=True)
         self.total_test_samples += len(res)
         ConsoleLogger().print('info', "Mean reward_func is {}".format(res.get_mean_of(set_name='reward_set')))
-        return dict(average_test_reward=res.get_mean_of(set_name='reward_set'))
+        return dict(average_reward=res.get_mean_of(set_name='reward_set'))
 
     @register_counter_info_to_status_decorator(increment=1, info_key='predict_counter', under_status=('TRAIN', 'TEST'),
                                                ignore_wrong_status=True)
     def predict(self, in_test_flag, **kwargs):
         if in_test_flag:
             self.set_status('TEST')
+            self.algo.set_status('TEST')
         else:
             self.set_status('TRAIN')
+            self.algo.set_status('TRAIN')
+
         if self.explorations_strategy and not in_test_flag:
             return self.explorations_strategy.predict(**kwargs, algo=self.algo)
         else:
@@ -95,9 +101,11 @@ class Agent(Basic):
         if in_test_flag:
             self.set_status('TEST')
             env.set_status('TEST')
+            self.algo.set_status('TEST')
         else:
             self.set_status('TRAIN')
             env.set_status('TRAIN')
+            self.algo.set_status('TRAIN')
         batch_data = self.sampler.sample(agent=self,
                                          env=env,
                                          in_test_flag=in_test_flag,

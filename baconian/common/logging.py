@@ -186,27 +186,32 @@ class _SingletonLogger(BaseLogger):
             self._record_file_log_dir)))
         self.out_to_file(file_path=os.path.join(self._record_file_log_dir),
                          content=final_status,
+                         force_new=True,
                          file_name='final_status.json')
         ConsoleLogger().print('info', 'save global_config into {}'.format(os.path.join(
             self._record_file_log_dir)))
         self.out_to_file(file_path=os.path.join(self._record_file_log_dir),
                          content=GlobalConfig.return_all_as_dict(),
+                         force_new=True,
                          file_name='global_config.json')
 
     @staticmethod
     @typechecked
-    def out_to_file(file_path: str, content: (tuple, list, dict), file_name: str):
+    def out_to_file(file_path: str, content: (tuple, list, dict), file_name: str, force_new=False):
 
         if len(content) == 0:
             return
-        mode = 'a'
+        if force_new is True:
+            mode = 'w'
+        else:
+            mode = 'a'
         if not os.path.exists(file_path):
             os.makedirs(file_path)
             mode = 'w'
         try:
             f = open(os.path.join(file_path, file_name), mode)
         except FileNotFoundError:
-            f = open(file_path, 'w')
+            f = open(os.path.join(file_path, file_name), 'w')
         files.save_to_json(content, fp=f)
 
 
@@ -288,7 +293,7 @@ class Recorder(object):
             for attr in self._obj_log[obj]:
                 for val_dict in self._obj_log[obj][attr]:
                     res = deepcopy(val_dict)
-                    res.pop('status'), res.pop('attr_name')
+                    res.pop('attr_name')
                     filtered_res[obj.name][val_dict['status']][val_dict['attr_name']].append(res)
         if clear_obj_log_flag is True:
             self._obj_log = {}
