@@ -4,6 +4,7 @@ python:
 before_install:
   - "export PYTHONPATH=$PYTHONPATH:$(pwd)"
 install:
+  - pip install pip==9.0.1
   - pip install $TRAVIS_BUILD_DIR
 
 script: python baconian/test/run_all_tests.py
