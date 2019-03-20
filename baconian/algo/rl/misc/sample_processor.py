@@ -13,7 +13,6 @@ def discount(x, gamma):
 class SampleProcessor(object):
 
     @staticmethod
-    @typechecked
     def add_gae(data: TrajectoryData, gamma, lam, value_func: ValueFunction = None, name='advantage_set'):
         for traj in data.trajectories:
             rewards = traj('reward_set') * (1 - gamma) if gamma < 0.999 else traj('reward_set')
@@ -34,7 +33,6 @@ class SampleProcessor(object):
             traj.append_new_set(name=name, data_set=make_batch(advantages, original_shape=[]), shape=[])
 
     @staticmethod
-    @typechecked
     def add_discount_sum_reward(data: TrajectoryData, gamma, name='discount_set'):
         for traj in data.trajectories:
             dis_set = traj('reward_set') * (1 - gamma) if gamma < 0.999 else traj('reward_set')
@@ -42,7 +40,6 @@ class SampleProcessor(object):
             traj.append_new_set(name=name, data_set=make_batch(dis_set, original_shape=[]), shape=[])
 
     @staticmethod
-    @typechecked
     def add_estimated_v_value(data: (TrajectoryData, TransitionData), value_func: ValueFunction, name='v_value_set'):
         if isinstance(data, TrajectoryData):
             for path in data.trajectories:
@@ -59,7 +56,6 @@ class SampleProcessor(object):
         data.append_new_set(name=name, data_set=make_batch(np.array(v_set), original_shape=[]), shape=[])
 
     @staticmethod
-    @typechecked
     def normalization(data: TransitionData, key, mean: np.ndarray = None, std_dev: np.ndarray = None):
         if mean is not None:
             assert mean.shape == data(key).shape[1:]

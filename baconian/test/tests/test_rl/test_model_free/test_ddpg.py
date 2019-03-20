@@ -42,7 +42,7 @@ class TestDDPG(TestWithAll):
                   global_step=0,
                   name=ddpg.name)
         for i in range(100):
-            print(ddpg.train())
+            print(ddpg.train(train_iter=10))
         self.assert_var_list_at_least_not_equal(ddpg.critic.parameters('tf_var_list'),
                                                 new_ddpg.critic.parameters('tf_var_list'))
         self.assert_var_list_at_least_not_equal(ddpg.target_critic.parameters('tf_var_list'),

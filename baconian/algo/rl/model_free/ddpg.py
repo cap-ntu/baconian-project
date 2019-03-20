@@ -158,7 +158,7 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
                     **self.parameters.return_tf_parameter_feed_dict()
                 }
             )
-            if not average_grads:
+            if average_grads is None:
                 average_grads = np.array(grads)
             else:
                 average_grads += np.array(grads)
@@ -181,7 +181,7 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
                     **self.parameters.return_tf_parameter_feed_dict()
                 }
             )
-            if not average_grads:
+            if average_grads is None:
                 average_grads = np.array(grads)
             else:
                 average_grads += np.array(grads)
