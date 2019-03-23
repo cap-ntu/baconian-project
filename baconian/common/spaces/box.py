@@ -31,8 +31,8 @@ class Box(Space):
             size=self.low.shape).astype(np.float32)
 
     def contains(self, x):
-        return x.shape == self.shape and (x >= self.low).all() and (
-                x <= self.high).all()
+        return (x.shape == self.shape and (x >= self.low).all() and (
+                x <= self.high).all()).item()
 
     @property
     def shape(self):
@@ -73,3 +73,6 @@ class Box(Space):
 
     def new_tensor_variable(self, name, extra_dims):
         raise NotImplementedError
+
+    def clip(self, x):
+        return np.clip(x, self.low, self.high).reshape(self.shape)

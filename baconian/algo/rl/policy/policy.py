@@ -33,6 +33,12 @@ class Policy(Basic):
     def make_copy(self, *args, **kwargs):
         raise NotImplementedError
 
+    def init(self, source_obj=None):
+        if self.parameters:
+            self.parameters.init()
+        if source_obj:
+            self.copy_from(obj=source_obj)
+
 
 class StochasticPolicy(Policy):
     @tg.typechecked

@@ -46,3 +46,6 @@ class Space:
         :return: the created tensor variable
         """
         raise NotImplementedError
+
+    def clip(self, x):
+        raise NotImplementedError

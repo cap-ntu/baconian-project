@@ -127,10 +127,11 @@ class NormalDistributionMLPPolicy(StochasticPolicy, PlaceholderInput):
                                                       **kwargs)
         return copy_mlp_policy
 
-    def init(self, source_obj=None):
-        self.parameters.init()
-        if source_obj:
-            self.copy_from(obj=source_obj)
+    #
+    # def init(self, source_obj=None):
+    #     self.parameters.init()
+    #     if source_obj:
+    #         self.copy_from(obj=source_obj)
 
     def compute_dist_info(self, name, sess=None, **kwargs) -> np.ndarray:
         assert name in ['log_prob', 'prob', 'entropy', 'kl']

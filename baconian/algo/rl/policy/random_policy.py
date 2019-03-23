@@ -15,9 +15,6 @@ class UniformRandomPolicy(Policy):
     def forward(self, obs, **kwargs):
         return np.array(self.action_space.sample())
 
-    def init(self):
-        pass
-
     def save(self, global_step, save_path=None, name=None, **kwargs):
         pass
 

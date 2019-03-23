@@ -43,3 +43,4 @@ Werkzeug==0.14.1
 coverage==4.5.2
 codecov==2.0.15
 pandas=0.24.2
+autograd==1.2

@@ -117,7 +117,7 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
         train_iter = self.parameters('train_iter') if 'train_iter' not in kwargs else kwargs['train_iter']
         feed_dict = {
             self.state_input: batch_data.state_set,
-            self.action_input: flatten_n(self.env_space.action_space, batch_data.action_set),
+            self.action_input: flatten_n(self.env_spec.action_space, batch_data.action_set),
             self.delta_state_label_ph: batch_data.new_state_set - batch_data.state_set,
             **self.parameters.return_tf_parameter_feed_dict()
         }

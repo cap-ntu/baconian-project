@@ -17,7 +17,7 @@ from baconian.algo.rl.model_free.ppo import PPO
 from baconian.core.parameters import Parameters, DictConfig
 from baconian.algo.rl.model_based.mpc import ModelPredictiveControl
 from baconian.algo.rl.model_based.misc.terminal_func.terminal_func import RandomTerminalFunc
-from baconian.algo.rl.model_based.misc.reward_func.reward_func import RandomRewardFunc
+from baconian.algo.rl.model_based.misc.reward_func.reward_func import RandomRewardFunc, CostFunc
 from baconian.algo.rl.policy.random_policy import UniformRandomPolicy
 from baconian.core.agent import Agent
 from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
@@ -27,6 +27,9 @@ from baconian.core.pipelines.train_test_flow import TrainTestFlow
 from baconian.algo.rl.model_based.sample_with_model import SampleWithDynamics
 from baconian.common.schedules import *
 from baconian.core.status import *
+from baconian.algo.optimal_control.ilqr.ilqr_policy import iLQRPolicy
+from baconian.envs.gym_env_cost_fn import GymEnvCostFunc
+from baconian.algo.rl.model_based.models.random_dynamics_model import UniformRandomDynamicsModel
 
 
 class Foo(Basic):
@@ -37,6 +40,10 @@ class Foo(Basic):
 
 
 class ClassCreatorSetup(unittest.TestCase):
+
+    def create_env(self, env_id):
+        return make(env_id)
+    
     def create_tf_parameters(self, name='test_tf_param'):
         with tf.variable_scope(name):
             a = tf.get_variable(shape=[3, 4], dtype=tf.float32, name='var_1')
@@ -465,3 +472,22 @@ class ClassCreatorSetup(unittest.TestCase):
                                     name=name,
                                     config_or_config_dict=dict(
                                         ACTION_VALUE=np.array(env_spec.action_space.sample()))), locals()
+
+    def create_ilqr_policy(self, env_id='Pendulum-v0'):
+
+        class DebuggingCostFunc(CostFunc):
+            def __call__(self, state=None, action=None, new_state=None, **kwargs) -> float:
+                return float(np.sum(action * action))
+
+        env = make(env_id)
+        env_spec = EnvSpec(obs_space=env.observation_space,
+                           action_space=env.action_space)
+        dyna = UniformRandomDynamicsModel(env_spec=env_spec)
+        dyna.init()
+        policy = iLQRPolicy(env_spec=env_spec,
+                            T=50,
+                            delta=0.0005,
+                            iteration=5,
+                            dynamics=dyna,
+                            cost_fn=DebuggingCostFunc())
+        return policy, locals()

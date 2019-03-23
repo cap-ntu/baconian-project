@@ -7,6 +7,7 @@ from typeguard import typechecked
 from tensorflow.python.ops.parallel_for.gradients import batch_jacobian as tf_batch_jacobian
 from baconian.common.logging import Recorder
 from baconian.core.status import register_counter_info_to_status_decorator, StatusWithSingleInfo
+from baconian.common.logging import ConsoleLogger
 
 
 class DynamicsModel(Basic):
@@ -15,7 +16,7 @@ class DynamicsModel(Basic):
 
     def __init__(self, env_spec: EnvSpec, parameters: Parameters = None, init_state=None, name='dynamics_model'):
         super().__init__(name=name)
-        self.env_space = env_spec
+        self.env_spec = env_spec
         self.state = init_state
         self.parameters = parameters
         self.state_input = None
@@ -28,15 +29,28 @@ class DynamicsModel(Basic):
         self.set_status('INITED')
 
     @register_counter_info_to_status_decorator(increment=1, info_key='step_counter')
-    def step(self, action: np.ndarray, state=None, **kwargs_for_transit):
-        state = state.reshape(self.env_space.obs_shape) if state is not None else self.state
+    def step(self, action: np.ndarray, state=None, allow_clip=False, **kwargs_for_transit):
+        state = np.array(state).reshape(self.env_spec.obs_shape) if state is not None else self.state
+        action = action.reshape(self.env_spec.action_shape)
+        if allow_clip is True:
+            if state is not None:
+                if self.env_spec.obs_space.contains(state) is False:
+                    ConsoleLogger().print('warning', 'state out of bound, allowed clipping')
+                    state = self.env_spec.obs_space.clip(state)
+                    assert self.env_spec.obs_space.contains(state)
+            if self.env_spec.action_space.contains(action) is False:
+                ConsoleLogger().print('warning', 'action out of bound, allowed clipping')
+                action = self.env_spec.action_space.clip(action)
 
-        action = action.reshape(self.env_space.action_shape)
-        assert self.env_space.action_space.contains(action)
-        assert self.env_space.obs_space.contains(state)
-        new_state = self._state_transit(state=state, action=self.env_space.flat_action(action),
+        assert self.env_spec.action_space.contains(action)
+        assert self.env_spec.obs_space.contains(state)
+        new_state = self._state_transit(state=state, action=self.env_spec.flat_action(action),
                                         **kwargs_for_transit)
-        assert self.env_space.obs_space.contains(new_state)
+        if allow_clip is True:
+            ConsoleLogger().print('warning', 'new state out of bound, allowed clipping')
+            new_state = self.env_spec.obs_space.clip(new_state)
+            assert self.env_spec.obs_space.contains(new_state)
+        assert self.env_spec.obs_space.contains(new_state)
         self.state = new_state
         return new_state
 
@@ -48,6 +62,9 @@ class DynamicsModel(Basic):
         if not isinstance(obj, type(self)):
             raise TypeError('Wrong type of obj %s to be copied, which should be %s' % (type(obj), type(self)))
         return True
+
+    def make_copy(self):
+        raise NotImplementedError
 
 
 class LocalDyanmicsModel(DynamicsModel):

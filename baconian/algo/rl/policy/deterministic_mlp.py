@@ -84,10 +84,10 @@ class DeterministicMLPPolicy(DeterministicPolicy, PlaceholderInput):
                                                  **kwargs)
         return copy_mlp_policy
 
-    def init(self, source_obj=None):
-        self.parameters.init()
-        if source_obj:
-            self.copy_from(obj=source_obj)
+    # def init(self, source_obj=None):
+    #     self.parameters.init()
+    #     if source_obj:
+    #         self.copy_from(obj=source_obj)
 
     def save(self, *args, **kwargs):
         return PlaceholderInput.save(self, *args, **kwargs)

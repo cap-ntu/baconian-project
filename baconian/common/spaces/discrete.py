@@ -67,3 +67,14 @@ class Discrete(Space):
 
     def new_tensor_variable(self, name, extra_dims):
         raise NotImplementedError
+
+    def clip(self, x):
+        x = np.asarray(x)
+        assert x.shape == ()
+        if self.contains(x):
+            return x
+        else:
+            if x < 0:
+                return 0
+            elif x >= self.n:
+                return self.n - 1
