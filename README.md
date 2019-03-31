@@ -3,7 +3,7 @@
 # Baconian:  Boosting the model-based reinforcement learning 
  
 [![Build Status](https://travis-ci.com/Lukeeeeee/baconian-internal.svg?token=dTo6wB1jmzxu58xyRPX6&branch=master)](https://travis-ci.com/Lukeeeeee/baconian-internal)
-[![Documentation Status](https://readthedocs.org/projects/baconian/badge/?version=latest)](https://baconian.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/baconian-public/badge/?version=latest)](https://baconian-public.readthedocs.io/en/latest/?badge=latest)
 
 Baconian [beˈkonin] is a toolbox for model-based reinforcement learning with user-friendly experiment setting-up, logging 
 and visualization modules developed by [CAP](http://cap.scse.ntu.edu.sg/). We aim to develop a flexible, re-usable and 
@@ -17,7 +17,9 @@ offered.
 - 2019.3.15 Release the v0.1.1, add model saving scheduler, fix some bugs and update pip installing flow.
 - 2019.03.04 Release the v0.1 within CAP group.
 ### Documentation
-Documentation is available at http://baconian.withcap.org (the documentations writing is undergoing)
+Documentation is available at http://baconian.withcap.org (hosted by CAP server)  
+or https://baconian-public.readthedocs.io/en/latest/ (host by Read the Docs)
+(the documentations writing is still undergoing)
 #### How to install
 
 (`source activate you_env` if you are using anaconda or consider creating a new env by `conda env create -name some_env`)
