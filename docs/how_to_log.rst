@@ -1,4 +1,4 @@
-Logging in mobrl
+Logging in Baconian
 =====================
 In this part, we will introduce how to record and save everything you want during an experiments. The contents are
 organized as follows:

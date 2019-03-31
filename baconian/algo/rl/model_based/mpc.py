@@ -1,15 +1,16 @@
 from baconian.algo.rl.rl_algo import ModelBasedAlgo
-from baconian.algo.rl.model_based.models.dynamics_model import DynamicsModel
+from baconian.algo.dynamics.dynamics_model import DynamicsModel
 from baconian.config.dict_config import DictConfig
 from baconian.common.sampler.sample_data import TrajectoryData
 from baconian.core.parameters import Parameters
 from baconian.config.global_config import GlobalConfig
-from baconian.algo.rl.model_based.misc.reward_func.reward_func import RewardFunc
-from baconian.algo.rl.model_based.misc.terminal_func.terminal_func import TerminalFunc
+from baconian.algo.dynamics.reward_func.reward_func import RewardFunc
+from baconian.algo.dynamics.terminal_func.terminal_func import TerminalFunc
 from baconian.common.misc import *
 from baconian.algo.rl.policy.policy import Policy
 from baconian.common.logging import ConsoleLogger
 from baconian.common.sampler.sample_data import TransitionData
+from baconian.common.logging import record_return_decorator
 
 
 class ModelPredictiveControl(ModelBasedAlgo):
@@ -90,12 +91,19 @@ class ModelPredictiveControl(ModelBasedAlgo):
         ConsoleLogger().print('info', 'model: {} copied from {}'.format(self, obj))
         return True
 
+    @record_return_decorator(which_recorder='self')
     def save(self, global_step, save_path=None, name=None, **kwargs):
+        save_path = save_path if save_path else GlobalConfig.DEFAULT_MODEL_CHECKPOINT_PATH
+        name = name if name else self.name
 
         self.dynamics_model.save(self, save_path=save_path, global_step=global_step, name=name, **kwargs)
         self.policy.save(self, save_path=save_path, global_step=global_step, name=name, **kwargs)
+        return dict(check_point_save_path=save_path, check_point_save_global_step=global_step,
+                    check_point_save_name=name)
 
+    @record_return_decorator(which_recorder='self')
     def load(self, path_to_model, model_name, global_step=None, **kwargs):
-
         self.dynamics_model.load(self, path_to_model, model_name, global_step, **kwargs)
         self.policy.load(self, path_to_model, model_name, global_step, **kwargs)
+        return dict(check_point_load_path=path_to_model, check_point_load_global_step=global_step,
+                    check_point_load_name=model_name)

@@ -19,7 +19,7 @@ from baconian.core.core import Env
 from baconian.core.agent import Agent
 from baconian.common.logging import Recorder
 from baconian.core.status import *
-from baconian.core.pipelines.train_test_flow import Flow, TrainTestFlow
+from baconian.core.pipelines.train_test_flow import Flow
 from baconian.core.global_var import reset_all as reset_global_var
 from baconian.common.logging import reset_logging
 
@@ -36,7 +36,7 @@ class Experiment(Basic):
                  name: str,
                  agent: Agent,
                  env: Env,
-                 flow: Flow = TrainTestFlow(),
+                 flow: Flow,
                  tuner: Tuner = None,
                  register_default_global_status=True
                  ):
@@ -74,18 +74,19 @@ class Experiment(Basic):
         self.agent.init()
         self.env.init()
 
-    def train(self):
-        self.agent.train()
-
-    def test(self):
-        self.agent.test()
+    # def train(self):
+    #     self.agent.train()
+    #
+    # def test(self):
+    #     self.agent.test()
+    #
+    # def sample(self, *arg, **kwargs):
+    #     return self.agent.sample(*arg, **kwargs)
 
     def run(self):
         self.init()
         self.set_status('RUNNING')
-        res = self.flow.launch(func_dict=dict(train=dict(func=self.train, args=list(), kwargs=dict()),
-                                              test=dict(func=self.test, args=list(), kwargs=dict()),
-                                              is_ended=dict(func=self._is_ended, args=list(), kwargs=dict())))
+        res = self.flow.launch()
         if res is False:
             self.set_status('CORRUPTED')
         else:
@@ -100,27 +101,6 @@ class Experiment(Basic):
         reset_global_status_collect()
         reset_logging()
         reset_global_var()
-
-        # reset_global_experiment_status()
-
-    def _is_ended(self):
-        res = get_global_status_collect()()
-        key_founded_flag = False
-        finished_flag = False
-        for key in GlobalConfig.DEFAULT_EXPERIMENT_END_POINT:
-            if key in res and GlobalConfig.DEFAULT_EXPERIMENT_END_POINT[key]:
-                key_founded_flag = True
-                if res[key] >= GlobalConfig.DEFAULT_EXPERIMENT_END_POINT[key]:
-                    ConsoleLogger().print('info',
-                                          'pipeline ended because {}: {} >= end point value {}'.format(key, res[key],
-                                                                                                       GlobalConfig.DEFAULT_EXPERIMENT_END_POINT[
-                                                                                                           key]))
-                    finished_flag = True
-        if key_founded_flag is False:
-            ConsoleLogger().print('warning',
-                                  '{} in experiment_end_point is not registered with global status collector: {}, experiment may not end'.format(
-                                      GlobalConfig.DEFAULT_EXPERIMENT_END_POINT, list(res.keys())))
-        return finished_flag
 
     def TOTAL_AGENT_UPDATE_COUNT(self):
         return get_global_status_collect()('TOTAL_AGENT_UPDATE_COUNT')

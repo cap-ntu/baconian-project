@@ -3,9 +3,9 @@ import sys
 import os
 
 path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(path)
-print('join {} into environ path'.format(path))
-src_dir = os.path.abspath(os.path.join(path, os.pardir))
+# sys.path.append(path)
+# print('join {} into environ path'.format(path))
+src_dir = os.path.abspath(os.path.join(path, os.pardir, os.pardir))
 sys.path.append(src_dir)
 print('join {} into environ path'.format(src_dir))
 

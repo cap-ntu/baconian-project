@@ -11,8 +11,14 @@ __all__ = ['Status', 'StatusWithSubInfo', 'StatusWithSingleInfo', 'StatusWithInf
 
 
 class Status(object):
-
+    """
+    One of the core module, a class to indicate the current status of an object in baconian.
+    """
     def __init__(self, obj):
+        """
+        The object that status willlu
+        :param obj:
+        """
         self.obj = obj
         self._status_val = None
         if hasattr(obj, 'STATUS_LIST'):
@@ -206,10 +212,22 @@ class StatusCollector(object):
         return self()
 
     def register_info_key_status(self, obj, info_key: str, return_name: str, under_status=None):
+        ConsoleLogger().print('info',
+                              'registered obj: {}, key: {}, return name: {}, under status: {}'.format(obj, info_key,
+                                                                                                      return_name,
+                                                                                                      under_status))
         for val in self._register_status_dict:
             assert return_name != val['return_name']
         self._register_status_dict.append(
             dict(obj=obj, info_key=info_key, under_status=under_status, return_name=return_name))
+        try:
+            self(info_key)
+        except StatusInfoNotRegisteredError as e:
+            ConsoleLogger().print('warning',
+                                  'new registred info: obj: {}, key: {}, return name: {}, under status: {} can not be detected now'.format(
+                                      obj, info_key,
+                                      return_name,
+                                      under_status))
 
     def reset(self):
         self._register_status_dict = []
@@ -274,6 +292,7 @@ _global_status_collector = StatusCollector()
 
 
 def get_global_status_collect() -> StatusCollector:
+    # todo wrap some very common used func
     return globals()['_global_status_collector']
 
 

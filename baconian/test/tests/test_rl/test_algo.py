@@ -1,6 +1,6 @@
 from baconian.test.tests.set_up.setup import TestTensorflowSetup
 import tensorflow as tf
-from baconian.algo.rl.model_based.models.dynamics_model import DerivableDynamics
+from baconian.algo.dynamics.dynamics_model import DerivableDynamics
 import numpy as np
 
 

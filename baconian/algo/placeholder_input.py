@@ -59,10 +59,7 @@ class MultiPlaceholderInput(object):
 
         self._own_placeholder_input_obj = PlaceholderInput(inputs=inputs, parameters=parameters)
 
-    def save(self, global_step, save_path=None, name=None, **kwargs):
-        save_path = save_path if save_path else GlobalConfig.DEFAULT_MODEL_CHECKPOINT_PATH
-        name = name if name else self.name
-
+    def save(self, global_step, save_path, name, **kwargs):
         sess = kwargs['sess'] if 'sess' in kwargs else None
         self._own_placeholder_input_obj.parameters.save(save_path=save_path,
                                                         global_step=global_step,

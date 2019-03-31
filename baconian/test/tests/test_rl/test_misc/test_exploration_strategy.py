@@ -28,15 +28,13 @@ class TestExplorationStrategy(TestWithAll):
 
         dqn.init()
         eps = EpsilonGreedy(action_space=dqn.env_spec.action_space,
+                            prob_scheduler=LinearSchedule(initial_p=1.0, t_fn=func, schedule_timesteps=10,
+                                                          final_p=0.0),
                             init_random_prob=1.0)
-        eps.parameters.set_scheduler(param_key='init_random_prob',
-                                     scheduler=LinearSchedule(initial_p=1.0, t_fn=func, schedule_timesteps=10,
-                                                              final_p=0.0))
         st = env.reset()
         for i in range(10):
             global x
             ac = eps.predict(obs=st, sess=self.sess, batch_flag=False, algo=dqn)
             st_new, re, done, _ = env.step(action=ac)
-            print()
-            self.assertAlmostEqual(eps.parameters('init_random_prob'), 1.0 - (1.0 - 0.0) / 10 * x)
+            self.assertAlmostEqual(eps.parameters('random_prob_func')(), 1.0 - (1.0 - 0.0) / 10 * x)
             x += 1

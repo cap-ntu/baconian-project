@@ -151,12 +151,19 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                 self.trajectory_memory.append(self.transition_data_for_trajectory)
                 self.transition_data_for_trajectory.reset()
 
+    @record_return_decorator(which_recorder='self')
     def save(self, global_step, save_path=None, name=None, **kwargs):
+        save_path = save_path if save_path else GlobalConfig.DEFAULT_MODEL_CHECKPOINT_PATH
+        name = name if name else self.name
         MultiPlaceholderInput.save(self, save_path=save_path, global_step=global_step, name=name, **kwargs)
+        return dict(check_point_save_path=save_path, check_point_save_global_step=global_step,
+                    check_point_save_name=name)
 
+    @record_return_decorator(which_recorder='self')
     def load(self, path_to_model, model_name, global_step=None, **kwargs):
-
         MultiPlaceholderInput.load(self, path_to_model, model_name, global_step, **kwargs)
+        return dict(check_point_load_path=path_to_model, check_point_load_global_step=global_step,
+                    check_point_load_name=model_name)
 
     def _setup_policy_loss(self):
         """

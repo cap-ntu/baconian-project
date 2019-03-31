@@ -1,7 +1,8 @@
-from baconian.test.tests.set_up.setup import TestTensorflowSetup
+from baconian.test.tests.set_up.setup import TestWithAll
+from baconian.common.sampler.sample_data import SampleData
 
 
-class TestAgent(TestTensorflowSetup):
+class TestAgent(TestWithAll):
     def test_agent(self):
         algo, local = self.create_dqn()
         env = local['env']
@@ -9,10 +10,12 @@ class TestAgent(TestTensorflowSetup):
         agent, _ = self.create_agent(algo=algo, env=env,
                                      env_spec=env_spec,
                                      eps=self.create_eps(env_spec=env_spec)[0])
-
+        self.register_global_status_when_test(agent, env)
         agent.init()
         env.reset()
+        data = agent.sample(env=env, sample_count=10, store_flag=False, in_test_flag=True)
+        self.assertTrue(isinstance(data, SampleData))
+        self.assertEqual(agent.algo.replay_buffer.nb_entries, 0)
         data = agent.sample(env=env, sample_count=10, store_flag=True, in_test_flag=False)
-        from baconian.common.sampler.sample_data import SampleData
         self.assertTrue(isinstance(data, SampleData))
         self.assertEqual(agent.algo.replay_buffer.nb_entries, 10)

@@ -8,11 +8,12 @@ from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
 from baconian.core.experiment import Experiment
 from baconian.core.pipelines.train_test_flow import TrainTestFlow
 from baconian.algo.rl.model_based.mpc import ModelPredictiveControl
-from baconian.algo.rl.model_based.misc.terminal_func.terminal_func import RandomTerminalFunc
-from baconian.algo.rl.model_based.misc.reward_func.reward_func import RandomRewardFunc
+from baconian.algo.dynamics.terminal_func.terminal_func import RandomTerminalFunc
+from baconian.algo.dynamics.reward_func.reward_func import RandomRewardFunc
 from baconian.algo.rl.policy.random_policy import UniformRandomPolicy
-from baconian.algo.rl.model_based.models.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
+from baconian.algo.dynamics.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
 from baconian.config.global_config import GlobalConfig
+from baconian.core.status import get_global_status_collect
 
 
 def task_fn():
@@ -63,19 +64,38 @@ def task_fn():
     )
     agent = Agent(env=env, env_spec=env_spec,
                   algo=algo,
-                  config_or_config_dict={
-                      "TEST_SAMPLES_COUNT": 100,
-                      "TRAIN_SAMPLES_COUNT": 100,
-                      "TOTAL_SAMPLES_COUNT": 500
-                  },
                   name=name + '_agent',
                   exploration_strategy=EpsilonGreedy(action_space=env_spec.action_space,
                                                      init_random_prob=0.5))
+    flow = TrainTestFlow(train_sample_count_func=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
+                         config_or_config_dict={
+                             "TEST_EVERY_SAMPLE_COUNT": 10,
+                             "TRAIN_EVERY_SAMPLE_COUNT": 10,
+                             "START_TRAIN_AFTER_SAMPLE_COUNT": 5,
+                             "START_TEST_AFTER_SAMPLE_COUNT": 5,
+                         },
+                         func_dict={
+                             'test': {'func': agent.test,
+                                      'args': list(),
+                                      'kwargs': dict(sample_count=10),
+                                      },
+                             'train': {'func': agent.train,
+                                       'args': list(),
+                                       'kwargs': dict(),
+                                       },
+                             'sample': {'func': agent.sample,
+                                        'args': list(),
+                                        'kwargs': dict(sample_count=100,
+                                                       env=agent.env,
+                                                       in_test_flag=False,
+                                                       store_flag=True),
+                                        },
+                         })
     experiment = Experiment(
         tuner=None,
         env=env,
         agent=agent,
-        flow=TrainTestFlow(),
+        flow=flow,
         name=name
     )
     experiment.run()

@@ -3,6 +3,7 @@ from baconian.common.spaces.base import Space
 import numpy as np
 from typeguard import typechecked
 from baconian.core.parameters import Parameters
+from baconian.common.schedules import Schedule
 
 
 class ExplorationStrategy(object):
@@ -15,16 +16,19 @@ class ExplorationStrategy(object):
 
 class EpsilonGreedy(ExplorationStrategy):
     @typechecked
-    def __init__(self, action_space: Space, init_random_prob: float):
+    def __init__(self, action_space: Space, init_random_prob: float, prob_scheduler: Schedule = None):
         super(ExplorationStrategy, self).__init__()
 
         self.action_space = action_space
-        self.init_random_prob = init_random_prob
-        self.parameters = Parameters(parameters=dict(init_random_prob=self.init_random_prob),
+        self.random_prob_func = lambda: init_random_prob
+        if prob_scheduler:
+            self.random_prob_func = prob_scheduler.value
+
+        self.parameters = Parameters(parameters=dict(random_prob_func=self.random_prob_func),
                                      name='eps_greedy_params')
 
     def predict(self, **kwargs):
-        if np.random.random() < self.parameters('init_random_prob'):
+        if np.random.random() < self.parameters('random_prob_func')():
             return self.action_space.sample()
         else:
             algo = kwargs.pop('algo')

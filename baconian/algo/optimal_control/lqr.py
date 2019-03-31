@@ -1,9 +1,8 @@
 import numpy as np
 from scipy.linalg import inv
-from scipy.optimize import approx_fprime
 from baconian.core.core import EnvSpec
-from baconian.algo.rl.model_based.misc.reward_func.reward_func import QuadraticCostFunc
-from baconian.algo.rl.model_based.models.linear_dynamics_model import LinearDynamicsModel
+from baconian.algo.dynamics.reward_func.reward_func import QuadraticCostFunc
+from baconian.algo.dynamics.linear_dynamics_model import LinearDynamicsModel
 
 
 class LQR(object):

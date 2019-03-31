@@ -1,10 +1,10 @@
 from baconian.test.tests.set_up.setup import TestWithAll
-from baconian.algo.rl.model_based.misc.reward_func.reward_func import CostFunc
+from baconian.algo.dynamics.reward_func.reward_func import CostFunc
 from baconian.envs.gym_env import make
 import numpy as np
 from baconian.core.core import EnvSpec
-from baconian.algo.rl.model_based.models.dynamics_model import GlobalDynamicsModel
-from baconian.algo.optimal_control.ilqr.ilqr_policy import iLQRPolicy
+from baconian.algo.dynamics.dynamics_model import GlobalDynamicsModel
+from baconian.algo.optimal_control.ilqr_policy import iLQRPolicy
 
 
 class DebugDynamics(GlobalDynamicsModel):

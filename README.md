@@ -42,8 +42,8 @@ There are some examples placed at `examples` which you can have a test.
 ### Todo
 
 - [ ] Visualization module
-- [ ] Optimal control algorithms: LQR, Ilqr
-- [ ] State-of-art model-based algorithms
+- [ ] State-of-art model-based algorithms: PILCO, GPS etc.\
+- [ ] Latent-space method supporting.
 - [ ] Benchmark tests on multiple tasks
 
 ### Acknowledgement 

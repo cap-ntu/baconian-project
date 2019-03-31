@@ -69,7 +69,7 @@ class Discrete(Space):
         raise NotImplementedError
 
     def clip(self, x):
-        x = np.asarray(x)
+        x = np.asarray(x).astype(np.int)
         assert x.shape == ()
         if self.contains(x):
             return x

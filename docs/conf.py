@@ -12,9 +12,13 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('../..'))
+sys.path.insert(0, os.path.abspath('.'))
+
 from recommonmark.parser import CommonMarkParser
 
 source_parsers = {
@@ -23,14 +27,15 @@ source_parsers = {
 
 # -- Project information -----------------------------------------------------
 
-project = 'mobrl'
-copyright = '2018, Linsen Dong'
+project = 'Baconian'
+copyright = '2019, Linsen Dong'
 author = 'Linsen Dong'
+from baconian.__version__ import __version__
 
 # The short X.Y version
-version = '0.0.1'
+version = __version__
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+release = __version__
 
 # -- General configuration ---------------------------------------------------
 
@@ -42,6 +47,7 @@ release = '0.0.1'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx.ext.autodoc'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -76,7 +82,7 @@ pygments_style = None
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'classic'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -103,7 +109,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'mobrl'
+htmlhelp_basename = 'baconian'
 
 # -- Options for LaTeX output ------------------------------------------------
 
@@ -129,7 +135,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'mobrl.tex', 'mobrl Documentation',
+    (master_doc, 'baconian.tex', 'baconian Documentation',
      'Linsen Dong', 'manual'),
 ]
 
@@ -138,7 +144,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'mobrl', 'A unified and light-weight model-based reinforcment learning toolbox',
+    (master_doc, 'baconian', 'A unified and light-weight model-based reinforcment learning toolbox',
      [author], 1)
 ]
 
@@ -148,8 +154,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'Model-BasedRLFramework', 'Model-BasedRLFramework Documentation',
-     author, 'Model-BasedRLFramework', 'One line description of project.',
+    (master_doc, 'Baconian', 'Baconian Documentation',
+     author, 'Baconian', 'One line description of project.',
      'Miscellaneous'),
 ]
 
@@ -169,3 +175,13 @@ epub_title = project
 
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ['search.html']
+
+
+def skip(app, what, name, obj, would_skip, options):
+    if name == "__init__":
+        return False
+    return would_skip
+
+
+def setup(app):
+    app.connect("autodoc-skip-member", skip)

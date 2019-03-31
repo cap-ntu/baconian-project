@@ -1,21 +1,38 @@
-.. Model-BasedRLFramework documentation master file, created by
-sphinx-quickstart on Wed Nov  7 13:45:28 2018.
-You can adapt this file completely to your liking, but it should at least
-contain the root `toctree` directive.
-
-Welcome to Model-BasedRLFramework!
+Welcome to Baconian!
 ==================================================
+.. Baconian documentation
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+    :maxdepth: 1
+    :caption: Installation
 
-   installation_guide
-   tutorial
-   how_to_log
+    installation_guide.rst
 
+.. toctree::
+    :maxdepth: 1
+    :caption: Tutorial and Examples
 
+    tutorial.rst
+    examples.rst
+    how_to_log.rst
 
+.. toctree::
+    :maxdepth: 1
+    :caption: Design of Baconian
+
+    baconian_design.rst
+
+.. toctree::
+    :maxdepth: 1
+    :caption: API documentation
+
+    API.rst
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Contribute
+
+    contribute.rst
 
 Indices and tables
 ==================

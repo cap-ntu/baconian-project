@@ -25,7 +25,7 @@ class DynamicsModel(Basic):
         self.recorder = Recorder(flush_by_split_status=False)
         self._status = StatusWithSingleInfo(obj=self)
 
-    def init(self):
+    def init(self, *args, **kwargs):
         self.set_status('INITED')
 
     @register_counter_info_to_status_decorator(increment=1, info_key='step_counter')
@@ -73,6 +73,11 @@ class LocalDyanmicsModel(DynamicsModel):
 
 class GlobalDynamicsModel(DynamicsModel):
     pass
+
+
+class TrainableDyanmicsModel(DynamicsModel):
+    def train(self, *args, **kwargs):
+        raise NotImplementedError
 
 
 class DerivableDynamics(object):

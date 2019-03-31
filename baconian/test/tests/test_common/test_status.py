@@ -13,6 +13,7 @@ class TestStatus(TestWithAll):
         agent, _ = self.create_agent(algo=algo, env=env,
                                      env_spec=env_spec,
                                      eps=self.create_eps(env_spec=env_spec)[0])
+        self.register_global_status_when_test(env=env, agent=agent)
 
         agent.init()
 

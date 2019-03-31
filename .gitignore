@@ -104,3 +104,4 @@ venv.bak/
 .mypy_cache/
 .idea/
 examples/log_path
+benchmark/benchmark_log

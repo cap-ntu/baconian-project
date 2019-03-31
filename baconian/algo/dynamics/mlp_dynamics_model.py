@@ -1,6 +1,6 @@
 from baconian.common.special import flatten_n
 from baconian.core.core import EnvSpec
-from baconian.algo.rl.model_based.models.dynamics_model import GlobalDynamicsModel, DerivableDynamics
+from baconian.algo.dynamics.dynamics_model import GlobalDynamicsModel, DerivableDynamics, TrainableDyanmicsModel
 import tensorflow as tf
 from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.tf.mlp import MLP
@@ -16,7 +16,8 @@ from baconian.common.logging import record_return_decorator
 from baconian.core.status import register_counter_info_to_status_decorator, StatusWithSubInfo
 
 
-class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, PlaceholderInput):
+class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, PlaceholderInput,
+                                       TrainableDyanmicsModel):
     STATUS_LIST = ['NOT_INIT', 'INITED', 'TRAIN']
     INIT_STATUS = 'NOT_INIT'
 

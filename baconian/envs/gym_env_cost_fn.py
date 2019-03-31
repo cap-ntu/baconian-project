@@ -1,5 +1,5 @@
 import numpy as np
-from baconian.algo.rl.model_based.misc.reward_func.reward_func import CostFunc
+from baconian.algo.dynamics.reward_func.reward_func import CostFunc
 
 
 # ========================================================

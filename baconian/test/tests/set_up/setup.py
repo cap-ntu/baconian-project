@@ -9,11 +9,13 @@ from baconian.config.global_config import GlobalConfig
 from baconian.core.global_var import reset_all, get_all
 from baconian.tf.util import create_new_tf_session
 from baconian.test.tests.set_up.class_creator import ClassCreatorSetup
+from baconian.core.status import reset_global_status_collect
 
 
 class BaseTestCase(ClassCreatorSetup):
     def setUp(self):
         reset_all()
+        reset_global_status_collect()
         for key, val in get_all().items():
             self.assertTrue(len(val) == 0)
 

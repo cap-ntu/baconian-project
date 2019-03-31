@@ -18,7 +18,7 @@ from baconian.core.status import get_global_status_collect
 
 def task_fn():
     env = make('Acrobot-v1')
-    name = 'template_exp'
+    name = 'example_scheduler_'
     env_spec = EnvSpec(obs_space=env.observation_space,
                        action_space=env.action_space)
 
@@ -56,23 +56,48 @@ def task_fn():
               value_func=mlp_q)
     agent = Agent(env=env, env_spec=env_spec,
                   algo=dqn,
-                  config_or_config_dict={
-                      "TEST_SAMPLES_COUNT": 100,
-                      "TRAIN_SAMPLES_COUNT": 100,
-                      "TOTAL_SAMPLES_COUNT": 500
-                  },
                   name=name + '_agent',
                   algo_saving_scheduler=PeriodicalEventSchedule(
                       t_fn=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
                       trigger_every_step=20,
                       after_t=10),
                   exploration_strategy=EpsilonGreedy(action_space=env_spec.action_space,
+                                                     prob_scheduler=PiecewiseSchedule(
+                                                         t_fn=lambda: get_global_status_collect()(
+                                                             'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
+                                                         endpoints=((10, 0.3), (100, 0.1), (200, 0.0)),
+                                                         outside_value=0.0
+                                                     ),
                                                      init_random_prob=0.5))
+    flow = TrainTestFlow(train_sample_count_func=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
+                         config_or_config_dict={
+                             "TEST_EVERY_SAMPLE_COUNT": 10,
+                             "TRAIN_EVERY_SAMPLE_COUNT": 10,
+                             "START_TRAIN_AFTER_SAMPLE_COUNT": 5,
+                             "START_TEST_AFTER_SAMPLE_COUNT": 5,
+                         },
+                         func_dict={
+                             'test': {'func': agent.test,
+                                      'args': list(),
+                                      'kwargs': dict(sample_count=10),
+                                      },
+                             'train': {'func': agent.train,
+                                       'args': list(),
+                                       'kwargs': dict(),
+                                       },
+                             'sample': {'func': agent.sample,
+                                        'args': list(),
+                                        'kwargs': dict(sample_count=100,
+                                                       env=agent.env,
+                                                       in_test_flag=False,
+                                                       store_flag=True),
+                                        },
+                         })
     experiment = Experiment(
         tuner=None,
         env=env,
         agent=agent,
-        flow=TrainTestFlow(),
+        flow=flow,
         name=name + 'experiment_debug'
     )
 
@@ -83,12 +108,6 @@ def task_fn():
                                          'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'],
                                      final_p=0.0001,
                                      initial_p=0.01))
-    agent.explorations_strategy.parameters.set_scheduler(param_key='init_random_prob',
-                                                         scheduler=PiecewiseSchedule(
-                                                             t_fn=experiment.TOTAL_AGENT_TRAIN_SAMPLE_COUNT,
-                                                             endpoints=((10, 0.3), (100, 0.1), (200, 0.0)),
-                                                             outside_value=0.0
-                                                             ))
     experiment.run()
 
 

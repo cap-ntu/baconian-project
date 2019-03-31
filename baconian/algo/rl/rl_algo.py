@@ -1,5 +1,5 @@
 from baconian.algo.algo import Algo
-from baconian.algo.rl.model_based.models.dynamics_model import DynamicsModel
+from baconian.algo.dynamics.dynamics_model import DynamicsModel
 from baconian.core.core import EnvSpec
 
 

@@ -7,7 +7,7 @@ from baconian.core.util import get_global_arg_dict, copy_globally
 import tensorflow as tf
 
 
-class TestExp(TestTensorflowSetup):
+class TestCopyGlobally(TestTensorflowSetup):
     def test_init_arg_decorator(self):
         dqn, local = self.create_dqn()
         env_spec = local['env_spec']

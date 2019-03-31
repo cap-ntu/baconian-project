@@ -1,12 +1,9 @@
 import numpy as np
-import scipy
 from scipy.linalg import inv
 from scipy.optimize import approx_fprime
-import time
-from autograd import jacobian
 from baconian.core.core import EnvSpec
-from baconian.algo.rl.model_based.misc.reward_func.reward_func import CostFunc
-from baconian.algo.rl.model_based.models.dynamics_model import DynamicsModel
+from baconian.algo.dynamics.reward_func.reward_func import CostFunc
+from baconian.algo.dynamics.dynamics_model import DynamicsModel
 
 
 class iLQR(object):

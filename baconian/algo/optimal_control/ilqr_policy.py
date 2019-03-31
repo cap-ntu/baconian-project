@@ -1,14 +1,11 @@
 from baconian.algo.rl.policy.policy import DeterministicPolicy
 from baconian.core.parameters import Parameters
 from baconian.core.core import EnvSpec
-from baconian.algo.optimal_control.ilqr.ilqr import iLQR as iLQR_algo
-from baconian.algo.rl.model_based.models.dynamics_model import DynamicsModel
-from typeguard import typechecked
-from autograd import grad, jacobian
+from baconian.algo.optimal_control.ilqr import iLQR as iLQR_algo
+from baconian.algo.dynamics.dynamics_model import DynamicsModel
 import autograd.numpy as np
 from baconian.common.special import *
-from baconian.algo.rl.model_based.misc.reward_func.reward_func import CostFunc
-from baconian.core.core import Env
+from baconian.algo.dynamics.reward_func.reward_func import CostFunc
 
 """
 the gradient is computed approximated instead of analytically

@@ -1,7 +1,6 @@
-import numpy as np
 import unittest
 import tensorflow as tf
-from baconian.algo.rl.model_based.models.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
+from baconian.algo.dynamics.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
 from baconian.algo.placeholder_input import PlaceholderInput
 from baconian.algo.rl.model_free.dqn import DQN
 from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
@@ -16,20 +15,21 @@ from baconian.algo.rl.policy.normal_distribution_mlp import NormalDistributionML
 from baconian.algo.rl.model_free.ppo import PPO
 from baconian.core.parameters import Parameters, DictConfig
 from baconian.algo.rl.model_based.mpc import ModelPredictiveControl
-from baconian.algo.rl.model_based.misc.terminal_func.terminal_func import RandomTerminalFunc
-from baconian.algo.rl.model_based.misc.reward_func.reward_func import RandomRewardFunc, CostFunc
+from baconian.algo.dynamics.terminal_func.terminal_func import RandomTerminalFunc
+from baconian.algo.dynamics.reward_func.reward_func import RandomRewardFunc, CostFunc
 from baconian.algo.rl.policy.random_policy import UniformRandomPolicy
 from baconian.core.agent import Agent
 from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
-# from baconian.core.pipelines.model_free_pipelines import ModelFreePipeline
 from baconian.core.experiment import Experiment
 from baconian.core.pipelines.train_test_flow import TrainTestFlow
-from baconian.algo.rl.model_based.sample_with_model import SampleWithDynamics
+from baconian.algo.rl.model_based.dyna import Dyna
 from baconian.common.schedules import *
 from baconian.core.status import *
-from baconian.algo.optimal_control.ilqr.ilqr_policy import iLQRPolicy
-from baconian.envs.gym_env_cost_fn import GymEnvCostFunc
-from baconian.algo.rl.model_based.models.random_dynamics_model import UniformRandomDynamicsModel
+from baconian.algo.optimal_control.ilqr_policy import iLQRPolicy
+from baconian.algo.dynamics.random_dynamics_model import UniformRandomDynamicsModel
+from baconian.common.noise import *
+from baconian.algo.dynamics.gaussian_process_dynamiocs_model import GaussianProcessDyanmicsModel
+from baconian.common.sampler.sampler import Sampler
 
 
 class Foo(Basic):
@@ -43,7 +43,7 @@ class ClassCreatorSetup(unittest.TestCase):
 
     def create_env(self, env_id):
         return make(env_id)
-    
+
     def create_tf_parameters(self, name='test_tf_param'):
         with tf.variable_scope(name):
             a = tf.get_variable(shape=[3, 4], dtype=tf.float32, name='var_1')
@@ -362,13 +362,22 @@ class ClassCreatorSetup(unittest.TestCase):
                              init_random_prob=0.5), locals()
 
     def create_agent(self, algo, env, env_spec, eps=None, name='agent'):
-        agent = Agent(env=env, env_spec=env_spec,
+        agent = Agent(env=env,
+                      env_spec=env_spec,
                       algo=algo,
-                      config_or_config_dict={
-                          "TEST_SAMPLES_COUNT": 100,
-                          "TRAIN_SAMPLES_COUNT": 100,
-                          "TOTAL_SAMPLES_COUNT": 500
-                      },
+                      noise_adder=AgentActionNoiseWrapper(noise=OUNoise(),
+                                                          action_weight_scheduler=LinearSchedule(
+                                                              t_fn=lambda: get_global_status_collect()(
+                                                                  'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
+                                                              schedule_timesteps=100,
+                                                              final_p=1.0,
+                                                              initial_p=0.0),
+                                                          nosie_weight_scheduler=LinearSchedule(
+                                                              t_fn=lambda: get_global_status_collect()(
+                                                                  'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
+                                                              schedule_timesteps=100,
+                                                              final_p=0.0,
+                                                              initial_p=1.0)),
                       name=name,
                       algo_saving_scheduler=PeriodicalEventSchedule(
                           t_fn=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
@@ -377,12 +386,42 @@ class ClassCreatorSetup(unittest.TestCase):
                       exploration_strategy=eps)
         return agent, locals()
 
+    def create_train_test_flow(self, agent):
+
+        flow = TrainTestFlow(
+            train_sample_count_func=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
+            config_or_config_dict={
+                "TEST_EVERY_SAMPLE_COUNT": 10,
+                "TRAIN_EVERY_SAMPLE_COUNT": 10,
+                "START_TRAIN_AFTER_SAMPLE_COUNT": 5,
+                "START_TEST_AFTER_SAMPLE_COUNT": 5,
+            },
+            func_dict={
+                'test': {'func': agent.test,
+                         'args': list(),
+                         'kwargs': dict(sample_count=10),
+                         },
+                'train': {'func': agent.train,
+                          'args': list(),
+                          'kwargs': dict(),
+                          },
+                'sample': {'func': agent.sample,
+                           'args': list(),
+                           'kwargs': dict(sample_count=100,
+                                          env=agent.env,
+                                          in_test_flag=False,
+                                          store_flag=True),
+                           },
+            }
+        )
+        return flow
+
     def create_exp(self, name, env, agent):
         experiment = Experiment(
             tuner=None,
             env=env,
             agent=agent,
-            flow=TrainTestFlow(),
+            flow=self.create_train_test_flow(agent),
             name=name + 'experiment_debug'
         )
         return experiment
@@ -394,14 +433,14 @@ class ClassCreatorSetup(unittest.TestCase):
             dyanmics_model, _ = self.create_continuous_mlp_global_dynamics_model(env_spec=local['env_spec'])
             env_spec = local['env_spec']
             env = local['env']
-        algo = SampleWithDynamics(env_spec=env_spec,
-                                  name=name,
-                                  model_free_algo=model_free_algo,
-                                  dynamics_model=dyanmics_model,
-                                  config_or_config_dict=dict(
-                                      dynamics_model_train_iter=1,
-                                      model_free_algo_train_iter=1
-                                  ))
+        algo = Dyna(env_spec=env_spec,
+                    name=name,
+                    model_free_algo=model_free_algo,
+                    dynamics_model=dyanmics_model,
+                    config_or_config_dict=dict(
+                        dynamics_model_train_iter=1,
+                        model_free_algo_train_iter=1
+                    ))
         return algo, locals()
 
     def create_continuous_mlp_global_dynamics_model(self, env_spec, name='continuous_mlp_global_dynamics_model'):
@@ -491,3 +530,41 @@ class ClassCreatorSetup(unittest.TestCase):
                             dynamics=dyna,
                             cost_fn=DebuggingCostFunc())
         return policy, locals()
+
+    def create_gp_dynamics(self, env_id='Pendulum-v0'):
+        env = make(env_id)
+        env_spec = EnvSpec(obs_space=env.observation_space,
+                           action_space=env.action_space)
+        a = GaussianProcessDyanmicsModel(env_spec=env_spec)
+        return a, locals()
+
+    def create_sampler(self, env_spec):
+        return Sampler(env_spec=env_spec, name='sampler')
+
+    def register_global_status_when_test(self, agent, env):
+        """
+        this func should be called only for unit test
+        :param agent:
+        :param env:
+        :return:
+        """
+        get_global_status_collect().register_info_key_status(obj=agent,
+                                                             info_key='predict_counter',
+                                                             under_status='TRAIN',
+                                                             return_name='TOTAL_AGENT_TRAIN_SAMPLE_COUNT')
+        get_global_status_collect().register_info_key_status(obj=agent,
+                                                             info_key='predict_counter',
+                                                             under_status='TEST',
+                                                             return_name='TOTAL_AGENT_TEST_SAMPLE_COUNT')
+        get_global_status_collect().register_info_key_status(obj=agent,
+                                                             info_key='update_counter',
+                                                             under_status='TRAIN',
+                                                             return_name='TOTAL_AGENT_UPDATE_COUNT')
+        get_global_status_collect().register_info_key_status(obj=env,
+                                                             info_key='step',
+                                                             under_status='TEST',
+                                                             return_name='TOTAL_ENV_STEP_TEST_SAMPLE_COUNT')
+        get_global_status_collect().register_info_key_status(obj=env,
+                                                             info_key='step',
+                                                             under_status='TRAIN',
+                                                             return_name='TOTAL_ENV_STEP_TRAIN_SAMPLE_COUNT')

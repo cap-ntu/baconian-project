@@ -1,10 +1,10 @@
 from baconian.test.tests.set_up.setup import TestWithAll
-from baconian.algo.rl.model_based.misc.reward_func.reward_func import QuadraticCostFunc
+from baconian.algo.dynamics.reward_func.reward_func import QuadraticCostFunc
 from baconian.envs.gym_env import make
 import numpy as np
 from baconian.core.core import EnvSpec
-from baconian.algo.rl.model_based.models.linear_dynamics_model import LinearDynamicsModel
-from baconian.algo.optimal_control.lqr.lqr_policy import LQRPolicy
+from baconian.algo.dynamics.linear_dynamics_model import LinearDynamicsModel
+from baconian.algo.optimal_control.lqr_policy import LQRPolicy
 
 
 class TestLQRPolicy(TestWithAll):

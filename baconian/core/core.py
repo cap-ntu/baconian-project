@@ -10,6 +10,10 @@ from baconian.config.global_config import GlobalConfig
 from baconian.core.status import *
 from baconian.core.util import register_name_globally, init_func_arg_record_decorator
 
+"""
+This module contains the some core classes of baconian
+"""
+
 
 class Basic(object):
     """ Basic class within the whole framework"""
@@ -18,6 +22,12 @@ class Basic(object):
     required_key_dict = ()
 
     def __init__(self, name: str, status=None):
+        """
+        Init a new Basic instance.
+
+        :param name: a string for the name of the object, can be determined to generate log path, handle tensorflow name scope etc.
+        :param status: A status instance :py:class:`~baconian.core.status.Status` to indicate the status of the
+        """
         if not status:
             self._status = Status(self)
         else:
@@ -25,7 +35,7 @@ class Basic(object):
         self._name = name
         register_name_globally(name=name, obj=self)
 
-    def init(self):
+    def init(self, *args, **kwargs):
         raise NotImplementedError
 
     def get_status(self) -> dict:

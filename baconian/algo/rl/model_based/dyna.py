@@ -1,4 +1,4 @@
-from baconian.algo.rl.model_based.models.dynamics_model import DynamicsModel
+from baconian.algo.dynamics.dynamics_model import DynamicsModel
 from typeguard import typechecked
 from baconian.config.dict_config import DictConfig
 from baconian.common.sampler.sample_data import TransitionData
@@ -42,9 +42,10 @@ class TrainingEnv(Env):
         return super().init()
 
 
-class SampleWithDynamics(ModelBasedAlgo, MultiPlaceholderInput):
+class Dyna(ModelBasedAlgo, MultiPlaceholderInput):
     """
-    The naive model based method by approximating a dynamics with nn and sample from it to train the agent.
+    Dyna algorithms, Sutton, R. S. (1991).
+    You can replace the dynamics model with any approximation function you want.
     """
     required_key_dict = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_ALGO_SAMPLE_WITH_DYNAMICS_REQUIRED_KEY_LIST)
 
@@ -86,7 +87,7 @@ class SampleWithDynamics(ModelBasedAlgo, MultiPlaceholderInput):
     @record_return_decorator(which_recorder='self')
     @register_counter_info_to_status_decorator(increment=1, info_key='train_counter', under_status='TRAIN')
     def train(self, **kwargs) -> dict:
-        super(SampleWithDynamics, self).train()
+        super(Dyna, self).train()
         res_dict = {}
         batch_data = kwargs['batch_data'] if 'batch_data' in kwargs else None
         if 'state' not in kwargs or ('state' in kwargs and kwargs['state'] == 'state_dynamics_training'):
@@ -115,13 +116,19 @@ class SampleWithDynamics(ModelBasedAlgo, MultiPlaceholderInput):
     def append_to_memory(self, *args, **kwargs):
         self.model_free_algo.append_to_memory(kwargs['samples'])
 
+    @record_return_decorator(which_recorder='self')
     def save(self, global_step, save_path=None, name=None, **kwargs):
-
+        save_path = save_path if save_path else GlobalConfig.DEFAULT_MODEL_CHECKPOINT_PATH
+        name = name if name else self.name
         MultiPlaceholderInput.save(self, save_path=save_path, global_step=global_step, name=name, **kwargs)
+        return dict(check_point_save_path=save_path, check_point_save_global_step=global_step,
+                    check_point_save_name=name)
 
+    @record_return_decorator(which_recorder='self')
     def load(self, path_to_model, model_name, global_step=None, **kwargs):
-
         MultiPlaceholderInput.load(self, path_to_model, model_name, global_step, **kwargs)
+        return dict(check_point_load_path=path_to_model, check_point_load_global_step=global_step,
+                    check_point_load_name=model_name)
 
     @register_counter_info_to_status_decorator(increment=1, info_key='dyanmics_train_counter', under_status='TRAIN')
     def _fit_dynamics_model(self, batch_data: TransitionData, train_iter, sess=None) -> dict:
