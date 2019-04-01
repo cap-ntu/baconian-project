@@ -1,3 +1,5 @@
+.. _API_REF:
+
 API documentation
 ==================
 .. toctree::

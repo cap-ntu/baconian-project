@@ -1,4 +1,4 @@
-### The project is under active development, any APIs can be changed at anytime.
+### The project is under active development, any functions might be changed at anytime.
 
 # Baconian:  Boosting the model-based reinforcement learning 
 [![Build Status](https://travis-ci.com/Lukeeeeee/baconian.svg?branch=master)](https://travis-ci.com/Lukeeeeee/baconian)
@@ -15,35 +15,17 @@ offered.
 - 2019.3.23 Release the v0.1.2, add linear dynamics, iLQR, LQR methods.
 - 2019.3.15 Release the v0.1.1, add model saving scheduler, fix some bugs and update pip installing flow.
 - 2019.03.04 Release the v0.1 within CAP group.
+For previous release news, please refer to [old news](./old_news.md) 
+
 ### Documentation
 Documentation is available at http://baconian.withcap.org (hosted by CAP server)  
 or https://baconian-public.readthedocs.io/en/latest/ (host by Read the Docs)
 (the documentations writing is still undergoing)
-#### How to install
-
-(`source activate you_env` if you are using anaconda or consider creating a new env by `conda env create -name some_env`)
-##### install as a local package (if you want to modify the code or contribute)
-```
-cd /path/to/baconian
-pip install -e baconain 
-```
-##### install as a third-party package (if you want to import some modules and re-use it in your own project)
-```
-cd /path/to/baconian
-pip install baconain 
-```
-
-Then you are free to go. If you want to use the full environments of gym, e.g., Mujoco, please refer to its  project 
-page to install the requirements (you may need to re-install gym after that.)
-
-#### Examples
-There are some examples placed at `examples` which you can have a test. 
-
 
 ### Todo
 
 - [ ] Visualization module
-- [ ] State-of-art model-based algorithms: PILCO, GPS etc.\
+- [ ] State-of-art model-based algorithms: PILCO, GPS etc.
 - [ ] Latent-space method supporting.
 - [ ] Benchmark tests on multiple tasks
 
