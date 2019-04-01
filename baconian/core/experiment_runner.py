@@ -35,7 +35,8 @@ def single_exp_runner(task_fn, auto_choose_gpu_flag=False, gpu_id: int = 0, seed
     if not seed:
         seed = int(round(time.time() * 1000)) % (2 ** 32 - 1)
     _reset_global_seed(seed)
-    print("create log path at {}".format(GlobalConfig.DEFAULT_LOG_PATH))
+    print("create log path at {}".format(GlobalConfig.DEFAULT_LOG_PATH), flush=True)
+
     file.create_path(path=GlobalConfig.DEFAULT_LOG_PATH, del_if_existed=True)
     Logger().init(config_or_config_dict=dict(),
                   log_path=GlobalConfig.DEFAULT_LOG_PATH,

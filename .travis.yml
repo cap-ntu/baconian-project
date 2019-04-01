@@ -7,9 +7,11 @@ install:
   - pip install pip==9.0.1
   - pip install $TRAVIS_BUILD_DIR
 
-script: python baconian/test/run_all_tests.py
+script: pytest baconian/test/tests/
 env: PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR/baconian-internal
 branches:
   only:
   - master
   - travis_ci_test
+notifications:
+  email: false
