@@ -91,6 +91,9 @@ class Env(gym.Env, Basic):
     def get_state(self):
         raise NotImplementedError
 
+    def seed(self, seed=None):
+        return self.unwrapped.seed(seed=seed)
+
 
 class EnvSpec(object):
     @init_func_arg_record_decorator()
