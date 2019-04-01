@@ -1,0 +1,2 @@
+- 2019.3.15 Release the v0.1.1, add model saving scheduler, fix some bugs and update pip installing flow.
+- 2019.03.04 Release the v0.1 within CAP group.

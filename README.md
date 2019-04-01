@@ -12,9 +12,9 @@ offered.
 ![CAP](https://user-images.githubusercontent.com/9161548/40165577-eff023c4-59ee-11e8-8bf5-508325a23baa.png)
 
 ### Release news:
+- 2019.3.24 Release the v0.1.3 add GP dynamics, fix some bugs.
 - 2019.3.23 Release the v0.1.2, add linear dynamics, iLQR, LQR methods.
-- 2019.3.15 Release the v0.1.1, add model saving scheduler, fix some bugs and update pip installing flow.
-- 2019.03.04 Release the v0.1 within CAP group.
+
 For previous release news, please refer to [old news](./old_news.md) 
 
 ### Documentation
