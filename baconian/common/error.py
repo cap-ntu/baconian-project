@@ -8,3 +8,7 @@ class GlobalNameExistedError(BaconianError):
 
 class StatusInfoNotRegisteredError(BaconianError):
     pass
+
+
+class DynamicsNextStepOutputBoundError(BaconianError):
+    pass

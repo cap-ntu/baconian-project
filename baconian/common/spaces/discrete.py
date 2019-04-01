@@ -78,3 +78,6 @@ class Discrete(Space):
                 return 0
             elif x >= self.n:
                 return self.n - 1
+
+    def bound(self):
+        return 0, self.n

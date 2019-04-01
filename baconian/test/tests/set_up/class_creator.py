@@ -531,12 +531,12 @@ class ClassCreatorSetup(unittest.TestCase):
                             cost_fn=DebuggingCostFunc())
         return policy, locals()
 
-    def create_gp_dynamics(self, env_id='Pendulum-v0'):
-        env = make(env_id)
-        env_spec = EnvSpec(obs_space=env.observation_space,
-                           action_space=env.action_space)
-        a = GaussianProcessDyanmicsModel(env_spec=env_spec)
-        return a, locals()
+    # def create_gp_dynamics(self, env_id='Pendulum-v0'):
+    #     env = make(env_id)
+    #     env_spec = EnvSpec(obs_space=env.observation_space,
+    #                        action_space=env.action_space)
+    #     a = GaussianProcessDyanmicsModel(env_spec=env_spec)
+    #     return a, locals()
 
     def create_sampler(self, env_spec):
         return Sampler(env_spec=env_spec, name='sampler')

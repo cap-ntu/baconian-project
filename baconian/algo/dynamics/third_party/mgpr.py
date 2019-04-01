@@ -1,6 +1,7 @@
 import tensorflow as tf
 import gpflow
 import numpy as np
+from typeguard import typechecked
 
 float_type = gpflow.settings.dtypes.float_type
 
@@ -19,28 +20,29 @@ def randomize(model):
 
 
 class MGPR(gpflow.Parameterized):
-    def __init__(self, action_dim, state_dim, name=None):
+    def __init__(self, action_dim, state_dim, x, y, name=None):
         super(MGPR, self).__init__(name)
 
         self.num_outputs = state_dim
         self.num_dims = action_dim + state_dim
         self.optimizers = []
         self.models = []
+        self._create_models(X=x, Y=y)
 
-    def init(self, X, Y):
-        self._create_models(X, Y)
-
-    def _create_models(self, X, Y):
+    @typechecked
+    def _create_models(self, X: np.ndarray, Y: np.ndarray):
         for i in range(self.num_outputs):
             kern = gpflow.kernels.RBF(input_dim=X.shape[1], ARD=True)
-            # TODO: Maybe fix noise for better conditioning
             kern.lengthscales.prior = gpflow.priors.Gamma(1, 10)  # priors have to be included before
             kern.variance.prior = gpflow.priors.Gamma(1.5, 2)  # before the model gets compiled
-            self.models.append(gpflow.models.GPR(X, Y[:, i:i + 1], kern))
-            self.models[i].clear()
-            self.models[i].compile()
+            # TODO: Maybe fix noise for better conditioning
+            model = gpflow.models.GPR(X, Y[:, i:i + 1], kern, name="{}_{}".format(self.name, i))
+            model.clear()
+            model.compile()
+            self.models.append(model)
 
-    def set_XY(self, X, Y):
+    @typechecked
+    def set_XY(self, X: np.ndarray, Y: np.ndarray):
         for i in range(len(self.models)):
             self.models[i].X = X
             self.models[i].Y = Y[:, i:i + 1]
@@ -72,8 +74,8 @@ class MGPR(gpflow.Parameterized):
     def predict(self, x):
         means = []
         vars = []
-        for i in self.num_outputs:
-            mean, var = self.models[i].predict_f_samples(x)
+        for i in range(self.num_outputs):
+            mean, var = self.models[i].predict_f(x)
             means.append(mean)
             vars.append(var)
         return np.array(means), np.array(vars)

@@ -68,3 +68,6 @@ class Tuple(Space):
 
     def new_tensor_variable(self, name, extra_dims):
         raise NotImplementedError
+
+    def bound(self):
+        return (c.bound for c in self._components)

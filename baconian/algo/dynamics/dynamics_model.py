@@ -8,6 +8,7 @@ from tensorflow.python.ops.parallel_for.gradients import batch_jacobian as tf_ba
 from baconian.common.logging import Recorder
 from baconian.core.status import register_counter_info_to_status_decorator, StatusWithSingleInfo
 from baconian.common.logging import ConsoleLogger
+from baconian.common.error import *
 
 
 class DynamicsModel(Basic):
@@ -49,8 +50,9 @@ class DynamicsModel(Basic):
         if allow_clip is True:
             ConsoleLogger().print('warning', 'new state out of bound, allowed clipping')
             new_state = self.env_spec.obs_space.clip(new_state)
-            assert self.env_spec.obs_space.contains(new_state)
-        assert self.env_spec.obs_space.contains(new_state)
+        if self.env_spec.obs_space.contains(new_state) is False:
+            raise DynamicsNextStepOutputBoundError(
+                'new state {} out of bound of {}'.format(new_state, self.env_spec.obs_space.bound()))
         self.state = new_state
         return new_state
 

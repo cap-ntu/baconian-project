@@ -105,7 +105,7 @@ class TestWithAll(TestTensorflowSetup, TestWithLogSet):
 
     def tearDown(self):
         TestWithLogSet.tearDown(self)
-        TestTensorflowSetup.tearDown(self)
+        # TestTensorflowSetup.tearDown(self)
 
 
 class SimpleTestSetup(BaseTestCase):

@@ -76,3 +76,6 @@ class Box(Space):
 
     def clip(self, x):
         return np.clip(x, self.low, self.high).reshape(self.shape)
+
+    def bound(self):
+        return self.low, self.high

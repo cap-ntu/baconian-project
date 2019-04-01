@@ -70,7 +70,7 @@ class iLQRPolicy(DeterministicPolicy):
             self.X_hat.append(obs)
             x = obs
             for i in range(self.T - 1):
-                next_obs = self.dynamics.step(action=self.U_hat[i, :], state=x)
+                next_obs = self.dynamics.step(action=self.U_hat[i, :], state=x, allow_clip=True)
                 self.X_hat.append(next_obs)
                 x = next_obs
             self.X_hat = np.array(self.X_hat)
@@ -84,7 +84,7 @@ class iLQRPolicy(DeterministicPolicy):
                 u = self.iLqr_instance.get_action_one_step(x, t, self.X_hat[t], self.U_hat[t])
                 X[t] = x
                 U[t] = u
-                x = self.dynamics.step(state=x, action=u)
+                x = self.dynamics.step(state=x, action=u, allow_clip=True)
 
             X[-1] = x
             self.X_hat = X

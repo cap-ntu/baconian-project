@@ -49,3 +49,6 @@ class Space:
 
     def clip(self, x):
         raise NotImplementedError
+
+    def bound(self):
+        raise NotImplementedError

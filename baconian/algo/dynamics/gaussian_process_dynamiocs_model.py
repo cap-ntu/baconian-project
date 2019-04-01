@@ -21,7 +21,7 @@ class GaussianProcessDyanmicsModel(TrainableDyanmicsModel):
     Mostly refer the implementation of  PILCO repo in https://github.com/nrontsis/PILCO
     """
 
-    def __init__(self, env_spec: EnvSpec, init_state=None,
+    def __init__(self, env_spec: EnvSpec, batch_data, init_state=None,
                  name_scope='gp_dynamics_model', name='gp_dynamics_model',
                  gp_kernel_type='RBF'):
         if gp_kernel_type not in self.kernel_type_dict.keys():
@@ -33,21 +33,25 @@ class GaussianProcessDyanmicsModel(TrainableDyanmicsModel):
                                                       require_snapshot=False)
         super().__init__(env_spec, parameters, init_state, name)
         self.name_scope = name_scope
-        self.mgpr_model = MGPR(name='mgpr', action_dim=env_spec.flat_action_dim, state_dim=env_spec.flat_obs_dim)
-
-    def init(self, batch_data: TransitionData, **kwargs):
         state_action_data = np.hstack((batch_data.state_set, batch_data.action_set))
         delta_state_data = batch_data.new_state_set - batch_data.state_set
         with tf.variable_scope(self.name_scope):
-            self.mgpr_model.init(X=state_action_data, Y=delta_state_data)
+            self.mgpr_model = MGPR(name='mgpr', action_dim=env_spec.flat_action_dim,
+                                   x=state_action_data, y=delta_state_data,
+                                   state_dim=env_spec.flat_obs_dim)
         var_list = get_tf_collection_var_list(key=tf.GraphKeys.GLOBAL_VARIABLES,
                                               scope=self.name_scope)
         self.parameters.set_tf_var_list(tf_var_list=sorted(list(set(var_list)), key=lambda x: x.name))
+
+    def init(self):
         super().init()
 
-    def _state_transit(self, state, action, **kwargs) -> np.ndarray:
-        deltas, vars = self.mgpr_model.predict(x=np.concatenate([state, action], axis=-1))
-        return deltas + state
+    def _state_transit(self, state, action, required_var=False, **kwargs):
+        deltas, vars = self.mgpr_model.predict(x=np.expand_dims(np.concatenate([state, action], axis=0), axis=0))
+        if required_var is True:
+            return np.squeeze(deltas) + state, np.squeeze(vars)
+        else:
+            return np.squeeze(deltas) + state
 
     def copy_from(self, obj) -> bool:
         raise NotImplementedError
