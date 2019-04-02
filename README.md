@@ -1,7 +1,7 @@
 ### The project is under active development, any functions might be changed at anytime.
 
 # Baconian:  Boosting the model-based reinforcement learning 
-[![Build Status](https://travis-ci.com/Lukeeeeee/baconian-internal.svg?token=dTo6wB1jmzxu58xyRPX6&branch=master)](https://travis-ci.com/Lukeeeeee/baconian-internal)
+[![Build Status](https://travis-ci.com/Lukeeeeee/baconian.svg?branch=master)](https://travis-ci.com/Lukeeeeee/baconian)
 [![Documentation Status](https://readthedocs.org/projects/baconian-public/badge/?version=latest)](https://baconian-public.readthedocs.io/en/latest/?badge=latest)
 
 Baconian [beˈkonin] is a toolbox for model-based reinforcement learning with user-friendly experiment setting-up, logging 
