@@ -14,7 +14,9 @@ Welcome to Baconian!
 
     tutorial.rst
     examples.rst
-    how_to_log.rst
+    implement_new_algo.rst
+    implement_new_env.rst
+    implement_new_dynamics.rst
 
 .. toctree::
     :maxdepth: 1

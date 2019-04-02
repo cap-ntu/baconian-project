@@ -71,7 +71,6 @@ MOUNTAIN_CAR_CONTINUOUS_BENCHMARK_CONFIG_DICT = {
             "critic_clip_norm": 0.0,
             "actor_clip_norm": 0.0,
         },
-        'adaptive_learning_rate': False,
         'replay_buffer': None
     },
     'Agent': {

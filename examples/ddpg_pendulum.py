@@ -82,7 +82,6 @@ def task_fn():
         },
         value_func=mlp_q,
         policy=policy,
-        adaptive_learning_rate=True,
         name=name + '_ddpg',
         replay_buffer=None
     )

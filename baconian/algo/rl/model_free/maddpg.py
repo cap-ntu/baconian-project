@@ -15,35 +15,49 @@ from baconian.common.misc import *
 from baconian.common.logging import record_return_decorator
 from baconian.core.status import register_counter_info_to_status_decorator
 from baconian.algo.placeholder_input import MultiPlaceholderInput
+from baconian.common.spaces.tuple import Tuple
+from copy import deepcopy
 
 
-class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
-    required_key_dict = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_DDPG_REQUIRED_KEY_LIST)
+class MADDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
+    required_key_dict = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_MADDPG_REQUIRED_KEY_LIST)
 
     @typechecked()
     def __init__(self,
-                 env_spec: EnvSpec,
+                 single_agent_env_spec: EnvSpec,
                  config_or_config_dict: (DictConfig, dict),
-                 # todo value func and policy type is too hard
                  value_func: MLPQValueFunction,
                  policy: DeterministicMLPPolicy,
                  schedule_param_list=None,
-                 name='ddpg',
+                 name='maddpg',
                  replay_buffer=None):
-        ModelFreeAlgo.__init__(self, env_spec=env_spec, name=name)
         config = construct_dict_config(config_or_config_dict, self)
+        ensemble_env_spec = EnvSpec(
+            action_space=Tuple([deepcopy(single_agent_env_spec.action_space for _ in range(config('agent_counts')))]),
+            obs_space=Tuple([deepcopy(single_agent_env_spec.obs_space) for _ in range(config('agent_counts'))]))
+
+        ModelFreeAlgo.__init__(self, env_spec=ensemble_env_spec, name=name)
 
         self.config = config
-        self.actor = policy
-        self.target_actor = self.actor.make_copy(name_scope='{}_target_actor'.format(self.name),
-                                                 name='{}_target_actor'.format(self.name),
-                                                 reuse=False)
-        self.critic = value_func
-        self.target_critic = self.critic.make_copy(name_scope='{}_target_critic'.format(self.name),
-                                                   name='{}_target_critic'.format(self.name),
-                                                   reuse=False)
+        self.actor_list = [policy]
+        self.critic_list = [value_func]
+        self.target_actor_list = []
+        self.target_critic_list = []
 
-        self.state_input = self.actor.state_input
+        for i in range(1, self.config('agent_counts')):
+            self.actor_list.append(self.actor_list[0].make_copy(name_scope='{}_{}'.format(self.name, i),
+                                                                name='{}_{}'.format(self.name, i),
+                                                                reuse=False))
+            self.critic_list.append(self.critic_list[0].make_copy(name_scope='{}_{}'.format(self.name, i),
+                                                                  name='{}_{}'.format(self.name, i),
+                                                                  reuse=False))
+        for i in range(self.config('agent_counts')):
+            self.target_actor_list.append(self.actor_list[i].make_copy(name_scope='target_{}_{}'.format(self.name, i),
+                                                                       name='target_{}_{}'.format(self.name, i),
+                                                                       reuse=False))
+            self.target_critic_list.append(self.critic_list[i].make_copy(name_scope='target_{}_{}'.format(self.name, i),
+                                                                         name='target_{}_{}'.format(self.name, i),
+                                                                         reuse=False))
 
         if replay_buffer:
             assert issubclass(replay_buffer, BaseReplayBuffer)
@@ -53,24 +67,14 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
                                                            action_shape=self.env_spec.action_shape,
                                                            observation_shape=self.env_spec.obs_shape)
 
-        to_ph_parameter_dict = dict()
-
         self.parameters = ParametersWithTensorflowVariable(tf_var_list=[],
                                                            rest_parameters=dict(),
                                                            to_scheduler_param_tuple=schedule_param_list,
-                                                           name='ddpg_param',
+                                                           name='maddpg_param',
                                                            source_config=config,
                                                            require_snapshot=False)
-        self._critic_with_actor_output = self.critic.make_copy(reuse=True,
-                                                               name='actor_input_{}'.format(self.critic.name),
-                                                               state_input=self.state_input,
-                                                               action_input=self.actor.action_tensor)
-        self._target_critic_with_target_actor_output = self.target_critic.make_copy(reuse=True,
-                                                                                    name='target_critic_with_target_actor_output_{}'.format(
-                                                                                        self.critic.name),
-                                                                                    action_input=self.target_actor.action_tensor)
-
         with tf.variable_scope(name):
+            self.state_input = tf.placeholder(shape=[None, self.env_spec.flat_obs_dim], dtype=tf.float32)
             self.reward_input = tf.placeholder(shape=[None, 1], dtype=tf.float32)
             self.next_state_input = tf.placeholder(shape=[None, self.env_spec.flat_obs_dim], dtype=tf.float32)
             self.done_input = tf.placeholder(shape=[None, 1], dtype=tf.bool)
@@ -101,10 +105,13 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
 
     @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='JUST_INITED')
     def init(self, sess=None, source_obj=None):
-        self.actor.init()
-        self.critic.init()
-        self.target_actor.init()
-        self.target_critic.init(source_obj=self.critic)
+        for target_actor, actor in zip(self.target_actor_list, self.actor_list):
+            actor.init()
+            target_actor.init()
+        for target_critic, critic in zip(self.target_critic_list, self.critic_list):
+            critic.init()
+            target_critic.init(critic)
+
         self.parameters.init()
         if source_obj:
             self.copy_from(source_obj)
@@ -114,7 +121,7 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
     @register_counter_info_to_status_decorator(increment=1, info_key='train', under_status='TRAIN')
     @typechecked
     def train(self, batch_data=None, train_iter=None, sess=None, update_target=True) -> dict:
-        super(DDPG, self).train()
+        super(MADDPG, self).train()
         tf_sess = sess if sess else tf.get_default_session()
 
         batch_data = self.replay_buffer.sample(

@@ -194,7 +194,6 @@ class ClassCreatorSetup(unittest.TestCase):
             },
             value_func=mlp_q,
             policy=policy,
-            adaptive_learning_rate=True,
             name=name,
             replay_buffer=None
         )
