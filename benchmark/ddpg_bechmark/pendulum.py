@@ -17,6 +17,7 @@ from baconian.common.schedules import LinearSchedule
 from baconian.core.status import get_global_status_collect
 from baconian.common.noise import *
 from baconian.common.schedules import *
+from baconian.core.experiment_runner import duplicate_exp_runner
 
 
 def task_fn(exp_config):
@@ -60,7 +61,8 @@ def task_fn(exp_config):
                          func_dict={
                              'test': {'func': agent.test,
                                       'args': list(),
-                                      'kwargs': dict(sample_count=exp_config['TrainTestFlow']['TEST_SAMPLES_COUNT']),
+                                      'kwargs': dict(sample_count=exp_config['TrainTestFlow']['TEST_SAMPLES_COUNT'],
+                                                     sample_trajectory_flag=True),
                                       },
                              'train': {'func': agent.train,
                                        'args': list(),
@@ -94,16 +96,11 @@ if __name__ == '__main__':
         'MountainCarContinuous-v0': MOUNTAIN_CAR_CONTINUOUS_BENCHMARK_CONFIG_DICT
     }
 
-    arg = argparse.ArgumentParser()
-    arg.add_argument('--env_id', type=str, choices=list(ddpg_benchmark_conf.keys()))
+    # arg = argparse.ArgumentParser()
+    # arg.add_argument('--log_path_end', type=str)
+    # args = arg.parse_args()
 
-    args = arg.parse_args()
+    CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
 
-    CURRNET_PATH = os.path.dirname(os.path.realpath(__file__))
-
-    assert ddpg_benchmark_conf[args.env_id]['env_id'] == args.env_id
-
-    from baconian.core.experiment_runner import single_exp_runner
-
-    GlobalConfig.set('DEFAULT_LOG_PATH', os.path.join(CURRNET_PATH, os.pardir, 'benchmark_log', args.env_id))
-    single_exp_runner(task_fn, env_id=args.env_id, exp_config=ddpg_benchmark_conf[args.env_id])
+    GlobalConfig.set('DEFAULT_LOG_PATH', os.path.join(CURRENT_PATH, os.pardir, 'benchmark_log', 'Pendulum-v0'))
+    duplicate_exp_runner(10, task_fn, exp_config=ddpg_benchmark_conf['Pendulum-v0'])

@@ -12,3 +12,7 @@ class StatusInfoNotRegisteredError(BaconianError):
 
 class DynamicsNextStepOutputBoundError(BaconianError):
     pass
+
+
+class MemoryBufferLessThanBatchSizeError(BaconianError):
+    pass

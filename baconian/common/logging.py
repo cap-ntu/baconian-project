@@ -344,7 +344,7 @@ class Recorder(object):
 
 def record_return_decorator(which_recorder: str = 'global'):
     def wrap(fn):
-        @wraps
+        @wraps(fn)
         def wrap_with_self(self, *args, **kwargs):
             obj = self
             if which_recorder == 'global':

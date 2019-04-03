@@ -115,12 +115,13 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
 
         train_data = trajectory_data.return_as_transition_data(shuffle_flag=False)
         SampleProcessor.normalization(train_data, key='advantage_set')
-
         policy_res_dict = self._update_policy(train_data=train_data,
-                                              train_iter=self.parameters('policy_train_iter'),
+                                              train_iter=train_iter if train_iter else self.parameters(
+                                                  'policy_train_iter'),
                                               sess=tf_sess)
         value_func_res_dict = self._update_value_func(train_data=train_data,
-                                                      train_iter=self.parameters('value_func_train_iter'),
+                                                      train_iter=train_iter if train_iter else self.parameters(
+                                                          'value_func_train_iter'),
                                                       sess=tf_sess)
         return {
             **policy_res_dict,

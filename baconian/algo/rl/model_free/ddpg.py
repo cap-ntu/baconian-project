@@ -116,21 +116,26 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
     def train(self, batch_data=None, train_iter=None, sess=None, update_target=True) -> dict:
         super(DDPG, self).train()
         tf_sess = sess if sess else tf.get_default_session()
+        train_iter = self.parameters("TRAIN_ITERATION") if not train_iter else train_iter
+        average_critic_loss = 0.0
+        average_actor_loss = 0.0
+        for i in range(train_iter):
+            train_batch = self.replay_buffer.sample(
+                batch_size=self.parameters('BATCH_SIZE')) if batch_data is None else batch_data
+            assert isinstance(train_batch, TransitionData)
 
-        batch_data = self.replay_buffer.sample(
-            batch_size=self.parameters('BATCH_SIZE')) if batch_data is None else batch_data
-        assert isinstance(batch_data, TransitionData)
-        train_iter_critic = self.parameters("CRITIC_TRAIN_ITERATION") if not train_iter else train_iter
+            critic_loss, _ = self._critic_train(train_batch, tf_sess)
 
-        critic_res = self._critic_train(batch_data, train_iter_critic, tf_sess, update_target)
+            actor_loss, _ = self._actor_train(train_batch, tf_sess)
 
-        train_iter_actor = self.parameters("ACTOR_TRAIN_ITERATION") if not train_iter else train_iter
+            average_actor_loss += actor_loss
+            average_critic_loss += critic_loss
+        if update_target:
+            tf_sess.run([self.target_actor_update_op, self.target_critic_update_op])
+        return dict(average_actor_loss=average_actor_loss / train_iter,
+                    average_critic_loss=average_critic_loss / train_iter)
 
-        actor_res = self._actor_train(batch_data, train_iter_actor, tf_sess, update_target)
-
-        return {**critic_res, **actor_res}
-
-    def _critic_train(self, batch_data, train_iter, sess, update_target) -> dict:
+    def _critic_train(self, batch_data, sess) -> ():
         target_q = sess.run(
             self._target_critic_with_target_actor_output.q_tensor,
             feed_dict={
@@ -138,53 +143,30 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
                 self.target_actor.state_input: batch_data.new_state_set
             }
         )
-        average_grads = None
-        average_loss = 0.0
-        for _ in range(train_iter):
-            loss, _, grads = sess.run(
-                [self.critic_loss, self.critic_update_op, self.critic_grads
-                 ],
-                feed_dict={
-                    self.target_q_input: target_q,
-                    self.critic.state_input: batch_data.state_set,
-                    self.critic.action_input: batch_data.action_set,
-                    self.done_input: batch_data.done_set,
-                    self.reward_input: batch_data.reward_set,
-                    **self.parameters.return_tf_parameter_feed_dict()
-                }
-            )
-            if average_grads is None:
-                average_grads = np.array(grads)
-            else:
-                average_grads += np.array(grads)
-            average_loss += loss
+        loss, _, grads = sess.run(
+            [self.critic_loss, self.critic_update_op, self.critic_grads
+             ],
+            feed_dict={
+                self.target_q_input: target_q,
+                self.critic.state_input: batch_data.state_set,
+                self.critic.action_input: batch_data.action_set,
+                self.done_input: batch_data.done_set,
+                self.reward_input: batch_data.reward_set,
+                **self.parameters.return_tf_parameter_feed_dict()
+            }
+        )
+        return loss, grads
 
-        if update_target is True:
-            sess.run(self.target_critic_update_op)
-        return dict(critic_average_loss=average_loss / train_iter)
-        # critic_avarge_grads=average_grads / train_iter)
-
-    def _actor_train(self, batch_data, train_iter, sess, update_target) -> dict:
-        average_loss = 0.0
-        average_grads = None
-        for _ in range(train_iter):
-            target_q, loss, _, grads = sess.run(
-                [self._critic_with_actor_output.q_tensor, self.actor_loss, self.actor_update_op, self.actor_grads],
-                feed_dict={
-                    self.actor.state_input: batch_data.state_set,
-                    self._critic_with_actor_output.state_input: batch_data.state_set,
-                    **self.parameters.return_tf_parameter_feed_dict()
-                }
-            )
-            if average_grads is None:
-                average_grads = np.array(grads)
-            else:
-                average_grads += np.array(grads)
-            average_loss += loss
-        if update_target is True:
-            sess.run(self.target_actor_update_op)
-        return dict(actor_average_loss=average_loss / train_iter)
-        # actor_average_grad=average_grads / train_iter)
+    def _actor_train(self, batch_data, sess) -> ():
+        target_q, loss, _, grads = sess.run(
+            [self._critic_with_actor_output.q_tensor, self.actor_loss, self.actor_update_op, self.actor_grads],
+            feed_dict={
+                self.actor.state_input: batch_data.state_set,
+                self._critic_with_actor_output.state_input: batch_data.state_set,
+                **self.parameters.return_tf_parameter_feed_dict()
+            }
+        )
+        return loss, grads
 
     @register_counter_info_to_status_decorator(increment=1, info_key='test', under_status='TEST')
     def test(self, *arg, **kwargs) -> dict:

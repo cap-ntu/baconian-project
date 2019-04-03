@@ -1,6 +1,7 @@
 import numpy as np
 from typeguard import typechecked
 from baconian.common.sampler.sample_data import TransitionData, TrajectoryData, SampleData
+from baconian.common.error import *
 
 
 class RingBuffer(object):
@@ -84,7 +85,8 @@ class UniformRandomReplayBuffer(BaseReplayBuffer):
         super().__init__(limit, action_shape, observation_shape)
 
     def sample(self, batch_size) -> SampleData:
-        assert self.nb_entries >= batch_size
+        if self.nb_entries < batch_size:
+            raise MemoryBufferLessThanBatchSizeError()
 
         batch_idxs = np.random.randint(self.nb_entries - 2, size=batch_size)
 

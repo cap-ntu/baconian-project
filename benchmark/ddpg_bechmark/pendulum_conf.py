@@ -1,18 +1,3 @@
-from baconian.common.noise import *
-from baconian.core.core import EnvSpec
-from baconian.envs.gym_env import make
-from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
-from baconian.algo.rl.model_free.ddpg import DDPG
-from baconian.algo.rl.policy.deterministic_mlp import DeterministicMLPPolicy
-from baconian.core.agent import Agent
-from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
-from baconian.core.experiment import Experiment
-from baconian.core.pipelines.train_test_flow import TrainTestFlow
-from baconian.config.global_config import GlobalConfig
-from benchmark.ddpg_bechmark.mountain_car_continuous_conf import *
-from baconian.common.schedules import LinearSchedule
-from baconian.core.status import get_global_status_collect
-from baconian.common.noise import *
 
 PENDULUM_BENCHMARK_CONFIG_DICT = {
     'env_id': "Pendulum-v0",
@@ -98,15 +83,14 @@ PENDULUM_BENCHMARK_CONFIG_DICT = {
             "ACTOR_LEARNING_RATE": 0.0001,
             "DECAY": 0.5,
             "BATCH_SIZE": 128,
-            "CRITIC_TRAIN_ITERATION": 120,
-            "ACTOR_TRAIN_ITERATION": 120,
+            "TRAIN_ITERATION": 120,
             "critic_clip_norm": 0.0,
             "actor_clip_norm": 0.0,
         },
         'replay_buffer': None
     },
     'TrainTestFlow': {
-        "TEST_SAMPLES_COUNT": 2000,
+        "TEST_SAMPLES_COUNT": 1000,
         "TRAIN_SAMPLES_COUNT": 10,
         'config_or_config_dict': {
             "TEST_EVERY_SAMPLE_COUNT": 200,
@@ -124,6 +108,5 @@ PENDULUM_BENCHMARK_CONFIG_DICT = {
                                          TOTAL_AGENT_TEST_SAMPLE_COUNT=None,
                                          TOTAL_AGENT_UPDATE_COUNT=None),
     'AGENT_NOISE': {
-
     }
 }

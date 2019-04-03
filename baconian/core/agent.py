@@ -1,6 +1,7 @@
 from baconian.core.core import Basic, Env, EnvSpec
 from baconian.common.sampler.sampler import Sampler
 from baconian.config.global_config import GlobalConfig
+from baconian.common.error import *
 from baconian.algo.algo import Algo
 from typeguard import typechecked
 from baconian.algo.rl.misc.epsilon_greedy import ExplorationStrategy
@@ -75,7 +76,12 @@ class Agent(Basic):
         self.set_status('TRAIN')
         self.algo.set_status('TRAIN')
         ConsoleLogger().print('info', 'train agent:')
-        res = self.algo.train()
+        try:
+            res = self.algo.train()
+        except MemoryBufferLessThanBatchSizeError as e:
+            ConsoleLogger().print('warning', 'memory buffer did not have enough data to train, skip training')
+            return False
+
         ConsoleLogger().print('info', res)
 
         if self.algo_saving_scheduler and self.algo_saving_scheduler.value() is True:
@@ -93,8 +99,8 @@ class Agent(Basic):
         """
         self.set_status('TEST')
         self.algo.set_status('TEST')
-        ConsoleLogger().print('info', 'test: agent with {} {}'.format(sample_count,
-                                                                      'trajectory' if sample_trajectory_flag else 'transition'))
+        ConsoleLogger().print('info', 'test: agent with {},sample_trajectory_flag {}'.format(sample_count,
+                                                                                             sample_trajectory_flag))
         if sample_trajectory_flag is True:
             left_sample_count = sample_count
             while left_sample_count > 0:

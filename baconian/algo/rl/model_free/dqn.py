@@ -91,32 +91,34 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
     @typechecked
     def train(self, batch_data=None, train_iter=None, sess=None, update_target=True) -> dict:
         super(DQN, self).train()
-        # todo for test record only
         self.recorder.record()
-        batch_data = self.replay_buffer.sample(
-            batch_size=self.parameters('BATCH_SIZE')) if batch_data is None else batch_data
-        assert isinstance(batch_data, TransitionData)
+        if batch_data:
+            assert isinstance(batch_data, TransitionData)
 
-        train_iter = self.parameters("TRAIN_ITERATION") if not train_iter else train_iter
-
-        average_loss = 0.0
         tf_sess = sess if sess else tf.get_default_session()
-        _, target_q_val_on_new_s = self.predict_target_with_q_val(obs=batch_data.new_state_set,
-                                                                  batch_flag=True)
-        target_q_val_on_new_s = np.expand_dims(target_q_val_on_new_s, axis=1)
-        assert target_q_val_on_new_s.shape[0] == batch_data.state_set.shape[0]
-        feed_dict = {
-            self.reward_input: batch_data.reward_set,
-            self.action_input: flatten_n(self.env_spec.action_space, batch_data.action_set),
-            self.state_input: batch_data.state_set,
-            self.done_input: batch_data.done_set,
-            self.target_q_input: target_q_val_on_new_s,
-            **self.parameters.return_tf_parameter_feed_dict()
-        }
+        train_iter = self.parameters("TRAIN_ITERATION") if not train_iter else train_iter
+        average_loss = 0.0
+
         for i in range(train_iter):
+            train_data = self.replay_buffer.sample(
+                batch_size=self.parameters('BATCH_SIZE')) if batch_data is None else batch_data
+
+            _, target_q_val_on_new_s = self.predict_target_with_q_val(obs=train_data.new_state_set,
+                                                                      batch_flag=True)
+            target_q_val_on_new_s = np.expand_dims(target_q_val_on_new_s, axis=1)
+            assert target_q_val_on_new_s.shape[0] == train_data.state_set.shape[0]
+            feed_dict = {
+                self.reward_input: train_data.reward_set,
+                self.action_input: flatten_n(self.env_spec.action_space, train_data.action_set),
+                self.state_input: train_data.state_set,
+                self.done_input: train_data.done_set,
+                self.target_q_input: target_q_val_on_new_s,
+                **self.parameters.return_tf_parameter_feed_dict()
+            }
             res, _ = tf_sess.run([self.q_value_func_loss, self.update_q_value_func_op],
                                  feed_dict=feed_dict)
             average_loss += res
+
         average_loss /= train_iter
         if update_target is True:
             tf_sess.run(self.update_target_q_value_func_op,
