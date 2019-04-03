@@ -1,14 +1,13 @@
 language: python
 python:
   - "3.5"
-before_install:
-  - "export PYTHONPATH=$PYTHONPATH:$(pwd)"
 install:
   - pip install pip==9.0.1
-  - pip install $TRAVIS_BUILD_DIR
+  - pip install -e .
 
-script: pytest baconian/test/tests/
-env: PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR/baconian-internal:$TRAVIS_BUILD_DIR/baconian
+script:
+  - echo $PYTHONPATH
+  - pytest
 branches:
   only:
   - master
