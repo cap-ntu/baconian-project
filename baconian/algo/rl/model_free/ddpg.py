@@ -16,6 +16,7 @@ from baconian.common.logging import record_return_decorator
 from baconian.core.status import register_counter_info_to_status_decorator
 from baconian.algo.placeholder_input import MultiPlaceholderInput
 from baconian.common.error import *
+from baconian.tf.util import clip_grad
 
 
 class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
@@ -77,8 +78,10 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
             done = tf.cast(self.done_input, dtype=tf.float32)
             self.predict_q_value = (1. - done) * self.config('GAMMA') * self.target_q_input + self.reward_input
             with tf.variable_scope('train'):
-                self.critic_loss, self.critic_update_op, self.target_critic_update_op, self.critic_optimizer, self.critic_grads = self._setup_critic_loss()
-                self.actor_loss, self.actor_update_op, self.target_actor_update_op, self.action_optimizer, self.actor_grads = self._set_up_actor_loss()
+                self.critic_loss, self.critic_update_op, self.target_critic_update_op, self.critic_optimizer, \
+                self.critic_grads = self._setup_critic_loss()
+                self.actor_loss, self.actor_update_op, self.target_actor_update_op, self.action_optimizer, \
+                self.actor_grads = self._set_up_actor_loss()
 
         var_list = get_tf_collection_var_list(
             '{}/train'.format(name)) + self.critic_optimizer.variables() + self.action_optimizer.variables()
@@ -209,13 +212,14 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
         reg_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES, scope=self.critic.name_scope)
         loss = tf.reduce_sum((self.predict_q_value - self.critic.q_tensor) ** 2) + tf.reduce_sum(reg_loss)
         optimizer = tf.train.AdamOptimizer(learning_rate=self.parameters('CRITIC_LEARNING_RATE'))
-        grads = tf.gradients(loss, self.critic.parameters('tf_var_list'))
+        grad_var_pair = optimizer.compute_gradients(loss=loss, var_list=self.critic.parameters('tf_var_list'))
+        grads = [g[0] for g in grad_var_pair]
         if self.parameters('critic_clip_norm') is not None:
-            if self.parameters('critic_clip_norm') <= 0.0:
-                raise InappropriateParameterSetting('critic_clip_norm should be larger than 0.0')
-            grads = [tf.clip_by_norm(grad, clip_norm=self.parameters('critic_clip_norm')) for grad in grads]
-        grads_var_pair = zip(grads, self.critic.parameters('tf_var_list'))
-        optimize_op = optimizer.apply_gradients(grads_var_pair)
+            grad_var_pair, grads = clip_grad(optimizer=optimizer,
+                                             loss=loss,
+                                             var_list=self.critic.parameters('tf_var_list'),
+                                             clip_norm=self.parameters('critic_clip_norm'))
+        optimize_op = optimizer.apply_gradients(grad_var_pair)
         op = []
         for var, target_var in zip(self.critic.parameters('tf_var_list'),
                                    self.target_critic.parameters('tf_var_list')):
@@ -228,14 +232,16 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
         reg_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES, scope=self.actor.name_scope)
 
         loss = -tf.reduce_mean(self._critic_with_actor_output.q_tensor) + tf.reduce_sum(reg_loss)
-        grads = tf.gradients(loss, self.actor.parameters('tf_var_list'))
+
+        optimizer = tf.train.AdamOptimizer(learning_rate=self.parameters('CRITIC_LEARNING_RATE'))
+        grad_var_pair = optimizer.compute_gradients(loss=loss, var_list=self.actor.parameters('tf_var_list'))
+        grads = [g[0] for g in grad_var_pair]
         if self.parameters('actor_clip_norm') is not None:
-            if self.parameters('actor_clip_norm') <= 0.0:
-                raise InappropriateParameterSetting('critic_clip_norm should be larger than 0.0')
-            grads = [tf.clip_by_norm(grad, clip_norm=self.parameters('actor_clip_norm')) for grad in grads]
-        grads_var_pair = zip(grads, self.actor.parameters('tf_var_list'))
-        optimizer = tf.train.AdamOptimizer(learning_rate=self.parameters('ACTOR_LEARNING_RATE'))
-        optimize_op = optimizer.apply_gradients(grads_var_pair)
+            grad_var_pair, grads = clip_grad(optimizer=optimizer,
+                                             loss=loss,
+                                             var_list=self.actor.parameters('tf_var_list'),
+                                             clip_norm=self.parameters('critic_clip_norm'))
+        optimize_op = optimizer.apply_gradients(grad_var_pair)
         op = []
         for var, target_var in zip(self.actor.parameters('tf_var_list'),
                                    self.target_actor.parameters('tf_var_list')):

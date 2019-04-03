@@ -6,7 +6,7 @@ from typeguard import typechecked
 import collections
 import multiprocessing
 import tensorflow.contrib as tf_contrib
-
+from baconian.common.error import *
 
 __all__ = ['get_tf_collection_var_list', 'MLPCreator']
 
@@ -24,6 +24,15 @@ def get_tf_collection_var_list(scope, key=tf.GraphKeys.GLOBAL_VARIABLES):
 #     sess.__enter__()
 #     assert tf.get_default_session()
 #     return sess
+
+def clip_grad(optimizer, loss, clip_norm: float, var_list):
+    grad_var_pair = optimizer.compute_gradients(loss=loss)
+    if clip_norm <= 0.0:
+        raise InappropriateParameterSetting('clip_norm should be larger than 0.0')
+    grad_var_pair = [(tf.clip_by_norm(grad, clip_norm=clip_norm), var) for
+                     grad, var in grad_var_pair]
+    grad = [g[0] for g in grad_var_pair]
+    return grad_var_pair, grad
 
 
 def create_new_tf_session(cuda_device: int, **kwargs):

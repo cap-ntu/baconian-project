@@ -104,5 +104,5 @@ if __name__ == '__main__':
 
     CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
 
-    GlobalConfig.set('DEFAULT_LOG_PATH', os.path.join(CURRENT_PATH, os.pardir, 'benchmark_log', 'Pendulum-v0'))
+    GlobalConfig.set('DEFAULT_LOG_PATH', os.path.join(CURRENT_PATH, os.pardir, 'benchmark_log', 'Pendulum-v02'))
     duplicate_exp_runner(10, task_fn, exp_config=ddpg_benchmark_conf['Pendulum-v0'])
