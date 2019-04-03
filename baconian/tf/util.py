@@ -26,7 +26,7 @@ def get_tf_collection_var_list(scope, key=tf.GraphKeys.GLOBAL_VARIABLES):
 #     return sess
 
 def clip_grad(optimizer, loss, clip_norm: float, var_list):
-    grad_var_pair = optimizer.compute_gradients(loss=loss)
+    grad_var_pair = optimizer.compute_gradients(loss=loss, var_list=var_list)
     if clip_norm <= 0.0:
         raise InappropriateParameterSetting('clip_norm should be larger than 0.0')
     grad_var_pair = [(tf.clip_by_norm(grad, clip_norm=clip_norm), var) for
