@@ -16,3 +16,7 @@ class DynamicsNextStepOutputBoundError(BaconianError):
 
 class MemoryBufferLessThanBatchSizeError(BaconianError):
     pass
+
+
+class InappropriateParameterSetting(BaconianError):
+    pass

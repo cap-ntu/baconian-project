@@ -8,6 +8,6 @@
   "DECAY": 0.5,
   "BATCH_SIZE": 5,
   "TRAIN_ITERATION": 1,
-  "critic_clip_norm": 0.1,
-  "actor_clip_norm": 0.1
+  "critic_clip_norm": null,
+  "actor_clip_norm": null
 }

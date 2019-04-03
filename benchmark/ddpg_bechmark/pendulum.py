@@ -38,6 +38,8 @@ def task_fn(exp_config):
     policy = DeterministicMLPPolicy(env_spec=env_spec,
                                     name_scope=name + '_mlp_policy',
                                     name=name + '_mlp_policy',
+                                    output_low=env_spec.action_space.low,
+                                    output_high=env_spec.action_space.high,
                                     **exp_config['DeterministicMLPPolicy'],
                                     reuse=False)
 

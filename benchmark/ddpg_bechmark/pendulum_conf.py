@@ -64,7 +64,7 @@ PENDULUM_BENCHMARK_CONFIG_DICT = {
                 "W_NORMAL_STDDEV": 0.03
             },
             {
-                "ACT": "TANH",
+                "ACT": "IDENTITY",
                 "B_INIT_VALUE": 0.0,
                 "NAME": "OUPTUT",
                 "N_UNITS": 1,
@@ -84,8 +84,8 @@ PENDULUM_BENCHMARK_CONFIG_DICT = {
             "DECAY": 0.5,
             "BATCH_SIZE": 128,
             "TRAIN_ITERATION": 120,
-            "critic_clip_norm": 0.0,
-            "actor_clip_norm": 0.0,
+            "critic_clip_norm": None,
+            "actor_clip_norm": None,
         },
         'replay_buffer': None
     },

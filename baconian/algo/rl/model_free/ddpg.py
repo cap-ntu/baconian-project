@@ -15,6 +15,7 @@ from baconian.common.misc import *
 from baconian.common.logging import record_return_decorator
 from baconian.core.status import register_counter_info_to_status_decorator
 from baconian.algo.placeholder_input import MultiPlaceholderInput
+from baconian.common.error import *
 
 
 class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
@@ -52,8 +53,6 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
             self.replay_buffer = UniformRandomReplayBuffer(limit=self.config('REPLAY_BUFFER_SIZE'),
                                                            action_shape=self.env_spec.action_shape,
                                                            observation_shape=self.env_spec.obs_shape)
-
-        to_ph_parameter_dict = dict()
 
         self.parameters = ParametersWithTensorflowVariable(tf_var_list=[],
                                                            rest_parameters=dict(),
@@ -212,6 +211,8 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
         optimizer = tf.train.AdamOptimizer(learning_rate=self.parameters('CRITIC_LEARNING_RATE'))
         grads = tf.gradients(loss, self.critic.parameters('tf_var_list'))
         if self.parameters('critic_clip_norm') is not None:
+            if self.parameters('critic_clip_norm') <= 0.0:
+                raise InappropriateParameterSetting('critic_clip_norm should be larger than 0.0')
             grads = [tf.clip_by_norm(grad, clip_norm=self.parameters('critic_clip_norm')) for grad in grads]
         grads_var_pair = zip(grads, self.critic.parameters('tf_var_list'))
         optimize_op = optimizer.apply_gradients(grads_var_pair)
@@ -229,6 +230,8 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
         loss = -tf.reduce_mean(self._critic_with_actor_output.q_tensor) + tf.reduce_sum(reg_loss)
         grads = tf.gradients(loss, self.actor.parameters('tf_var_list'))
         if self.parameters('actor_clip_norm') is not None:
+            if self.parameters('actor_clip_norm') <= 0.0:
+                raise InappropriateParameterSetting('critic_clip_norm should be larger than 0.0')
             grads = [tf.clip_by_norm(grad, clip_norm=self.parameters('actor_clip_norm')) for grad in grads]
         grads_var_pair = zip(grads, self.actor.parameters('tf_var_list'))
         optimizer = tf.train.AdamOptimizer(learning_rate=self.parameters('ACTOR_LEARNING_RATE'))
