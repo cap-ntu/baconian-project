@@ -15,10 +15,17 @@ from benchmark.ddpg_bechmark.mountain_car_continuous_conf import *
 from benchmark.ddpg_bechmark.pendulum_conf import *
 from baconian.common.schedules import LinearSchedule
 from baconian.core.status import get_global_status_collect
+from baconian.common.noise import *
+from baconian.common.schedules import *
 
 
-def task_fn(env_id, exp_config):
-    env = make(env_id)
+def task_fn(exp_config):
+    GlobalConfig.set('DEFAULT_EXPERIMENT_END_POINT',
+                     dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=10000,
+                          TOTAL_AGENT_TEST_SAMPLE_COUNT=None,
+                          TOTAL_AGENT_UPDATE_COUNT=None))
+
+    env = make('Pendulum-v0')
     name = 'benchmark'
     env_spec = EnvSpec(obs_space=env.observation_space,
                        action_space=env.action_space)
@@ -42,26 +49,18 @@ def task_fn(env_id, exp_config):
     )
     agent = Agent(env=env, env_spec=env_spec,
                   algo=ddpg,
-                  exploration_strategy=EpsilonGreedy(action_space=env_spec.action_space,
-                                                     init_random_prob=1.0,
-                                                     prob_scheduler=LinearSchedule(
-                                                         t_fn=lambda: get_global_status_collect()(
-                                                             'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
-                                                         **exp_config['EpsilonGreedy'])
-                                                     ),
-                  name=name + '_agent',
-                  **exp_config['Agent'])
+                  exploration_strategy=None,
+                  noise_adder=AgentActionNoiseWrapper(noise=NormalActionNoise(),
+                                                      noise_weight_scheduler=ConstantSchedule(value=0.3),
+                                                      action_weight_scheduler=ConstantSchedule(value=1.0)),
+                  name=name + '_agent')
+
     flow = TrainTestFlow(train_sample_count_func=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
-                         config_or_config_dict={
-                             "TEST_EVERY_SAMPLE_COUNT": 10,
-                             "TRAIN_EVERY_SAMPLE_COUNT": 10,
-                             "START_TRAIN_AFTER_SAMPLE_COUNT": 5,
-                             "START_TEST_AFTER_SAMPLE_COUNT": 5,
-                         },
+                         config_or_config_dict=exp_config['TrainTestFlow']['config_or_config_dict'],
                          func_dict={
                              'test': {'func': agent.test,
                                       'args': list(),
-                                      'kwargs': dict(sample_count=10),
+                                      'kwargs': dict(sample_count=exp_config['TrainTestFlow']['TEST_SAMPLES_COUNT']),
                                       },
                              'train': {'func': agent.train,
                                        'args': list(),
@@ -69,7 +68,7 @@ def task_fn(env_id, exp_config):
                                        },
                              'sample': {'func': agent.sample,
                                         'args': list(),
-                                        'kwargs': dict(sample_count=100,
+                                        'kwargs': dict(sample_count=exp_config['TrainTestFlow']['TRAIN_SAMPLES_COUNT'],
                                                        env=agent.env,
                                                        in_test_flag=False,
                                                        store_flag=True),
@@ -88,18 +87,23 @@ def task_fn(env_id, exp_config):
 
 if __name__ == '__main__':
     import os
-
-    CURRNET_PATH = os.path.dirname(os.path.realpath(__file__))
+    import argparse
 
     ddpg_benchmark_conf = {
         'Pendulum-v0': PENDULUM_BENCHMARK_CONFIG_DICT,
         'MountainCarContinuous-v0': MOUNTAIN_CAR_CONTINUOUS_BENCHMARK_CONFIG_DICT
     }
 
-    env_id = 'MountainCarContinuous-v0'
-    assert ddpg_benchmark_conf[env_id]['env_id'] == env_id
+    arg = argparse.ArgumentParser()
+    arg.add_argument('--env_id', type=str, choices=list(ddpg_benchmark_conf.keys()))
+
+    args = arg.parse_args()
+
+    CURRNET_PATH = os.path.dirname(os.path.realpath(__file__))
+
+    assert ddpg_benchmark_conf[args.env_id]['env_id'] == args.env_id
 
     from baconian.core.experiment_runner import single_exp_runner
 
-    GlobalConfig.set('DEFAULT_LOG_PATH', os.path.join(CURRNET_PATH, os.pardir, 'benchmark_log', env_id))
-    single_exp_runner(task_fn, env_id=env_id, exp_config=ddpg_benchmark_conf[env_id])
+    GlobalConfig.set('DEFAULT_LOG_PATH', os.path.join(CURRNET_PATH, os.pardir, 'benchmark_log', args.env_id))
+    single_exp_runner(task_fn, env_id=args.env_id, exp_config=ddpg_benchmark_conf[args.env_id])

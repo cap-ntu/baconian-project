@@ -7,3 +7,4 @@ API documentation
     :caption: API documentation:
 
     ./apis/core_api.rst
+    ./apis/agent.rst

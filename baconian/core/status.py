@@ -5,6 +5,7 @@ from typeguard import typechecked
 from copy import deepcopy
 from baconian.common.logging import ConsoleLogger
 from baconian.common.error import *
+from functools import wraps
 
 __all__ = ['Status', 'StatusWithSubInfo', 'StatusWithSingleInfo', 'StatusWithInfo', 'StatusCollector',
            'reset_global_status_collect', 'register_counter_info_to_status_decorator', 'get_global_status_collect']
@@ -14,6 +15,7 @@ class Status(object):
     """
     One of the core module, a class to indicate the current status of an object in baconian.
     """
+
     def __init__(self, obj):
         """
         The object that status willlu
@@ -246,6 +248,7 @@ def register_counter_info_to_status_decorator(increment, info_key, under_status:
         else:
             final_st = (None,)
 
+        @wraps(fn)
         def wrap_with_self(self, *args, **kwargs):
             # todo a bug here, which is record() called in fn will lost the just appended info_key at the very first
             obj = self

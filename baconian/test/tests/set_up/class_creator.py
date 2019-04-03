@@ -371,7 +371,7 @@ class ClassCreatorSetup(unittest.TestCase):
                                                               schedule_timesteps=100,
                                                               final_p=1.0,
                                                               initial_p=0.0),
-                                                          nosie_weight_scheduler=LinearSchedule(
+                                                          noise_weight_scheduler=LinearSchedule(
                                                               t_fn=lambda: get_global_status_collect()(
                                                                   'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
                                                               schedule_timesteps=100,

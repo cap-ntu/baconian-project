@@ -101,10 +101,6 @@ class SampleData(object):
     def done_set(self):
         return self('done_set')
 
-    def get_mean_of(self, set_name):
-        return make_batch(np.array(self._internal_data_dict[set_name][0]),
-                          original_shape=self._internal_data_dict[set_name][1]).mean().item()
-
 
 class TransitionData(SampleData):
     def __init__(self, env_spec=None, obs_shape=None, action_shape=None):
@@ -128,6 +124,14 @@ class TransitionData(SampleData):
         self._internal_data_dict['done_set'][0].append(done)
         self._internal_data_dict['action_set'][0].append(np.reshape(action, self.action_shape))
         self.cumulative_reward += reward
+
+    def get_mean_of(self, set_name):
+        return make_batch(np.array(self._internal_data_dict[set_name][0]),
+                          original_shape=self._internal_data_dict[set_name][1]).mean().item()
+
+    def get_sum_of(self, set_name):
+        return make_batch(np.array(self._internal_data_dict[set_name][0]),
+                          original_shape=self._internal_data_dict[set_name][1]).sum().item()
 
 
 class TrajectoryData(SampleData):
@@ -157,6 +161,10 @@ class TrajectoryData(SampleData):
     def get_mean_of(self, set_name):
         tran = self.return_as_transition_data()
         return tran.get_mean_of(set_name)
+
+    def get_sum_of(self, set_name):
+        tran = self.return_as_transition_data()
+        return tran.get_sum_of(set_name)
 
     def __len__(self):
         total_len = 0

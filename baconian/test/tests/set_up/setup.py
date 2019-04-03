@@ -91,9 +91,9 @@ class TestWithLogSet(BaseTestCase):
         self.assertTrue(Logger().inited_flag)
 
     def tearDown(self):
-        BaseTestCase.tearDown(self)
         Logger().reset()
         ConsoleLogger().reset()
+        BaseTestCase.tearDown(self)
         self.assertFalse(ConsoleLogger().inited_flag)
         self.assertFalse(Logger().inited_flag)
 
@@ -105,7 +105,7 @@ class TestWithAll(TestTensorflowSetup, TestWithLogSet):
 
     def tearDown(self):
         TestWithLogSet.tearDown(self)
-        # TestTensorflowSetup.tearDown(self)
+        TestTensorflowSetup.tearDown(self)
 
 
 class SimpleTestSetup(BaseTestCase):

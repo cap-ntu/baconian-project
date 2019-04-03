@@ -9,6 +9,7 @@ from baconian.common.misc import construct_dict_config
 from baconian.common import files as files
 from baconian.core.global_var import get_all
 from baconian.config.global_config import GlobalConfig
+from functools import wraps
 
 """
 Logger Module
@@ -343,6 +344,7 @@ class Recorder(object):
 
 def record_return_decorator(which_recorder: str = 'global'):
     def wrap(fn):
+        @wraps
         def wrap_with_self(self, *args, **kwargs):
             obj = self
             if which_recorder == 'global':
@@ -354,12 +356,13 @@ def record_return_decorator(which_recorder: str = 'global'):
             if not hasattr(obj, 'get_status') or not callable(obj.get_status):
                 raise ValueError('registered obj {} mush have callable method get_status()'.format(type(obj)))
             res = fn(self, *args, **kwargs)
-            info = obj.get_status()
-            if not isinstance(res, dict):
-                raise TypeError('returned value by {} must be a dict in order to be recorded'.format(fn.__name__))
-            for key, val in res.items():
-                recorder.append_to_obj_log(obj=obj, attr_name=key, status_info=info,
-                                           log_val=val)
+            if res is not None:
+                info = obj.get_status()
+                if not isinstance(res, dict):
+                    raise TypeError('returned value by {} must be a dict in order to be recorded'.format(fn.__name__))
+                for key, val in res.items():
+                    recorder.append_to_obj_log(obj=obj, attr_name=key, status_info=info,
+                                               log_val=val)
             return res
 
         return wrap_with_self

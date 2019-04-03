@@ -44,13 +44,15 @@ class Sampler(Basic):
                     done = True
                 else:
                     done = False
-
             sample_record.append(state=state,
                                  action=action,
                                  reward=re,
                                  new_state=new_state,
                                  done=done)
-            state = new_state
+            if done:
+                state = env.reset()
+            else:
+                state = new_state
         return sample_record
 
     def _sample_trajectories(self, env, agent, sample_count, init_state, in_test_flag):
@@ -62,11 +64,18 @@ class Sampler(Basic):
             while done is not True:
                 action = agent.predict(obs=state, in_test_flag=in_test_flag)
                 new_state, re, done, info = env.step(action)
+                if not isinstance(done, bool):
+                    if done[0] == 1:
+                        done = True
+                    else:
+                        done = False
                 traj_record.append(state=state,
                                    action=action,
                                    reward=re,
                                    new_state=new_state,
                                    done=done)
                 state = new_state
+            state = env.reset()
+
             sample_record.append(traj_record)
         return sample_record

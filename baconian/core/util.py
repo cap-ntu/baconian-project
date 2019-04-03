@@ -2,10 +2,12 @@ from copy import deepcopy
 from collections import Hashable
 from baconian.common.error import *
 from baconian.core.global_var import get_all, reset
+from functools import wraps
 
 
 def init_func_arg_record_decorator():
     def wrap(fn):
+        @wraps(fn)
         def wrap_with_self(self, *args, **kwargs):
             get_all()['_global_obj_arg_dict'][self] = dict(args=args, kwargs=kwargs, cls=type(self))
             res = fn(self, *args, **kwargs)

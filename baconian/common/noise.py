@@ -95,9 +95,9 @@ class AgentActionNoiseWrapper(object):
     INJECT_TYPE = ['WEIGHTED_DECAY', '']
 
     @typechecked
-    def __init__(self, noise: ActionNoise, action_weight_scheduler: Schedule, nosie_weight_scheduler: Schedule):
+    def __init__(self, noise: ActionNoise, action_weight_scheduler: Schedule, noise_weight_scheduler: Schedule):
         self.action_weight_scheduler = action_weight_scheduler
-        self.noise_weight_scheduler = nosie_weight_scheduler
+        self.noise_weight_scheduler = noise_weight_scheduler
         self.noise = noise
 
     def __call__(self, action, **kwargs):

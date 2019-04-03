@@ -23,7 +23,7 @@ class TestNoise(BaseTestCase):
 
         noise_wrapper = AgentActionNoiseWrapper(noise=OUNoise(),
                                                 action_weight_scheduler=action_w,
-                                                nosie_weight_scheduler=noise_w)
+                                                noise_weight_scheduler=noise_w)
         for i in range(101):
             print('action w {}, noise w {}'.format(noise_wrapper.action_weight_scheduler.value(),
                                                    noise_wrapper.noise_weight_scheduler.value()))
