@@ -18,8 +18,8 @@ offered.
 For previous release news, please refer to [old news](./old_news.md) 
 
 ### Documentation
-Documentation is available at http://baconian.withcap.org (hosted by CAP server)  
-or https://baconian-public.readthedocs.io/en/latest/ (host by Read the Docs)
+Documentation is available at http://baconian.withcap.org (hosted by CAP server). Please do not refer to ReadTheDocs 
+page for documentation, since it have a problem to document docstring with decorated function.
 (the documentations writing is still undergoing)
 
 ### Todo
@@ -40,4 +40,4 @@ Thanks to the following open-source projects:
 
 ### Report an issue 
 If you find any bugs on issues during your usage of the package, please open an issue or send an email to me 
-(linsen001@e.ntu.edu.sg) with detail information. I appreciate your helps!
+(linsen001@e.ntu.edu.sg) with detail information. I appreciate your help!

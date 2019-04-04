@@ -26,8 +26,8 @@ Welcome to Baconian!
     baconian_design.rst
 
 .. toctree::
-    :maxdepth: 1
-    :caption: API documentation
+    :maxdepth: 2
+    :caption: Baconian API Reference
 
     API.rst
 

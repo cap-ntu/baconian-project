@@ -186,3 +186,13 @@ def skip(app, what, name, obj, would_skip, options):
 
 def setup(app):
     app.connect("autodoc-skip-member", skip)
+
+
+autodoc_default_options = {
+    'special-members': '__init__',
+    'undoc-members': False,
+    'exclude-members': '__weakref__'
+}
+autodoc_inherit_docstrings = False
+
+autodoc_mock_imports = ['mujoco_env', 'gym.envs.mujoco']

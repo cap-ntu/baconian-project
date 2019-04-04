@@ -1,10 +1,14 @@
 .. _API_REF:
 
-API documentation
-==================
+Baconian API Reference
+======================
 .. toctree::
-    :maxdepth: 1
-    :caption: API documentation:
+    :maxdepth: 3
+    :caption: Baconian API Reference:
 
     ./apis/core_api.rst
     ./apis/agent.rst
+    ./apis/experiment.rst
+    ./apis/env.rst
+    ./apis/dynamics.rst
+    ./apis/algo.rst

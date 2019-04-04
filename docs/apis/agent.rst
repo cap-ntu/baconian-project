@@ -1,5 +1,8 @@
-baconian.core.agent
+Agent module
 ====================
+
+baconian.core.agent
+----------------------
 .. py:currentmodule:: baconian.core.agent
 
 .. autoclass:: Agent
