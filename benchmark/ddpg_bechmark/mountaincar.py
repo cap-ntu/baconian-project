@@ -20,14 +20,15 @@ from baconian.common.schedules import *
 from baconian.core.experiment_runner import duplicate_exp_runner
 
 
-def pendulum_task_fn():
-    exp_config = PENDULUM_BENCHMARK_CONFIG_DICT
+def mountiancar_task_fn():
+    exp_config = MOUNTAIN_CAR_CONTINUOUS_BENCHMARK_CONFIG_DICT
+
     GlobalConfig.set('DEFAULT_EXPERIMENT_END_POINT',
                      dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=10000,
                           TOTAL_AGENT_TEST_SAMPLE_COUNT=None,
                           TOTAL_AGENT_UPDATE_COUNT=None))
 
-    env = make('Pendulum-v0')
+    env = make('MountainCarContinuous-v0')
     name = 'benchmark'
     env_spec = EnvSpec(obs_space=env.observation_space,
                        action_space=env.action_space)

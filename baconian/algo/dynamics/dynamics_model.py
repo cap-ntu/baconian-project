@@ -16,6 +16,12 @@ class DynamicsModel(Basic):
     INIT_STATUS = 'NOT_INIT'
 
     def __init__(self, env_spec: EnvSpec, parameters: Parameters = None, init_state=None, name='dynamics_model'):
+        """
+        :param env_spec:
+        :param parameters:
+        :param init_state:
+        :param name:
+        """
         super().__init__(name=name)
         self.env_spec = env_spec
         self.state = init_state

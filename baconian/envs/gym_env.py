@@ -20,6 +20,12 @@ _env_inited_count = dict()
 
 
 def make(gym_env_id, allow_multiple_env=True):
+    """
+
+    :param gym_env_id:
+    :param allow_multiple_env:
+    :return:
+    """
     if allow_multiple_env is True:
 
         if gym_env_id not in _env_inited_count:
@@ -34,6 +40,11 @@ def make(gym_env_id, allow_multiple_env=True):
 
 @typechecked
 def space_converter(space: GymSpace):
+    """
+
+    :param space:
+    :return:
+    """
     if isinstance(space, Box):
         return garage_space.Box(low=space.low, high=space.high)
     # elif isinstance(space, Dict):
@@ -47,9 +58,17 @@ def space_converter(space: GymSpace):
 
 
 class GymEnv(Env):
+    """
+    Gym environment wrapping module
+    """
     _all_gym_env_id = list(registry.env_specs.keys())
 
     def __init__(self, gym_env_id: str, name: str = None):
+        """
+
+        :param gym_env_id:
+        :param name:
+        """
         super().__init__(name=name if name else gym_env_id)
         self.env_id = gym_env_id
         if gym_env_id not in self._all_gym_env_id:
@@ -73,23 +92,45 @@ class GymEnv(Env):
     @register_counter_info_to_status_decorator(increment=1, info_key='step', under_status=('TRAIN', 'TEST'),
                                                ignore_wrong_status=True)
     def step(self, action):
+        """
+
+        :param action:
+        :return:
+        """
         super().step(action)
         return self.unwrapped.step(action=action)
 
     def reset(self):
+        """
+
+        :return:
+        """
         super().reset()
 
         return self.unwrapped.reset()
 
     def init(self):
+        """
+
+        :return:
+        """
         super().init()
 
         return self.reset()
 
     def seed(self, seed=None):
+        """
+
+        :param seed:
+        :return:
+        """
         return super().seed(seed)
 
     def get_state(self):
+        """
+
+        :return:
+        """
         if (have_mujoco_flag is True and isinstance(self.unwrapped_gym, mujoco_env.MujocoEnv)) or (
                 hasattr(self.unwrapped_gym, '_get_obs') and callable(self.unwrapped_gym._get_obs)):
             return self.unwrapped_gym._get_obs()
@@ -107,10 +148,18 @@ class GymEnv(Env):
 
     @property
     def unwrapped(self):
+        """
+
+        :return:
+        """
         return self._gym_env
 
     @property
     def unwrapped_gym(self):
+        """
+
+        :return:
+        """
         if hasattr(self._gym_env, 'unwrapped'):
             return self._gym_env.unwrapped
         else:
@@ -118,6 +167,11 @@ class GymEnv(Env):
 
     @staticmethod
     def _sample_with_nan(space: garage_space.Space):
+        """
+
+        :param space:
+        :return:
+        """
         assert isinstance(space, garage_space.Box)
         high = np.ones_like(space.low)
         low = -1 * np.ones_like(space.high)

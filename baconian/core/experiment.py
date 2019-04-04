@@ -40,6 +40,15 @@ class Experiment(Basic):
                  tuner: Tuner = None,
                  register_default_global_status=True
                  ):
+        """
+
+        :param name:
+        :param agent:
+        :param env:
+        :param flow:
+        :param tuner:
+        :param register_default_global_status:
+        """
         super().__init__(status=StatusWithSingleInfo(obj=self), name=name)
         self.agent = agent
         self.env = env
@@ -73,15 +82,6 @@ class Experiment(Basic):
         create_new_tf_session(cuda_device=0)
         self.agent.init()
         self.env.init()
-
-    # def train(self):
-    #     self.agent.train()
-    #
-    # def test(self):
-    #     self.agent.test()
-    #
-    # def sample(self, *arg, **kwargs):
-    #     return self.agent.sample(*arg, **kwargs)
 
     def run(self):
         self.init()

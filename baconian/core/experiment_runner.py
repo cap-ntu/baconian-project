@@ -25,6 +25,15 @@ def _reset_global_seed(seed):
 
 @typechecked
 def single_exp_runner(task_fn, auto_choose_gpu_flag=False, gpu_id: int = 0, seed=None, **task_fn_kwargs):
+    """
+
+    :param task_fn:
+    :param auto_choose_gpu_flag:
+    :param gpu_id:
+    :param seed:
+    :param task_fn_kwargs:
+    :return:
+    """
     os.environ['CUDA_DEVICE_ORDER'] = "PCI_BUS_ID"
     if auto_choose_gpu_flag is True:
         DEVICE_ID_LIST = Gpu.getFirstAvailable()
@@ -53,6 +62,16 @@ def single_exp_runner(task_fn, auto_choose_gpu_flag=False, gpu_id: int = 0, seed
 @typechecked
 def duplicate_exp_runner(num, task_fn, auto_choose_gpu_flag=True, gpu_id: int = 0, seeds: list = None,
                          **task_fn_kwargs):
+    """
+
+    :param num:
+    :param task_fn:
+    :param auto_choose_gpu_flag:
+    :param gpu_id:
+    :param seeds:
+    :param task_fn_kwargs:
+    :return:
+    """
     if seeds:
         assert len(seeds) == num
     base_log_path = deepcopy(GlobalConfig.DEFAULT_LOG_PATH)
