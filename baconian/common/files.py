@@ -1,9 +1,8 @@
 import json_tricks as json
 import os
-import numpy as np
 import shutil
-import pandas as pd
 from baconian.common.error import *
+from copy import deepcopy
 
 
 def create_path(path, del_if_existed=True):
@@ -56,8 +55,8 @@ def convert_to_jsonable(dict_or_list) -> (list, dict):
                 f = open(os.devnull, 'w')
                 try:
                     json.dump([val], f)
-                except TypeError:
-                    jsonable_dict.append(str(val))
+                except Exception:
+                    jsonable_dict.append(deepcopy(str(val)))
                 else:
                     jsonable_dict.append(val)
                 finally:
@@ -74,12 +73,8 @@ def convert_to_jsonable(dict_or_list) -> (list, dict):
                 f = open(os.devnull, 'w')
                 try:
                     json.dump([val], f)
-                except TypeError:
-                    jsonable_dict[key] = str(val)
-                except ValueError:
-                    print("!!!!!!", key, val, flush=True)
-                    raise ValueError
-
+                except Exception:
+                    jsonable_dict[key] = deepcopy(str(val))
                 else:
                     jsonable_dict[key] = val
                 finally:
