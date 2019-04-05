@@ -7,8 +7,8 @@ install:
 
 script:
   - echo $PYTHONPATH
-  - pytest baconian/test/
-  - pytest examples/
+  - pytest baconian/test/ -s
+  - pytest examples/ -s
 branches:
   only:
   - master
