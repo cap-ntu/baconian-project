@@ -11,11 +11,11 @@ env_id_to_task_fn = {
     'MountainCarContinuous-v0': mountiancar_task_fn
 }
 
-arg.add_argument('env_id', type=str, choices=list(env_id_to_task_fn.keys()))
+arg.add_argument('--env_id', type=str, choices=list(env_id_to_task_fn.keys()))
 args = arg.parse_args()
 
 CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
 
-GlobalConfig.set('DEFAULT_LOG_PATH', os.path.join(CURRENT_PATH, os.pardir, 'benchmark_log', 'Pendulum-v0',
+GlobalConfig.set('DEFAULT_LOG_PATH', os.path.join(CURRENT_PATH, 'benchmark_log', args.env_id,
                                                   time.strftime("%Y-%m-%d_%H-%M-%S")))
 duplicate_exp_runner(10, env_id_to_task_fn[args.env_id])
