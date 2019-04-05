@@ -54,13 +54,16 @@ def convert_to_jsonable(dict_or_list) -> (list, dict):
                 res = convert_to_jsonable(dict_or_list=val)
                 jsonable_dict.append(res)
             else:
-                with open(os.devnull, 'w') as f:
-                    try:
-                        json.dump([val], f)
-                    except TypeError:
-                        jsonable_dict.append(str(val))
-                    else:
-                        jsonable_dict.append(val)
+                f = open(os.devnull, 'w')
+                try:
+                    json.dump([val], f)
+                except TypeError:
+                    jsonable_dict.append(str(val))
+                else:
+                    jsonable_dict.append(val)
+                finally:
+                    f.close()
+
     elif isinstance(dict_or_list, dict):
         jsonable_dict = dict()
         for key, val in dict_or_list.items():
@@ -68,13 +71,16 @@ def convert_to_jsonable(dict_or_list) -> (list, dict):
                 res = convert_to_jsonable(dict_or_list=val)
                 jsonable_dict[key] = res
             else:
-                with open(os.devnull, 'w') as f:
-                    try:
-                        json.dump([val], f)
-                    except TypeError:
-                        jsonable_dict[key] = str(val)
-                    else:
-                        jsonable_dict[key] = val
+                f = open(os.devnull, 'w')
+                try:
+                    json.dump([val], f)
+                    f.close()
+                except TypeError:
+                    jsonable_dict[key] = str(val)
+                else:
+                    jsonable_dict[key] = val
+                finally:
+                    f.close()
     return jsonable_dict
 
 

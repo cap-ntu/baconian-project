@@ -12,10 +12,12 @@ offered.
 ![CAP](https://user-images.githubusercontent.com/9161548/40165577-eff023c4-59ee-11e8-8bf5-508325a23baa.png)
 
 ### Release news:
-- 2019.3.24 Release the v0.1.3 add GP dynamics, fix some bugs.
-- 2019.3.23 Release the v0.1.2, add linear dynamics, iLQR, LQR methods.
+- 2019.4.4 Released the v0.1.4. Added benchmark results on DDPG, visualization of results will be given later. 
+Fixed some bugs. 
+- 2019.3.24 Released the v0.1.3. Added GP dynamics, fix some bugs.
+- 2019.3.23 Released the v0.1.2.  Added linear dynamics, iLQR, LQR methods.
 
-For previous release news, please refer to [old news](./old_news.md) 
+For previous news, please go [here](./old_news.md) 
 
 ### Documentation
 Documentation is available at http://baconian.withcap.org (hosted by CAP server). Please do not refer to ReadTheDocs 
