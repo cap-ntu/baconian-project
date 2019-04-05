@@ -46,7 +46,6 @@ def save_to_json(obj: (list, dict), path=None, fp=None, file_name=None):
 
 
 def convert_to_jsonable(dict_or_list) -> (list, dict):
-    jsonable_dict = None
     if isinstance(dict_or_list, list):
         jsonable_dict = []
         for val in dict_or_list:
@@ -63,6 +62,7 @@ def convert_to_jsonable(dict_or_list) -> (list, dict):
                     jsonable_dict.append(val)
                 finally:
                     f.close()
+        return jsonable_dict
 
     elif isinstance(dict_or_list, dict):
         jsonable_dict = dict()
@@ -74,14 +74,17 @@ def convert_to_jsonable(dict_or_list) -> (list, dict):
                 f = open(os.devnull, 'w')
                 try:
                     json.dump([val], f)
-                    f.close()
                 except TypeError:
                     jsonable_dict[key] = str(val)
+                except ValueError:
+                    print("!!!!!!", key, val, flush=True)
+                    raise ValueError
+
                 else:
                     jsonable_dict[key] = val
                 finally:
                     f.close()
-    return jsonable_dict
+        return jsonable_dict
 
 
 def convert_dict_to_csv(log_dict):
