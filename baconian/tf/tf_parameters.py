@@ -16,7 +16,7 @@ class ParametersWithTensorflowVariable(Parameters):
                  default_save_type='tf',
                  source_config=None,
                  to_scheduler_param_tuple: list = None,
-                 save_rest_param_flag=False,
+                 save_rest_param_flag=True,
                  to_ph_parameter_dict: dict = None,
                  require_snapshot=False):
         super(ParametersWithTensorflowVariable, self).__init__(parameters=rest_parameters,

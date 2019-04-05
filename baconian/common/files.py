@@ -3,6 +3,7 @@ import os
 import numpy as np
 import shutil
 import pandas as pd
+from baconian.common.error import *
 
 
 def create_path(path, del_if_existed=True):
@@ -22,15 +23,59 @@ def load_json(file_path) -> (dict, list):
         return res
 
 
-def save_to_json(dict, path=None, fp=None, file_name=None):
+def check_dir(path):
+    if os.path.isdir(path) is False:
+        raise LogPathOrFileNotExistedError('{} not existed'.format(path))
+
+
+def check_file(path):
+    if os.path.isfile(path) is False:
+        raise LogPathOrFileNotExistedError('{} not existed'.format(path))
+
+
+def save_to_json(obj: (list, dict), path=None, fp=None, file_name=None):
+    jsonable_dict = convert_to_jsonable(dict_or_list=obj)
     if fp:
-        json.dump(obj=dict, fp=fp, indent=4, sort_keys=True)
+        json.dump(obj=jsonable_dict, fp=fp, indent=4, sort_keys=True)
         fp.close()
     else:
         if file_name is not None:
             path = os.path.join(path, file_name)
         with open(path, 'w') as f:
-            json.dump(obj=dict, fp=f, indent=4, sort_keys=True)
+            json.dump(obj=obj, fp=f, indent=4, sort_keys=True)
+
+
+def convert_to_jsonable(dict_or_list) -> (list, dict):
+    jsonable_dict = None
+    if isinstance(dict_or_list, list):
+        jsonable_dict = []
+        for val in dict_or_list:
+            if isinstance(val, (dict, list)):
+                res = convert_to_jsonable(dict_or_list=val)
+                jsonable_dict.append(res)
+            else:
+                with open(os.devnull, 'w') as f:
+                    try:
+                        json.dump([val], f)
+                    except TypeError:
+                        jsonable_dict.append(str(val))
+                    else:
+                        jsonable_dict.append(val)
+    elif isinstance(dict_or_list, dict):
+        jsonable_dict = dict()
+        for key, val in dict_or_list.items():
+            if isinstance(val, (dict, list)):
+                res = convert_to_jsonable(dict_or_list=val)
+                jsonable_dict[key] = res
+            else:
+                with open(os.devnull, 'w') as f:
+                    try:
+                        json.dump([val], f)
+                    except TypeError:
+                        jsonable_dict[key] = str(val)
+                    else:
+                        jsonable_dict[key] = val
+    return jsonable_dict
 
 
 def convert_dict_to_csv(log_dict):
@@ -41,26 +86,4 @@ def convert_dict_to_csv(log_dict):
     :return: list, as the dict as each element with
     {'csv_file_name', 'csv_keys', 'csv_row_data'}
     """
-    for val in log_dict:
-        pass
-
-# def numpy_to_json_serializable(source_log_content):
-#     if isinstance(source_log_content, dict):
-#         res = {}
-#         for key, val in source_log_content.items():
-#             if not isinstance(key, str):
-#                 raise NotImplementedError('Not support the key of non-str type')
-#             res[key] = numpy_to_json_serializable(val)
-#         return res
-#     elif isinstance(source_log_content, (list, tuple)):
-#         res = []
-#         for val in source_log_content:
-#             res.append(numpy_to_json_serializable(val))
-#         return res
-#
-#     elif isinstance(source_log_content, np.generic):
-#         return source_log_content.item()
-#     elif isinstance(source_log_content, np.generic):
-#         return source_log_content.item()
-#     else:
-#         return source_log_content
+    raise NotImplementedError

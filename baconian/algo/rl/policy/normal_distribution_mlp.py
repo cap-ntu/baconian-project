@@ -12,6 +12,11 @@ from baconian.tf.util import *
 from baconian.algo.rl.utils import _get_copy_arg_with_tf_reuse
 from baconian.algo.placeholder_input import PlaceholderInput
 
+"""
+logvar and logvar_speed is referred from https://github.com/pat-coady/trpo
+
+"""
+
 
 class NormalDistributionMLPPolicy(StochasticPolicy, PlaceholderInput):
 
@@ -37,6 +42,16 @@ class NormalDistributionMLPPolicy(StochasticPolicy, PlaceholderInput):
         self.output_high = output_high
         self.mlp_config = mlp_config
         self.name_scope = name_scope
+
+        mlp_kwargs = dict(
+            reuse=reuse,
+            input_norm=input_norm,
+            output_norm=output_norm,
+            output_low=output_low,
+            output_high=output_high,
+            mlp_config=mlp_config,
+            name_scope=name_scope
+        )
         ph_inputs = []
         if distribution_tensors_tuple is not None:
             self.mean_output = distribution_tensors_tuple[0][0]
@@ -49,18 +64,11 @@ class NormalDistributionMLPPolicy(StochasticPolicy, PlaceholderInput):
                 self.state_input = tf.placeholder(shape=[None, obs_dim], dtype=tf.float32, name='state_ph')
                 ph_inputs.append(self.state_input)
             self.mlp_net = MLP(input_ph=self.state_input,
-                               reuse=reuse,
-                               input_norm=input_norm,
-                               output_norm=output_norm,
-                               output_low=output_low,
-                               output_high=output_high,
                                net_name='normal_distribution_mlp_policy',
-                               mlp_config=mlp_config,
-                               name_scope=name_scope)
+                               **mlp_kwargs)
             self.mean_output = self.mlp_net.output
             with tf.variable_scope(name_scope, reuse=reuse):
                 with tf.variable_scope('norm_dist', reuse=reuse):
-                    # logvar and logvar_speed is referred from https://github.com/pat-coady/trpo
                     logvar_speed = (10 * self.mlp_config[-2]['N_UNITS']) // 48
                     logvar_output = tf.get_variable(name='normal_distribution_variance',
                                                     shape=[logvar_speed, self.mlp_config[-1]['N_UNITS']],
@@ -91,9 +99,10 @@ class NormalDistributionMLPPolicy(StochasticPolicy, PlaceholderInput):
         self.parameters = ParametersWithTensorflowVariable(tf_var_list=sorted(list(set(var_list)),
                                                                               key=lambda x: x.name),
                                                            rest_parameters=dict(
-                                                   state_input=self.state_input,
-                                                   action_input=self.action_input
-                                               ),
+                                                               state_input=self.state_input,
+                                                               action_input=self.action_input,
+                                                               **mlp_kwargs
+                                                           ),
                                                            name='normal_distribution_mlp_tf_param')
         PlaceholderInput.__init__(self, parameters=self.parameters, inputs=tuple(ph_inputs))
 
@@ -126,12 +135,6 @@ class NormalDistributionMLPPolicy(StochasticPolicy, PlaceholderInput):
                                                       mlp_config=self.mlp_config,
                                                       **kwargs)
         return copy_mlp_policy
-
-    #
-    # def init(self, source_obj=None):
-    #     self.parameters.init()
-    #     if source_obj:
-    #         self.copy_from(obj=source_obj)
 
     def compute_dist_info(self, name, sess=None, **kwargs) -> np.ndarray:
         assert name in ['log_prob', 'prob', 'entropy', 'kl']

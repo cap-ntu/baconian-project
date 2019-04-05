@@ -31,12 +31,14 @@ class Plotter(object):
                   'darkkhaki', 'mediumblue', 'beige', 'blanchedalmond', 'lightsalmon', 'lemonchiffon', 'navajowhite',
                   'darkslateblue', 'lightcoral', 'rosybrown', 'fuchsia', 'peachpuff']
 
-    def __init__(self):
+    @staticmethod
+    def plot_reward_over_single_exp(path_list, save_flag=True, train_reward_flag=False, title=None, fig_id=0,
+                                    save_path=None):
         pass
 
     @staticmethod
-    def plot_multiple_target_agent_reward_no_show(path_list, save_flag=True, title=None, fig_id=0, label=' ',
-                                                  save_path=None, assemble_flag=True):
+    def plot_reward_over_duplicate_exp(path_list, train_reward_flag=False, save_flag=True, title=None, fig_id=0,
+                                       save_path=None):
 
         plt.figure(fig_id)
         if title:
@@ -46,13 +48,7 @@ class Plotter(object):
         for i in range(len(path_list)):
             test_reward = []
             real_env_sample_count_index = []
-            if ('assemble' in path_list[i] or 'ensemble' in path_list[i]) and assemble_flag is True:
-                for file_i in glob.glob(path_list[i] + '/loss/*BEST_AGENT_TEST_REWARD.json'):
-                    file_name = file_i
-                    print("Assemble file found %s" % file_name)
-                assert file_name is not None
-            else:
-                file_name = path_list[i] + '/loss/TargetAgent_test_.log'
+            file_name = path_list[i] + '/loss/TargetAgent_test_.log'
 
             with open(file=file_name, mode='r') as f:
                 test_data = json.load(fp=f)

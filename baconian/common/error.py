@@ -20,3 +20,11 @@ class MemoryBufferLessThanBatchSizeError(BaconianError):
 
 class InappropriateParameterSetting(BaconianError):
     pass
+
+
+class DuplicatedRegisteredError(BaconianError):
+    pass
+
+
+class LogPathOrFileNotExistedError(BaconianError):
+    pass

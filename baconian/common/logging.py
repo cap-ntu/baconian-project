@@ -10,7 +10,6 @@ from baconian.common import files as files
 from baconian.core.global_var import get_all
 from baconian.config.global_config import GlobalConfig
 from functools import wraps
-
 """
 Logger Module
 1. a global console output file
@@ -181,7 +180,10 @@ class _SingletonLogger(BaseLogger):
         for obj_name, obj in get_all()['_global_name_dict'].items():
             if hasattr(obj, 'get_status') and callable(getattr(obj, 'get_status')):
                 tmp_dict = dict()
-                tmp_dict[obj_name] = obj.get_status()
+                tmp_dict[obj_name] = dict()
+                for st in obj.STATUS_LIST:
+                    obj.set_status(st)
+                    tmp_dict[obj_name][st] = obj.get_status()
                 final_status = {**final_status, **tmp_dict}
         ConsoleLogger().print('info', 'save final_status into {}'.format(os.path.join(
             self._record_file_log_dir)))

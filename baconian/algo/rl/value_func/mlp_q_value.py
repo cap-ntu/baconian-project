@@ -43,18 +43,23 @@ class MLPQValueFunction(ValueFunction, PlaceholderInput):
                 name='action_ph')
         with tf.variable_scope(name_scope):
             mlp_input_ph = tf.concat([state_input, action_input], axis=1, name='state_action_input')
-
+        mlp_net_kwargs = dict(
+            reuse=reuse,
+            mlp_config=mlp_config,
+            input_norm=input_norm,
+            output_norm=output_norm,
+            output_high=output_high,
+            output_low=output_low,
+            name_scope=name_scope,
+        )
         mlp_net = MLP(input_ph=mlp_input_ph,
-                      reuse=reuse,
-                      mlp_config=mlp_config,
-                      input_norm=input_norm,
-                      output_norm=output_norm,
-                      output_high=output_high,
-                      output_low=output_low,
-                      name_scope=name_scope,
-                      net_name='mlp')
+                      net_name='mlp',
+                      **mlp_net_kwargs)
         parameters = ParametersWithTensorflowVariable(tf_var_list=mlp_net.var_list,
-                                                      rest_parameters=dict(),
+                                                      rest_parameters=dict(
+                                                          **mlp_net_kwargs,
+                                                          name=name
+                                                      ),
                                                       default_save_type='tf',
                                                       name='{}_tf_param'.format(name))
         ValueFunction.__init__(self,

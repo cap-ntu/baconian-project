@@ -38,17 +38,20 @@ class MLPVValueFunc(ValueFunction, PlaceholderInput):
                 name='state_ph')
 
         mlp_input_ph = state_input
+        mlp_kwargs = dict(
+            reuse=reuse,
+            mlp_config=mlp_config,
+            input_norm=input_norm,
+            output_norm=output_norm,
+            output_high=output_high,
+            output_low=output_low,
+            name_scope=name_scope
+        )
         mlp_net = MLP(input_ph=mlp_input_ph,
-                      reuse=reuse,
-                      mlp_config=mlp_config,
-                      input_norm=input_norm,
-                      output_norm=output_norm,
-                      output_high=output_high,
-                      output_low=output_low,
-                      name_scope=name_scope,
-                      net_name='mlp')
+                      net_name='mlp',
+                      **mlp_kwargs)
         parameters = ParametersWithTensorflowVariable(tf_var_list=mlp_net.var_list,
-                                                      rest_parameters=dict(state_input=state_input),
+                                                      rest_parameters=mlp_kwargs,
                                                       name='mlp_v_value_function_tf_param')
         ValueFunction.__init__(self,
                                env_spec=env_spec,

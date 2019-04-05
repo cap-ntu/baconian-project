@@ -17,7 +17,6 @@ class ConstantActionPolicy(DeterministicPolicy):
         assert env_spec.action_space.contains(x=config('ACTION_VALUE'))
         super().__init__(env_spec, parameters, name)
         self.config = config
-        self.config_or_config_dict = config_or_config_dict
 
     def forward(self, *args, **kwargs):
         action = self.env_spec.action_space.unflatten(self.parameters('ACTION_VALUE'))
@@ -31,5 +30,5 @@ class ConstantActionPolicy(DeterministicPolicy):
 
     def make_copy(self, *args, **kwargs):
         return ConstantActionPolicy(env_spec=self.env_spec,
-                                    config_or_config_dict=deepcopy(self.config_or_config_dict),
+                                    config_or_config_dict=deepcopy(self.config),
                                     *args, **kwargs)

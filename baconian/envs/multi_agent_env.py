@@ -1,5 +1,8 @@
 from baconian.core.core import Env, Basic
 import gym
+from baconian.core.agent import Agent
+from typeguard import typechecked
+from baconian.common.error import *
 
 
 class MultiAgentEnv(gym.Env, Basic):
@@ -10,9 +13,10 @@ class MultiAgentEnv(gym.Env, Basic):
     Abstract class for multi agent environment
     """
 
-    def __init__(self, agent_count: int, name: str, status=None):
+    def __init__(self, name: str, status=None):
         super().__init__(name, status)
-        self.agent_count = agent_count
+        self._registered_agent_list = []
+        self._registered_agent_name_list = []
 
     def step(self, action):
         pass
@@ -28,3 +32,10 @@ class MultiAgentEnv(gym.Env, Basic):
 
     def get_state(self):
         pass
+
+    @typechecked
+    def register_agent(self, agent: Agent):
+        if agent.name in self._registered_agent_name_list:
+            raise DuplicatedRegisteredError('Agent {} already registered'.format(agent.name))
+        self._registered_agent_list.append(agent)
+        self._registered_agent_name_list.append(agent.name)

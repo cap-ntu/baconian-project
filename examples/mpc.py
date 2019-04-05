@@ -101,8 +101,7 @@ def task_fn():
     experiment.run()
 
 
-if __name__ == '__main__':
-    from baconian.core.experiment_runner import single_exp_runner
+from baconian.core.experiment_runner import single_exp_runner
 
-    GlobalConfig.set('DEFAULT_LOG_PATH', './log_path')
-    single_exp_runner(task_fn, gpu_id=3)
+GlobalConfig.set('DEFAULT_LOG_PATH', './log_path')
+single_exp_runner(task_fn, gpu_id=3)

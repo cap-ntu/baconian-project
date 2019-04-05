@@ -12,6 +12,7 @@ from baconian.core.experiment import Experiment
 from baconian.core.pipelines.train_test_flow import TrainTestFlow
 from baconian.config.global_config import GlobalConfig
 from baconian.core.status import get_global_status_collect
+from baconian.common.schedules import PeriodicalEventSchedule
 
 
 def task_fn():
@@ -86,6 +87,10 @@ def task_fn():
     )
     agent = Agent(env=env, env_spec=env_spec,
                   algo=ddpg,
+                  algo_saving_scheduler=PeriodicalEventSchedule(
+                      t_fn=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
+                      trigger_every_step=20,
+                      after_t=10),
                   name=name + '_agent',
                   exploration_strategy=EpsilonGreedy(action_space=env_spec.action_space,
                                                      init_random_prob=0.5))
@@ -124,8 +129,7 @@ def task_fn():
     experiment.run()
 
 
-if __name__ == '__main__':
-    from baconian.core.experiment_runner import single_exp_runner
+from baconian.core.experiment_runner import single_exp_runner
 
-    GlobalConfig.set('DEFAULT_LOG_PATH', './log_path')
-    single_exp_runner(task_fn)
+GlobalConfig.set('DEFAULT_LOG_PATH', './log_path')
+single_exp_runner(task_fn)

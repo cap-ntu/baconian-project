@@ -62,6 +62,7 @@ class Parameters(object):
     def save(self, save_path, global_step, name=None, default_save_param=None, *args, **kwargs):
         if default_save_param is None:
             default_save_param = dict(_parameters=self._parameters, _source_config=self._source_config.config_dict)
+            # default_save_param = dict(**self._parameters, **self._source_config.config_dict)
         if not name:
             name = self.name
         Logger().out_to_file(file_path=save_path,

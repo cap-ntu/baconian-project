@@ -34,14 +34,14 @@ class MLP(object):
                                                                                         output_norm=output_norm)
         for var in self.var_list:
             assert name_scope in var.name
-        self.parameters = ParametersWithTensorflowVariable(tf_var_list=self.var_list,
-                                                           name='parameters_{}'.format(self.mlp_net_name),
-                                                           rest_parameters=dict())
+        self._parameters = ParametersWithTensorflowVariable(tf_var_list=self.var_list,
+                                                            name='parameters_{}'.format(self.mlp_net_name),
+                                                            rest_parameters=dict())
 
     def forward(self, input: np.ndarray, sess=tf.get_default_session()) -> np.ndarray:
         feed_dict = {
             self.input_ph: input,
-            **self.parameters.return_tf_parameter_feed_dict()
+            **self._parameters.return_tf_parameter_feed_dict()
         }
         res = sess.run(self.output,
                        feed_dict=feed_dict)
@@ -50,10 +50,10 @@ class MLP(object):
     def copy_from(self, obj) -> bool:
         if not isinstance(obj, type(self)):
             raise TypeError('Wrong type of obj %s to be copied, which should be %s' % (type(obj), type(self)))
-        self.parameters.copy_from(source_parameter=obj.parameters)
+        self._parameters.copy_from(source_parameter=obj._parameters)
         return True
 
     def init(self, source_obj=None):
-        self.parameters.init()
+        self._parameters.init()
         if source_obj:
             self.copy_from(obj=source_obj)

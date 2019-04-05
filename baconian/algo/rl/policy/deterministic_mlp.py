@@ -28,19 +28,24 @@ class DeterministicMLPPolicy(DeterministicPolicy, PlaceholderInput):
 
         with tf.variable_scope(name_scope):
             state_input = tf.placeholder(shape=[None, obs_dim], dtype=tf.float32, name='state_ph')
+
+        mlp_kwargs = dict(
+            reuse=reuse,
+            input_norm=input_norm,
+            output_norm=output_norm,
+            output_low=output_low,
+            output_high=output_high,
+            mlp_config=mlp_config,
+            name_scope=name_scope
+        )
+
         mlp_net = MLP(input_ph=state_input,
-                      reuse=reuse,
-                      input_norm=input_norm,
-                      output_norm=output_norm,
-                      output_low=output_low,
-                      output_high=output_high,
-                      net_name='deterministic_mlp_policy',
-                      mlp_config=mlp_config,
-                      name_scope=name_scope)
+                      **mlp_kwargs,
+                      net_name='deterministic_mlp_policy')
 
         PlaceholderInput.__init__(self, inputs=state_input, parameters=None)
         self.parameters = ParametersWithTensorflowVariable(tf_var_list=mlp_net.var_list,
-                                                           rest_parameters=dict(),
+                                                           rest_parameters=mlp_kwargs,
                                                            name='deterministic_mlp_policy_tf_param')
         self.state_input = state_input
         self.mlp_net = mlp_net
@@ -83,11 +88,6 @@ class DeterministicMLPPolicy(DeterministicPolicy, PlaceholderInput):
                                                  mlp_config=self.mlp_config,
                                                  **kwargs)
         return copy_mlp_policy
-
-    # def init(self, source_obj=None):
-    #     self.parameters.init()
-    #     if source_obj:
-    #         self.copy_from(obj=source_obj)
 
     def save(self, *args, **kwargs):
         return PlaceholderInput.save(self, *args, **kwargs)

@@ -107,6 +107,9 @@ class GlobalConfig(_DefaultGlobalConfig):
                                                                                                  type(
                                                                                                      val).__name__))
             setattr(GlobalConfig, key, val)
+            # todo: solve the config dependence issue here
+            if key == 'DEFAULT_LOG_PATH':
+                GlobalConfig.set('DEFAULT_MODEL_CHECKPOINT_PATH', os.path.join(val, 'model_checkpoints'))
         else:
             setattr(GlobalConfig, key, val)
 
