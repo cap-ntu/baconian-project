@@ -8,12 +8,32 @@ from baconian.core.status import *
 
 
 class Flow(abc.ABC):
+    required_func = ()
+    required_key_dict = dict()
+
+    def __init__(self, func_dict):
+        self.func_dict = func_dict
+        for key in self.required_func:
+            assert key in func_dict
+
     def launch(self) -> bool:
+        try:
+            return self._launch()
+        except GlobalConfig.DEFAULT_ALLOWED_EXCEPTION_OR_ERROR_LIST as e:
+            ConsoleLogger().print('error', 'error {} occurred'.format(e))
+            return False
+
+    def _launch(self) -> bool:
         raise NotImplementedError
+
+    def _call_func(self, key, **extra_kwargs):
+        return self.func_dict[key]['func'](*self.func_dict[key]['args'],
+                                           **extra_kwargs,
+                                           **self.func_dict[key]['kwargs'])
 
 
 class TrainTestFlow(Flow):
-    required_func = ['train', 'test', 'sample']
+    required_func = ('train', 'test', 'sample')
     required_key_dict = {
         "TEST_EVERY_SAMPLE_COUNT": 1000,
         "TRAIN_EVERY_SAMPLE_COUNT": 1000,
@@ -26,9 +46,7 @@ class TrainTestFlow(Flow):
                  config_or_config_dict: (DictConfig, dict),
                  func_dict: dict,
                  ):
-        for key in self.required_func:
-            assert key in func_dict
-        self.func_dict = func_dict
+        super(TrainTestFlow, self).__init__(func_dict=func_dict)
         config = construct_dict_config(config_or_config_dict, obj=self)
         self.parameters = Parameters(source_config=config, parameters=dict())
         self.time_step_func = train_sample_count_func
@@ -36,30 +54,22 @@ class TrainTestFlow(Flow):
         self.last_test_point = -1
         assert callable(train_sample_count_func)
 
-    def launch(self) -> bool:
-        try:
-            while True:
-                self._call_func('sample')
-                if self.time_step_func() - self.parameters(
-                        'TRAIN_EVERY_SAMPLE_COUNT') >= self.last_train_point and self.time_step_func() > self.parameters(
-                    'START_TRAIN_AFTER_SAMPLE_COUNT'):
-                    self.last_train_point = self.time_step_func()
-                    self._call_func('train')
-                if self.time_step_func() - self.parameters(
-                        'TEST_EVERY_SAMPLE_COUNT') >= self.last_test_point and self.time_step_func() > self.parameters(
-                    'START_TEST_AFTER_SAMPLE_COUNT'):
-                    self.last_test_point = self.time_step_func()
-                    self._call_func('test')
-                if self._is_ended() is True:
-                    break
-            return True
-        except GlobalConfig.DEFAULT_ALLOWED_EXCEPTION_OR_ERROR_LIST as e:
-            ConsoleLogger().print('error', 'error {} occurred'.format(e))
-            return False
-
-    def _call_func(self, key):
-        return self.func_dict[key]['func'](*self.func_dict[key]['args'],
-                                           **self.func_dict[key]['kwargs'])
+    def _launch(self) -> bool:
+        while True:
+            self._call_func('sample')
+            if self.time_step_func() - self.parameters(
+                    'TRAIN_EVERY_SAMPLE_COUNT') >= self.last_train_point and self.time_step_func() > self.parameters(
+                'START_TRAIN_AFTER_SAMPLE_COUNT'):
+                self.last_train_point = self.time_step_func()
+                self._call_func('train')
+            if self.time_step_func() - self.parameters(
+                    'TEST_EVERY_SAMPLE_COUNT') >= self.last_test_point and self.time_step_func() > self.parameters(
+                'START_TEST_AFTER_SAMPLE_COUNT'):
+                self.last_test_point = self.time_step_func()
+                self._call_func('test')
+            if self._is_ended() is True:
+                break
+        return True
 
     def _is_ended(self):
         key_founded_flag = False

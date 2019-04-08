@@ -19,7 +19,7 @@ from baconian.core.core import Env
 from baconian.core.agent import Agent
 from baconian.common.logging import Recorder
 from baconian.core.status import *
-from baconian.core.pipelines.train_test_flow import Flow
+from baconian.core.flow.train_test_flow import Flow
 from baconian.core.global_var import reset_all as reset_global_var
 from baconian.common.logging import reset_logging
 

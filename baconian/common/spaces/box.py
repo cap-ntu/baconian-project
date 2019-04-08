@@ -32,7 +32,7 @@ class Box(Space):
 
     def contains(self, x):
         return (x.shape == self.shape and (x >= self.low).all() and (
-                x <= self.high).all()).item()
+                x <= self.high).all())
 
     @property
     def shape(self):

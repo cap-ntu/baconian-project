@@ -21,7 +21,7 @@ from baconian.algo.rl.policy.random_policy import UniformRandomPolicy
 from baconian.core.agent import Agent
 from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
 from baconian.core.experiment import Experiment
-from baconian.core.pipelines.train_test_flow import TrainTestFlow
+from baconian.core.flow.train_test_flow import TrainTestFlow
 from baconian.algo.rl.model_based.dyna import Dyna
 from baconian.common.schedules import *
 from baconian.core.status import *
@@ -30,6 +30,7 @@ from baconian.algo.dynamics.random_dynamics_model import UniformRandomDynamicsMo
 from baconian.common.noise import *
 from baconian.algo.dynamics.gaussian_process_dynamiocs_model import GaussianProcessDyanmicsModel
 from baconian.common.sampler.sampler import Sampler
+from baconian.core.flow.dyna_flow import DynaFlow
 
 
 class Foo(Basic):
@@ -378,7 +379,7 @@ class ClassCreatorSetup(unittest.TestCase):
                                                               initial_p=1.0)),
                       name=name,
                       algo_saving_scheduler=PeriodicalEventSchedule(
-                          t_fn=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
+                          t_fn=lambda: get_global_status_collect()('TOTAL_ENV_STEP_TRAIN_SAMPLE_COUNT'),
                           trigger_every_step=20,
                           after_t=10),
                       exploration_strategy=eps)
@@ -387,7 +388,7 @@ class ClassCreatorSetup(unittest.TestCase):
     def create_train_test_flow(self, agent):
 
         flow = TrainTestFlow(
-            train_sample_count_func=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
+            train_sample_count_func=lambda: get_global_status_collect()('TOTAL_ENV_STEP_TRAIN_SAMPLE_COUNT'),
             config_or_config_dict={
                 "TEST_EVERY_SAMPLE_COUNT": 10,
                 "TRAIN_EVERY_SAMPLE_COUNT": 10,
@@ -407,27 +408,73 @@ class ClassCreatorSetup(unittest.TestCase):
                            'args': list(),
                            'kwargs': dict(sample_count=100,
                                           env=agent.env,
-                                          in_test_flag=False,
+                                          in_which_status='TRAIN',
                                           store_flag=True),
                            },
             }
         )
         return flow
 
-    def create_exp(self, name, env, agent):
+    def create_dyna_flow(self, agent):
+        flow = DynaFlow(
+            train_sample_count_func=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
+            config_or_config_dict={
+                "TEST_ALGO_EVERY_REAL_SAMPLE_COUNT": 10,
+                "TEST_DYNAMICS_EVERY_REAL_SAMPLE_COUNT": 10,
+                "TRAIN_ALGO_EVERY_REAL_SAMPLE_COUNT": 10,
+                "TRAIN_DYNAMICS_EVERY_REAL_SAMPLE_COUNT": 10,
+                "START_TRAIN_ALGO_AFTER_SAMPLE_COUNT": 1,
+                "START_TRAIN_DYNAMICS_AFTER_SAMPLE_COUNT": 1,
+                "START_TEST_ALGO_AFTER_SAMPLE_COUNT": 1,
+                "START_TEST_DYNAMICS_AFTER_SAMPLE_COUNT": 1,
+                "WARM_UP_DYNAMICS_SAMPLES": 1
+            },
+            func_dict={
+                'train_algo': {'func': agent.train,
+                               'args': list(),
+                               'kwargs': dict(state='state_agent_training')},
+                'train_algo_from_synthesized_data': {'func': agent.train,
+                                                     'args': list(),
+                                                     'kwargs': dict(state='state_agent_training')},
+                'train_dynamics': {'func': agent.train,
+                                   'args': list(),
+                                   'kwargs': dict(state='state_dynamics_training')},
+                'test_algo': {'func': agent.test,
+                              'args': list(),
+                              'kwargs': dict(sample_count=10)},
+                'test_dynamics': {'func': agent.algo.test_dynamics,
+                                  'args': list(),
+                                  'kwargs': dict(sample_count=10)},
+                'sample_from_real_env': {'func': agent.sample,
+                                         'args': list(),
+                                         'kwargs': dict(sample_count=10,
+                                                        env=agent.env,
+                                                        in_which_status='TRAIN',
+                                                        store_flag=True)},
+                'sample_from_dynamics_env': {'func': agent.sample,
+                                             'args': list(),
+                                             'kwargs': dict(sample_count=10,
+                                                            env=agent.algo.dynamics_env,
+                                                            in_which_status='TRAIN',
+                                                            store_flag=True)}
+            }
+        )
+        return flow, locals()
+
+    def create_exp(self, name, env, agent, flow=None):
         experiment = Experiment(
             tuner=None,
             env=env,
             agent=agent,
-            flow=self.create_train_test_flow(agent),
+            flow=self.create_train_test_flow(agent) if not flow else flow,
             name=name + 'experiment_debug'
         )
         return experiment
 
-    def create_sample_with_model_algo(self, env_spec=None, model_free_algo=None, dyanmics_model=None,
-                                      name='sample_with_model'):
+    def create_dyna(self, env_spec=None, model_free_algo=None, dyanmics_model=None,
+                    name='dyna'):
         if not env_spec:
-            model_free_algo, local = self.create_dqn()
+            model_free_algo, local = self.create_ddpg()
             dyanmics_model, _ = self.create_continuous_mlp_global_dynamics_model(env_spec=local['env_spec'])
             env_spec = local['env_spec']
             env = local['env']
@@ -435,6 +482,8 @@ class ClassCreatorSetup(unittest.TestCase):
                     name=name,
                     model_free_algo=model_free_algo,
                     dynamics_model=dyanmics_model,
+                    reward_func=RandomRewardFunc(),
+                    terminal_func=RandomTerminalFunc(),
                     config_or_config_dict=dict(
                         dynamics_model_train_iter=1,
                         model_free_algo_train_iter=1

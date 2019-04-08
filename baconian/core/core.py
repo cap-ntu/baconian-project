@@ -64,8 +64,8 @@ class Env(gym.Env, Basic):
     Abstract class for environment
     """
     key_list = []
-    STATUS_LIST = ['JUST_RESET', 'JUST_INITED', 'TRAIN', 'TEST', 'NOT_INITED']
-    INIT_STATUS = 'NOT_INITED'
+    STATUS_LIST = ['JUST_RESET', 'JUST_INITED', 'TRAIN', 'TEST', 'NOT_INIT']
+    INIT_STATUS = 'NOT_INIT'
 
     @typechecked
     def __init__(self, name: str = 'env'):

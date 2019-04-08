@@ -6,7 +6,6 @@ install:
   - pip install -e .
 
 script:
-  - echo $PYTHONPATH
   - pytest baconian/test/
   - pytest examples/
 branches:

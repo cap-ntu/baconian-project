@@ -22,9 +22,9 @@ class TestStatus(TestWithAll):
         a.register_info_key_status(obj=agent, info_key='predict_counter', under_status='TEST',
                                    return_name='test_counter')
         env.reset()
-        agent.sample(env=env, sample_count=10, store_flag=True, in_test_flag=False)
-        agent.sample(env=env, sample_count=10, store_flag=True, in_test_flag=True)
-        agent.sample(env=env, sample_count=10, store_flag=True, in_test_flag=False)
+        agent.sample(env=env, sample_count=10, store_flag=True, in_which_status='TRAIN')
+        agent.sample(env=env, sample_count=10, store_flag=True, in_which_status='TEST')
+        agent.sample(env=env, sample_count=10, store_flag=True, in_which_status='TRAIN')
 
         res = a()
         self.assertTrue(len(res) == 2)

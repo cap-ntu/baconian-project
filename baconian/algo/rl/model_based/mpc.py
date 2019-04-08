@@ -36,7 +36,7 @@ class ModelPredictiveControl(ModelBasedAlgo):
     def init(self, source_obj=None):
         super().init()
         self.parameters.init()
-        self.dynamics_model.init()
+        self._dynamics_model.init()
         self.policy.init()
         if source_obj:
             self.copy_from(source_obj)
@@ -56,8 +56,8 @@ class ModelPredictiveControl(ModelBasedAlgo):
         return super().test(*arg, **kwargs)
 
     def _fit_dynamics_model(self, batch_data: TransitionData, train_iter, sess=None) -> dict:
-        res_dict = self.dynamics_model.train(batch_data, **dict(sess=sess,
-                                                                train_iter=train_iter))
+        res_dict = self._dynamics_model.train(batch_data, **dict(sess=sess,
+                                                                 train_iter=train_iter))
         return res_dict
 
     def predict(self, obs, **kwargs):
@@ -69,7 +69,7 @@ class ModelPredictiveControl(ModelBasedAlgo):
             # todo terminal_func signal problem to be consider?
             for _ in range(self.parameters('SAMPLED_HORIZON')):
                 ac = self.policy.forward(obs=state)
-                new_state = self.dynamics_model.step(action=ac, state=state)
+                new_state = self._dynamics_model.step(action=ac, state=state)
                 re = self.reward_func(state=state, action=ac, new_state=new_state)
                 done = self.terminal_func(state=state, action=ac, new_state=new_state)
                 path.append(state=state, action=ac, new_state=new_state, reward=re, done=done)
@@ -87,7 +87,7 @@ class ModelPredictiveControl(ModelBasedAlgo):
         if not isinstance(obj, type(self)):
             raise TypeError('Wrong type of obj %s to be copied, which should be %s' % (type(obj), type(self)))
         self.parameters.copy_from(obj.parameters)
-        self.dynamics_model.copy_from(obj.dynamics_model)
+        self._dynamics_model.copy_from(obj._dynamics_model)
         ConsoleLogger().print('info', 'model: {} copied from {}'.format(self, obj))
         return True
 
@@ -96,14 +96,14 @@ class ModelPredictiveControl(ModelBasedAlgo):
         save_path = save_path if save_path else GlobalConfig.DEFAULT_MODEL_CHECKPOINT_PATH
         name = name if name else self.name
 
-        self.dynamics_model.save(self, save_path=save_path, global_step=global_step, name=name, **kwargs)
-        self.policy.save(self, save_path=save_path, global_step=global_step, name=name, **kwargs)
+        self._dynamics_model.save(save_path=save_path, global_step=global_step, name=name, **kwargs)
+        self.policy.save(save_path=save_path, global_step=global_step, name=name, **kwargs)
         return dict(check_point_save_path=save_path, check_point_save_global_step=global_step,
                     check_point_save_name=name)
 
     @record_return_decorator(which_recorder='self')
     def load(self, path_to_model, model_name, global_step=None, **kwargs):
-        self.dynamics_model.load(self, path_to_model, model_name, global_step, **kwargs)
-        self.policy.load(self, path_to_model, model_name, global_step, **kwargs)
+        self._dynamics_model.load(path_to_model, model_name, global_step, **kwargs)
+        self.policy.load(path_to_model, model_name, global_step, **kwargs)
         return dict(check_point_load_path=path_to_model, check_point_load_global_step=global_step,
                     check_point_load_name=model_name)

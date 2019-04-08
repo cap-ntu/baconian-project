@@ -6,7 +6,7 @@ from baconian.envs.gym_env import make
 from baconian.core.agent import Agent
 from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
 from baconian.core.experiment import Experiment
-from baconian.core.pipelines.train_test_flow import TrainTestFlow
+from baconian.core.flow.train_test_flow import TrainTestFlow
 from baconian.algo.rl.model_based.mpc import ModelPredictiveControl
 from baconian.algo.dynamics.terminal_func.terminal_func import RandomTerminalFunc
 from baconian.algo.dynamics.reward_func.reward_func import RandomRewardFunc
@@ -87,7 +87,7 @@ def task_fn():
                                         'args': list(),
                                         'kwargs': dict(sample_count=100,
                                                        env=agent.env,
-                                                       in_test_flag=False,
+                                                       in_which_status='TRAIN',
                                                        store_flag=True),
                                         },
                          })

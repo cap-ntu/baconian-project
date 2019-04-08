@@ -27,4 +27,10 @@ class PolicyBasedAlgo(Algo):
 class ModelBasedAlgo(Algo):
     def __init__(self, env_spec, dynamics_model: DynamicsModel, name: str = 'model_based_algo'):
         super(ModelBasedAlgo, self).__init__(env_spec, name)
-        self.dynamics_model = dynamics_model
+        self._dynamics_model = dynamics_model
+
+    def train_dynamics(self, *args, **kwargs):
+        pass
+
+    def test_dynamics(self, *args, **kwargs):
+        pass

@@ -1,18 +1,17 @@
 from baconian.common.sampler.sample_data import TransitionData
 from baconian.test.tests.set_up.setup import TestWithAll
+import numpy as np
 
 
-class TestSampleWithDynamics(TestWithAll):
+class TestDyna(TestWithAll):
 
-    def test_init_discrete(self):
-        dqn, locals = self.create_dqn()
+    def test_init(self):
+        ddpg, locals = self.create_ddpg()
         env_spec = locals['env_spec']
         env = locals['env']
         mlp_dyna = self.create_continuous_mlp_global_dynamics_model(env_spec=env_spec)[0]
-        algo = self.create_sample_with_model_algo(env_spec=env_spec, model_free_algo=dqn, dyanmics_model=mlp_dyna)[0]
+        algo = self.create_dyna(env_spec=env_spec, model_free_algo=ddpg, dyanmics_model=mlp_dyna)[0]
         algo.init()
-        for _ in range(100):
-            assert env_spec.action_space.contains(algo.predict(env_spec.obs_space.sample()))
 
         st = env.reset()
         data = TransitionData(env_spec)
@@ -26,5 +25,13 @@ class TestSampleWithDynamics(TestWithAll):
                         action=ac,
                         done=done)
         algo.append_to_memory(samples=data)
-        for i in range(100):
+        pre_res = 10000
+        for i in range(20):
             print(algo.train(batch_data=data))
+            print(algo.train(batch_data=data, state='state_dynamics_training'))
+            print(algo.train(batch_data=data, state='state_agent_training'))
+            res = algo.test_dynamics(env=env, sample_count=100)
+            self.assertLess(list(res.values())[0], pre_res)
+            self.assertLess(list(res.values())[1], pre_res)
+            print(res)
+        algo.test()

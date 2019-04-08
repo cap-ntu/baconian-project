@@ -12,7 +12,7 @@ from baconian.config.required_keys import SRC_UTIL_REQUIRED_KEYS
 class _DefaultGlobalConfig(object):
     DEFAULT_MAX_TF_SAVER_KEEP = 5
     DEFAULT_ALLOWED_EXCEPTION_OR_ERROR_LIST = (tf.errors.ResourceExhaustedError,)
-    DEFAULT_BASIC_STATUS_LIST = ['TRAIN', 'TEST']
+    DEFAULT_BASIC_STATUS_LIST = ('TRAIN', 'TEST')
     DEFAULT_BASIC_INIT_STATUS = None
 
     # config required key list
@@ -20,8 +20,8 @@ class _DefaultGlobalConfig(object):
     DEFAULT_CONSTANT_ACTION_POLICY_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS,
                                                                     'constant_action_policy.json')
 
-    DEFAULT_ALGO_SAMPLE_WITH_DYNAMICS_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS,
-                                                                       'sample_with_dynamics.json')
+    DEFAULT_ALGO_DYNA_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS,
+                                                       'dyna.json')
     DEFAULT_MODEL_FREE_PIPELINE_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS,
                                                                  'model_free_pipeline.json')
 

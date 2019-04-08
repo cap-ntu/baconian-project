@@ -20,7 +20,7 @@ from baconian.core.parameters import Parameters
 
 
 class Agent(Basic):
-    STATUS_LIST = ['NOT_INIT', 'JUST_INITED', 'TRAIN', 'TEST']
+    STATUS_LIST = ('NOT_INIT', 'JUST_INITED', 'TRAIN', 'TEST')
     INIT_STATUS = 'NOT_INIT'
     required_key_dict = {}
 
@@ -67,7 +67,7 @@ class Agent(Basic):
 
     # @record_return_decorator(which_recorder='self')
     @register_counter_info_to_status_decorator(increment=1, info_key='update_counter', under_status='TRAIN')
-    def train(self):
+    def train(self, *args, **kwargs):
         """
         train the agent
 
@@ -77,7 +77,7 @@ class Agent(Basic):
         self.algo.set_status('TRAIN')
         ConsoleLogger().print('info', 'train agent:')
         try:
-            res = self.algo.train()
+            res = self.algo.train(*args, **kwargs)
         except MemoryBufferLessThanBatchSizeError as e:
             ConsoleLogger().print('warning', 'memory buffer did not have enough data to train, skip training')
             return False
@@ -87,7 +87,6 @@ class Agent(Basic):
         if self.algo_saving_scheduler and self.algo_saving_scheduler.value() is True:
             self.algo.save(global_step=self._status.get_specific_info_key_status(info_key='update_counter',
                                                                                  under_status='TRAIN'))
-        # return dict(average_reward=res.get_mean_of(set_name='reward_set'))
 
     # @record_return_decorator(which_recorder='self')
     def test(self, sample_count, sample_trajectory_flag: bool = False):
@@ -108,89 +107,58 @@ class Agent(Basic):
                                   sample_count=1,
                                   sample_type='trajectory',
                                   store_flag=False,
-                                  in_test_flag=True)
+                                  in_which_status='TEST')
                 self.total_test_samples += len(res)
                 left_sample_count -= len(res)
-                # self.recorder.append_to_obj_log(obj=self, attr_name='average_reward',
-                #                                 status_info=self.get_status(),
-                #                                 log_val=res.get_mean_of('reward_set'))
-                # self.recorder.append_to_obj_log(obj=self, attr_name='sum_reward',
-                #                                 status_info=self.get_status(),
-                #                                 log_val=res.get_sum_of('reward_set'))
 
-                # ConsoleLogger().print('info',
-                #                       "testing sample: mean reward {}, sum reward {}".format(
-                #                           res.get_mean_of(set_name='reward_set'),
-                #                           res.get_sum_of(set_name='reward_set')))
-            # return None
         else:
             res = self.sample(env=self.env,
                               sample_count=sample_count,
                               sample_type='transition',
                               store_flag=False,
-                              in_test_flag=True)
+                              in_which_status='TEST')
             self.total_test_samples += len(res)
-
-            # ConsoleLogger().print('info',
-            #                       "testing sample: mean reward {}, sum reward {}".format(
-            #                           res.get_mean_of(set_name='reward_set'),
-            #                           res.get_sum_of(set_name='reward_set')))
-
-            # return dict(average_reward=res.get_mean_of(set_name='reward_set'),
-            #             sum_reward=res.get_sum_of(set_name='reward_set'))
 
     @register_counter_info_to_status_decorator(increment=1, info_key='predict_counter', under_status=('TRAIN', 'TEST'),
                                                ignore_wrong_status=True)
-    def predict(self, in_test_flag, **kwargs):
+    def predict(self, **kwargs):
         """
         predict the action given the state
-        :param in_test_flag:
         :param kwargs: rest parameters
         :param obs: observation/state
         :return:
         """
-        if in_test_flag:
-            self.set_status('TEST')
-            self.algo.set_status('TEST')
-        else:
-            self.set_status('TRAIN')
-            self.algo.set_status('TRAIN')
-
-        if self.explorations_strategy and not in_test_flag:
+        if self.explorations_strategy and not self.is_testing:
             return self.explorations_strategy.predict(**kwargs, algo=self.algo)
         else:
-            if self.noise_adder and not in_test_flag:
+            if self.noise_adder and not self.is_testing:
                 return self.env_spec.action_space.clip(self.noise_adder(self.algo.predict(**kwargs)))
             else:
                 return self.algo.predict(**kwargs)
 
     @register_counter_info_to_status_decorator(increment=1, info_key='sample_counter', under_status=('TRAIN', 'TEST'),
                                                ignore_wrong_status=True)
-    def sample(self, env, sample_count: int, in_test_flag: bool, store_flag=False, sample_type: str = 'transition') -> (
+    def sample(self, env, sample_count: int, in_which_status: str, store_flag=False,
+               sample_type: str = 'transition') -> (
             TransitionData, TrajectoryData):
         """
         sample a certain number of data from environment
         :param env:
         :param sample_count:
-        :param in_test_flag:
+        :param in_which_status:
         :param store_flag:
         :param sample_type:
         :return:
         """
-        if in_test_flag:
-            self.set_status('TEST')
-            env.set_status('TEST')
-            self.algo.set_status('TEST')
-        else:
-            self.set_status('TRAIN')
-            env.set_status('TRAIN')
-            self.algo.set_status('TRAIN')
+        self.set_status(in_which_status)
+        env.set_status(in_which_status)
+        self.algo.set_status(in_which_status)
         ConsoleLogger().print('info',
                               "agent sampled {} samples under status {}".format(sample_count, self.get_status()))
         batch_data = self.sampler.sample(agent=self,
                                          env=env,
                                          sample_type=sample_type,
-                                         in_test_flag=in_test_flag,
+                                         in_which_status=in_which_status,
                                          sample_count=sample_count)
         if store_flag is True:
             self.store_samples(samples=batch_data)

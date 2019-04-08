@@ -18,7 +18,7 @@ from baconian.core.status import register_counter_info_to_status_decorator, Stat
 
 class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, PlaceholderInput,
                                        TrainableDyanmicsModel):
-    STATUS_LIST = ['NOT_INIT', 'INITED', 'TRAIN']
+    STATUS_LIST = GlobalDynamicsModel.STATUS_LIST + ('TRAIN',)
     INIT_STATUS = 'NOT_INIT'
 
     def __init__(self, env_spec: EnvSpec,
@@ -33,6 +33,7 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
                  output_low: np.ndarray = None,
                  output_high: np.ndarray = None,
                  init_state=None):
+        # todo restrict the action space to box only
         GlobalDynamicsModel.__init__(self,
                                      env_spec=env_spec,
                                      parameters=None,
@@ -103,6 +104,7 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
         self.parameters.init()
         if source_obj:
             self.copy_from(obj=source_obj)
+        GlobalDynamicsModel.init(self)
 
     @register_counter_info_to_status_decorator(increment=1, info_key='step')
     @typechecked

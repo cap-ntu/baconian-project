@@ -9,7 +9,7 @@ from baconian.algo.rl.policy.deterministic_mlp import DeterministicMLPPolicy
 from baconian.core.agent import Agent
 from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
 from baconian.core.experiment import Experiment
-from baconian.core.pipelines.train_test_flow import TrainTestFlow
+from baconian.core.flow.train_test_flow import TrainTestFlow
 from baconian.config.global_config import GlobalConfig
 from baconian.core.status import get_global_status_collect
 from baconian.common.schedules import PeriodicalEventSchedule
@@ -114,7 +114,7 @@ def task_fn():
                                         'args': list(),
                                         'kwargs': dict(sample_count=100,
                                                        env=agent.env,
-                                                       in_test_flag=False,
+                                                       in_which_status='TRAIN',
                                                        store_flag=True),
                                         },
                          })

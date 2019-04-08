@@ -16,28 +16,28 @@ class Sampler(Basic):
     @typechecked
     def sample(self, env: Env,
                agent,
-               in_test_flag: bool,
+               in_which_status: str,
                sample_count: int,
                sample_type='transition',
                reset_at_start=False) -> (TransitionData, TrajectoryData):
-        self.set_status(val='TEST' if in_test_flag else 'TRAIN')
+        self.set_status(in_which_status)
         if reset_at_start is True:
             state = env.reset()
         else:
             state = env.get_state()
         if sample_type == 'transition':
-            return self._sample_transitions(env, agent, sample_count, state, in_test_flag)
+            return self._sample_transitions(env, agent, sample_count, state)
         elif sample_type == 'trajectory':
-            return self._sample_trajectories(env, agent, sample_count, state, in_test_flag)
+            return self._sample_trajectories(env, agent, sample_count, state)
         else:
             raise ValueError()
 
-    def _sample_transitions(self, env: Env, agent, sample_count, init_state, in_test_flag):
+    def _sample_transitions(self, env: Env, agent, sample_count, init_state):
         state = init_state
         sample_record = TransitionData(env_spec=self.env_spec)
 
         for i in range(sample_count):
-            action = agent.predict(obs=state, in_test_flag=in_test_flag)
+            action = agent.predict(obs=state)
             new_state, re, done, info = env.step(action)
             if not isinstance(done, bool):
                 if done[0] == 1:
@@ -55,14 +55,14 @@ class Sampler(Basic):
                 state = new_state
         return sample_record
 
-    def _sample_trajectories(self, env, agent, sample_count, init_state, in_test_flag):
+    def _sample_trajectories(self, env, agent, sample_count, init_state):
         state = init_state
         sample_record = TrajectoryData(self.env_spec)
         done = False
         for i in range(sample_count):
             traj_record = TransitionData(self.env_spec)
             while done is not True:
-                action = agent.predict(obs=state, in_test_flag=in_test_flag)
+                action = agent.predict(obs=state)
                 new_state, re, done, info = env.step(action)
                 if not isinstance(done, bool):
                     if done[0] == 1:

@@ -9,7 +9,7 @@ from baconian.algo.rl.policy.deterministic_mlp import DeterministicMLPPolicy
 from baconian.core.agent import Agent
 from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
 from baconian.core.experiment import Experiment
-from baconian.core.pipelines.train_test_flow import TrainTestFlow
+from baconian.core.flow.train_test_flow import TrainTestFlow
 from baconian.config.global_config import GlobalConfig
 from benchmark.ddpg_bechmark.mountain_car_continuous_conf import *
 from benchmark.ddpg_bechmark.pendulum_conf import *
@@ -90,7 +90,7 @@ def mountiancar_task_fn():
                                         'args': list(),
                                         'kwargs': dict(sample_count=exp_config['TrainTestFlow']['TRAIN_SAMPLES_COUNT'],
                                                        env=agent.env,
-                                                       in_test_flag=False,
+                                                       in_which_status='TRAIN',
                                                        store_flag=True),
                                         },
                          })

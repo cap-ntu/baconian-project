@@ -13,10 +13,10 @@ class TestAgent(TestWithAll):
         self.register_global_status_when_test(agent, env)
         agent.init()
         env.reset()
-        data = agent.sample(env=env, sample_count=10, store_flag=False, in_test_flag=True)
+        data = agent.sample(env=env, sample_count=10, store_flag=False, in_which_status='TEST')
         self.assertTrue(isinstance(data, SampleData))
         self.assertEqual(agent.algo.replay_buffer.nb_entries, 0)
-        data = agent.sample(env=env, sample_count=10, store_flag=True, in_test_flag=False)
+        data = agent.sample(env=env, sample_count=10, store_flag=True, in_which_status='TRAIN')
         self.assertTrue(isinstance(data, SampleData))
         self.assertEqual(agent.algo.replay_buffer.nb_entries, 10)
 

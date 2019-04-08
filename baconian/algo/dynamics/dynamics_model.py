@@ -9,10 +9,14 @@ from baconian.common.logging import Recorder
 from baconian.core.status import register_counter_info_to_status_decorator, StatusWithSingleInfo
 from baconian.common.logging import ConsoleLogger
 from baconian.common.error import *
+from baconian.core.core import EnvSpec, Env
+from baconian.algo.dynamics.reward_func.reward_func import RewardFunc
+from baconian.algo.dynamics.terminal_func.terminal_func import TerminalFunc
+from copy import deepcopy
 
 
 class DynamicsModel(Basic):
-    STATUS_LIST = ['NOT_INIT', 'INITED']
+    STATUS_LIST = ('NOT_INIT', 'JUST_INITED')
     INIT_STATUS = 'NOT_INIT'
 
     def __init__(self, env_spec: EnvSpec, parameters: Parameters = None, init_state=None, name='dynamics_model'):
@@ -31,9 +35,11 @@ class DynamicsModel(Basic):
         self.new_state_output = None
         self.recorder = Recorder(flush_by_split_status=False)
         self._status = StatusWithSingleInfo(obj=self)
+        self.step_count_fn = lambda: self._status.get_specific_info_key_status(info_key='step_counter')
 
     def init(self, *args, **kwargs):
-        self.set_status('INITED')
+        self.set_status('JUST_INITED')
+        self.state = self.env_spec.obs_space.sample()
 
     @register_counter_info_to_status_decorator(increment=1, info_key='step_counter')
     def step(self, action: np.ndarray, state=None, allow_clip=False, **kwargs_for_transit):
@@ -73,6 +79,18 @@ class DynamicsModel(Basic):
 
     def make_copy(self):
         raise NotImplementedError
+
+    def reset_state(self, state=None):
+        if state is not None:
+            assert self.env_spec.obs_space.contains(state)
+            self.state = state
+        else:
+            self.state = self.env_spec.obs_space.sample()
+
+    def return_as_env(self, reward_func, terminal_func):
+        return DynamicsEnvWrapper(dynamics=self, reward_func=reward_func,
+                                  terminal_func=terminal_func,
+                                  name=self._name + '_env')
 
 
 class LocalDyanmicsModel(DynamicsModel):
@@ -155,3 +173,46 @@ class DerivableDynamics(object):
     #
     # def _map_to_expr_node(self, input_node, output_node, func):
     #     return func(output=output_node, input=input_node)
+
+
+class DynamicsEnvWrapper(Env):
+    """
+    A wrapper that wrap the dynamics into a standard baconian env
+    """
+
+    @typechecked
+    def __init__(self, dynamics: DynamicsModel, reward_func: RewardFunc, terminal_func: TerminalFunc,
+                 name: str = 'dynamics_env'):
+        super().__init__(name)
+        self._dynamics = dynamics
+        self._reward_func = reward_func
+        self._terminal_func = terminal_func
+
+    def step(self, action: np.ndarray, **kwargs):
+        super().step(action)
+        state = deepcopy(self.get_state())
+        new_state = self._dynamics.step(action=action, **kwargs)
+        re = self._reward_func(state=state, new_state=new_state, action=action)
+        terminal = self._terminal_func(state=state, action=action, new_state=new_state)
+        return new_state, re, terminal, ()
+
+    def reset(self):
+        self._dynamics.reset_state()
+        return self.get_state()
+
+    def init(self):
+        super().init()
+        self._dynamics.init()
+
+    def get_state(self):
+        return self._dynamics.state
+
+    def seed(self, seed=None):
+        ConsoleLogger().print('warning', 'seed on dynamics model has no effect ')
+        pass
+
+    def save(self, *args, **kwargs):
+        return self._dynamics.save(*args, **kwargs)
+
+    def load(self, *args, **kwargs):
+        return self._dynamics.load(*args, **kwargs)

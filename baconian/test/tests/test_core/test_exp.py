@@ -76,7 +76,15 @@ class TestExperiment(BaseTestCase):
         duplicate_exp_runner(2, func, auto_choose_gpu_flag=False, gpu_id=0)
 
     def test_saving_scheduler_on_all_model_free_algo(self):
-        to_test_algo_func = (self.create_ppo, self.create_dqn, self.create_ddpg,)
+        to_test_algo_func = (self.create_ppo, self.create_dqn, self.create_ddpg)
+        for func in to_test_algo_func:
+            self.setUp()
+            single_exp_runner(_saving_scheduler(self, func), auto_choose_gpu_flag=False, gpu_id=0)
+            self.tearDown()
+
+    def test_saving_scheduler_on_all_model_based_algo(self):
+        to_test_algo_func = (self.create_dyna, self.create_mpc)
+        # to_test_algo_func = (self.create_dyna,)
         for func in to_test_algo_func:
             self.setUp()
             single_exp_runner(_saving_scheduler(self, func), auto_choose_gpu_flag=False, gpu_id=0)
@@ -100,15 +108,11 @@ def _saving_scheduler(self, creat_func=None):
                                       name='agent',
                                       eps=self.create_eps(env_spec)[0],
                                       env_spec=env_spec)[0]
-
-            exp = self.create_exp(name='model_free', env=env, agent=agent)
-            # agent.explorations_strategy.parameters.set_scheduler(param_key='init_random_prob',
-            #                                                      scheduler=PiecewiseSchedule(
-            #                                                          t_fn=lambda: get_global_status_collect()(
-            #                                                              'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
-            #                                                          endpoints=((10, 0.3), (100, 0.1), (200, 0.0)),
-            #                                                          outside_value=0.0
-            #                                                      ))
+            flow = None
+            from baconian.algo.rl.model_based.dyna import Dyna
+            if isinstance(algo, Dyna):
+                flow = self.create_dyna_flow(agent=agent)[0]
+            exp = self.create_exp(name='model_free', env=env, agent=agent, flow=flow)
             exp.run()
             self.assertEqual(exp.TOTAL_AGENT_TEST_SAMPLE_COUNT(), exp.TOTAL_ENV_STEP_TEST_SAMPLE_COUNT())
             self.assertEqual(exp.TOTAL_AGENT_TRAIN_SAMPLE_COUNT(), exp.TOTAL_ENV_STEP_TRAIN_SAMPLE_COUNT(), 500)
