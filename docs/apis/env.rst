@@ -1,4 +1,4 @@
-Baconian Environment Module
+Environment Module
 ===========================
 
 baconian.envs.gym_env

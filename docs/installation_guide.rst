@@ -16,13 +16,13 @@ overwrite some of your packages' version.
 
 .. code-block:: bash
 
-    git clone git@github.com:Lukeeeeee/baconian.git
+    git clone git@github.com:Lukeeeeee/baconian-project.git baconian
     cd path/to/baconian
     pip install -e .
 
 The ``-e`` means "editable", so changes you make to files in the Ray
 directory will take effect without reinstalling the package. In contrast, if
-you do ``python setup.py install``, files will be copied from the Ray
+you do ``python setup.py install``, files will be copied from the Baconian
 directory to a directory of Python packages (often something like
 ``/home/ubuntu/anaconda3/lib/python3.6/site-packages/baconian``). This means that
 changes you make to files in the Baconian directory will not have any effect.

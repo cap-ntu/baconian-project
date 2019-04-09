@@ -51,6 +51,9 @@ extensions = [
     'sphinx.ext.intersphinx',
 ]
 
+# googleanalytics_id = 'UA-138017644-1'
+# googleanalytics_enabled = True
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 

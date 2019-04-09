@@ -15,6 +15,7 @@ We offer some examples on how to better use the baconian in a more practical and
     :caption: Model-Based algorithms examples
 
     ./example/mpc.rst
+    ./example/dyna.rst
     ./example/ilqr_with_non_linear_dynamics.rst
     ./example/lqr_with_linear_dynamics.rst
     ./example/gp_dynamics.rst

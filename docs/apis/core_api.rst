@@ -1,4 +1,4 @@
-Baconian Core module
+Core Module
 =====================
 
 .. py:currentmodule:: baconian.core.core
