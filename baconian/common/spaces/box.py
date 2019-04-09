@@ -31,7 +31,7 @@ class Box(Space):
             size=self.low.shape).astype(np.float32)
 
     def contains(self, x):
-        return (x.shape == self.shape and (x >= self.low).all() and (
+        return bool(x.shape == self.shape and (x >= self.low).all() and (
                 x <= self.high).all())
 
     @property

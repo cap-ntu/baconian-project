@@ -35,7 +35,7 @@ class Dict(Space):
 
         """
         if isinstance(x, dict):
-            return all(item in self.spaces.items() for item in x.items())
+            return bool(all(item in self.spaces.items() for item in x.items()))
         else:
             return False
 

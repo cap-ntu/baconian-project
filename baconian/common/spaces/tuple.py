@@ -25,8 +25,8 @@ class Tuple(Space):
         return self._components
 
     def contains(self, x):
-        return isinstance(x, tuple) and all(
-            c.contains(xi) for c, xi in zip(self._components, x))
+        return bool(isinstance(x, tuple) and all(
+            c.contains(xi) for c, xi in zip(self._components, x)))
 
     @property
     def flat_dim(self):
