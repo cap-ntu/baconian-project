@@ -35,7 +35,6 @@ class DynamicsModel(Basic):
         self.new_state_output = None
         self.recorder = Recorder(flush_by_split_status=False)
         self._status = StatusWithSingleInfo(obj=self)
-        self.step_count_fn = lambda: self._status.get_specific_info_key_status(info_key='step_counter')
 
     def init(self, *args, **kwargs):
         self.set_status('JUST_INITED')
@@ -87,9 +86,8 @@ class DynamicsModel(Basic):
         else:
             self.state = self.env_spec.obs_space.sample()
 
-    def return_as_env(self, reward_func, terminal_func):
-        return DynamicsEnvWrapper(dynamics=self, reward_func=reward_func,
-                                  terminal_func=terminal_func,
+    def return_as_env(self) -> Env:
+        return DynamicsEnvWrapper(dynamics=self,
                                   name=self._name + '_env')
 
 
@@ -181,12 +179,11 @@ class DynamicsEnvWrapper(Env):
     """
 
     @typechecked
-    def __init__(self, dynamics: DynamicsModel, reward_func: RewardFunc, terminal_func: TerminalFunc,
-                 name: str = 'dynamics_env'):
+    def __init__(self, dynamics: DynamicsModel, name: str = 'dynamics_env'):
         super().__init__(name)
         self._dynamics = dynamics
-        self._reward_func = reward_func
-        self._terminal_func = terminal_func
+        self._reward_func = None
+        self._terminal_func = None
 
     def step(self, action: np.ndarray, **kwargs):
         super().step(action)
@@ -197,6 +194,7 @@ class DynamicsEnvWrapper(Env):
         return new_state, re, terminal, ()
 
     def reset(self):
+        super(DynamicsEnvWrapper, self).reset()
         self._dynamics.reset_state()
         return self.get_state()
 
@@ -216,3 +214,7 @@ class DynamicsEnvWrapper(Env):
 
     def load(self, *args, **kwargs):
         return self._dynamics.load(*args, **kwargs)
+
+    def set_terminal_reward_func(self, terminal_func: TerminalFunc, reward_func: RewardFunc):
+        self._terminal_func = terminal_func
+        self._reward_func = reward_func

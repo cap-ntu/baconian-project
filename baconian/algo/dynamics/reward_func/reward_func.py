@@ -4,6 +4,7 @@ import numpy as np
 
 
 class RewardFunc(Basic):
+    allow_duplicate_name = True
 
     def __init__(self, name='reward_func'):
         super().__init__(name=name)

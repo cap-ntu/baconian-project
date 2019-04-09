@@ -4,6 +4,7 @@ import numpy as np
 
 
 class TerminalFunc(Basic):
+    allow_duplicate_name = True
 
     def __init__(self, name='terminal_func'):
         super().__init__(name=name)
@@ -20,6 +21,7 @@ class RandomTerminalFunc(TerminalFunc):
     """
     Debug and test use only
     """
+
     def __init__(self, name='random_terminal_func'):
         super().__init__(name)
 
@@ -29,15 +31,14 @@ class RandomTerminalFunc(TerminalFunc):
 
 class FixedEpisodeLengthTerminalFunc(Basic):
 
-    def __init__(self, name: str, max_step_length: int, step_count_fn, status=None):
+    def __init__(self, max_step_length: int, step_count_fn, status=None,
+                 name: str = 'fixed_epsiode_length_terminal_func'):
         super().__init__(name, status)
         self.max_step_length = max_step_length
         self.step_count_fn = step_count_fn
-        self._last_reset_point = -1
 
     def __call__(self, state=None, action=None, new_state=None, **kwargs) -> bool:
-        if self.step_count_fn() - self._last_reset_point >= self.max_step_length:
-            self._last_reset_point = self.step_count_fn()
+        if self.step_count_fn() >= self.max_step_length:
             return True
         else:
             return False

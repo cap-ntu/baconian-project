@@ -45,6 +45,10 @@ class ClassCreatorSetup(unittest.TestCase):
     def create_env(self, env_id):
         return make(env_id)
 
+    def create_env_spec(self, env):
+        return EnvSpec(action_space=env.action_space,
+                       obs_space=env.observation_space)
+
     def create_tf_parameters(self, name='test_tf_param'):
         with tf.variable_scope(name):
             a = tf.get_variable(shape=[3, 4], dtype=tf.float32, name='var_1')
@@ -415,7 +419,7 @@ class ClassCreatorSetup(unittest.TestCase):
         )
         return flow
 
-    def create_dyna_flow(self, agent):
+    def create_dyna_flow(self, agent, env):
         flow = DynaFlow(
             train_sample_count_func=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
             config_or_config_dict={
@@ -444,7 +448,7 @@ class ClassCreatorSetup(unittest.TestCase):
                               'kwargs': dict(sample_count=10)},
                 'test_dynamics': {'func': agent.algo.test_dynamics,
                                   'args': list(),
-                                  'kwargs': dict(sample_count=10)},
+                                  'kwargs': dict(sample_count=10, env=env)},
                 'sample_from_real_env': {'func': agent.sample,
                                          'args': list(),
                                          'kwargs': dict(sample_count=10,
@@ -482,12 +486,12 @@ class ClassCreatorSetup(unittest.TestCase):
                     name=name,
                     model_free_algo=model_free_algo,
                     dynamics_model=dyanmics_model,
-                    reward_func=RandomRewardFunc(),
-                    terminal_func=RandomTerminalFunc(),
                     config_or_config_dict=dict(
                         dynamics_model_train_iter=1,
                         model_free_algo_train_iter=1
                     ))
+        algo.set_terminal_reward_function_for_dynamics_env(terminal_func=RandomTerminalFunc(),
+                                                           reward_func=RandomRewardFunc())
         return algo, locals()
 
     def create_continuous_mlp_global_dynamics_model(self, env_spec, name='continuous_mlp_global_dynamics_model'):

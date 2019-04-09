@@ -28,3 +28,7 @@ class DuplicatedRegisteredError(BaconianError):
 
 class LogPathOrFileNotExistedError(BaconianError):
     pass
+
+
+class NotCatchCorrectExceptionError(BaconianError):
+    pass

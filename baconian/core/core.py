@@ -20,6 +20,7 @@ class Basic(object):
     STATUS_LIST = GlobalConfig.DEFAULT_BASIC_STATUS_LIST
     INIT_STATUS = GlobalConfig.DEFAULT_BASIC_INIT_STATUS
     required_key_dict = ()
+    allow_duplicate_name = False
 
     def __init__(self, name: str, status=None):
         """
@@ -63,8 +64,8 @@ class Env(gym.Env, Basic):
     """
     Abstract class for environment
     """
-    key_list = []
-    STATUS_LIST = ['JUST_RESET', 'JUST_INITED', 'TRAIN', 'TEST', 'NOT_INIT']
+    key_list = ()
+    STATUS_LIST = ('JUST_RESET', 'JUST_INITED', 'TRAIN', 'TEST', 'NOT_INIT')
     INIT_STATUS = 'NOT_INIT'
 
     @typechecked
@@ -74,6 +75,8 @@ class Env(gym.Env, Basic):
         self.observation_space = None
         self.step_count = None
         self.recorder = Recorder()
+        self._last_reset_point = 0
+        self.total_step_count_fn = lambda: self._status.group_specific_info_key(info_key='step', group_way='sum')
 
     @register_counter_info_to_status_decorator(increment=1, info_key='step', under_status=('TRAIN', 'TEST'),
                                                ignore_wrong_status=True)
@@ -83,6 +86,7 @@ class Env(gym.Env, Basic):
     @register_counter_info_to_status_decorator(increment=1, info_key='reset', under_status='JUST_RESET')
     def reset(self):
         self._status.set_status('JUST_RESET')
+        self._last_reset_point = self.total_step_count_fn()
 
     @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='JUST_INITED')
     def init(self):

@@ -111,7 +111,7 @@ def _saving_scheduler(self, creat_func=None):
             flow = None
             from baconian.algo.rl.model_based.dyna import Dyna
             if isinstance(algo, Dyna):
-                flow = self.create_dyna_flow(agent=agent)[0]
+                flow = self.create_dyna_flow(agent=agent, env=env)[0]
             exp = self.create_exp(name='model_free', env=env, agent=agent, flow=flow)
             exp.run()
             self.assertEqual(exp.TOTAL_AGENT_TEST_SAMPLE_COUNT(), exp.TOTAL_ENV_STEP_TEST_SAMPLE_COUNT())

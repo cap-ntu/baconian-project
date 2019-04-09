@@ -28,8 +28,6 @@ class Dyna(ModelBasedAlgo):
     @typechecked
     def __init__(self, env_spec, dynamics_model: DynamicsModel,
                  model_free_algo: ModelFreeAlgo,
-                 reward_func: RewardFunc,
-                 terminal_func: TerminalFunc,
                  config_or_config_dict: (DictConfig, dict),
                  name='sample_with_dynamics'
                  ):
@@ -48,8 +46,7 @@ class Dyna(ModelBasedAlgo):
         self.model_free_algo = model_free_algo
         self.config = config
         self.parameters = parameters
-        self.dynamics_env = self._dynamics_model.return_as_env(reward_func=reward_func,
-                                                               terminal_func=terminal_func)
+        self.dynamics_env = self._dynamics_model.return_as_env()
 
     @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='JUST_INITED')
     def init(self):
@@ -155,3 +152,6 @@ class Dyna(ModelBasedAlgo):
         l1_loss = np.linalg.norm(np.array(real_state_list) - np.array(dyanmics_state_list), ord=1)
         l2_loss = np.linalg.norm(np.array(real_state_list) - np.array(dyanmics_state_list), ord=2)
         return dict(dynamics_test_l1_error=l1_loss, dynamics_test_l2_error=l2_loss)
+
+    def set_terminal_reward_function_for_dynamics_env(self, terminal_func, reward_func):
+        self.dynamics_env.set_terminal_reward_func(terminal_func, reward_func)

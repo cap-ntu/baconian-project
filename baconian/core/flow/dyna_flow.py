@@ -54,8 +54,8 @@ class DynaFlow(Flow):
                 self._call_func('train_algo')
 
             if self.time_step_func() - self.parameters(
-                    'TRAIN_DYNAMICS_EVERY_REAL_SAMPLE_COUNT') >= self._last_train_algo_point and self.time_step_func() > self.parameters(
-                'START_TRAIN_AFTER_SAMPLE_COUNT'):
+                    'TRAIN_DYNAMICS_EVERY_REAL_SAMPLE_COUNT') >= self._last_train_dynamics_point and self.time_step_func() > self.parameters(
+                'START_TRAIN_DYNAMICS_AFTER_SAMPLE_COUNT'):
                 self._last_train_algo_point = self.time_step_func()
                 self._call_func('train_dynamics', batch_data=real_batch_data)
             if self.time_step_func() >= self.parameters('WARM_UP_DYNAMICS_SAMPLES'):
@@ -69,7 +69,7 @@ class DynaFlow(Flow):
                 self._call_func('test_algo')
 
             if self.time_step_func() - self.parameters(
-                    'TEST_DYNAMICS_EVERY_REAL_SAMPLE_COUNT') >= self._last_test_algo_point and self.time_step_func() > self.parameters(
+                    'TEST_DYNAMICS_EVERY_REAL_SAMPLE_COUNT') >= self._last_test_dynamics_point and self.time_step_func() > self.parameters(
                 'START_TEST_DYNAMICS_AFTER_SAMPLE_COUNT'):
                 self._last_test_algo_point = self.time_step_func()
                 self._call_func('test_dynamics')

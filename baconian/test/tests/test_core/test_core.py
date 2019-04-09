@@ -1,5 +1,8 @@
 from baconian.config.global_config import GlobalConfig
 from baconian.test.tests.set_up.setup import BaseTestCase
+from baconian.common.error import *
+from baconian.algo.dynamics.reward_func.reward_func import RandomRewardFunc
+from baconian.core.core import Basic
 
 
 class TestCore(BaseTestCase):
@@ -9,3 +12,15 @@ class TestCore(BaseTestCase):
 
     def test_config(self):
         config, _ = self.create_dict_config()
+
+    def test_name_register(self):
+        a = RandomRewardFunc()
+        self.assertTrue(a.allow_duplicate_name)
+        b = RandomRewardFunc()
+        a = Basic(name='s')
+        try:
+            b = Basic(name='s')
+        except GlobalNameExistedError as e:
+            pass
+        else:
+            raise NotCatchCorrectExceptionError()

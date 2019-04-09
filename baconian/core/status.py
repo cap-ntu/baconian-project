@@ -6,6 +6,7 @@ from copy import deepcopy
 from baconian.common.logging import ConsoleLogger
 from baconian.common.error import *
 from functools import wraps
+import numpy as np
 
 __all__ = ['Status', 'StatusWithSubInfo', 'StatusWithSingleInfo', 'StatusWithInfo', 'StatusCollector',
            'reset_global_status_collect', 'register_counter_info_to_status_decorator', 'get_global_status_collect']
@@ -41,7 +42,8 @@ class Status(object):
             try:
                 assert new_status in self._status_list
             except AssertionError as e:
-                print("{} New status :{} not in the status list: {} ".format(e, new_status, self._status_list))
+                ConsoleLogger().print('info', "{} New status :{} not in the status list: {} ".format(e, new_status,
+                                                                                                     self._status_list))
             self._status_val = new_status
         else:
             self._status_val = new_status
@@ -140,12 +142,34 @@ class StatusWithSubInfo(StatusWithInfo):
         return self()
 
     def get_specific_info_key_status(self, info_key, under_status, *args, **kwargs):
+        res = self._get_specific_info_key_status(info_key=info_key, under_status=under_status, *args, **kwargs)
+        if res is None:
+            ConsoleLogger().print('error', 'try to access info key status: {} under status {} of obj: {}'.
+                                  format(info_key, under_status, self.obj.name))
+        else:
+            return res
+
+    def _get_specific_info_key_status(self, info_key, under_status, *args, **kwargs):
         try:
             return self._info_dict_with_sub_info[under_status][info_key]
         except KeyError:
-            ConsoleLogger().print('ERROR', 'try to access info key status: {} under status {} of obj: {}'.
-                                  format(info_key, under_status, self.obj.name))
             return None
+
+    def group_specific_info_key(self, info_key, group_way):
+        assert group_way in ('sum', 'max', 'min', 'mean')
+        res = []
+        for st in self._status_list:
+            re = self._get_specific_info_key_status(info_key=info_key, under_status=st)
+            if re:
+                res.append(re)
+        if group_way == 'sum':
+            return sum(res)
+        if group_way == 'max':
+            return max(res)
+        if group_way == 'min':
+            return min(res)
+        if group_way == 'mean':
+            return np.mean(np.array(res)).item()
 
     def append_new_info(self, info_key: str, init_value, under_status=None):
         if not under_status:
