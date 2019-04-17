@@ -20,9 +20,7 @@ Fixed some bugs.
 For previous news, please go [here](./old_news.md) 
 
 ### Documentation
-Documentation is available at http://baconian.withcap.org (hosted by CAP server). Please do not refer to ReadTheDocs 
-page for documentation, since it have a problem to document docstring with decorated function.
-(the documentations writing is still undergoing)
+Documentation is available at http://baconian-public.readthedocs.io/
 
 ### Todo
 
