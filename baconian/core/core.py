@@ -17,8 +17,8 @@ This module contains the some core classes of baconian
 
 class Basic(object):
     """ Basic class within the whole framework"""
-    STATUS_LIST = GlobalConfig.DEFAULT_BASIC_STATUS_LIST
-    INIT_STATUS = GlobalConfig.DEFAULT_BASIC_INIT_STATUS
+    STATUS_LIST = GlobalConfig().DEFAULT_BASIC_STATUS_LIST
+    INIT_STATUS = GlobalConfig().DEFAULT_BASIC_INIT_STATUS
     required_key_dict = ()
     allow_duplicate_name = False
 

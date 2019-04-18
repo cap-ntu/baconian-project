@@ -22,7 +22,7 @@ class Dyna(ModelBasedAlgo):
     Dyna algorithms, Sutton, R. S. (1991).
     You can replace the dynamics model with any dynamics models you want.
     """
-    required_key_dict = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_ALGO_DYNA_REQUIRED_KEY_LIST)
+    required_key_dict = DictConfig.load_json(file_path=GlobalConfig().DEFAULT_ALGO_DYNA_REQUIRED_KEY_LIST)
 
     @init_func_arg_record_decorator()
     @typechecked
@@ -96,7 +96,7 @@ class Dyna(ModelBasedAlgo):
 
     @record_return_decorator(which_recorder='self')
     def save(self, global_step, save_path=None, name=None, **kwargs):
-        save_path = save_path if save_path else GlobalConfig.DEFAULT_MODEL_CHECKPOINT_PATH
+        save_path = save_path if save_path else GlobalConfig().DEFAULT_MODEL_CHECKPOINT_PATH
         name = name if name else self.name
         self.model_free_algo.save(global_step=global_step,
                                   name=None,

@@ -1,4 +1,4 @@
-Tutorial
+Tutorial (Highly recommend to read before you start)
 ===============
 
 Here we introduce some very basic usage about the Baconian, to make sure you utilize the code correctly. As
@@ -33,3 +33,10 @@ Specifically, you can do it by:
     single_exp_runner(you_function)
     # Or call duplicate_exp_runner to run multiple experiments in a row. 10 is the number of experiments:
     duplicate_exp_runner(10, you_function)
+
+
+Global Configuration Usage
+---------------------------
+
+Train and Test Workflow for RL Experiments
+--------------------------------------------

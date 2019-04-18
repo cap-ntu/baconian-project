@@ -1,6 +1,5 @@
 from baconian.core.core import Basic, Env
 from baconian.common.sampler.sample_data import TransitionData, TrajectoryData
-from baconian.config.global_config import GlobalConfig
 from typeguard import typechecked
 
 

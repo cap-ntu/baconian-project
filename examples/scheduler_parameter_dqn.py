@@ -104,7 +104,7 @@ def task_fn():
     dqn.parameters.set_scheduler(param_key='LEARNING_RATE',
                                  scheduler=LinearSchedule(
                                      t_fn=experiment.TOTAL_AGENT_TRAIN_SAMPLE_COUNT,
-                                     schedule_timesteps=GlobalConfig.DEFAULT_EXPERIMENT_END_POINT[
+                                     schedule_timesteps=GlobalConfig().DEFAULT_EXPERIMENT_END_POINT[
                                          'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'],
                                      final_p=0.0001,
                                      initial_p=0.01))
@@ -113,5 +113,5 @@ def task_fn():
 
 from baconian.core.experiment_runner import single_exp_runner
 
-GlobalConfig.set('DEFAULT_LOG_PATH', './log_path')
+GlobalConfig().set('DEFAULT_LOG_PATH', './log_path')
 single_exp_runner(task_fn)

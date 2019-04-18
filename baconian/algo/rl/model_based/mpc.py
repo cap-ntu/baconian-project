@@ -14,7 +14,7 @@ from baconian.common.logging import record_return_decorator
 
 
 class ModelPredictiveControl(ModelBasedAlgo):
-    required_key_dict = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_MPC_REQUIRED_KEY_LIST)
+    required_key_dict = DictConfig.load_json(file_path=GlobalConfig().DEFAULT_MPC_REQUIRED_KEY_LIST)
 
     def __init__(self, env_spec, dynamics_model: DynamicsModel,
                  config_or_config_dict: (DictConfig, dict),
@@ -93,7 +93,7 @@ class ModelPredictiveControl(ModelBasedAlgo):
 
     @record_return_decorator(which_recorder='self')
     def save(self, global_step, save_path=None, name=None, **kwargs):
-        save_path = save_path if save_path else GlobalConfig.DEFAULT_MODEL_CHECKPOINT_PATH
+        save_path = save_path if save_path else GlobalConfig().DEFAULT_MODEL_CHECKPOINT_PATH
         name = name if name else self.name
 
         self._dynamics_model.save(save_path=save_path, global_step=global_step, name=name, **kwargs)

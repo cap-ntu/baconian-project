@@ -304,7 +304,7 @@ def register_counter_info_to_status_decorator(increment, info_key, under_status:
 #
 # from baconian.config.global_config import GlobalConfig
 #
-# for key in GlobalConfig.DEFAULT_EXPERIMENT_END_POINT.keys():
+# for key in GlobalConfig().DEFAULT_EXPERIMENT_END_POINT.keys():
 #     _global_experiment_status.append_new_info(info_key=key, init_value=0)
 
 # def get_global_experiment_status() -> StatusWithSingleInfo:

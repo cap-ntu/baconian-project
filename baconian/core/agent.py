@@ -1,6 +1,5 @@
 from baconian.core.core import Basic, Env, EnvSpec
 from baconian.common.sampler.sampler import Sampler
-from baconian.config.global_config import GlobalConfig
 from baconian.common.error import *
 from baconian.algo.algo import Algo
 from typeguard import typechecked

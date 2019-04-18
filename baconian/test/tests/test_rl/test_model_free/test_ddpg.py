@@ -38,7 +38,7 @@ class TestDDPG(TestWithAll):
                                    new_ddpg.target_actor.parameters('tf_var_list'))
         self.assert_var_list_equal(ddpg.target_critic.parameters('tf_var_list'),
                                    new_ddpg.target_critic.parameters('tf_var_list'))
-        ddpg.save(save_path=GlobalConfig.DEFAULT_LOG_PATH + '/ddpg_test',
+        ddpg.save(save_path=GlobalConfig().DEFAULT_LOG_PATH + '/ddpg_test',
                   global_step=0,
                   name=ddpg.name)
         for i in range(100):
@@ -53,7 +53,7 @@ class TestDDPG(TestWithAll):
         self.assert_var_list_at_least_not_equal(ddpg.target_actor.parameters('tf_var_list'),
                                                 new_ddpg.target_actor.parameters('tf_var_list'))
 
-        ddpg.load(path_to_model=GlobalConfig.DEFAULT_LOG_PATH + '/ddpg_test',
+        ddpg.load(path_to_model=GlobalConfig().DEFAULT_LOG_PATH + '/ddpg_test',
                   model_name=ddpg.name,
                   global_step=0)
 

@@ -32,3 +32,7 @@ class LogPathOrFileNotExistedError(BaconianError):
 
 class NotCatchCorrectExceptionError(BaconianError):
     pass
+
+
+class AttemptToChangeFreezeGlobalConfigError(BaconianError):
+    pass

@@ -10,7 +10,7 @@ x = 0
 class TestParam(TestWithLogSet):
     def test_basic(self):
         a, locals = self.create_parameters()
-        a.save(save_path=GlobalConfig.DEFAULT_LOG_PATH + '/param_path',
+        a.save(save_path=GlobalConfig().DEFAULT_LOG_PATH + '/param_path',
                name=a.name,
                global_step=0)
         or_val = a._source_config.config_dict['var1']
@@ -19,7 +19,7 @@ class TestParam(TestWithLogSet):
         a._parameters['param3'] = 1000
         self.assertNotEqual(a._source_config.config_dict['var1'], or_val)
         self.assertFalse(np.equal(a._parameters['param3'], or_param).all())
-        a.load(load_path=GlobalConfig.DEFAULT_LOG_PATH + '/param_path',
+        a.load(load_path=GlobalConfig().DEFAULT_LOG_PATH + '/param_path',
                name=a.name,
                global_step=0
                )

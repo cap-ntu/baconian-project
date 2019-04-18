@@ -30,7 +30,7 @@ class TestTensorflowParameters(TestWithAll):
 
         for i in range(10):
             param.save(sess=self.sess,
-                       save_path=GlobalConfig.DEFAULT_LOG_PATH + '/model',
+                       save_path=GlobalConfig().DEFAULT_LOG_PATH + '/model',
                        global_step=i)
 
         if tf.get_default_session():
@@ -42,6 +42,6 @@ class TestTensorflowParameters(TestWithAll):
 
         param2, _ = self.create_tf_parameters('param')
         param2.init()
-        param2.load(path_to_model=GlobalConfig.DEFAULT_LOG_PATH + '/model', global_step=9)
+        param2.load(path_to_model=GlobalConfig().DEFAULT_LOG_PATH + '/model', global_step=9)
         for var1, var2 in zip(var_val, param2('tf_var_list')):
             self.assertTrue(np.equal(var1, self.sess.run(var2)).all())

@@ -66,7 +66,7 @@ class _SingletonConsoleLogger(BaseLogger):
         if to_file_flag is True:
             self.logger.addHandler(logging.FileHandler(filename=to_file_name))
         for handler in self.logger.root.handlers[:] + self.logger.handlers[:]:
-            handler.setFormatter(fmt=logging.Formatter(fmt=GlobalConfig.DEFAULT_LOGGING_FORMAT))
+            handler.setFormatter(fmt=logging.Formatter(fmt=GlobalConfig().DEFAULT_LOGGING_FORMAT))
             handler.setLevel(getattr(logging, level))
 
         self.inited_flag = True
@@ -194,7 +194,7 @@ class _SingletonLogger(BaseLogger):
         ConsoleLogger().print('info', 'save global_config into {}'.format(os.path.join(
             self._record_file_log_dir)))
         self.out_to_file(file_path=os.path.join(self._record_file_log_dir),
-                         content=GlobalConfig.return_all_as_dict(),
+                         content=GlobalConfig().return_all_as_dict(),
                          force_new=True,
                          file_name='global_config.json')
 

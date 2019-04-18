@@ -3,12 +3,36 @@ from baconian.test.tests.set_up.setup import BaseTestCase
 from baconian.common.error import *
 from baconian.algo.dynamics.reward_func.reward_func import RandomRewardFunc
 from baconian.core.core import Basic
+from baconian.common.error import *
 
 
 class TestCore(BaseTestCase):
     def test_global_config(self):
-        GlobalConfig.set_new_config(config_dict=dict(DEFAULT_BASIC_INIT_STATUS='test'))
-        assert GlobalConfig.DEFAULT_BASIC_INIT_STATUS == 'test'
+        GlobalConfig().set_new_config(config_dict=dict(DEFAULT_BASIC_INIT_STATUS='test'))
+        assert GlobalConfig().DEFAULT_BASIC_INIT_STATUS == 'test'
+
+        GlobalConfig().freeze_flag = True
+        try:
+            GlobalConfig().set_new_config(config_dict=dict(DEFAULT_BASIC_INIT_STATUS='test'))
+        except AttemptToChangeFreezeGlobalConfigError:
+            pass
+        else:
+            raise TypeError
+
+        try:
+            GlobalConfig().set('DEFAULT_LOG_PATH', 'tmp')
+        except AttemptToChangeFreezeGlobalConfigError:
+            pass
+        else:
+            raise TypeError
+
+        try:
+            GlobalConfig().DEFAULT_LOG_PATH = 'tmp'
+        except AttemptToChangeFreezeGlobalConfigError:
+            pass
+        else:
+            raise TypeError
+        GlobalConfig().unfreeze()
 
     def test_config(self):
         config, _ = self.create_dict_config()

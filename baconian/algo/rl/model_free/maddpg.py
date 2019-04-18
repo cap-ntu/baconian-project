@@ -20,7 +20,7 @@
 #
 #
 # class MADDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
-#     required_key_dict = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_MADDPG_REQUIRED_KEY_LIST)
+#     required_key_dict = DictConfig.load_json(file_path=GlobalConfig().DEFAULT_MADDPG_REQUIRED_KEY_LIST)
 #
 #     @typechecked()
 #     def __init__(self,
@@ -219,7 +219,7 @@
 #
 #     @record_return_decorator(which_recorder='self')
 #     def save(self, global_step, save_path=None, name=None, **kwargs):
-#         save_path = save_path if save_path else GlobalConfig.DEFAULT_MODEL_CHECKPOINT_PATH
+#         save_path = save_path if save_path else GlobalConfig().DEFAULT_MODEL_CHECKPOINT_PATH
 #         name = name if name else self.name
 #         MultiPlaceholderInput.save(self, save_path=save_path, global_step=global_step, name=name, **kwargs)
 #         return dict(check_point_save_path=save_path, check_point_save_global_step=global_step,

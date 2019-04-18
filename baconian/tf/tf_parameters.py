@@ -12,7 +12,7 @@ class ParametersWithTensorflowVariable(Parameters):
 
     @typechecked
     def __init__(self, tf_var_list: list, rest_parameters: dict, name: str,
-                 max_to_keep=GlobalConfig.DEFAULT_MAX_TF_SAVER_KEEP,
+                 max_to_keep=GlobalConfig().DEFAULT_MAX_TF_SAVER_KEEP,
                  default_save_type='tf',
                  source_config=None,
                  to_scheduler_param_tuple: list = None,

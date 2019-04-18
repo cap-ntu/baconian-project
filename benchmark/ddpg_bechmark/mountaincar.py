@@ -23,8 +23,8 @@ from baconian.core.experiment_runner import duplicate_exp_runner
 def mountiancar_task_fn():
     exp_config = MOUNTAIN_CAR_CONTINUOUS_BENCHMARK_CONFIG_DICT
 
-    GlobalConfig.set('DEFAULT_EXPERIMENT_END_POINT',
-                     exp_config['DEFAULT_EXPERIMENT_END_POINT'])
+    GlobalConfig().set('DEFAULT_EXPERIMENT_END_POINT',
+                       exp_config['DEFAULT_EXPERIMENT_END_POINT'])
 
     env = make('MountainCarContinuous-v0')
     name = 'benchmark'

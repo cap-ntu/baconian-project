@@ -72,19 +72,19 @@ class TestWithLogSet(BaseTestCase):
     def setUp(self):
         BaseTestCase.setUp(self)
         try:
-            shutil.rmtree(GlobalConfig.DEFAULT_LOG_PATH)
+            shutil.rmtree(GlobalConfig().DEFAULT_LOG_PATH)
         except FileNotFoundError:
             pass
-        # os.makedirs(GlobalConfig.DEFAULT_LOG_PATH)
+        # os.makedirs(GlobalConfig().DEFAULT_LOG_PATH)
         # self.assertFalse(ConsoleLogger().inited_flag)
         # self.assertFalse(Logger().inited_flag)
 
-        Logger().init(config_or_config_dict=GlobalConfig.DEFAULT_LOG_CONFIG_DICT,
-                      log_path=GlobalConfig.DEFAULT_LOG_PATH,
-                      log_level=GlobalConfig.DEFAULT_LOG_LEVEL)
+        Logger().init(config_or_config_dict=GlobalConfig().DEFAULT_LOG_CONFIG_DICT,
+                      log_path=GlobalConfig().DEFAULT_LOG_PATH,
+                      log_level=GlobalConfig().DEFAULT_LOG_LEVEL)
         ConsoleLogger().init(logger_name='console_logger',
                              to_file_flag=True,
-                             level=GlobalConfig.DEFAULT_LOG_LEVEL,
+                             level=GlobalConfig().DEFAULT_LOG_LEVEL,
                              to_file_name=os.path.join(Logger().log_dir, 'console.log'))
 
         self.assertTrue(ConsoleLogger().inited_flag)
@@ -112,10 +112,10 @@ class SimpleTestSetup(BaseTestCase):
     def setUp(self):
         BaseTestCase.setUp(self)
         try:
-            shutil.rmtree(GlobalConfig.DEFAULT_LOG_PATH)
+            shutil.rmtree(GlobalConfig().DEFAULT_LOG_PATH)
         except FileNotFoundError:
             pass
-        os.makedirs(GlobalConfig.DEFAULT_LOG_PATH)
+        os.makedirs(GlobalConfig().DEFAULT_LOG_PATH)
         self.assertFalse(ConsoleLogger().inited_flag)
         self.assertFalse(Logger().inited_flag)
 

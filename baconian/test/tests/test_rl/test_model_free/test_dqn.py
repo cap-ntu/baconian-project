@@ -36,7 +36,7 @@ class TestDQN(TestWithAll):
         self.assert_var_list_equal(dqn.target_q_value_func.parameters('tf_var_list'),
                                    new_dqn.target_q_value_func.parameters('tf_var_list'))
 
-        dqn.save(save_path=GlobalConfig.DEFAULT_LOG_PATH + '/dqn_test',
+        dqn.save(save_path=GlobalConfig().DEFAULT_LOG_PATH + '/dqn_test',
                  global_step=0,
                  name=dqn.name)
 
@@ -50,7 +50,7 @@ class TestDQN(TestWithAll):
         self.assert_var_list_at_least_not_equal(dqn.target_q_value_func.parameters('tf_var_list'),
                                                 new_dqn.target_q_value_func.parameters('tf_var_list'))
 
-        dqn.load(path_to_model=GlobalConfig.DEFAULT_LOG_PATH + '/dqn_test',
+        dqn.load(path_to_model=GlobalConfig().DEFAULT_LOG_PATH + '/dqn_test',
                  model_name=dqn.name,
                  global_step=0)
 

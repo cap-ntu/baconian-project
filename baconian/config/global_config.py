@@ -7,9 +7,10 @@ import json_tricks as json
 import tensorflow as tf
 import os
 from baconian.config.required_keys import SRC_UTIL_REQUIRED_KEYS
+from baconian.common.error import *
 
 
-class _DefaultGlobalConfig(object):
+class _SingletonDefaultGlobalConfig(object):
     DEFAULT_MAX_TF_SAVER_KEEP = 5
     DEFAULT_ALLOWED_EXCEPTION_OR_ERROR_LIST = (tf.errors.ResourceExhaustedError,)
     DEFAULT_BASIC_STATUS_LIST = ('TRAIN', 'TEST')
@@ -63,65 +64,77 @@ class _DefaultGlobalConfig(object):
     SAMPLE_TYPE_SAMPLE_TRANSITION_DATA = 'transition_data'
     SAMPLE_TYPE_SAMPLE_TRAJECTORY_DATA = 'trajectory_data'
 
-
-class GlobalConfig(_DefaultGlobalConfig):
-
-    def __new__(cls, *args, **kwargs):
-        raise TypeError('GlobalConfig can only be accessed by cls')
-
     def __init__(self):
-        raise TypeError('GlobalConfig can only be accessed by cls')
+        super().__setattr__('freeze_flag', False)
 
-    @staticmethod
+    def freeze(self):
+        super().__setattr__('freeze_flag', True)
+
+    def unfreeze(self):
+        super().__setattr__('freeze_flag', False)
+
     @typechecked
-    def set_new_config(config_dict: dict):
+    def set_new_config(self, config_dict: dict):
         for key, val in config_dict.items():
-            if hasattr(GlobalConfig, key):
-                attr = getattr(GlobalConfig, key)
+            if hasattr(self, key):
+                attr = getattr(self, key)
                 if attr is not None and not isinstance(val, type(attr)):
                     raise TypeError('Set the GlobalConfig.{} with type{}, instead of type {}'.format(key,
                                                                                                      type(
                                                                                                          attr).__name__,
                                                                                                      type(
                                                                                                          val).__name__))
-                setattr(GlobalConfig, key, val)
+                setattr(self, key, val)
             else:
-                setattr(GlobalConfig, key, val)
+                setattr(self, key, val)
 
-    @staticmethod
     @typechecked
-    def set_new_config_by_file(path_to_file: str):
+    def set_new_config_by_file(self, path_to_file: str):
         with open(path_to_file, 'r') as f:
             new_dict = json.load(f)
-            GlobalConfig.set_new_config(new_dict)
+            self.set_new_config(new_dict)
 
-    @staticmethod
     @typechecked
-    def set(key: str, val):
-        if hasattr(GlobalConfig, key):
-            attr = getattr(GlobalConfig, key)
+    def set(self, key: str, val):
+        if self.freeze_flag is True:
+            raise AttemptToChangeFreezeGlobalConfigError()
+        if hasattr(self, key):
+            attr = getattr(self, key)
             if attr is not None and not isinstance(val, type(attr)):
                 raise TypeError('Set the GlobalConfig.{} with type{}, instead of type {}'.format(key,
                                                                                                  type(
                                                                                                      attr).__name__,
                                                                                                  type(
                                                                                                      val).__name__))
-            setattr(GlobalConfig, key, val)
-            # todo: solve the config dependence issue here
+            setattr(self, key, val)
             if key == 'DEFAULT_LOG_PATH':
-                GlobalConfig.set('DEFAULT_MODEL_CHECKPOINT_PATH', os.path.join(val, 'model_checkpoints'))
+                self.set('DEFAULT_MODEL_CHECKPOINT_PATH', os.path.join(val, 'model_checkpoints'))
         else:
-            setattr(GlobalConfig, key, val)
+            setattr(self, key, val)
 
-    @staticmethod
-    def return_all_as_dict():
+    def return_all_as_dict(self):
         return_dict = {}
-        for key in dir(GlobalConfig):
+        for key in dir(self):
             if key.isupper() is True or 'DEFAULT' in key:
-                attr = getattr(GlobalConfig, key)
+                attr = getattr(self, key)
                 try:
                     json.dumps(dict(key=attr))
                 except TypeError as e:
                     attr = 'cannot be json dumped'
                 return_dict[key] = attr
         return return_dict
+
+    def __setattr__(self, key, value):
+        if self.freeze_flag is True:
+            raise AttemptToChangeFreezeGlobalConfigError("{} {}".format(key, value))
+        else:
+            super().__setattr__(key, value)
+
+
+class GlobalConfig(object):
+    only_instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if GlobalConfig.only_instance is None:
+            GlobalConfig.only_instance = _SingletonDefaultGlobalConfig()
+        return GlobalConfig.only_instance

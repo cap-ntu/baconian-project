@@ -21,7 +21,7 @@ class PlaceholderInput(object):
             self.name_scope = name_scope
 
     def save(self, global_step, save_path=None, name=None, **kwargs):
-        save_path = save_path if save_path else GlobalConfig.DEFAULT_MODEL_CHECKPOINT_PATH
+        save_path = save_path if save_path else GlobalConfig().DEFAULT_MODEL_CHECKPOINT_PATH
         name = name if name else self.name
         sess = kwargs['sess'] if 'sess' in kwargs else None
         self.parameters.save(save_path=save_path,

@@ -27,7 +27,7 @@ from baconian.common.logging import reset_logging
 class Experiment(Basic):
     STATUS_LIST = ('NOT_INIT', 'INITED', 'RUNNING', 'FINISHED', 'CORRUPTED')
     INIT_STATUS = 'NOT_INIT'
-    # required_key_dict = DictConfig.load_json(file_path=GlobalConfig.DEFAULT_EXPERIMENT_REQUIRED_KEY_LIST)
+    # required_key_dict = DictConfig.load_json(file_path=GlobalConfig().DEFAULT_EXPERIMENT_REQUIRED_KEY_LIST)
     required_key_dict = dict()
 
     @init_func_arg_record_decorator()
@@ -84,6 +84,7 @@ class Experiment(Basic):
         self.env.init()
 
     def run(self):
+        GlobalConfig().freeze()
         self.init()
         self.set_status('RUNNING')
         res = self.flow.launch()
@@ -101,6 +102,7 @@ class Experiment(Basic):
         reset_global_status_collect()
         reset_logging()
         reset_global_var()
+        GlobalConfig().unfreeze()
 
     def TOTAL_AGENT_UPDATE_COUNT(self):
         return get_global_status_collect()('TOTAL_AGENT_UPDATE_COUNT')

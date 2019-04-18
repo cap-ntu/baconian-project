@@ -37,7 +37,7 @@ class TestPPO(TestWithAll):
             data.append(state=st, new_state=new_st, action=ac, reward=re, done=done)
         ppo.append_to_memory(data)
 
-        ppo.save(save_path=GlobalConfig.DEFAULT_LOG_PATH + '/ppo_test',
+        ppo.save(save_path=GlobalConfig().DEFAULT_LOG_PATH + '/ppo_test',
                  global_step=0,
                  name=ppo.name)
         for i in range(10):
@@ -57,7 +57,7 @@ class TestPPO(TestWithAll):
         self.assert_var_list_at_least_not_equal(ppo.policy.parameters('tf_var_list'),
                                                 new_ppo.policy.parameters('tf_var_list'))
 
-        ppo.load(path_to_model=GlobalConfig.DEFAULT_LOG_PATH + '/ppo_test',
+        ppo.load(path_to_model=GlobalConfig().DEFAULT_LOG_PATH + '/ppo_test',
                  model_name=ppo.name,
                  global_step=0)
 

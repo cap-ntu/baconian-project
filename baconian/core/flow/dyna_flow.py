@@ -81,18 +81,18 @@ class DynaFlow(Flow):
     def _is_ended(self):
         key_founded_flag = False
         finished_flag = False
-        for key in GlobalConfig.DEFAULT_EXPERIMENT_END_POINT:
-            if GlobalConfig.DEFAULT_EXPERIMENT_END_POINT[key] is not None:
+        for key in GlobalConfig().DEFAULT_EXPERIMENT_END_POINT:
+            if GlobalConfig().DEFAULT_EXPERIMENT_END_POINT[key] is not None:
                 key_founded_flag = True
-                if get_global_status_collect()(key) >= GlobalConfig.DEFAULT_EXPERIMENT_END_POINT[key]:
+                if get_global_status_collect()(key) >= GlobalConfig().DEFAULT_EXPERIMENT_END_POINT[key]:
                     ConsoleLogger().print('info',
                                           'pipeline ended because {}: {} >= end point value {}'.
                                           format(key, get_global_status_collect()(key),
-                                                 GlobalConfig.DEFAULT_EXPERIMENT_END_POINT[key]))
+                                                 GlobalConfig().DEFAULT_EXPERIMENT_END_POINT[key]))
                     finished_flag = True
         if key_founded_flag is False:
             ConsoleLogger().print(
                 'warning',
                 '{} in experiment_end_point is not registered with global status collector: {}, experiment may not end'.
-                    format(GlobalConfig.DEFAULT_EXPERIMENT_END_POINT, list(get_global_status_collect()().keys())))
+                    format(GlobalConfig().DEFAULT_EXPERIMENT_END_POINT, list(get_global_status_collect()().keys())))
         return finished_flag
