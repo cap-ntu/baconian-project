@@ -60,7 +60,7 @@ def single_exp_runner(task_fn, auto_choose_gpu_flag=False, gpu_id: int = 0, seed
 
 
 @typechecked
-def duplicate_exp_runner(num, task_fn, auto_choose_gpu_flag=True, gpu_id: int = 0, seeds: list = None,
+def duplicate_exp_runner(num, task_fn, auto_choose_gpu_flag=False, gpu_id: int = 0, seeds: list = None,
                          **task_fn_kwargs):
     """
 
