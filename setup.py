@@ -27,7 +27,7 @@ else:
 
 req = parse_requirements(filename=os.path.join(CURRENT_PATH, req_file))
 
-req = [str(ir.req) for ir in req]
+# req = [str(ir.req) for ir in req]
 
 # print(req)
 with open(os.path.join(CURRENT_PATH, 'README.md'), 'r') as f:
