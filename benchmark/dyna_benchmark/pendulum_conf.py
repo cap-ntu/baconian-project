@@ -122,7 +122,7 @@ PENDULUM_BENCHMARK_CONFIG_DICT = {
                               {
                                   "ACT": "RELU",
                                   "B_INIT_VALUE": 0.0,
-                                  "NAME": "1",
+                                  "NAME": "2",
                                   "N_UNITS": 64,
                                   "TYPE": "DENSE",
                                   "W_NORMAL_STDDEV": 0.03
