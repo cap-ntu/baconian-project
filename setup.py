@@ -1,7 +1,13 @@
 from setuptools import setup
-from pip.req import parse_requirements
 import os
 import subprocess
+
+
+def parse_requirements(filename):
+    """ load requirements from a pip requirements file """
+    lineiter = (line.strip() for line in open(filename))
+    return [line for line in lineiter if line and not line.startswith("#")]
+
 
 CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
 gpu_flag = None
