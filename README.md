@@ -26,7 +26,6 @@ Documentation is available at http://baconian-public.readthedocs.io/
 - [ ] Visualization module
 - [ ] State-of-art model-based algorithms: PILCO, GPS etc.
 - [ ] Latent-space method supporting.
-- [ ] Benchmark tests on multiple tasks
 
 ### Acknowledgement 
 Thanks to the following open-source projects:
