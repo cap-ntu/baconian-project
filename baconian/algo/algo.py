@@ -33,3 +33,19 @@ class Algo(Basic):
     @abc.abstractmethod
     def append_to_memory(self, *args, **kwargs):
         raise NotImplementedError
+
+    @property
+    def is_training(self):
+        """
+
+        :return:
+        """
+        return self.get_status()['status'] == 'TRAIN'
+
+    @property
+    def is_testing(self):
+        """
+
+        :return:
+        """
+        return self.get_status()['status'] == 'TEST'

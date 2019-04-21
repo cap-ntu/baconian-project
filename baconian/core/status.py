@@ -274,7 +274,7 @@ def register_counter_info_to_status_decorator(increment, info_key, under_status:
 
         @wraps(fn)
         def wrap_with_self(self, *args, **kwargs):
-            # todo a bug here, which is record() called in fn will lost the just appended info_key at the very first
+            # todo record() called in fn will lost the just appended info_key at the very first
             obj = self
             if not hasattr(obj, '_status') or not isinstance(getattr(obj, '_status'), StatusWithInfo):
                 raise ValueError(
@@ -319,7 +319,6 @@ _global_status_collector = StatusCollector()
 
 
 def get_global_status_collect() -> StatusCollector:
-    # todo wrap some very common used func
     return globals()['_global_status_collector']
 
 

@@ -140,10 +140,11 @@ class MLPCreator(object):
             net = (net * output_norm[0]) + output_norm[1]
         if output_high is not None and output_low is not None:
             if last_layer_act not in ("IDENTITY", 'LINEAR'):
-                raise ValueError('Please set the last layer activation as IDENTITY/LINEAR to use output scale')
+                raise ValueError(
+                    'Please set the last layer activation as IDENTITY/LINEAR to use output scale, TANH will added to it as default')
             net = tf.tanh(net)
             net = (net + 1.0) / 2.0 * (output_high - output_low) + output_low
-        # todo bugs here: the collection may contain extra variable that is instanced by others but have same name scope
+        # todo the collection may contain extra variable that is instanced by others but have same name scope
         net_all_params = get_tf_collection_var_list(key=tf.GraphKeys.GLOBAL_VARIABLES,
                                                     scope=tf.get_variable_scope().name)
         if tf_var_scope_context is not None:

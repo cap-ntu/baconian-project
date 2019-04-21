@@ -143,9 +143,10 @@ def task_fn():
     flow = DynaFlow(
         train_sample_count_func=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
         config_or_config_dict={
+            "TRAIN_ALGO_EVERY_REAL_SAMPLE_COUNT_FROM_REAL_ENV": 10,
+            "TRAIN_ALGO_EVERY_REAL_SAMPLE_COUNT_FROM_DYNAMICS_ENV": 10,
             "TEST_ALGO_EVERY_REAL_SAMPLE_COUNT": 10,
             "TEST_DYNAMICS_EVERY_REAL_SAMPLE_COUNT": 10,
-            "TRAIN_ALGO_EVERY_REAL_SAMPLE_COUNT": 10,
             "TRAIN_DYNAMICS_EVERY_REAL_SAMPLE_COUNT": 10,
             "START_TRAIN_ALGO_AFTER_SAMPLE_COUNT": 1,
             "START_TRAIN_DYNAMICS_AFTER_SAMPLE_COUNT": 1,

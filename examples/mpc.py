@@ -58,10 +58,11 @@ def task_fn():
             dynamics_model_train_iter=10
         ),
         name=name + '_mpc',
-        reward_func=RandomRewardFunc(name='reward_func'),
-        terminal_func=RandomTerminalFunc(name='random_terminal'),
+
         policy=UniformRandomPolicy(env_spec=env_spec, name='uni_policy')
     )
+    algo.set_terminal_reward_function_for_dynamics_env(reward_func=RandomRewardFunc(name='reward_func'),
+                                                       terminal_func=RandomTerminalFunc(name='random_terminal'), )
     agent = Agent(env=env, env_spec=env_spec,
                   algo=algo,
                   name=name + '_agent',

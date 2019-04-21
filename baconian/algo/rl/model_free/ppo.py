@@ -4,11 +4,11 @@ from baconian.config.dict_config import DictConfig
 from typeguard import typechecked
 import tensorflow as tf
 import numpy as np
-from baconian.common.sampler.sample_data import TrajectoryData, TransitionData
+from baconian.common.sampler.sample_data import TrajectoryData, TransitionData, SampleData
 from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.config.global_config import GlobalConfig
 from baconian.algo.rl.policy.policy import StochasticPolicy
-from baconian.algo.rl.value_func.mlp_v_value import MLPVValueFunc
+from baconian.algo.rl.value_func.value_func import VValueFunction
 from baconian.tf.util import *
 from baconian.common.misc import *
 from baconian.algo.rl.misc.sample_processor import SampleProcessor
@@ -24,8 +24,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
     def __init__(self, env_spec: EnvSpec,
                  stochastic_policy: StochasticPolicy,
                  config_or_config_dict: (DictConfig, dict),
-                 # todo value func type is too hard
-                 value_func: MLPVValueFunc,
+                 value_func: VValueFunction,
                  name='ppo'):
         ModelFreeAlgo.__init__(self, env_spec=env_spec, name=name)
 
@@ -47,7 +46,6 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                                        name=dist_info['name'])), dist_info['name']) for dist_info in
                 dist_info_list
             ]
-            # todo debug the name here
             self.old_policy = self.policy.make_copy(reuse=False,
                                                     name_scope='old_{}'.format(self.policy.name),
                                                     name='old_{}'.format(self.policy.name),
@@ -139,7 +137,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         return self.policy.forward(obs=obs, sess=tf_sess, feed_dict=self.parameters.return_tf_parameter_feed_dict())
 
     @typechecked
-    def append_to_memory(self, samples: TransitionData):
+    def append_to_memory(self, samples: SampleData):
         # todo how to make sure the data's time sequential
         iter_samples = samples.return_generator()
         for obs0, obs1, action, reward, terminal1 in iter_samples:

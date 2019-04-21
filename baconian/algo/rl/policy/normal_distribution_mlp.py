@@ -159,8 +159,8 @@ class NormalDistributionMLPPolicy(StochasticPolicy, PlaceholderInput):
         return sess.run(self.dist_info_tensor_op_dict[name](**kwargs), feed_dict=feed_dict)
 
     def kl(self, other, *args, **kwargs) -> tf.Tensor:
-        # todo do we need to make the type to be identical?
-        assert isinstance(other, type(self))
+        if not isinstance(other.action_distribution, tfp.distributions.Distribution):
+            raise TypeError()
         return self.action_distribution.kl_divergence(other.action_distribution)
 
     def log_prob(self, *args, **kwargs) -> tf.Tensor:

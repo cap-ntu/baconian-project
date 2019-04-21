@@ -8,10 +8,10 @@ from baconian.common.special import *
 from baconian.core.util import init_func_arg_record_decorator
 from baconian.algo.rl.utils import _get_copy_arg_with_tf_reuse
 from baconian.algo.placeholder_input import PlaceholderInput
-from baconian.algo.rl.value_func.value_func import ValueFunction
+from baconian.algo.rl.value_func.value_func import QValueFunction
 
 
-class MLPQValueFunction(ValueFunction, PlaceholderInput):
+class MLPQValueFunction(QValueFunction, PlaceholderInput):
     """
     Multi Layer Q Value Function, based on Tensorflow, take the state and action as input,
     return the Q value for all action/ input action.
@@ -62,10 +62,12 @@ class MLPQValueFunction(ValueFunction, PlaceholderInput):
                                                       ),
                                                       default_save_type='tf',
                                                       name='{}_tf_param'.format(name))
-        ValueFunction.__init__(self,
-                               env_spec=env_spec,
-                               name=name,
-                               parameters=None)
+        QValueFunction.__init__(self,
+                                env_spec=env_spec,
+                                name=name,
+                                action_input=action_input,
+                                state_input=state_input,
+                                parameters=None)
         PlaceholderInput.__init__(self, parameters=parameters, inputs=mlp_input_ph)
 
         self.mlp_config = mlp_config
@@ -74,8 +76,6 @@ class MLPQValueFunction(ValueFunction, PlaceholderInput):
         self.output_low = output_low
         self.output_high = output_high
         self.name_scope = name_scope
-        self.state_input = state_input
-        self.action_input = action_input
         self.mlp_input_ph = mlp_input_ph
         self.mlp_net = mlp_net
         self.q_tensor = self.mlp_net.output

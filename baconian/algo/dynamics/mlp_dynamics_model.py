@@ -14,6 +14,7 @@ import overrides
 
 from baconian.common.logging import record_return_decorator
 from baconian.core.status import register_counter_info_to_status_decorator, StatusWithSubInfo
+from baconian.common.spaces.box import Box
 
 
 class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, PlaceholderInput,
@@ -33,7 +34,8 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
                  output_low: np.ndarray = None,
                  output_high: np.ndarray = None,
                  init_state=None):
-        # todo restrict the action space to box only
+        if not isinstance(env_spec.obs_space, Box):
+            raise TypeError('ContinuousMLPGlobalDynamicsModel only support to predict state that hold space Box type')
         GlobalDynamicsModel.__init__(self,
                                      env_spec=env_spec,
                                      parameters=None,

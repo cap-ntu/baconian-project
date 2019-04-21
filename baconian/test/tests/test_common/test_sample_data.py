@@ -1,4 +1,4 @@
-from baconian.common.sampler.sample_data import TransitionData
+from baconian.common.sampler.sample_data import TransitionData, TrajectoryData
 from baconian.envs.gym_env import make
 from baconian.core.core import EnvSpec
 import numpy as np
@@ -60,6 +60,14 @@ class TestSampleData(BaseTestCase):
         self.assertEqual(a('state_set').shape[0], 100)
         self.assertEqual(a('new_state_set').shape[0], 100)
         self.assertEqual(a('action_set').shape[0], 100)
+        index = np.arange(len(a._internal_data_dict['state_set'][0])).tolist()
+        b = a.get_copy()
+        a.shuffle(index=list(index))
+        for i in range(len(index)):
+            for key in a._internal_data_dict.keys():
+                self.assertTrue(np.equal(np.array(a._internal_data_dict[key][0][i]),
+                                         np.array(b._internal_data_dict[key][0][i])).all())
+
         iterator = a.return_generator()
         count = 0
         for st, new_st, ac, reward, terminal in iterator:
@@ -87,4 +95,32 @@ class TestSampleData(BaseTestCase):
         self.assertEqual(a('action_set').shape[0], 0)
 
     def test_trajectory_data(self):
-        pass
+        env = make('Acrobot-v1')
+        env_spec = EnvSpec(obs_space=env.observation_space,
+                           action_space=env.action_space)
+        a = TrajectoryData(env_spec)
+        tmp_traj = TransitionData(env_spec)
+        st = env.reset()
+        re_list = []
+        st_list = []
+        for i in range(100):
+            ac = env_spec.action_space.sample()
+            st_new, re, done, _ = env.step(action=ac)
+            st_list.append(st_new)
+            re_list.append(re)
+            if (i + 1) % 10 == 0:
+                done = True
+            else:
+                done = False
+            tmp_traj.append(state=st, new_state=st_new, action=ac, done=done, reward=re)
+            if done is True:
+                a.append(tmp_traj)
+                tmp_traj.reset()
+        self.assertEqual(a.trajectories.__len__(), 10)
+        for traj in a.trajectories:
+            self.assertEqual(len(traj), 10)
+        data = a.return_as_transition_data()
+        data_gen = data.return_generator()
+        for d, re, st in zip(data_gen, re_list, st_list):
+            self.assertEqual(d[3], re)
+            self.assertTrue(np.equal(st, d[1]).all())

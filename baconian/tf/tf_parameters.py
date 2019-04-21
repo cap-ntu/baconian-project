@@ -191,8 +191,9 @@ class ParametersWithTensorflowVariable(Parameters):
 
     @overrides
     def copy_from(self, source_parameter):
-        # todo do we need to copy the basic config and parameters also?
-        assert isinstance(source_parameter, type(self))
+        if not isinstance(source_parameter, type(self)):
+            raise TypeError()
+        super(ParametersWithTensorflowVariable, self).copy_from(source_parameter)
         tmp_op_list = []
         for t_para, s_para in zip(self._tf_var_list, source_parameter._tf_var_list):
             tmp_op_list.append(tf.assign(t_para, s_para))

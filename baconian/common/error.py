@@ -36,3 +36,7 @@ class NotCatchCorrectExceptionError(BaconianError):
 
 class AttemptToChangeFreezeGlobalConfigError(BaconianError):
     pass
+
+
+class MissedConfigError(BaconianError):
+    pass

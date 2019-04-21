@@ -354,10 +354,10 @@ class ClassCreatorSetup(unittest.TestCase):
                 dynamics_model_train_iter=10
             ),
             name=name,
-            reward_func=RandomRewardFunc('re_fun'),
-            terminal_func=RandomTerminalFunc(name='random_p'),
             policy=policy
         )
+        algo.set_terminal_reward_function_for_dynamics_env(terminal_func=RandomTerminalFunc(name='random_p'),
+                                                           reward_func=RandomRewardFunc('re_fun'))
         return algo, locals()
 
     def create_eps(self, env_spec):
@@ -425,7 +425,8 @@ class ClassCreatorSetup(unittest.TestCase):
             config_or_config_dict={
                 "TEST_ALGO_EVERY_REAL_SAMPLE_COUNT": 10,
                 "TEST_DYNAMICS_EVERY_REAL_SAMPLE_COUNT": 10,
-                "TRAIN_ALGO_EVERY_REAL_SAMPLE_COUNT": 10,
+                "TRAIN_ALGO_EVERY_REAL_SAMPLE_COUNT_FROM_REAL_ENV": 10,
+                "TRAIN_ALGO_EVERY_REAL_SAMPLE_COUNT_FROM_DYNAMICS_ENV": 10,
                 "TRAIN_DYNAMICS_EVERY_REAL_SAMPLE_COUNT": 10,
                 "START_TRAIN_ALGO_AFTER_SAMPLE_COUNT": 1,
                 "START_TRAIN_DYNAMICS_AFTER_SAMPLE_COUNT": 1,

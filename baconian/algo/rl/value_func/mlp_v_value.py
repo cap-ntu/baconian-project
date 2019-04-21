@@ -9,10 +9,10 @@ from baconian.tf.mlp import MLP
 from baconian.common.special import *
 from baconian.algo.rl.utils import _get_copy_arg_with_tf_reuse
 from baconian.algo.placeholder_input import PlaceholderInput
-from baconian.algo.rl.value_func.value_func import ValueFunction
+from baconian.algo.rl.value_func.value_func import VValueFunction
 
 
-class MLPVValueFunc(ValueFunction, PlaceholderInput):
+class MLPVValueFunc(VValueFunction, PlaceholderInput):
     """
     Multi Layer Q Value Function, based on Tensorflow, take the state and action as input,
     return the Q value for all action/ input action.
@@ -53,10 +53,11 @@ class MLPVValueFunc(ValueFunction, PlaceholderInput):
         parameters = ParametersWithTensorflowVariable(tf_var_list=mlp_net.var_list,
                                                       rest_parameters=mlp_kwargs,
                                                       name='mlp_v_value_function_tf_param')
-        ValueFunction.__init__(self,
-                               env_spec=env_spec,
-                               name=name,
-                               parameters=None)
+        VValueFunction.__init__(self,
+                                env_spec=env_spec,
+                                state_input=state_input,
+                                name=name,
+                                parameters=None)
         PlaceholderInput.__init__(self,
                                   inputs=mlp_input_ph,
                                   parameters=parameters)

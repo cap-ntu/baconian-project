@@ -18,6 +18,28 @@ class TestTensorflowParameters(TestWithAll):
         param.save_snapshot()
         param.load_snapshot()
 
+        para2, _ = self.create_tf_parameters(name='para2')
+        para2.init()
+        para2.copy_from(param)
+
+        for key in param._source_config.required_key_dict.keys():
+            if isinstance(param[key], tf.Tensor):
+                continue
+            if isinstance(param[key], np.ndarray):
+                self.assertTrue(np.equal(param[key], para2[key]).all())
+            else:
+                self.assertEqual(param[key], para2[key])
+                self.assertEqual(param(key), para2(key))
+        for key in param._parameters.keys():
+            if isinstance(param[key], tf.Tensor):
+                continue
+
+            if isinstance(param[key], np.ndarray):
+                self.assertTrue(np.equal(param[key], para2[key]).all())
+            else:
+                self.assertEqual(param[key], para2[key])
+                self.assertEqual(param(key), para2(key))
+
     def test_save_load(self):
 
         param, _ = self.create_tf_parameters('param')

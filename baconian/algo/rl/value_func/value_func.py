@@ -41,3 +41,16 @@ class ValueFunction(Basic):
     @abc.abstractmethod
     def make_copy(self, *args, **kwargs):
         raise NotImplementedError
+
+
+class VValueFunction(ValueFunction):
+    def __init__(self, state_input, env_spec: EnvSpec, parameters: Parameters = None, name='value_func'):
+        self.state_input = state_input
+        super().__init__(env_spec, parameters, name)
+
+
+class QValueFunction(ValueFunction):
+    def __init__(self, state_input, action_input, env_spec: EnvSpec, parameters: Parameters = None, name='value_func'):
+        self.state_input = state_input
+        self.action_input = action_input
+        super().__init__(env_spec, parameters, name)

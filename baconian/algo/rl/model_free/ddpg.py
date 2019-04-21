@@ -5,7 +5,7 @@ from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
 from baconian.algo.rl.misc.replay_buffer import UniformRandomReplayBuffer, BaseReplayBuffer
 import tensorflow as tf
 import tensorflow.contrib as tf_contrib
-from baconian.common.sampler.sample_data import TransitionData
+from baconian.common.sampler.sample_data import TransitionData, TrajectoryData
 from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.config.global_config import GlobalConfig
 from baconian.common.special import *
@@ -26,7 +26,6 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
     def __init__(self,
                  env_spec: EnvSpec,
                  config_or_config_dict: (DictConfig, dict),
-                 # todo value func and policy type is too hard
                  value_func: MLPQValueFunction,
                  policy: DeterministicMLPPolicy,
                  schedule_param_list=None,
@@ -117,6 +116,8 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
     @typechecked
     def train(self, batch_data=None, train_iter=None, sess=None, update_target=True) -> dict:
         super(DDPG, self).train()
+        if isinstance(batch_data, TrajectoryData):
+            batch_data = batch_data.return_as_transition_data(shuffle_flag=True)
         tf_sess = sess if sess else tf.get_default_session()
         train_iter = self.parameters("TRAIN_ITERATION") if not train_iter else train_iter
         average_critic_loss = 0.0

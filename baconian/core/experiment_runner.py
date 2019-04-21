@@ -24,7 +24,8 @@ def _reset_global_seed(seed):
 
 
 @typechecked
-def single_exp_runner(task_fn, auto_choose_gpu_flag=False, gpu_id: int = 0, seed=None, **task_fn_kwargs):
+def single_exp_runner(task_fn, auto_choose_gpu_flag=False, gpu_id: int = 0, seed=None, del_if_log_path_existed=False,
+                      **task_fn_kwargs):
     """
 
     :param task_fn:
@@ -32,6 +33,7 @@ def single_exp_runner(task_fn, auto_choose_gpu_flag=False, gpu_id: int = 0, seed
     :param gpu_id:
     :param seed:
     :param task_fn_kwargs:
+    :param del_if_log_path_existed
     :return:
     """
     os.environ['CUDA_DEVICE_ORDER'] = "PCI_BUS_ID"
@@ -46,7 +48,7 @@ def single_exp_runner(task_fn, auto_choose_gpu_flag=False, gpu_id: int = 0, seed
     _reset_global_seed(seed)
     print("create log path at {}".format(GlobalConfig().DEFAULT_LOG_PATH), flush=True)
 
-    file.create_path(path=GlobalConfig().DEFAULT_LOG_PATH, del_if_existed=True)
+    file.create_path(path=GlobalConfig().DEFAULT_LOG_PATH, del_if_existed=del_if_log_path_existed)
     Logger().init(config_or_config_dict=dict(),
                   log_path=GlobalConfig().DEFAULT_LOG_PATH,
                   log_level=GlobalConfig().DEFAULT_LOG_LEVEL)
@@ -61,6 +63,7 @@ def single_exp_runner(task_fn, auto_choose_gpu_flag=False, gpu_id: int = 0, seed
 
 @typechecked
 def duplicate_exp_runner(num, task_fn, auto_choose_gpu_flag=False, gpu_id: int = 0, seeds: list = None,
+                         del_if_log_path_existed=False,
                          **task_fn_kwargs):
     """
 
@@ -79,4 +82,5 @@ def duplicate_exp_runner(num, task_fn, auto_choose_gpu_flag=False, gpu_id: int =
     for i in range(num):
         GlobalConfig().set('DEFAULT_LOG_PATH', os.path.join(base_log_path, 'exp_{}'.format(i)))
         single_exp_runner(task_fn=task_fn, auto_choose_gpu_flag=auto_choose_gpu_flag,
+                          del_if_log_path_existed=del_if_log_path_existed,
                           gpu_id=gpu_id, seed=seeds[i] if seeds else None, **task_fn_kwargs)

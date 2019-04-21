@@ -219,7 +219,6 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
         return np.array(actions), np.array(q_values)
 
     def _set_up_loss(self):
-        # todo bug here of l1 l2
         reg_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES, scope=self.q_value_func.name_scope)
         loss = tf.reduce_sum((self.predict_q_value - self.q_value_func.q_tensor) ** 2) + tf.reduce_sum(reg_loss)
 

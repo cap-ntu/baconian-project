@@ -23,7 +23,7 @@ class TestExperiment(BaseTestCase):
             exp = self.create_exp(name='model_free', env=env, agent=agent)
             exp.run()
 
-        single_exp_runner(func, auto_choose_gpu_flag=False, gpu_id=0)
+        single_exp_runner(func, auto_choose_gpu_flag=False, gpu_id=0, del_if_log_path_existed=True)
 
     def test_exp_with_scheduler(self, algo=None, locals=None):
         def wrap_algo(algo=None, locals=None):
@@ -56,7 +56,8 @@ class TestExperiment(BaseTestCase):
 
             return func
 
-        single_exp_runner(wrap_algo(algo, locals), auto_choose_gpu_flag=False, gpu_id=0)
+        single_exp_runner(wrap_algo(algo, locals), auto_choose_gpu_flag=False, gpu_id=0,
+                          del_if_log_path_existed=True)
 
     def test_duplicate_exp(self):
         def func():
@@ -88,7 +89,8 @@ class TestExperiment(BaseTestCase):
         to_test_algo_func = (self.create_ppo, self.create_dqn, self.create_ddpg)
         for func in to_test_algo_func:
             self.setUp()
-            single_exp_runner(_saving_scheduler(self, func), auto_choose_gpu_flag=False, gpu_id=0)
+            single_exp_runner(_saving_scheduler(self, func), auto_choose_gpu_flag=False, gpu_id=0,
+                              del_if_log_path_existed=True)
             self.tearDown()
 
     def test_saving_scheduler_on_all_model_based_algo(self):
@@ -96,7 +98,8 @@ class TestExperiment(BaseTestCase):
         # to_test_algo_func = (self.create_dyna,)
         for func in to_test_algo_func:
             self.setUp()
-            single_exp_runner(_saving_scheduler(self, func), auto_choose_gpu_flag=False, gpu_id=0)
+            single_exp_runner(_saving_scheduler(self, func), auto_choose_gpu_flag=False,
+                              gpu_id=0, del_if_log_path_existed=True)
             self.tearDown()
 
 

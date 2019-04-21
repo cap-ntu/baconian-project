@@ -18,16 +18,12 @@ class ModelPredictiveControl(ModelBasedAlgo):
 
     def __init__(self, env_spec, dynamics_model: DynamicsModel,
                  config_or_config_dict: (DictConfig, dict),
-                 reward_func: RewardFunc,
-                 terminal_func: TerminalFunc,
                  policy: Policy,
                  name='mpc',
                  ):
         super().__init__(env_spec, dynamics_model, name)
         self.config = construct_dict_config(config_or_config_dict, self)
-        self.reward_func = reward_func
         self.policy = policy
-        self.terminal_func = terminal_func
         self.parameters = Parameters(parameters=dict(),
                                      source_config=self.config,
                                      name=name + '_' + 'mpc_param')
@@ -61,7 +57,8 @@ class ModelPredictiveControl(ModelBasedAlgo):
         return res_dict
 
     def predict(self, obs, **kwargs):
-        # roll out and choose the init action with max cumulative reward_func
+        if self.is_training is True:
+            return self.env_spec.action_space.sample()
         rollout = TrajectoryData(env_spec=self.env_spec)
         state = obs
         for i in range(self.parameters('SAMPLED_PATH_NUM')):
@@ -69,9 +66,7 @@ class ModelPredictiveControl(ModelBasedAlgo):
             # todo terminal_func signal problem to be consider?
             for _ in range(self.parameters('SAMPLED_HORIZON')):
                 ac = self.policy.forward(obs=state)
-                new_state = self._dynamics_model.step(action=ac, state=state)
-                re = self.reward_func(state=state, action=ac, new_state=new_state)
-                done = self.terminal_func(state=state, action=ac, new_state=new_state)
+                new_state, re, done, _ = self.dynamics_env.step(action=ac, state=state)
                 path.append(state=state, action=ac, new_state=new_state, reward=re, done=done)
                 state = new_state
             rollout.append(path)

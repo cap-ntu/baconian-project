@@ -5,6 +5,7 @@ from baconian.common.logging import Logger
 import baconian.common.files as files
 import os
 from baconian.common.schedules import Schedule
+from copy import deepcopy
 
 
 class Parameters(object):
@@ -44,8 +45,10 @@ class Parameters(object):
             else:
                 raise ValueError('parameters is not dict')
         else:
-            # return self._parameters
             raise KeyError('specific a key to call {}'.format(type(self).__name__))
+
+    def __getitem__(self, item):
+        return self.__call__(key=item)
 
     @abc.abstractmethod
     def init(self):
@@ -55,14 +58,21 @@ class Parameters(object):
 
     @abc.abstractmethod
     def copy_from(self, source_parameter):
-        # todo implement this
-
-        raise NotImplementedError
+        if not isinstance(source_parameter, type(self)):
+            raise TypeError()
+        self._parameters = deepcopy(source_parameter._parameters)
+        self._source_config = deepcopy(source_parameter._source_config)
+        self.default_save_param_key = deepcopy(source_parameter.default_save_param_key)
+        if source_parameter.to_scheduler_param_list:
+            self._scheduler_info_dict = dict()
+            self.to_scheduler_param_list = deepcopy(source_parameter.to_scheduler_param_list)
+            if self.to_scheduler_param_list:
+                for val_dict in self.to_scheduler_param_list:
+                    self.set_scheduler(**val_dict)
 
     def save(self, save_path, global_step, name=None, default_save_param=None, *args, **kwargs):
         if default_save_param is None:
             default_save_param = dict(_parameters=self._parameters, _source_config=self._source_config.config_dict)
-            # default_save_param = dict(**self._parameters, **self._source_config.config_dict)
         if not name:
             name = self.name
         Logger().out_to_file(file_path=save_path,

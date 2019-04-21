@@ -106,7 +106,6 @@ class TrainableDyanmicsModel(DynamicsModel):
 
 class DerivableDynamics(object):
     @typechecked
-    # todo add support for numpy with autograd later
     def __init__(self, input_node_dict: dict, output_node_dict: dict):
         for node in input_node_dict.values():
             if not isinstance(node, tf.Tensor):

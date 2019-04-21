@@ -63,18 +63,13 @@ class iLQR(object):
 
         for i in range(x.shape[0]):
             F[i, :] = approx_fprime(xu, self.simulate_next_state, self.delta, i)
-            # todo debug
-            # F[i, :] = np.zeros_like(approx_fprime(xu, self.simulate_next_state, self.delta, i))
 
         c = approx_fprime(xu, self.simulate_cost, self.delta)
 
         C = np.zeros((len(xu), len(xu)))
 
         for i in range(xu.shape[0]):
-            # todo debug
-
             C[i, :] = approx_fprime(xu, self.approx_fdoubleprime, self.delta, i)
-            # C[i, :] = np.ones_like(approx_fprime(xu, self.approx_fdoubleprime, self.delta, i))
 
         f = np.zeros((len(x)))
 
@@ -110,7 +105,6 @@ class iLQR(object):
     def backward(self, x_seq, u_seq):
 
         "initialize F_t, C_t, f_t, c_t, V_t, v_t"
-        # todo C, F, c, f can be analytical set here
         C, F, c, f = self.differentiate(x_seq, u_seq)
 
         n = x_seq[0].shape[0]

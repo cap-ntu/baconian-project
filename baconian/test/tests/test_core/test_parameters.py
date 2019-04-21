@@ -25,6 +25,21 @@ class TestParam(TestWithLogSet):
                )
         self.assertEqual(a._source_config.config_dict['var1'], or_val)
         self.assertTrue(np.equal(a._parameters['param3'], or_param).all())
+        b, _ = self.create_parameters()
+        b.copy_from(a)
+
+        for key in a._source_config.required_key_dict.keys():
+            if isinstance(a[key], np.ndarray):
+                self.assertTrue(np.equal(a[key], b[key]).all())
+            else:
+                self.assertEqual(id(a[key]), id(b[key]))
+                self.assertEqual(id(a(key)), id(b(key)))
+        for key in a._parameters.keys():
+            if isinstance(a[key], np.ndarray):
+                self.assertTrue(np.equal(a[key], b[key]).all())
+            else:
+                self.assertEqual(a[key], b[key])
+                self.assertEqual(a(key), b(key))
 
     def test_scheduler_param(self):
         def func():
@@ -63,6 +78,24 @@ class TestParam(TestWithLogSet):
             if x >= 10:
                 self.assertEqual(a('param4'), 0.0)
             x += 1
+        b, _ = self.create_parameters()
+        b.copy_from(a)
+        for key in a._source_config.required_key_dict.keys():
+            if isinstance(a[key], np.ndarray):
+                self.assertTrue(np.equal(a[key], b[key]).all())
+            else:
+                self.assertEqual(id(a[key]), id(b[key]))
+                self.assertEqual(id(a(key)), id(b(key)))
+        for key in a._parameters.keys():
+            if isinstance(a[key], np.ndarray):
+                self.assertTrue(np.equal(a[key], b[key]).all())
+            else:
+                self.assertEqual(a[key], b[key])
+                self.assertEqual(a(key), b(key))
+        self.assertEqual(a.to_scheduler_param_list.__len__(), b.to_scheduler_param_list.__len__())
+        for a_val, b_val in zip(a.to_scheduler_param_list, b.to_scheduler_param_list):
+            self.assertEqual(a_val['param_key'], b_val['param_key'])
+            self.assertEqual(a_val['scheduler'].value(), b_val['scheduler'].value())
 
     def test_event_schedule(self):
         def func():
