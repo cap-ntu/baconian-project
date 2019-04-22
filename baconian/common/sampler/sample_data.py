@@ -127,7 +127,7 @@ class TransitionData(SampleData):
     def return_generator(self, batch_size=None, shuffle_flag=False, assigned_keys=None, infinite_run=False):
         if assigned_keys is None:
             assigned_keys = ('state_set', 'new_state_set', 'action_set', 'reward_set', 'done_set')
-        # todo this api need to be updated due to the append new dataset
+        # todo unit test should be tested
         if shuffle_flag is True:
             self.shuffle()
         if batch_size is not None:
@@ -137,12 +137,14 @@ class TransitionData(SampleData):
             if infinite_run is True:
                 while True:
                     end = min(start + batch_size, len(self))
-                    yield [self._internal_data_dict[key][0][start: end] for key in assigned_keys]
+                    yield [make_batch(self._internal_data_dict[key][0][start: end], self._internal_data_dict[key][1])
+                           for key in assigned_keys]
                     start = end % len(self)
             else:
                 while start < len(self):
                     end = min(start + batch_size, len(self))
-                    yield [self._internal_data_dict[key][0][start: end] for key in assigned_keys]
+                    yield [make_batch(self._internal_data_dict[key][0][start: end], self._internal_data_dict[key][1])
+                           for key in assigned_keys]
                     start = end
         else:
             start = 0

@@ -170,7 +170,7 @@ def rk4(derivs, y0, t, *args, **kwargs):
 @typechecked
 def make_batch(v, original_shape: (list, tuple)):
     if not isinstance(v, np.ndarray):
-        v = np.ndarray(v)
+        v = np.array(v)
     # assert len(v.shape) <= len(original_shape) + 1
     if len(v.shape) == len(original_shape) + 1 and np.equal(np.array(v.shape[1:]),
                                                             np.array(original_shape)).all() is True:
