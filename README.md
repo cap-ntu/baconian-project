@@ -9,7 +9,6 @@ and visualization modules developed by [CAP](http://cap.scse.ntu.edu.sg/). We ai
 modularized framework that can allow the user's to easily set-up a model-based rl experiments by reuse modules we 
 offered.
 
-![CAP](https://user-images.githubusercontent.com/9161548/40165577-eff023c4-59ee-11e8-8bf5-508325a23baa.png)
 
 ### Release news:
 - 2019.4.4 Released the v0.1.4. Added benchmark results on DDPG, visualization of results will be given later. 
@@ -27,7 +26,6 @@ Documentation is available at http://baconian-public.readthedocs.io/
 - [ ] Visualization module
 - [ ] State-of-art model-based algorithms: PILCO, GPS etc.
 - [ ] Latent-space method supporting.
-- [ ] Benchmark tests on multiple tasks
 
 ### Acknowledgement 
 Thanks to the following open-source projects:
