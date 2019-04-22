@@ -3,12 +3,12 @@ from scipy.linalg import inv
 from scipy.optimize import approx_fprime
 from baconian.core.core import EnvSpec
 from baconian.algo.dynamics.reward_func.reward_func import CostFunc
-from baconian.algo.dynamics.dynamics_model import DynamicsModel
+from baconian.algo.dynamics.dynamics_model import DynamicsEnvWrapper
 
 
 class iLQR(object):
 
-    def __init__(self, env_spec: EnvSpec, delta, T, dyn_model: DynamicsModel, cost_fn: CostFunc):
+    def __init__(self, env_spec: EnvSpec, delta, T, dyn_model: DynamicsEnvWrapper, cost_fn: CostFunc):
 
         self.env_spec = env_spec
         self.min_factor = 2

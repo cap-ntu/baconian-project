@@ -5,6 +5,8 @@ import numpy as np
 from baconian.core.core import EnvSpec
 from baconian.algo.dynamics.dynamics_model import GlobalDynamicsModel
 from baconian.algo.optimal_control.ilqr_policy import iLQRPolicy
+from baconian.algo.dynamics.dynamics_model import DynamicsEnvWrapper
+from baconian.algo.dynamics.terminal_func.terminal_func import RandomTerminalFunc
 
 
 class DebugDynamics(GlobalDynamicsModel):
@@ -32,7 +34,9 @@ class TestiLQRPolicy(TestWithAll):
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
         dyna = DebugDynamics(env_spec=env_spec)
-        dyna.init()
+        dyna = DynamicsEnvWrapper(dynamics=dyna)
+        dyna.set_terminal_reward_func(terminal_func=RandomTerminalFunc(),
+                                      reward_func=DebuggingCostFunc())
         policy = iLQRPolicy(env_spec=env_spec,
                             T=10,
                             delta=0.05,

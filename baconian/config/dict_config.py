@@ -10,12 +10,12 @@ class Config(object):
 class DictConfig(Config):
 
     @init_func_arg_record_decorator()
-    def __init__(self, required_key_dict: dict, config_dict=None, cls_name=""):
+    def __init__(self, required_key_dict: dict, config_dict: dict = None, cls_name=""):
         self.cls_name = cls_name
 
         self.required_key_dict = required_key_dict
         if config_dict:
-            self.config_dict = config_dict
+            self._config_dict = config_dict
         else:
             self._config_dict = {}
 

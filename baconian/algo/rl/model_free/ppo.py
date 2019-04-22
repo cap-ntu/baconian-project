@@ -15,6 +15,8 @@ from baconian.algo.rl.misc.sample_processor import SampleProcessor
 from baconian.common.logging import record_return_decorator
 from baconian.core.status import register_counter_info_to_status_decorator
 from baconian.algo.placeholder_input import MultiPlaceholderInput, PlaceholderInput
+from baconian.common.error import *
+from baconian.algo.rl.utils import Scaler
 
 
 class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
@@ -35,6 +37,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         self.trajectory_memory = TrajectoryData(env_spec=env_spec)
         self.transition_data_for_trajectory = TransitionData(env_spec=env_spec)
         self.value_func_train_data_buffer = None
+        self.scaler = Scaler(obs_dim=self.env_spec.flat_obs_dim)
 
         with tf.variable_scope(name):
             self.advantages_ph = tf.placeholder(tf.float32, (None,), 'advantages')
@@ -100,7 +103,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         if trajectory_data is None:
             trajectory_data = self.trajectory_memory
         if len(trajectory_data) == 0:
-            return dict(msg='not enough data')
+            raise MemoryBufferLessThanBatchSizeError('not enough trajectory data')
         tf_sess = sess if sess else tf.get_default_session()
         SampleProcessor.add_estimated_v_value(trajectory_data, value_func=self.value_func)
         SampleProcessor.add_discount_sum_reward(trajectory_data,
@@ -121,6 +124,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                                                       train_iter=train_iter if train_iter else self.parameters(
                                                           'value_func_train_iter'),
                                                       sess=tf_sess)
+        self.trajectory_memory.reset()
         return {
             **policy_res_dict,
             **value_func_res_dict
@@ -134,21 +138,28 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
     @typechecked
     def predict(self, obs: np.ndarray, sess=None, batch_flag: bool = False):
         tf_sess = sess if sess else tf.get_default_session()
-        return self.policy.forward(obs=obs, sess=tf_sess, feed_dict=self.parameters.return_tf_parameter_feed_dict())
+        scale, offset = self.scaler.get()
+        obs = np.squeeze((np.squeeze(obs) - offset) * scale)
+        ac = self.policy.forward(obs=obs, sess=tf_sess, feed_dict=self.parameters.return_tf_parameter_feed_dict())
+        return ac
 
     @typechecked
     def append_to_memory(self, samples: SampleData):
         # todo how to make sure the data's time sequential
         iter_samples = samples.return_generator()
+        scale, offset = self.scaler.get()
+        obs_list = []
         for obs0, obs1, action, reward, terminal1 in iter_samples:
-            self.transition_data_for_trajectory.append(state=obs0,
-                                                       new_state=obs1,
+            obs_list.append(obs0)
+            self.transition_data_for_trajectory.append(state=(obs0 - offset) * scale,
+                                                       new_state=(obs1 - offset) * scale,
                                                        action=action,
                                                        reward=reward,
                                                        done=terminal1)
             if terminal1 is True:
                 self.trajectory_memory.append(self.transition_data_for_trajectory)
                 self.transition_data_for_trajectory.reset()
+        self.scaler.update(x=np.array(obs_list))
 
     @record_return_decorator(which_recorder='self')
     def save(self, global_step, save_path=None, name=None, **kwargs):
@@ -189,10 +200,14 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
             loss3 = self.parameters('eta') * tf.square(
                 tf.maximum(0.0, self.kl - 2.0 * self.parameters('kl_target')))
             loss = loss1 + loss2 + loss3
+            self.loss1 = loss1
+            self.loss2 = loss2
+            self.loss3 = loss3
         if isinstance(self.policy, PlaceholderInput):
-            reg_loss = tf.reduce_sum(
-                tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES, scope=self.policy.name_scope))
-            loss += reg_loss
+            reg_list = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES, scope=self.policy.name_scope)
+            if len(reg_list) > 0:
+                reg_loss = tf.reduce_sum(reg_list)
+                loss += reg_loss
 
         optimizer = tf.train.AdamOptimizer(
             learning_rate=self.parameters('policy_lr') * self.parameters('lr_multiplier'))
@@ -200,24 +215,31 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         return loss, optimizer, train_op
 
     def _setup_value_func_loss(self):
+        # todo update the value_func design
+        loss = tf.reduce_mean(tf.square(self.value_func.v_tensor - self.v_func_val_ph))
         reg_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES, scope=self.value_func.name_scope)
-        loss = tf.reduce_mean(tf.square(self.value_func.v_tensor - self.v_func_val_ph)) + tf.reduce_sum(reg_loss)
+        if len(reg_loss) > 0:
+            loss += tf.reduce_sum(reg_loss)
+
         optimizer = tf.train.AdamOptimizer(self.parameters('value_func_lr'))
         train_op = optimizer.minimize(loss, var_list=self.value_func.parameters('tf_var_list'))
         return loss, optimizer, train_op
 
     def _update_policy(self, train_data: TransitionData, train_iter, sess):
         old_policy_feed_dict = dict()
-        for tensor in self.old_dist_tensor:
-            old_policy_feed_dict[tensor[0]] = sess.run(getattr(self.policy, tensor[1]),
-                                                       feed_dict={
-                                                           self.policy.parameters('state_input'): train_data(
-                                                               'state_set'),
-                                                           self.policy.parameters('action_input'): train_data(
-                                                               'action_set'),
 
-                                                           **self.parameters.return_tf_parameter_feed_dict()
-                                                       })
+        res = sess.run([getattr(self.policy, tensor[1]) for tensor in self.old_dist_tensor],
+                       feed_dict={
+                           self.policy.parameters('state_input'): train_data(
+                               'state_set'),
+                           self.policy.parameters('action_input'): train_data(
+                               'action_set'),
+
+                           **self.parameters.return_tf_parameter_feed_dict()
+                       })
+
+        for tensor, val in zip(self.old_dist_tensor, res):
+            old_policy_feed_dict[tensor[0]] = val
 
         feed_dict = {
             self.policy.parameters('action_input'): train_data('action_set'),
@@ -239,22 +261,25 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
             average_entropy += entropy
             total_epoch = i + 1
             if kl > self.parameters('kl_target', require_true_value=True) * 4:
+                # early stopping if D_KL diverges badly
                 break
-            # early stopping if D_KL diverges badly
         average_loss, average_kl, average_entropy = average_loss / total_epoch, average_kl / total_epoch, average_entropy / total_epoch
 
         if kl > self.parameters('kl_target', require_true_value=True) * 2:  # servo beta to reach D_KL target
             self.parameters.set(key='beta',
                                 new_val=np.minimum(35, 1.5 * self.parameters('beta', require_true_value=True)))
-            if self.parameters('kl_target', require_true_value=True) > 30 and self.parameters('lr_multiplier',
-                                                                                              require_true_value=True) > 0.1:
+            if self.parameters('beta', require_true_value=True) > 30 and self.parameters('lr_multiplier',
+                                                                                         require_true_value=True) > 0.1:
                 self.parameters.set(key='lr_multiplier',
                                     new_val=self.parameters('lr_multiplier', require_true_value=True) / 1.5)
-            elif kl < self.parameters('kl_target', require_true_value=True) / 2:
-                self.beta = np.maximum(1 / 35, self.beta / 1.5)  # min clip beta
-                if self.beta < (1 / 30) and self.parameters('lr_multiplier') < 10:
-                    self.parameters.set(key='lr_multiplier',
-                                        new_val=self.parameters('lr_multiplier', require_true_value=True) * 1.5)
+        elif kl < self.parameters('kl_target', require_true_value=True) / 2:
+            self.parameters.set(key='beta',
+                                new_val=np.maximum(1 / 35, self.parameters('beta', require_true_value=True) / 1.5))
+
+            if self.parameters('beta', require_true_value=True) < (1 / 30) and self.parameters('lr_multiplier',
+                                                                                               require_true_value=True) < 10:
+                self.parameters.set(key='lr_multiplier',
+                                    new_val=self.parameters('lr_multiplier', require_true_value=True) * 1.5)
         return dict(
             policy_average_loss=average_loss,
             policy_average_kl=average_kl,
@@ -264,26 +289,28 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
 
     def _update_value_func(self, train_data: TransitionData, train_iter, sess):
         if self.value_func_train_data_buffer is None:
-            self.value_func_train_data_buffer = train_data.get_copy()
+            self.value_func_train_data_buffer = train_data
         else:
             self.value_func_train_data_buffer.union(train_data)
         y_hat = self.value_func.forward(obs=train_data('state_set'))
         old_exp_var = 1 - np.var(train_data('advantage_set') - y_hat) / np.var(train_data('advantage_set'))
-        num_batch = max(len(train_data) // self.parameters('value_func_train_batch_size'), 1)
         for i in range(train_iter):
-            for j in range(num_batch):
-                batch = self.value_func_train_data_buffer.sample_batch(
-                    batch_size=self.parameters('value_func_train_batch_size'),
-                    shuffle_flag=True)
+            data_gen = self.value_func_train_data_buffer.return_generator(
+                batch_size=self.parameters('value_func_train_batch_size'),
+                infinite_run=False,
+                shuffle_flag=True,
+                assigned_keys=('state_set', 'new_state_set', 'action_set', 'reward_set', 'done_set', 'advantage_set'))
+            for batch in data_gen:
                 loss, _ = sess.run([self.value_func_loss, self.value_func_update_op],
                                    feed_dict={
-                                       self.value_func.state_input: batch['state_set'],
-                                       self.v_func_val_ph: batch['advantage_set'],
+                                       self.value_func.state_input: batch[0],
+                                       self.v_func_val_ph: batch[5],
                                        **self.parameters.return_tf_parameter_feed_dict()
                                    })
         y_hat = self.value_func.forward(obs=train_data('state_set'))
         loss = np.mean(np.square(y_hat - train_data('advantage_set')))
         exp_var = 1 - np.var(train_data('advantage_set') - y_hat) / np.var(train_data('advantage_set'))
+        self.value_func_train_data_buffer = train_data
         return dict(
             value_func_loss=loss,
             value_func_policy_exp_var=exp_var,

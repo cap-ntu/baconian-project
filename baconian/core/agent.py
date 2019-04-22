@@ -161,7 +161,7 @@ class Agent(Basic):
                                          sample_count=sample_count)
         if store_flag is True:
             self.store_samples(samples=batch_data)
-
+        # todo when we have transition/ trajectory data here, the mean or sum results are still valid?
         ConsoleLogger().print('info',
                               "sample: mean reward {}, sum reward {}".format(
                                   batch_data.get_mean_of(set_name='reward_set'),

@@ -18,7 +18,6 @@ class TestSampleData(BaseTestCase):
             a.append(state=st, new_state=st_new, action=ac, done=done, reward=re)
         self.assertEqual(a.reward_set.shape[0], 100)
         self.assertEqual(a.done_set.shape[0], 100)
-
         self.assertEqual(a.action_set.shape[0], 100)
         self.assertEqual(a.state_set.shape[0], 100)
         self.assertEqual(a.new_state_set.shape[0], 100)
@@ -78,6 +77,38 @@ class TestSampleData(BaseTestCase):
             self.assertTrue(np.isscalar(reward))
             self.assertTrue(isinstance(terminal, bool))
         self.assertEqual(count, 100)
+        count = 0
+        iter = a.return_generator(batch_size=10)
+        for st, new_st, ac, reward, terminal in iter:
+            self.assertEqual(len(st), 10)
+            self.assertEqual(len(new_st), 10)
+            self.assertEqual(len(ac), 10)
+            self.assertEqual(len(reward), 10)
+            self.assertEqual(len(terminal), 10)
+            count += 1
+        self.assertEqual(count, 10)
+        count = 0
+        iter = a.return_generator(batch_size=10, infinite_run=True)
+        for st, new_st, ac, reward, terminal in iter:
+            self.assertEqual(len(st), 10)
+            self.assertEqual(len(new_st), 10)
+            self.assertEqual(len(ac), 10)
+            self.assertEqual(len(reward), 10)
+            self.assertEqual(len(terminal), 10)
+            count += 1
+            if count > 20:
+                break
+        self.assertGreater(count, 20)
+
+        a.append_new_set(name='test', data_set=np.ones_like(a._internal_data_dict['state_set'][0]),
+                         shape=a._internal_data_dict['state_set'][1])
+        iter = a.return_generator(batch_size=10,
+                                  assigned_keys=('state_set', 'new_state_set', 'action_set', 'reward_set', 'done_set', 'test'))
+        count = 0
+        for st, new_st, ac, reward, terminal, test in iter:
+            self.assertEqual(len(test), 10)
+            count += 1
+        self.assertEqual(count, 10)
 
         a.reset()
         self.assertEqual(a.reward_set.shape[0], 0)

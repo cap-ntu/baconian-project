@@ -65,3 +65,11 @@ class LQRPolicy(DeterministicPolicy):
     @property
     def T(self):
         return self.parameters('T')
+
+#
+# class LQRAlogWrapper(AlgoPolicyWrapper):
+#     def predict(self, obs, **kwargs):
+#         if self.is_training is True:
+#             return self.env_spec.action_space.sample()
+#         else:
+#             return self.policy.forward(obs=obs)

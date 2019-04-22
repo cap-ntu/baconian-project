@@ -31,4 +31,4 @@ class TestAgent(TestWithAll):
         agent.init()
         env.reset()
         agent.test(sample_count=1000, sample_trajectory_flag=False)
-        agent.test(sample_count=1000, sample_trajectory_flag=True)
+        agent.test(sample_count=2, sample_trajectory_flag=True)

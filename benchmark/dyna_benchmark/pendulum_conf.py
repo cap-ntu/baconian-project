@@ -99,13 +99,14 @@ PENDULUM_BENCHMARK_CONFIG_DICT = {
     'DynaFlow': {
         "TEST_ALGO_EVERY_REAL_SAMPLE_COUNT": 10,
         "TEST_DYNAMICS_EVERY_REAL_SAMPLE_COUNT": 100,
-        "TRAIN_ALGO_EVERY_REAL_SAMPLE_COUNT": 10,
         "TRAIN_DYNAMICS_EVERY_REAL_SAMPLE_COUNT": 10,
         "START_TRAIN_ALGO_AFTER_SAMPLE_COUNT": 1,
         "START_TRAIN_DYNAMICS_AFTER_SAMPLE_COUNT": 1,
         "START_TEST_ALGO_AFTER_SAMPLE_COUNT": 1,
         "START_TEST_DYNAMICS_AFTER_SAMPLE_COUNT": 1,
-        "WARM_UP_DYNAMICS_SAMPLES": 2000
+        "WARM_UP_DYNAMICS_SAMPLES": 5000,
+        "TRAIN_ALGO_EVERY_REAL_SAMPLE_COUNT_FROM_REAL_ENV": 10,
+        "TRAIN_ALGO_EVERY_REAL_SAMPLE_COUNT_FROM_DYNAMICS_ENV": 50,
     },
     'DynamicsModel': dict(l1_norm_scale=0.01,
                           l2_norm_scale=0.01,
@@ -128,7 +129,7 @@ PENDULUM_BENCHMARK_CONFIG_DICT = {
                                   "W_NORMAL_STDDEV": 0.03
                               },
                               {
-                                  "ACT": "TANH",
+                                  "ACT": "IDENTITY",
                                   "B_INIT_VALUE": 0.0,
                                   "NAME": "OUPTUT",
                                   "N_UNITS": 3,

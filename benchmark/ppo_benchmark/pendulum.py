@@ -1,23 +1,21 @@
 """
-DDPG bechmark on Pendulum
+PPO bechmark on Pendulum
 """
-from baconian.core.core import EnvSpec
-from baconian.envs.gym_env import make
-from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
-from baconian.algo.rl.model_free.ddpg import DDPG
-from baconian.algo.rl.policy.deterministic_mlp import DeterministicMLPPolicy
-from baconian.core.agent import Agent
-from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
-from baconian.core.experiment import Experiment
-from baconian.core.flow.train_test_flow import TrainTestFlow
-from baconian.config.global_config import GlobalConfig
-from benchmark.ddpg_bechmark.mountain_car_continuous_conf import *
-from benchmark.ddpg_bechmark.pendulum_conf import *
-from baconian.common.schedules import LinearSchedule
-from baconian.core.status import get_global_status_collect
+from benchmark.ppo_benchmark.pendulum_conf import *
 from baconian.common.noise import *
 from baconian.common.schedules import *
 from baconian.core.experiment_runner import duplicate_exp_runner
+from baconian.core.core import EnvSpec
+from baconian.envs.gym_env import make
+from baconian.algo.rl.value_func.mlp_v_value import MLPVValueFunc
+from baconian.algo.rl.model_free.ppo import PPO
+from baconian.algo.rl.policy.normal_distribution_mlp import NormalDistributionMLPPolicy
+from baconian.core.agent import Agent
+from baconian.core.experiment import Experiment
+from baconian.core.flow.train_test_flow import TrainTestFlow
+from baconian.config.global_config import GlobalConfig
+from baconian.core.status import get_global_status_collect
+from baconian.common.schedules import PeriodicalEventSchedule
 
 
 def pendulum_task_fn():
@@ -30,31 +28,29 @@ def pendulum_task_fn():
     env_spec = EnvSpec(obs_space=env.observation_space,
                        action_space=env.action_space)
 
-    mlp_q = MLPQValueFunction(env_spec=env_spec,
-                              name_scope=name + '_mlp_q',
-                              name=name + '_mlp_q',
-                              **exp_config['MLPQValueFunction'])
-    policy = DeterministicMLPPolicy(env_spec=env_spec,
-                                    name_scope=name + '_mlp_policy',
-                                    name=name + '_mlp_policy',
-                                    output_low=env_spec.action_space.low,
-                                    output_high=env_spec.action_space.high,
-                                    **exp_config['DeterministicMLPPolicy'],
-                                    reuse=False)
+    mlp_v = MLPVValueFunc(env_spec=env_spec,
+                          name_scope=name + 'mlp_v',
+                          name=name + 'mlp_v',
+                          **exp_config['MLP_V'])
+    policy = NormalDistributionMLPPolicy(env_spec=env_spec,
+                                         name_scope=name + 'mlp_policy',
+                                         name=name + 'mlp_policy',
+                                         **exp_config['POLICY'],
+                                         output_low=env_spec.action_space.low,
+                                         output_high=env_spec.action_space.high,
+                                         reuse=False)
 
-    ddpg = DDPG(
+    ppo = PPO(
         env_spec=env_spec,
-        policy=policy,
-        value_func=mlp_q,
-        name=name + '_ddpg',
-        **exp_config['DDPG']
+        **exp_config['PPO'],
+        value_func=mlp_v,
+        stochastic_policy=policy,
+        name=name + 'ppo'
     )
     agent = Agent(env=env, env_spec=env_spec,
-                  algo=ddpg,
+                  algo=ppo,
                   exploration_strategy=None,
-                  noise_adder=AgentActionNoiseWrapper(noise=NormalActionNoise(),
-                                                      noise_weight_scheduler=ConstantSchedule(value=0.3),
-                                                      action_weight_scheduler=ConstantSchedule(value=1.0)),
+                  noise_adder=None,
                   name=name + '_agent')
 
     flow = TrainTestFlow(train_sample_count_func=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
@@ -73,6 +69,7 @@ def pendulum_task_fn():
                                         'args': list(),
                                         'kwargs': dict(sample_count=exp_config['TrainTestFlow']['TRAIN_SAMPLES_COUNT'],
                                                        env=agent.env,
+                                                       sample_type='trajectory',
                                                        in_which_status='TRAIN',
                                                        store_flag=True),
                                         },

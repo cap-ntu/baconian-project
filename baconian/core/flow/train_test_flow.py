@@ -5,6 +5,7 @@ from baconian.config.dict_config import DictConfig
 from baconian.common.misc import *
 from baconian.core.parameters import Parameters
 from baconian.core.status import *
+from baconian.common.error import *
 
 
 class Flow(abc.ABC):
@@ -14,7 +15,8 @@ class Flow(abc.ABC):
     def __init__(self, func_dict):
         self.func_dict = func_dict
         for key in self.required_func:
-            assert key in func_dict
+            if key not in func_dict:
+                raise MissedConfigError('miss key {}'.format(key))
 
     def launch(self) -> bool:
         try:
@@ -27,9 +29,13 @@ class Flow(abc.ABC):
         raise NotImplementedError
 
     def _call_func(self, key, **extra_kwargs):
-        return self.func_dict[key]['func'](*self.func_dict[key]['args'],
-                                           **extra_kwargs,
-                                           **self.func_dict[key]['kwargs'])
+
+        if self.func_dict[key]:
+            return self.func_dict[key]['func'](*self.func_dict[key]['args'],
+                                               **extra_kwargs,
+                                               **self.func_dict[key]['kwargs'])
+        else:
+            return None
 
 
 class TrainTestFlow(Flow):

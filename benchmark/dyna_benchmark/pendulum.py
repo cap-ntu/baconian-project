@@ -1,8 +1,8 @@
 """
-DDPG bechmark on Pendulum
+DYNA bechmark on Pendulum
 """
 
-from benchmark.dyna_benchmark.pendulum_conf import *
+from benchmark.dyna_benchmark.pendulum_conf import PENDULUM_BENCHMARK_CONFIG_DICT as exp_config
 from baconian.common.noise import *
 from baconian.common.schedules import *
 from baconian.core.core import EnvSpec
@@ -22,11 +22,8 @@ from baconian.envs.gym_reward_func import REWARD_FUNC_DICT
 
 
 def pendulum_task_fn():
-    exp_config = PENDULUM_BENCHMARK_CONFIG_DICT
     GlobalConfig().set('DEFAULT_EXPERIMENT_END_POINT',
-                       dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=10000,
-                            TOTAL_AGENT_TEST_SAMPLE_COUNT=None,
-                            TOTAL_AGENT_UPDATE_COUNT=None))
+                       exp_config['DEFAULT_EXPERIMENT_END_POINT'])
 
     env = make('Pendulum-v0')
     name = 'benchmark'
@@ -108,8 +105,8 @@ def pendulum_task_fn():
                                                     store_flag=True)},
             'sample_from_dynamics_env': {'func': agent.sample,
                                          'args': list(),
-                                         'kwargs': dict(sample_count=1,
-                                                        sample_type='trajectory',
+                                         'kwargs': dict(sample_count=50,
+                                                        sample_type='transition',
                                                         env=agent.algo.dynamics_env,
                                                         in_which_status='TRAIN',
                                                         store_flag=False)}

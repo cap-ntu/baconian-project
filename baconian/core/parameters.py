@@ -60,8 +60,10 @@ class Parameters(object):
     def copy_from(self, source_parameter):
         if not isinstance(source_parameter, type(self)):
             raise TypeError()
-        self._parameters = deepcopy(source_parameter._parameters)
-        self._source_config = deepcopy(source_parameter._source_config)
+
+        self._update_dict(source_dict=source_parameter._parameters,
+                          target_dict=self._parameters)
+        self._source_config.config_dict = source_parameter._source_config.config_dict
         self.default_save_param_key = deepcopy(source_parameter.default_save_param_key)
         if source_parameter.to_scheduler_param_list:
             self._scheduler_info_dict = dict()
@@ -69,6 +71,10 @@ class Parameters(object):
             if self.to_scheduler_param_list:
                 for val_dict in self.to_scheduler_param_list:
                     self.set_scheduler(**val_dict)
+
+    def _update_dict(self, source_dict: dict, target_dict: dict):
+        for key, val in source_dict.items():
+            target_dict[key] = deepcopy(val)
 
     def save(self, save_path, global_step, name=None, default_save_param=None, *args, **kwargs):
         if default_save_param is None:

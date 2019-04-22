@@ -14,7 +14,7 @@ class PendulumRewardFunc(RewardFunc):
         th = state[0]
         thdot = state[1]
         u = np.clip(action, -self.max_torque, self.max_torque)[0]
-        self.last_u = u  # for rendering
+        u = action
         costs = angle_normalize(th) ** 2 + .1 * thdot ** 2 + .001 * (u ** 2)
         return float(-costs)
 

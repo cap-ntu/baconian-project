@@ -15,12 +15,13 @@ class SampleProcessor(object):
     @staticmethod
     def add_gae(data: TrajectoryData, gamma, lam, value_func: ValueFunction = None, name='advantage_set'):
         for traj in data.trajectories:
+            # scale if gamma less than 1
             rewards = traj('reward_set') * (1 - gamma) if gamma < 0.999 else traj('reward_set')
             try:
                 traj('v_value_set')
             except ValueError:
                 if value_func is None:
-                    raise ValueError('v_value_set did not existed, pass in value_func parameter to compute')
+                    raise ValueError('v_value_set did not existed, pass in value_func parameter to compute v_value_set')
                 SampleProcessor.add_estimated_v_value(
                     data=traj,
                     value_func=value_func
@@ -35,6 +36,7 @@ class SampleProcessor(object):
     @staticmethod
     def add_discount_sum_reward(data: TrajectoryData, gamma, name='discount_set'):
         for traj in data.trajectories:
+            # scale if gamma less than 1
             dis_set = traj('reward_set') * (1 - gamma) if gamma < 0.999 else traj('reward_set')
             dis_set = discount(dis_set, gamma)
             traj.append_new_set(name=name, data_set=make_batch(dis_set, original_shape=[]), shape=[])
@@ -49,10 +51,7 @@ class SampleProcessor(object):
 
     @staticmethod
     def _add_estimated_v_value(data: TransitionData, value_func: ValueFunction, name):
-        data_iter = data.return_generator()
-        v_set = []
-        for obs0, _, _, _, _ in data_iter:
-            v_set.append(value_func.forward(obs0))
+        v_set = value_func.forward(data.state_set)
         data.append_new_set(name=name, data_set=make_batch(np.array(v_set), original_shape=[]), shape=[])
 
     @staticmethod

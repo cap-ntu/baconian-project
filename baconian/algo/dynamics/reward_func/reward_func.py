@@ -33,6 +33,21 @@ class CostFunc(RewardFunc):
     pass
 
 
+class RewardFuncCostWrapper(CostFunc):
+
+    def __init__(self, reward_func: RewardFunc, name='reward_func'):
+        super().__init__(name)
+        self._reward_func = reward_func
+
+    def __call__(self, state, action, new_state, **kwargs) -> float:
+        return self._reward_func.__call__(state=state,
+                                          action=action,
+                                          new_state=new_state) * -1.0
+
+    def init(self):
+        self._reward_func.init()
+
+
 class QuadraticCostFunc(CostFunc):
     """
     A quadratic function

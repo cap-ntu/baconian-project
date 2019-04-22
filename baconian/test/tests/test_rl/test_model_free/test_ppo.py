@@ -40,8 +40,10 @@ class TestPPO(TestWithAll):
         ppo.save(save_path=GlobalConfig().DEFAULT_LOG_PATH + '/ppo_test',
                  global_step=0,
                  name=ppo.name)
-        for i in range(10):
+        for i in range(5):
+            ppo.append_to_memory(data)
             res = ppo.train()
+
             print('value_func_loss {}, policy_average_loss: {}'.format(res['value_func_loss'],
                                                                        res['policy_average_loss']))
             traj_data = TrajectoryData(env_spec=env_spec)
@@ -49,6 +51,7 @@ class TestPPO(TestWithAll):
             res = ppo.train(trajectory_data=traj_data,
                             train_iter=5,
                             sess=self.sess)
+
             print('value_func_loss {}, policy_average_loss: {}'.format(res['value_func_loss'],
                                                                        res['policy_average_loss']))
 

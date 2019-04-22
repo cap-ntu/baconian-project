@@ -6,6 +6,7 @@ from typeguard import typechecked
 import os
 from baconian.common.schedules import Schedule
 import numpy as np
+from copy import deepcopy
 
 
 class ParametersWithTensorflowVariable(Parameters):
@@ -190,7 +191,7 @@ class ParametersWithTensorflowVariable(Parameters):
         self._registered_tf_ph_dict[key] = ph
 
     @overrides
-    def copy_from(self, source_parameter):
+    def copy_from(self, source_parameter, deep_copy=None):
         if not isinstance(source_parameter, type(self)):
             raise TypeError()
         super(ParametersWithTensorflowVariable, self).copy_from(source_parameter)
@@ -200,6 +201,12 @@ class ParametersWithTensorflowVariable(Parameters):
         sess = tf.get_default_session()
         sess.run(tmp_op_list)
         del tmp_op_list
+
+    def _update_dict(self, source_dict: dict, target_dict: dict):
+        for key, val in source_dict.items():
+            if isinstance(val, tf.Tensor):
+                continue
+            target_dict[key] = deepcopy(val)
 
     @typechecked
     def set_scheduler(self, param_key: str, scheduler: Schedule, to_tf_ph_flag=True):

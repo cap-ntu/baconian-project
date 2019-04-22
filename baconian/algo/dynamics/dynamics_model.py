@@ -47,11 +47,12 @@ class DynamicsModel(Basic):
         if allow_clip is True:
             if state is not None:
                 if self.env_spec.obs_space.contains(state) is False:
-                    ConsoleLogger().print('warning', 'state out of bound, allowed clipping')
+                    # todo log level seems not working
+                    # ConsoleLogger().print('warning', 'state out of bound, allowed clipping')
                     state = self.env_spec.obs_space.clip(state)
                     assert self.env_spec.obs_space.contains(state)
             if self.env_spec.action_space.contains(action) is False:
-                ConsoleLogger().print('warning', 'action out of bound, allowed clipping')
+                # ConsoleLogger().print('warning', 'action out of bound, allowed clipping')
                 action = self.env_spec.action_space.clip(action)
 
         assert self.env_spec.action_space.contains(action)
@@ -59,7 +60,7 @@ class DynamicsModel(Basic):
         new_state = self._state_transit(state=state, action=self.env_spec.flat_action(action),
                                         **kwargs_for_transit)
         if allow_clip is True:
-            ConsoleLogger().print('warning', 'new state out of bound, allowed clipping')
+            # ConsoleLogger().print('warning', 'new state out of bound, allowed clipping')
             new_state = self.env_spec.obs_space.clip(new_state)
         if self.env_spec.obs_space.contains(new_state) is False:
             raise DynamicsNextStepOutputBoundError(
@@ -186,7 +187,7 @@ class DynamicsEnvWrapper(Env):
 
     def step(self, action: np.ndarray, **kwargs):
         super().step(action)
-        state = deepcopy(self.get_state())
+        state = deepcopy(self.get_state()) if 'state' not in kwargs else kwargs['state']
         new_state = self._dynamics.step(action=action, **kwargs)
         re = self._reward_func(state=state, new_state=new_state, action=action)
         terminal = self._terminal_func(state=state, action=action, new_state=new_state)

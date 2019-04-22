@@ -92,8 +92,8 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
     def train(self, batch_data=None, train_iter=None, sess=None, update_target=True) -> dict:
         super(DQN, self).train()
         self.recorder.record()
-        if batch_data:
-            assert isinstance(batch_data, TransitionData)
+        if batch_data and not isinstance(batch_data, TransitionData):
+            raise TypeError()
 
         tf_sess = sess if sess else tf.get_default_session()
         train_iter = self.parameters("TRAIN_ITERATION") if not train_iter else train_iter

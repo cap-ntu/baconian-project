@@ -55,8 +55,8 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
                       input_norm=input_norm,
                       output_norm=output_norm,
                       # todo have a running-up mean module
-                      # output_high=output_high - output_low,
-                      # output_low=output_low - output_high,
+                      output_high=output_high - output_low,
+                      output_low=output_low - output_high,
                       name_scope=name_scope,
                       net_name='mlp')
         assert mlp_net.output.shape[1] == env_spec.flat_obs_dim
@@ -162,6 +162,7 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
         return np.clip(np.squeeze(new_state), self.parameters('output_low'), self.parameters('output_high'))
 
     def _setup_loss(self, l1_norm_scale, l2_norm_scale):
+        # todo update l1 l2 loss
         l1_l2 = tf_contrib.layers.l1_l2_regularizer(scale_l1=l1_norm_scale,
                                                     scale_l2=l2_norm_scale)
         loss = tf.reduce_sum((self.mlp_net.output - self.delta_state_label_ph) ** 2) + \

@@ -1,5 +1,8 @@
 from benchmark.ddpg_bechmark import mountiancar_task_fn, pendulum_task_fn
 from benchmark.dyna_benchmark import dyna_pendulum_task_fn
+from benchmark.mpc_benchmark import mpc_pendulum_task_fn
+from benchmark.ppo_benchmark import pendulum_task_fn as ppo_pendulum_task_fn
+from benchmark.iLQR_benchmark import ilqr_pendulum_task_fn
 import argparse
 import os
 import time
@@ -11,12 +14,15 @@ env_id_to_task_fn = {
     'Pendulum-v0': {
         'ddpg': pendulum_task_fn,
         'dyna': dyna_pendulum_task_fn,
+        'mpc': mpc_pendulum_task_fn,
+        'ppo': ppo_pendulum_task_fn,
+        'ilqr': ilqr_pendulum_task_fn
     },
     'MountainCarContinuous-v0': {
         'ddpg': mountiancar_task_fn,
     }
 }
-alog_list = ['ddpg', 'dyna']
+alog_list = ['ddpg', 'dyna', 'mpc', 'ppo', 'ilqr']
 
 arg.add_argument('--env_id', type=str, choices=list(env_id_to_task_fn.keys()))
 arg.add_argument('--algo', type=str, choices=alog_list)

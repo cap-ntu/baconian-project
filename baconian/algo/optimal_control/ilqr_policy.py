@@ -2,10 +2,15 @@ from baconian.algo.rl.policy.policy import DeterministicPolicy
 from baconian.core.parameters import Parameters
 from baconian.core.core import EnvSpec
 from baconian.algo.optimal_control.ilqr import iLQR as iLQR_algo
-from baconian.algo.dynamics.dynamics_model import DynamicsModel
+from baconian.algo.dynamics.dynamics_model import DynamicsEnvWrapper, DynamicsModel
 import autograd.numpy as np
 from baconian.common.special import *
 from baconian.algo.dynamics.reward_func.reward_func import CostFunc
+from baconian.algo.rl.rl_algo import ModelBasedAlgo
+from baconian.common.logging import record_return_decorator
+from baconian.core.status import register_counter_info_to_status_decorator
+from baconian.core.util import init_func_arg_record_decorator
+from baconian.common.sampler.sample_data import TransitionData
 
 """
 the gradient is computed approximated instead of analytically
@@ -16,7 +21,7 @@ class iLQRPolicy(DeterministicPolicy):
 
     @typechecked
     def __init__(self, env_spec: EnvSpec, T: int, delta: float, iteration: int, cost_fn: CostFunc,
-                 dynamics: DynamicsModel):
+                 dynamics: DynamicsEnvWrapper):
         param = Parameters(parameters=dict(T=T, delta=delta, iteration=iteration))
         super().__init__(env_spec, param)
         self.dynamics = dynamics
@@ -25,7 +30,7 @@ class iLQRPolicy(DeterministicPolicy):
         self.iLqr_instance = iLQR_algo(env_spec=env_spec,
                                        delta=self.parameters('delta'),
                                        T=self.parameters('T'),
-                                       dyn_model=dynamics,
+                                       dyn_model=dynamics._dynamics,
                                        cost_fn=cost_fn)
 
     def forward(self, obs, **kwargs):
@@ -46,12 +51,15 @@ class iLQRPolicy(DeterministicPolicy):
         return True
 
     def make_copy(self, *args, **kwargs):
+        dynamics = DynamicsEnvWrapper(dynamics=self.dynamics._dynamics)
+        dynamics.set_terminal_reward_func(terminal_func=self.dynamics._terminal_func,
+                                          reward_func=self.dynamics._reward_func)
         return iLQRPolicy(env_spec=self.env_spec,
                           T=self.parameters('T'),
                           delta=self.parameters('delta'),
                           iteration=self.parameters('iteration'),
                           cost_fn=self.iLqr_instance.cost_fn,
-                          dynamics=self.dynamics.make_copy())
+                          dynamics=dynamics)
 
     def init(self, source_obj=None):
         self.parameters.init()
@@ -70,7 +78,7 @@ class iLQRPolicy(DeterministicPolicy):
             self.X_hat.append(obs)
             x = obs
             for i in range(self.T - 1):
-                next_obs = self.dynamics.step(action=self.U_hat[i, :], state=x, allow_clip=True)
+                next_obs, _, _, _ = self.dynamics.step(action=self.U_hat[i, :], state=x, allow_clip=True)
                 self.X_hat.append(next_obs)
                 x = next_obs
             self.X_hat = np.array(self.X_hat)
@@ -84,7 +92,7 @@ class iLQRPolicy(DeterministicPolicy):
                 u = self.iLqr_instance.get_action_one_step(x, t, self.X_hat[t], self.U_hat[t])
                 X[t] = x
                 U[t] = u
-                x = self.dynamics.step(state=x, action=u, allow_clip=True)
+                x, _, _, _ = self.dynamics.step(state=x, action=u, allow_clip=True)
 
             X[-1] = x
             self.X_hat = X
@@ -94,3 +102,58 @@ class iLQRPolicy(DeterministicPolicy):
     @property
     def T(self):
         return self.parameters('T')
+
+
+class iLQRAlogWrapper(ModelBasedAlgo):
+
+    def __init__(self, policy, env_spec, dynamics_model: DynamicsModel, name: str = 'model_based_algo'):
+        self.policy = policy
+        super().__init__(env_spec, dynamics_model, name)
+
+    def predict(self, obs, **kwargs):
+        if self.is_training is True:
+            return self.env_spec.action_space.sample()
+        else:
+            return self.policy.forward(obs=obs)
+
+    def append_to_memory(self, *args, **kwargs):
+        pass
+
+    def init(self):
+        self.policy.init()
+        self.dynamics_env.init()
+        super().init()
+
+    @record_return_decorator(which_recorder='self')
+    @register_counter_info_to_status_decorator(increment=1, info_key='train_counter', under_status='TRAIN')
+    def train(self, *args, **kwargs) -> dict:
+        super(iLQRAlogWrapper, self).train()
+        res_dict = {}
+        batch_data = kwargs['batch_data'] if 'batch_data' in kwargs else None
+        if 'state' in kwargs:
+            assert kwargs['state'] in ('state_dynamics_training', 'state_agent_training')
+            state = kwargs['state']
+            kwargs.pop('state')
+        else:
+            state = None
+
+        if not state or state == 'state_dynamics_training':
+
+            dynamics_train_res_dict = self._fit_dynamics_model(batch_data=batch_data,
+                                                               train_iter=self.parameters('dynamics_model_train_iter'))
+            for key, val in dynamics_train_res_dict.items():
+                res_dict["{}_{}".format(self._dynamics_model.name, key)] = val
+        if not state or state == 'state_agent_training':
+            model_free_algo_train_res_dict = self._train_model_free_algo(batch_data=batch_data,
+                                                                         train_iter=self.parameters(
+                                                                             'model_free_algo_train_iter'))
+
+            for key, val in model_free_algo_train_res_dict.items():
+                res_dict['{}_{}'.format(self.model_free_algo.name, key)] = val
+        return res_dict
+
+    @register_counter_info_to_status_decorator(increment=1, info_key='dyanmics_train_counter', under_status='TRAIN')
+    def _fit_dynamics_model(self, batch_data: TransitionData, train_iter, sess=None) -> dict:
+        res_dict = self._dynamics_model.train(batch_data, **dict(sess=sess,
+                                                                 train_iter=train_iter))
+        return res_dict
