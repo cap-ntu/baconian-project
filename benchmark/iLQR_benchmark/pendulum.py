@@ -49,7 +49,7 @@ def pendulum_task_fn():
 
     algo = iLQRAlogWrapper(policy=policy,
                            env_spec=env_spec,
-                           dynamics_model=mlp_dyna)
+                           dynamics_env=dyna_env)
 
     agent = Agent(env=env, env_spec=env_spec,
                   algo=algo,

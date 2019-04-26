@@ -314,8 +314,6 @@ class ClassCreatorSetup(unittest.TestCase):
             name=name + 'mlp_dyna',
             output_low=env_spec.obs_space.low,
             output_high=env_spec.obs_space.high,
-            l1_norm_scale=1.0,
-            l2_norm_scale=1.0,
             learning_rate=0.01,
             mlp_config=[
                 {
@@ -502,8 +500,6 @@ class ClassCreatorSetup(unittest.TestCase):
             name=name,
             output_low=env_spec.obs_space.low,
             output_high=env_spec.obs_space.high,
-            l1_norm_scale=1.0,
-            l2_norm_scale=1.0,
             learning_rate=0.01,
             mlp_config=[
                 {

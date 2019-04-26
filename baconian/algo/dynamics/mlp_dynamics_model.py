@@ -27,8 +27,6 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
                  name: str,
                  mlp_config: list,
                  learning_rate: float,
-                 l1_norm_scale: float,
-                 l2_norm_scale: float,
                  output_norm: np.ndarray = None,
                  input_norm: np.ndarray = None,
                  output_low: np.ndarray = None,
@@ -63,9 +61,7 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
 
         parameters = ParametersWithTensorflowVariable(tf_var_list=mlp_net.var_list,
                                                       name=name + '_''mlp_continuous_dynamics_model',
-                                                      rest_parameters=dict(l1_norm_scale=l1_norm_scale,
-                                                                           l2_norm_scale=l2_norm_scale,
-                                                                           output_low=output_low,
+                                                      rest_parameters=dict(output_low=output_low,
                                                                            output_high=output_high,
                                                                            input_norm=input_norm,
                                                                            learning_rate=learning_rate))
@@ -94,8 +90,7 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
 
         with tf.variable_scope(name_scope):
             with tf.variable_scope('train'):
-                self.loss, self.optimizer, self.optimize_op = self._setup_loss(l1_norm_scale=l1_norm_scale,
-                                                                               l2_norm_scale=l2_norm_scale)
+                self.loss, self.optimizer, self.optimize_op = self._setup_loss()
         train_var_list = get_tf_collection_var_list(key=tf.GraphKeys.GLOBAL_VARIABLES,
                                                     scope='{}/train'.format(
                                                         name_scope)) + self.optimizer.variables()
@@ -161,11 +156,9 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
                                 })
         return np.clip(np.squeeze(new_state), self.parameters('output_low'), self.parameters('output_high'))
 
-    def _setup_loss(self, l1_norm_scale, l2_norm_scale):
-        # todo update l1 l2 loss
-        # l1_l2 = tf_contrib.layers.l1_l2_regularizer(scale_l1=l1_norm_scale,
-        #                                             scale_l2=l2_norm_scale)
-        loss = tf.reduce_sum((self.mlp_net.output - self.delta_state_label_ph) ** 2)
+    def _setup_loss(self):
+        reg_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES, scope=self.name_scope)
+        loss = tf.reduce_sum((self.mlp_net.output - self.delta_state_label_ph) ** 2) + reg_loss
         optimizer = tf.train.AdamOptimizer(learning_rate=self.parameters('learning_rate'))
         optimize_op = optimizer.minimize(loss=loss, var_list=self.parameters('tf_var_list'))
         return loss, optimizer, optimize_op

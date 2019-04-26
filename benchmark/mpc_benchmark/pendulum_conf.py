@@ -15,9 +15,7 @@ PENDULUM_BENCHMARK_CONFIG_DICT = {
         "TRAIN_ALGO_EVERY_REAL_SAMPLE_COUNT_FROM_REAL_ENV": 10,
         "TRAIN_ALGO_EVERY_REAL_SAMPLE_COUNT_FROM_DYNAMICS_ENV": 50,
     },
-    'DynamicsModel': dict(l1_norm_scale=0.01,
-                          l2_norm_scale=0.01,
-                          learning_rate=0.01,
+    'DynamicsModel': dict(learning_rate=0.01,
                           mlp_config=[
                               {
                                   "ACT": "RELU",
@@ -36,7 +34,7 @@ PENDULUM_BENCHMARK_CONFIG_DICT = {
                                   "W_NORMAL_STDDEV": 0.03
                               },
                               {
-                                  "ACT": "TANH",
+                                  "ACT": "IDENTITY",
                                   "B_INIT_VALUE": 0.0,
                                   "NAME": "OUPTUT",
                                   "N_UNITS": 3,
@@ -49,5 +47,4 @@ PENDULUM_BENCHMARK_CONFIG_DICT = {
         SAMPLED_PATH_NUM=20,
         dynamics_model_train_iter=10
     ),
-
 }

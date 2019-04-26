@@ -12,6 +12,8 @@ from baconian.core.status import register_counter_info_to_status_decorator
 from baconian.core.util import init_func_arg_record_decorator
 from baconian.common.sampler.sample_data import TransitionData
 
+from baconian.core.core import Env
+from baconian.algo.dynamics.dynamics_model import DynamicsEnvWrapper
 """
 the gradient is computed approximated instead of analytically
 """
@@ -21,8 +23,11 @@ class iLQRPolicy(DeterministicPolicy):
 
     @typechecked
     def __init__(self, env_spec: EnvSpec, T: int, delta: float, iteration: int, cost_fn: CostFunc,
+                 dynamics_model_train_iter: int,
                  dynamics: DynamicsEnvWrapper):
-        param = Parameters(parameters=dict(T=T, delta=delta, iteration=iteration))
+        param = Parameters(parameters=dict(T=T, delta=delta,
+                                           iteration=iteration,
+                                           dynamics_model_train_iter=dynamics_model_train_iter))
         super().__init__(env_spec, param)
         self.dynamics = dynamics
         self.U_hat = None
@@ -106,9 +111,10 @@ class iLQRPolicy(DeterministicPolicy):
 
 class iLQRAlogWrapper(ModelBasedAlgo):
 
-    def __init__(self, policy, env_spec, dynamics_model: DynamicsModel, name: str = 'model_based_algo'):
+    def __init__(self, policy, env_spec, dynamics_env: DynamicsEnvWrapper, name: str = 'model_based_algo'):
         self.policy = policy
-        super().__init__(env_spec, dynamics_model, name)
+        super().__init__(env_spec, dynamics_env._dynamics, name)
+        self.dynamics_env = dynamics_env
 
     def predict(self, obs, **kwargs):
         if self.is_training is True:
@@ -140,16 +146,10 @@ class iLQRAlogWrapper(ModelBasedAlgo):
         if not state or state == 'state_dynamics_training':
 
             dynamics_train_res_dict = self._fit_dynamics_model(batch_data=batch_data,
-                                                               train_iter=self.parameters('dynamics_model_train_iter'))
+                                                               train_iter=self.policy.parameters(
+                                                                   'dynamics_model_train_iter'))
             for key, val in dynamics_train_res_dict.items():
                 res_dict["{}_{}".format(self._dynamics_model.name, key)] = val
-        if not state or state == 'state_agent_training':
-            model_free_algo_train_res_dict = self._train_model_free_algo(batch_data=batch_data,
-                                                                         train_iter=self.parameters(
-                                                                             'model_free_algo_train_iter'))
-
-            for key, val in model_free_algo_train_res_dict.items():
-                res_dict['{}_{}'.format(self.model_free_algo.name, key)] = val
         return res_dict
 
     @register_counter_info_to_status_decorator(increment=1, info_key='dyanmics_train_counter', under_status='TRAIN')
