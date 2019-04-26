@@ -8,7 +8,7 @@ import numpy as np
 class UniformRandomPolicy(Policy):
 
     @typechecked
-    def __init__(self, name: str, env_spec: EnvSpec):
+    def __init__(self, env_spec: EnvSpec, name: str = 'random_policy'):
         super().__init__(env_spec=env_spec, name=name)
 
     @overrides
