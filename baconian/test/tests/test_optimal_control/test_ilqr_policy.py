@@ -42,6 +42,7 @@ class TestiLQRPolicy(TestWithAll):
                             delta=0.05,
                             iteration=2,
                             dynamics=dyna,
+                            dynamics_model_train_iter=10,
                             cost_fn=DebuggingCostFunc())
         st = env.reset()
         dyna.st = np.zeros_like(st)
