@@ -163,10 +163,9 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
 
     def _setup_loss(self, l1_norm_scale, l2_norm_scale):
         # todo update l1 l2 loss
-        l1_l2 = tf_contrib.layers.l1_l2_regularizer(scale_l1=l1_norm_scale,
-                                                    scale_l2=l2_norm_scale)
-        loss = tf.reduce_sum((self.mlp_net.output - self.delta_state_label_ph) ** 2) + \
-               tf_contrib.layers.apply_regularization(l1_l2, weights_list=self.parameters('tf_var_list'))
+        # l1_l2 = tf_contrib.layers.l1_l2_regularizer(scale_l1=l1_norm_scale,
+        #                                             scale_l2=l2_norm_scale)
+        loss = tf.reduce_sum((self.mlp_net.output - self.delta_state_label_ph) ** 2)
         optimizer = tf.train.AdamOptimizer(learning_rate=self.parameters('learning_rate'))
         optimize_op = optimizer.minimize(loss=loss, var_list=self.parameters('tf_var_list'))
         return loss, optimizer, optimize_op

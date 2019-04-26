@@ -87,7 +87,7 @@ def pendulum_task_fn():
                            'kwargs': dict(state='state_agent_training')},
             'train_algo_from_synthesized_data': {'func': agent.train,
                                                  'args': list(),
-                                                 'kwargs': dict(state='state_agent_training')},
+                                                 'kwargs': dict(state='state_agent_training', train_iter=1)},
             'train_dynamics': {'func': agent.train,
                                'args': list(),
                                'kwargs': dict(state='state_dynamics_training')},

@@ -16,7 +16,7 @@ def get_reward_json(root_dir_list, sub_dir, key, index_key):
             print(val[-5:], rt)
     aver = 0.0
     for re in all_res:
-        aver += float(np.mean(re[0][-10:]))
+        aver += float(np.mean(re[0][-5:]))
     aver /= len(all_res)
     print(aver)
 
