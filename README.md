@@ -11,6 +11,7 @@ offered.
 
 
 ### Release news:
+- 2019.4.26 We just finished our demo paper to introduce Baconian: https://arxiv.org/abs/1904.10762
 - 2019.4.4 Released the v0.1.4. Added benchmark results on DDPG, visualization of results will be given later. 
 Fixed some bugs. 
 - 2019.3.24 Released the v0.1.3. Added GP dynamics, fix some bugs.
@@ -36,6 +37,17 @@ Thanks to the following open-source projects:
 - gym: https://github.com/openai/gym
 - trpo: https://github.com/pat-coady/trpo
 
+### Citing Baconian
+If you find Baconian is useful for your research, please consider cite our demo paper here:\
+```
+@article{
+linsen2019baconian, 
+title={Baconian: A Unified Opensource Framework for Model-Based Reinforcement Learning}, 
+author={Linsen, Dong and Guanyu, Gao and Yuanlong, Li and Yonggang, Wen}, 
+journal={arXiv preprint arXiv:1904.10762},
+year={2019} 
+}
+```
 ### Report an issue 
 If you find any bugs on issues during your usage of the package, please open an issue or send an email to me 
 (linsen001@e.ntu.edu.sg) with detail information. I appreciate your help!
