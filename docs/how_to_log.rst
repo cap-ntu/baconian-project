@@ -1,10 +1,15 @@
-Logging in Baconian
-=====================
+Logging and Visualization
+==========================
+
+(This page is under construction)
+-------------------------------------
+
 In this part, we will introduce how to record and save everything you want during an experiments. The contents are
 organized as follows:
 
 * How the logging module of Baconian works.
 * How to modify your new implemented module so Baconian can capture the logging information you want to save.
+* How to visualize with log file after experiment finished.
 
 How the logging module of Baconian works
 ----------------------------------------

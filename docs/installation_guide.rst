@@ -1,18 +1,18 @@
 Installation Guide
 ==================
 
-Baconian is very easy to install, mainly, we offer the pip requirement file to install required packages. Make sure
-your machine have python3.5 or higher.
+Baconian is easy to install. We offer the pip requirement file to install required packages. Make sure
+your machine have python 3.5.
 
 
-1. We recommend you to use anaconda to manage your package and environment, since install the required packages may
-overwrite some of your packages' version.
+1. We recommend you to use anaconda to manage your package and environment, since installing the required packages may
+overwrites some of already installed packages with a different version.
 
 .. code-block:: bash
 
     source activate your_env
 
-2. Clone the source code and install the requirements:
+2. Clone the source code and install the packages with requirement file:
 
 .. code-block:: bash
 
@@ -24,7 +24,7 @@ The ``-e`` means "editable", so changes you make to files in the Ray
 directory will take effect without reinstalling the package. In contrast, if
 you do ``python setup.py install``, files will be copied from the Baconian
 directory to a directory of Python packages (often something like
-``/home/ubuntu/anaconda3/lib/python3.6/site-packages/baconian``). This means that
+``/home/ubuntu/anaconda3/lib/python3.5/site-packages/baconian``). This means that
 changes you make to files in the Baconian directory will not have any effect.
 
 

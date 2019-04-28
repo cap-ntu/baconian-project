@@ -1,5 +1,5 @@
 Tutorial (Highly recommend to read before you start)
-===============
+========================================================
 
 Here we introduce some very basic usage about the Baconian, to make sure you utilize the code correctly. As
 for detail usage of different algorithms, dynamics, please refer to the :doc:`API <API>` page
@@ -37,6 +37,31 @@ Specifically, you can do it by:
 
 Global Configuration Usage
 ---------------------------
+The global configuration offer the setting including default log path, log level, and some other system related default
+configuration. We implement the global configuration module with singleton method, and you can utilize it by following
+examples:
+
+.. code-block:: python
+
+    from baconian.config.global_config import GlobalConfig
+    from baconian.core.experiment_runner import single_exp_runner, duplicate_exp_runner
+    def you_function():
+        a = 1;
+        b = 2;
+        print(a + b)
+    # Use GlobalConfig() to access the instance of GlobalConfig
+    # anywhere your want, and set the log path by yourself
+    # First argument is key you want to set, e.g., DEFAULT_LOG_PATH
+    # Second argument is the value.
+    GlobalConfig().set('DEFAULT_LOG_PATH', './log_path')
+    single_exp_runner(task_fn, del_if_log_path_existed=True)
+
+
+During the time task is running, the global configuration will be frozen, if you try to change it, an error will be
+raised.
 
 Train and Test Workflow for RL Experiments
 --------------------------------------------
+
+Work with Status Control
+-------------------------
