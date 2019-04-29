@@ -81,7 +81,7 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
     def init(self, sess=None, source_obj=None):
         super().init()
         self.q_value_func.init()
-        self.target_q_value_func.init()
+        self.target_q_value_func.init(source_obj=self.q_value_func)
         self.parameters.init()
         if source_obj:
             self.copy_from(source_obj)
