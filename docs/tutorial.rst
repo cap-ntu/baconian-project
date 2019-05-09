@@ -62,6 +62,15 @@ raised.
 
 Train and Test Workflow for RL Experiments
 --------------------------------------------
+In Baconian, the control flow of the experiments is delegated to an independent module ``baconian.core.flow.train_test_flow:Flow``
+which is  an abstract class. The reason to do so is to improve the flexibility and extensibility of framework.
+Two typical flow are implemented. One is
+``baconian.core.flow.train_test_flow:TrainTestFlow``, which corresponds to most of
+model-free algorithms pipeline, which is sampling-training-testing pipeline. Another one is
+``baconian.core.flow.dyna_flow.py:DynaFlow``, which is the flow in Dyna algorithms [Sutton, 1992].
+
 
 Work with Status Control
 -------------------------
+Status control is a must for DRL experiments. For instance, off-policy DRL methods need to switch between behavior
+policy and target policy during sampling and testing or decay the exploration action noise w.r.t the training progress status.
