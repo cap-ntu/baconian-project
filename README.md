@@ -22,9 +22,11 @@ For previous news, please go [here](./old_news.md)
 ### Documentation
 Documentation is available at http://baconian-public.readthedocs.io/
 
-### Todo
-
+### Currently Working on
 - [ ] Visualization module
+- [ ] Simplify flow module
+
+### TODO in long term 
 - [ ] State-of-art model-based algorithms: PILCO, GPS etc.
 - [ ] Latent-space method supporting.
 

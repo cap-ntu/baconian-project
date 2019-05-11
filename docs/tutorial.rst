@@ -74,3 +74,21 @@ Work with Status Control
 -------------------------
 Status control is a must for DRL experiments. For instance, off-policy DRL methods need to switch between behavior
 policy and target policy during sampling and testing or decay the exploration action noise w.r.t the training progress status.
+
+Every class that inherited from ``baconian.core.core:Basic`` will have two class attributes: ``STATUS_LIST`` which contains
+all status of this class or module, and ``INIT_STATUS`` as the initial status of it.
+
+You can call ``set_status`` method to change the status of one instance. You can call ``get_status`` method to get the
+current status of an instance, which is a dict type. The return value not only contains the status (i.e., TRAIN, TEST)
+but also other extra information that is specially added in the code. Such as, you can register a counter of a function
+by doing so:
+
+.. literalinclude:: ../baconian/core/agent.py
+    :linenos:
+    :language: python
+    :lines: 121-136
+
+The counter for calling function ``predict`` is added as one attribute of status, which will be returned with the key
+``predict_counter``
+
+For detailed usage of these methos, you can find it in API reference.
