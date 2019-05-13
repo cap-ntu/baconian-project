@@ -31,56 +31,6 @@ class Plotter(object):
                   'darkkhaki', 'mediumblue', 'beige', 'blanchedalmond', 'lightsalmon', 'lemonchiffon', 'navajowhite',
                   'darkslateblue', 'lightcoral', 'rosybrown', 'fuchsia', 'peachpuff']
 
-    @staticmethod
-    def plot_reward_over_single_exp(path_list, save_flag=True, train_reward_flag=False, title=None, fig_id=0,
-                                    save_path=None):
-        pass
-
-    @staticmethod
-    def plot_reward_over_duplicate_exp(path_list, train_reward_flag=False, save_flag=True, title=None, fig_id=0,
-                                       save_path=None):
-
-        plt.figure(fig_id)
-        if title:
-            plt.title(title)
-        plt.xlabel('Physic system sample')
-        plt.ylabel('Reward Sum')
-        for i in range(len(path_list)):
-            test_reward = []
-            real_env_sample_count_index = []
-            file_name = path_list[i] + '/loss/TargetAgent_test_.log'
-
-            with open(file=file_name, mode='r') as f:
-                test_data = json.load(fp=f)
-                for sample in test_data:
-                    test_reward.append(sample['REWARD_SUM'])
-                    real_env_sample_count_index.append(sample['REAL_SAMPLE_COUNT'])
-
-            x_keys = []
-            y_values = []
-            last_key = real_env_sample_count_index[0]
-            last_set = []
-
-            for j in range(len(real_env_sample_count_index)):
-                if real_env_sample_count_index[j] == last_key:
-                    last_set.append(test_reward[j])
-                else:
-                    x_keys.append(last_key)
-                    y_values.append(last_set)
-                    last_key = real_env_sample_count_index[j]
-                    last_set = [test_reward[j]]
-            y_values_mean = [np.mean(y_values[j]) for j in range(len(y_values))]
-            plt.plot(x_keys, y_values_mean, c=Plotter.color_list[i], label='Test reward ' + label + str(i))
-
-        plt.legend()
-        if save_flag is True:
-            for path in path_list:
-                plt.savefig(path + '/loss/' + '/compare.png')
-                plt.savefig(path + '/loss/' + '/compare.pdf')
-        if save_path is not None:
-            plt.savefig(save_path)
-            print('save multi exp reward at {}'.format(save_path))
-
     def plot_fig(self, fig_num, col_id, x, y, title, x_lable, y_label, label=' ', marker='*'):
         plt.figure(fig_num, figsize=(6, 5))
         plt.title(title)
@@ -107,10 +57,6 @@ class Plotter(object):
             plt.plot(x, y, self.color_list[col_id], label=label, marker=marker, markevery=marker_every, markersize=6,
                      linewidth=1)
         plt.legend()
-
-    @staticmethod
-    def plot_average_over_duplicate_experiment(self, exp_log_root_dir, save_flag=True, title=None, ):
-        pass
 
     @staticmethod
     def plot_any_key_in_log(file_name, key, index, scatter_flag=False, save_flag=False,
