@@ -32,7 +32,7 @@ class MLPQValueFunction(QValueFunction, PlaceholderInput):
                  output_low: np.ndarray = None,
                  output_high: np.ndarray = None,
                  ):
-        with tf.name_scope(name):
+        with tf.name_scope(name_scope):
             state_input = state_input if state_input is not None else tf.placeholder(
                 shape=[None, env_spec.flat_obs_dim],
                 dtype=tf.float32,
