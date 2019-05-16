@@ -102,3 +102,56 @@ class DynaFlow(Flow):
                 '{} in experiment_end_point is not registered with global status collector: {}, experiment may not end'.
                     format(GlobalConfig().DEFAULT_EXPERIMENT_END_POINT, list(get_global_status_collect()().keys())))
         return finished_flag
+
+
+def create_dyna_flow(train_algo_func, train_algo_from_synthesized_data_func,
+                     train_dynamics_func, test_algo_func, test_dynamics_func, sample_from_real_env_func,
+                     sample_from_dynamics_env_func,
+                     test_algo_every_real_sample_count,
+                     test_dynamics_every_real_sample_count,
+                     train_algo_every_real_sample_count_by_data_from_real_env,
+                     train_algo_every_real_sample_count_by_data_from_dynamics_env,
+                     train_dynamics_ever_real_sample_count,
+                     start_train_algo_after_sample_count,
+                     start_train_dynamics_after_sample_count,
+                     start_test_dynamics_after_sample_count,
+                     start_test_algo_after_sample_count,
+                     warm_up_dynamics_samples,
+
+                     train_samples_counter_func=None):
+    config_dict = dict(
+        TRAIN_ALGO_EVERY_REAL_SAMPLE_COUNT_FROM_REAL_ENV=train_algo_every_real_sample_count_by_data_from_real_env,
+        TRAIN_ALGO_EVERY_REAL_SAMPLE_COUNT_FROM_DYNAMICS_ENV=train_algo_every_real_sample_count_by_data_from_dynamics_env,
+        TEST_ALGO_EVERY_REAL_SAMPLE_COUNT=test_algo_every_real_sample_count,
+        TEST_DYNAMICS_EVERY_REAL_SAMPLE_COUNT=test_dynamics_every_real_sample_count,
+        TRAIN_DYNAMICS_EVERY_REAL_SAMPLE_COUNT=train_dynamics_ever_real_sample_count,
+        START_TRAIN_ALGO_AFTER_SAMPLE_COUNT=start_train_algo_after_sample_count,
+        START_TRAIN_DYNAMICS_AFTER_SAMPLE_COUNT=start_train_dynamics_after_sample_count,
+        START_TEST_ALGO_AFTER_SAMPLE_COUNT=start_test_algo_after_sample_count,
+        START_TEST_DYNAMICS_AFTER_SAMPLE_COUNT=start_test_dynamics_after_sample_count,
+        WARM_UP_DYNAMICS_SAMPLES=warm_up_dynamics_samples,
+    )
+
+    def return_func_dict(s_dict):
+        return dict(func=s_dict[0],
+                    args=s_dict[1],
+                    kwargs=s_dict[2])
+
+    func_dict = dict(
+        train_algo=return_func_dict(train_algo_func),
+        train_algo_from_synthesized_data=return_func_dict(train_algo_from_synthesized_data_func),
+        train_dynamics=return_func_dict(train_dynamics_func),
+        test_algo=return_func_dict(test_algo_func),
+        test_dynamics=return_func_dict(test_dynamics_func),
+        sample_from_real_env=return_func_dict(sample_from_real_env_func),
+        sample_from_dynamics_env=return_func_dict(sample_from_dynamics_env_func),
+    )
+    if train_samples_counter_func is None:
+        def default_train_samples_counter_func():
+            return get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT')
+
+        train_samples_counter_func = default_train_samples_counter_func
+
+    return DynaFlow(config_or_config_dict=config_dict,
+                    train_sample_count_func=train_samples_counter_func,
+                    func_dict=func_dict)
