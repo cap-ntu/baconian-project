@@ -91,8 +91,9 @@ class Agent(Basic):
     def test(self, sample_count, sample_trajectory_flag: bool = False):
         """
         test the agent
-        :param sample_count:
-        :param sample_trajectory_flag:
+
+        :param sample_count: how many transitions/trajectories used to evaluate the agent's performance
+        :param sample_trajectory_flag: True for sampling trajectory instead of transitions
         :return:
         """
         self.set_status('TEST')
@@ -123,6 +124,7 @@ class Agent(Basic):
     def predict(self, **kwargs):
         """
         predict the action given the state
+
         :param kwargs: rest parameters
         :param obs: observation/state
         :return:
@@ -142,6 +144,7 @@ class Agent(Basic):
             TransitionData, TrajectoryData):
         """
         sample a certain number of data from environment
+
         :param env:
         :param sample_count:
         :param in_which_status:

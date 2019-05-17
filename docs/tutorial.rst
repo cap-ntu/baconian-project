@@ -69,6 +69,9 @@ Two typical flow are implemented. One is
 model-free algorithms pipeline, which is sampling-training-testing pipeline. Another one is
 ``baconian.core.flow.dyna_flow.py:DynaFlow``, which is the flow in Dyna algorithms [Sutton, 1992].
 
+.. note::
+    Do get freaked out by the long list of parameters you need to initialize the flow!
+    This is caused by the fact that we want the flow to be fully configurable by users, currently we are working to simplify this module.
 
 Work with Status Control
 -------------------------

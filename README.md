@@ -21,17 +21,19 @@ For previous news, please go [here](./old_news.md)
 
 ### Documentation
 Documentation is available at http://baconian-public.readthedocs.io/
+### TODO and Road Map
+Currently, the project is under activate development. We are working towards a stable 1.0 version. Details of the road map 
+and future plans will be released as soon as possible. 
 
-### Currently Working on
+Currently we are working on
 - [ ] Visualization module
 - [ ] Simplify flow module
-
-### TODO in long term 
 - [ ] State-of-art model-based algorithms: PILCO, GPS etc.
 - [ ] Latent-space method supporting.
 
+
 ### Acknowledgement 
-Thanks to the following open-source projects:
+Inspired by the following open-source projects:
 
 - garage: https://github.com/rlworkgroup/garage
 - rllab: https://github.com/rll/rllab
@@ -40,7 +42,7 @@ Thanks to the following open-source projects:
 - trpo: https://github.com/pat-coady/trpo
 
 ### Citing Baconian
-If you find Baconian is useful for your research, please consider cite our demo paper here:\
+If you find Baconian is useful for your research, please consider cite our demo paper here:
 ```
 @article{
 linsen2019baconian, 
