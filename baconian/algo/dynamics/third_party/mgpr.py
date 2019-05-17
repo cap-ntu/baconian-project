@@ -1,3 +1,7 @@
+"""
+Code from https://github.com/nrontsis/PILCO
+"""
+
 import tensorflow as tf
 import gpflow
 import numpy as np

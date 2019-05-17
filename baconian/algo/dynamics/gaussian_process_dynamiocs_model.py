@@ -1,9 +1,7 @@
 from baconian.core.core import EnvSpec
-from baconian.algo.dynamics.dynamics_model import DynamicsModel, TrainableDyanmicsModel
+from baconian.algo.dynamics.dynamics_model import TrainableDyanmicsModel
 import gpflow
-from baconian.core.parameters import Parameters
 import numpy as np
-from copy import deepcopy
 from baconian.common.sampler.sample_data import TransitionData
 from baconian.algo.dynamics.third_party.mgpr import MGPR
 import tensorflow as tf
