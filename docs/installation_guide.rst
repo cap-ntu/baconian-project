@@ -33,4 +33,6 @@ directly modify it. If you want to use the full environments of gym, e.g., `Mujo
 please refer to its  page to obtain the license and library. Then install the requirements
 (you may need to re-install gym after that.)
 
-3. We have implemented many examples, you may try them first at :code:`examples`
+3. We have implemented many examples, you may try them first at :doc:`Examples <examples>`
+
+4. If you prefer to conduct a new experiments by yourself, you can follow the tutorial here :doc:`How to implement <implement_new_algo>`

@@ -94,4 +94,4 @@ by doing so:
 The counter for calling function ``predict`` is added as one attribute of status, which will be returned with the key
 ``predict_counter``
 
-For detailed usage of these methos, you can find it in API reference.
+For detailed usage of these methods, you can find it in API reference.

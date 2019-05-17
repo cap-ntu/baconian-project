@@ -6,11 +6,15 @@ install:
   - pip install -e .
 
 script:
-  - pytest baconian/test/
-  - pytest examples/
+  - pip install pytest pytest-cov
+  - pytest --cov=baconian-project ./baconian/test/
+  - pytest --cov=baconian-project ./examples/ ./baconian/test/
 branches:
   only:
   - master
   - travis_ci_test
 notifications:
   email: false
+
+after_success:
+  - codecov

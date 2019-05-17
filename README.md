@@ -3,9 +3,9 @@
 # Baconian:  Boosting the model-based reinforcement learning 
 [![Build Status](https://travis-ci.com/Lukeeeeee/baconian-project.svg?branch=master)](https://travis-ci.com/Lukeeeeee/baconian-project)
 [![Documentation Status](https://readthedocs.org/projects/baconian-public/badge/?version=latest)](https://baconian-public.readthedocs.io/en/latest/?badge=latest)
-[![Updates](https://pyup.io/repos/github/Lukeeeeee/baconian-project/shield.svg)](https://pyup.io/repos/github/Lukeeeeee/baconian-project/)
-[![Python 3](https://pyup.io/repos/github/Lukeeeeee/baconian-project/python-3-shield.svg)](https://pyup.io/repos/github/Lukeeeeee/baconian-project/)
 ![GitHub issues](https://img.shields.io/github/issues/Lukeeeeee/baconian-project.svg)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ea83a8fef57b4d8f8c9c2590337c8bc1)](https://www.codacy.com/app/Lukeeeeee/baconian?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Lukeeeeee/baconian&amp;utm_campaign=Badge_Grade)
+[![codecov](https://codecov.io/gh/Lukeeeeee/baconian-project/branch/master/graph/badge.svg)](https://codecov.io/gh/Lukeeeeee/baconian-project)
 ![GitHub](https://img.shields.io/github/license/Lukeeeeee/baconian-project.svg)
 
 Baconian [beˈkonin] is a toolbox for model-based reinforcement learning with user-friendly experiment setting-up, logging 
@@ -37,13 +37,14 @@ Currently we are working on
 
 
 ### Acknowledgement 
-Inspired by the following open-source projects:
+Thanks to the following open-source projects:
 
 - garage: https://github.com/rlworkgroup/garage
 - rllab: https://github.com/rll/rllab
 - baselines: https://github.com/openai/baselines
 - gym: https://github.com/openai/gym
 - trpo: https://github.com/pat-coady/trpo
+- PILCO: https://github.com/nrontsis/PILCO
 
 ### Citing Baconian
 If you find Baconian is useful for your research, please consider cite our demo paper here:
