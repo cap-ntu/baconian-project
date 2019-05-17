@@ -105,3 +105,4 @@ venv.bak/
 .idea/
 examples/log_path
 benchmark/benchmark_log
+log_path/
