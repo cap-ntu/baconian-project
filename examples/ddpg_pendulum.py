@@ -13,7 +13,8 @@ from baconian.core.flow.train_test_flow import TrainTestFlow
 from baconian.config.global_config import GlobalConfig
 from baconian.core.status import get_global_status_collect
 from baconian.common.schedules import PeriodicalEventSchedule
-
+import baconian.common.log_data_loader as loader
+from pathlib import Path
 
 def task_fn():
     env = make('Pendulum-v0')
@@ -133,3 +134,19 @@ from baconian.core.experiment_runner import single_exp_runner
 
 GlobalConfig().set('DEFAULT_LOG_PATH', './log_path')
 single_exp_runner(task_fn, del_if_log_path_existed=True)
+
+# todo loader
+import os
+
+path =os.path.join('C:\\', 'Users', 'david', 'Documents', 'Research', 'ReinforcementLearning', 'baconian', 'examples',
+    'log_path',
+    'record',
+)
+#path = Path("C:\\Users\david\Documents\Research\ReinforcementLearning\\baconian\examples\log_path\\record")
+image = loader.SingleExpLogDataLoader(path)
+image.plot_res(obj_name=
+               path + os.path.join('\\demo_exp_ddpg', 'TRAIN', 'log.json'),
+               key="average_actor_loss",
+               index='train',
+               mode='plot',
+               )

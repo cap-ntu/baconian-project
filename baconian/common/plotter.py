@@ -1,9 +1,9 @@
-import numpy as np
 from matplotlib import pyplot as plt
 import json
 import seaborn as sns
 import os
 import glob
+import numpy as np
 
 sns.set_style('ticks')
 
@@ -31,10 +31,10 @@ class Plotter(object):
                   'darkkhaki', 'mediumblue', 'beige', 'blanchedalmond', 'lightsalmon', 'lemonchiffon', 'navajowhite',
                   'darkslateblue', 'lightcoral', 'rosybrown', 'fuchsia', 'peachpuff']
 
-    def plot_fig(self, fig_num, col_id, x, y, title, x_lable, y_label, label=' ', marker='*'):
+    def plot_fig(self, fig_num, col_id, x, y, title, x_label, y_label, label=' ', marker='*'):
         plt.figure(fig_num, figsize=(6, 5))
         plt.title(title)
-        plt.xlabel(x_lable)
+        plt.xlabel(x_label)
         plt.ylabel(y_label)
         plt.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
         plt.tight_layout()
@@ -75,22 +75,23 @@ class Plotter(object):
                 path_list = json.load(f)
         plt.figure(fig_id)
         plt.title("%s_%s_%s" % (res_name, file_name, key))
-        plt.xlabel('index')
+        plt.xlabel(index) # index or 'index' ?
         plt.ylabel(key)
         total_graph = len(path_list)
         for i in range(len(path_list)):
             print("Load {}".format(path_list[i]))
             test_reward = []
             real_env_sample_count_index = []
-            with open(file=path_list[i] + '/loss/' + file_name, mode='r') as f:
+            with open(file=path_list[i] + file_name, mode='r') as f:
+                if fn(sample) is not None:
+                    test_reward.append(fn(sample))
+
                 test_data = json.load(fp=f)
                 if value_range:
                     test_data = test_data[value_range[0]: min(len(test_data), value_range[1])]
                 for sample in test_data:
                     if fn:
-                        if fn(sample) is not None:
-                            test_reward.append(fn(sample))
-                            real_env_sample_count_index.append(sample[index] // average_over)
+                          real_env_sample_count_index.append(sample[index] // average_over)
                     else:
                         if restrict_dict is not None:
                             flag = True
@@ -134,66 +135,8 @@ class Plotter(object):
 
         if save_flag is True:
             for path in path_list:
-                plt.savefig(path + '/loss/' + '/%s_%s.png' % (file_name, key))
+                plt.savefig(path + '/%s_%s.png' % (file_name, key))
         if save_path is not None:
             plt.savefig(save_path)
         plt.show()
 
-    @staticmethod
-    def plot_any_scatter_in_log(res_dict, res_name, file_name, key, index, op, scatter_flag=False, save_flag=False,
-                                save_path=None,
-                                fig_id=4, label='', restrict_dict=None):
-        with open(res_dict[res_name], 'r') as f:
-            path_list = json.load(f)
-        plt.figure(fig_id)
-        plt.title("%s_%s_%s" % (res_name, file_name, key))
-        plt.xlabel('index')
-        plt.ylabel(key)
-        for i in range(len(path_list)):
-            test_reward = []
-            real_env_sample_count_index = []
-            with open(file=path_list[i] + '/loss/' + file_name, mode='r') as f:
-                test_data = json.load(fp=f)
-                for sample in test_data:
-                    if restrict_dict is not None:
-                        flag = True
-                        for re_key, re_value in restrict_dict.items():
-                            if sample[re_key] != re_value:
-                                flag = False
-                        if flag is True:
-                            test_reward.append(sample[key])
-                            real_env_sample_count_index.append(sample[index])
-                    else:
-                        test_reward.append(sample[key])
-                        real_env_sample_count_index.append(sample[index])
-            test_reward, real_env_sample_count_index = op(test_reward, real_env_sample_count_index)
-            x_keys = []
-            y_values = []
-            last_key = real_env_sample_count_index[0]
-            last_set = []
-
-            for j in range(len(real_env_sample_count_index)):
-                if real_env_sample_count_index[j] == last_key:
-                    last_set.append(test_reward[j])
-                else:
-                    x_keys.append(last_key)
-                    y_values.append(last_set)
-                    last_key = real_env_sample_count_index[j]
-                    last_set = [test_reward[j]]
-            x_keys.append(last_key)
-            y_values.append(last_set)
-            y_values_mean = [np.mean(y_values[j]) for j in range(len(y_values))]
-            if scatter_flag is True:
-                plt.scatter(x_keys, y_values_mean, c=Plotter.color_list[i], label=key + label + str(i),
-                            marker=Plotter.markers[i])
-            else:
-                plt.plot(x_keys, y_values_mean, c=Plotter.color_list[i], label=key + label + str(i),
-                         marker=Plotter.markers[i])
-
-        plt.legend()
-        if save_flag is True:
-            for path in path_list:
-                plt.savefig(path + '/loss/' + '/%s_%s.png' % (file_name, key))
-        if save_path is not None:
-            plt.savefig(save_path)
-        plt.show()
