@@ -59,4 +59,4 @@ year={2019}
 ```
 ### Report an issue 
 If you find any bugs on issues during your usage of the package, please open an issue or send an email to me 
-(linsen001@e.ntu.edu.sg) with detail information. I appreciate your help!
+(linsen001@e.ntu.edu.sg) with detailed information. I appreciate your help!

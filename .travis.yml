@@ -12,6 +12,7 @@ branches:
   only:
   - master
   - travis_ci_test
+  - dev_*
 notifications:
   email: false
 
