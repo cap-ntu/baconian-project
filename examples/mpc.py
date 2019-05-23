@@ -4,16 +4,15 @@ A simple example to show how to build up an experiment with ddpg training and te
 from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
 from baconian.core.agent import Agent
-from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
+from baconian.algo.misc import EpsilonGreedy
 from baconian.core.experiment import Experiment
 from baconian.core.flow.train_test_flow import create_train_test_flow
-from baconian.algo.rl.model_based.mpc import ModelPredictiveControl
+from baconian.algo.mpc import ModelPredictiveControl
 from baconian.algo.dynamics.terminal_func.terminal_func import RandomTerminalFunc
 from baconian.algo.dynamics.reward_func.reward_func import RandomRewardFunc
-from baconian.algo.rl.policy.random_policy import UniformRandomPolicy
+from baconian.algo.policy import UniformRandomPolicy
 from baconian.algo.dynamics.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
 from baconian.config.global_config import GlobalConfig
-from baconian.core.status import get_global_status_collect
 
 
 def task_fn():

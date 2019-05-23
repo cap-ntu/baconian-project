@@ -1,4 +1,4 @@
-from baconian.algo.rl.policy.policy import DeterministicPolicy
+from baconian.algo.policy.policy import DeterministicPolicy
 from baconian.core.core import EnvSpec
 from baconian.core.parameters import Parameters
 from baconian.config.global_config import GlobalConfig

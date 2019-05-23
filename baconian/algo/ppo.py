@@ -1,5 +1,5 @@
 from baconian.core.core import EnvSpec
-from baconian.algo.rl.rl_algo import ModelFreeAlgo, OnPolicyAlgo
+from baconian.algo.rl_algo import ModelFreeAlgo, OnPolicyAlgo
 from baconian.config.dict_config import DictConfig
 from typeguard import typechecked
 import tensorflow as tf
@@ -7,16 +7,16 @@ import numpy as np
 from baconian.common.sampler.sample_data import TrajectoryData, TransitionData, SampleData
 from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.config.global_config import GlobalConfig
-from baconian.algo.rl.policy.policy import StochasticPolicy
-from baconian.algo.rl.value_func.value_func import VValueFunction
+from baconian.algo.policy.policy import StochasticPolicy
+from baconian.algo.value_func import VValueFunction
 from baconian.tf.util import *
 from baconian.common.misc import *
-from baconian.algo.rl.misc.sample_processor import SampleProcessor
+from baconian.algo.misc import SampleProcessor
 from baconian.common.logging import record_return_decorator
 from baconian.core.status import register_counter_info_to_status_decorator
-from baconian.algo.placeholder_input import MultiPlaceholderInput, PlaceholderInput
+from baconian.algo.misc.placeholder_input import MultiPlaceholderInput, PlaceholderInput
 from baconian.common.error import *
-from baconian.algo.rl.utils import Scaler
+from baconian.algo.utils import Scaler
 
 
 class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):

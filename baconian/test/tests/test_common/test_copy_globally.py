@@ -1,10 +1,5 @@
-from baconian.algo.rl.model_free.dqn import DQN
-from baconian.envs.gym_env import make
-from baconian.core.core import EnvSpec
-from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
 from baconian.test.tests.set_up.setup import TestTensorflowSetup
 from baconian.core.util import get_global_arg_dict, copy_globally
-import tensorflow as tf
 
 
 class TestCopyGlobally(TestTensorflowSetup):

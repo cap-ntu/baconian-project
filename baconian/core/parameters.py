@@ -8,6 +8,12 @@ from baconian.common.schedules import Schedule
 from copy import deepcopy
 
 
+class Parameter(object):
+    # TODO
+    def __init__(self):
+        pass
+
+
 class Parameters(object):
     """
     A class that handle all parameters of a certain rl, to be better support in the future version.

@@ -1,21 +1,19 @@
 from baconian.core.core import EnvSpec
-from baconian.algo.rl.rl_algo import ModelFreeAlgo, OffPolicyAlgo
+from baconian.algo.rl_algo import ModelFreeAlgo, OffPolicyAlgo
 from baconian.config.dict_config import DictConfig
-from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
-from baconian.algo.rl.misc.replay_buffer import UniformRandomReplayBuffer, BaseReplayBuffer
+from baconian.algo.value_func.mlp_q_value import MLPQValueFunction
+from baconian.algo.misc.replay_buffer import UniformRandomReplayBuffer, BaseReplayBuffer
 import tensorflow as tf
-import tensorflow.contrib as tf_contrib
 from baconian.common.sampler.sample_data import TransitionData, TrajectoryData
 from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.config.global_config import GlobalConfig
 from baconian.common.special import *
-from baconian.algo.rl.policy.deterministic_mlp import DeterministicMLPPolicy
+from baconian.algo.policy import DeterministicMLPPolicy
 from baconian.tf.util import *
 from baconian.common.misc import *
 from baconian.common.logging import record_return_decorator
 from baconian.core.status import register_counter_info_to_status_decorator
-from baconian.algo.placeholder_input import MultiPlaceholderInput
-from baconian.common.error import *
+from baconian.algo.misc.placeholder_input import MultiPlaceholderInput
 from baconian.tf.util import clip_grad
 
 

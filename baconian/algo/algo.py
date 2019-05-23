@@ -3,7 +3,6 @@ from baconian.core.status import StatusWithSubInfo
 import abc
 from typeguard import typechecked
 from baconian.common.logging import Recorder
-from baconian.algo.rl.policy.policy import Policy
 
 
 class Algo(Basic):

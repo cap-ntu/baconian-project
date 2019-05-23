@@ -12,7 +12,7 @@ from baconian.core.experiment import Experiment
 from baconian.algo.dynamics.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
 from baconian.config.global_config import GlobalConfig
 from baconian.core.status import get_global_status_collect
-from baconian.algo.optimal_control.ilqr_policy import iLQRPolicy, iLQRAlogWrapper
+from baconian.algo.policy.ilqr_policy import iLQRPolicy, iLQRAlogWrapper
 from baconian.algo.dynamics.reward_func.reward_func import RewardFuncCostWrapper
 from baconian.algo.dynamics.dynamics_model import DynamicsEnvWrapper
 from baconian.algo.dynamics.terminal_func.terminal_func import FixedEpisodeLengthTerminalFunc

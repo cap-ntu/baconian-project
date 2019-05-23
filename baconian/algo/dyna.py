@@ -3,18 +3,14 @@ from typeguard import typechecked
 from baconian.config.dict_config import DictConfig
 from baconian.common.sampler.sample_data import TransitionData
 from baconian.core.parameters import Parameters
-from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.config.global_config import GlobalConfig
-from baconian.algo.rl.rl_algo import ModelFreeAlgo, ModelBasedAlgo
+from baconian.algo.rl_algo import ModelFreeAlgo, ModelBasedAlgo
 from baconian.common.misc import *
 from baconian.common.logging import record_return_decorator
 from baconian.core.status import register_counter_info_to_status_decorator
 from baconian.core.util import init_func_arg_record_decorator
-from baconian.algo.placeholder_input import MultiPlaceholderInput, PlaceholderInput
-from baconian.algo.dynamics.reward_func.reward_func import RewardFunc
-from baconian.algo.dynamics.terminal_func.terminal_func import TerminalFunc
+from baconian.algo.misc.placeholder_input import PlaceholderInput
 import os
-import numpy as np
 
 
 class Dyna(ModelBasedAlgo):

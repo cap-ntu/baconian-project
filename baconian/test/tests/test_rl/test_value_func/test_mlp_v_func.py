@@ -1,7 +1,7 @@
 import unittest
 from baconian.envs.gym_env import make
 from baconian.core.core import EnvSpec
-from baconian.algo.rl.value_func.mlp_v_value import MLPVValueFunc
+from baconian.algo.value_func import MLPVValueFunc
 from baconian.test.tests.set_up.setup import TestTensorflowSetup
 import tensorflow as tf
 

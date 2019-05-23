@@ -1,21 +1,20 @@
 from baconian.common.special import flatten_n
-from baconian.algo.rl.rl_algo import ModelFreeAlgo, OffPolicyAlgo
+from baconian.algo.rl_algo import ModelFreeAlgo, OffPolicyAlgo
 from baconian.config.dict_config import DictConfig
 from typeguard import typechecked
 from baconian.core.util import init_func_arg_record_decorator
 from baconian.tf.util import *
-from baconian.algo.rl.misc.replay_buffer import UniformRandomReplayBuffer, BaseReplayBuffer
+from baconian.algo.misc.replay_buffer import UniformRandomReplayBuffer, BaseReplayBuffer
 import tensorflow as tf
-import tensorflow.contrib as tfcontrib
 import numpy as np
 from baconian.common.sampler.sample_data import TransitionData
 from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.config.global_config import GlobalConfig
 from baconian.common.misc import *
-from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
+from baconian.algo.value_func.mlp_q_value import MLPQValueFunction
 from baconian.common.logging import record_return_decorator
 from baconian.core.status import register_counter_info_to_status_decorator
-from baconian.algo.placeholder_input import MultiPlaceholderInput
+from baconian.algo.misc.placeholder_input import MultiPlaceholderInput
 
 
 class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):

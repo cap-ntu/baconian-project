@@ -1,34 +1,33 @@
 import unittest
 import tensorflow as tf
 from baconian.algo.dynamics.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
-from baconian.algo.placeholder_input import PlaceholderInput
-from baconian.algo.rl.model_free.dqn import DQN
+from baconian.algo.misc.placeholder_input import PlaceholderInput
+from baconian.algo.dqn import DQN
 from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.core.core import Basic, EnvSpec
 from baconian.envs.gym_env import make
-from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
-from baconian.algo.rl.model_free.ddpg import DDPG
-from baconian.algo.rl.policy.deterministic_mlp import DeterministicMLPPolicy
-from baconian.algo.rl.policy.constant_action_policy import ConstantActionPolicy
-from baconian.algo.rl.value_func.mlp_v_value import MLPVValueFunc
-from baconian.algo.rl.policy.normal_distribution_mlp import NormalDistributionMLPPolicy
-from baconian.algo.rl.model_free.ppo import PPO
+from baconian.algo.value_func.mlp_q_value import MLPQValueFunction
+from baconian.algo.ddpg import DDPG
+from baconian.algo.policy import DeterministicMLPPolicy
+from baconian.algo.policy import ConstantActionPolicy
+from baconian.algo.value_func import MLPVValueFunc
+from baconian.algo.policy.normal_distribution_mlp import NormalDistributionMLPPolicy
+from baconian.algo.ppo import PPO
 from baconian.core.parameters import Parameters, DictConfig
-from baconian.algo.rl.model_based.mpc import ModelPredictiveControl
+from baconian.algo.mpc import ModelPredictiveControl
 from baconian.algo.dynamics.terminal_func.terminal_func import RandomTerminalFunc
 from baconian.algo.dynamics.reward_func.reward_func import RandomRewardFunc, CostFunc
-from baconian.algo.rl.policy.random_policy import UniformRandomPolicy
+from baconian.algo.policy import UniformRandomPolicy
 from baconian.core.agent import Agent
-from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
+from baconian.algo.misc import EpsilonGreedy
 from baconian.core.experiment import Experiment
 from baconian.core.flow.train_test_flow import TrainTestFlow
-from baconian.algo.rl.model_based.dyna import Dyna
+from baconian.algo.dyna import Dyna
 from baconian.common.schedules import *
 from baconian.core.status import *
-from baconian.algo.optimal_control.ilqr_policy import iLQRPolicy
+from baconian.algo.policy.ilqr_policy import iLQRPolicy
 from baconian.algo.dynamics.random_dynamics_model import UniformRandomDynamicsModel
 from baconian.common.noise import *
-from baconian.algo.dynamics.gaussian_process_dynamiocs_model import GaussianProcessDyanmicsModel
 from baconian.common.sampler.sampler import Sampler
 from baconian.core.flow.dyna_flow import DynaFlow
 

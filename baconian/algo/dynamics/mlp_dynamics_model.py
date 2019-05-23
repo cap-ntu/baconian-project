@@ -4,12 +4,11 @@ from baconian.algo.dynamics.dynamics_model import GlobalDynamicsModel, Derivable
 import tensorflow as tf
 from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.tf.mlp import MLP
-import tensorflow.contrib as tf_contrib
 from baconian.common.sampler.sample_data import TransitionData
 from typeguard import typechecked
 import numpy as np
 from baconian.tf.util import *
-from baconian.algo.placeholder_input import PlaceholderInput
+from baconian.algo.misc.placeholder_input import PlaceholderInput
 import overrides
 
 from baconian.common.logging import record_return_decorator

@@ -1,13 +1,12 @@
 from baconian.test.tests.set_up.setup import TestWithAll
 from baconian.config.global_config import GlobalConfig
 
-from baconian.algo.rl.model_free.dqn import DQN
-from baconian.core.core import Basic, EnvSpec
+from baconian.algo.dqn import DQN
+from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
-from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
+from baconian.algo.value_func.mlp_q_value import MLPQValueFunction
 from baconian.common.sampler.sample_data import TransitionData
 import numpy as np
-import tensorflow as tf
 
 
 class TestDQN(TestWithAll):

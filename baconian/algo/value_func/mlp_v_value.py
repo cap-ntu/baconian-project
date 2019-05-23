@@ -1,15 +1,13 @@
 import typeguard as tg
 from baconian.core.core import EnvSpec
 import overrides
-import numpy as np
 import tensorflow as tf
-from typeguard import typechecked
 from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.tf.mlp import MLP
 from baconian.common.special import *
-from baconian.algo.rl.utils import _get_copy_arg_with_tf_reuse
-from baconian.algo.placeholder_input import PlaceholderInput
-from baconian.algo.rl.value_func.value_func import VValueFunction
+from baconian.algo.utils import _get_copy_arg_with_tf_reuse
+from baconian.algo.misc.placeholder_input import PlaceholderInput
+from baconian.algo.value_func import VValueFunction
 
 
 class MLPVValueFunc(VValueFunction, PlaceholderInput):
