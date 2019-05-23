@@ -2,6 +2,7 @@ from baconian.common.special import *
 from baconian.core.core import EnvSpec
 from copy import deepcopy
 import typeguard as tg
+from baconian.common.error import *
 
 
 class SampleData(object):
@@ -34,6 +35,12 @@ class SampleData(object):
         raise NotImplementedError
 
     def return_generator(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def apply_transformation(self, set_name, func, *args, **kwargs):
+        raise NotImplementedError
+
+    def apply_op(self, set_name, func, *args, **kwargs):
         raise NotImplementedError
 
 
@@ -110,12 +117,27 @@ class TransitionData(SampleData):
         return batch_data
 
     def get_mean_of(self, set_name):
-        return make_batch(np.array(self._internal_data_dict[set_name][0]),
-                          original_shape=self._internal_data_dict[set_name][1]).mean().item()
+        return self.apply_op(set_name=set_name, func=np.mean)
 
     def get_sum_of(self, set_name):
-        return make_batch(np.array(self._internal_data_dict[set_name][0]),
-                          original_shape=self._internal_data_dict[set_name][1]).sum().item()
+        return self.apply_op(set_name=set_name, func=np.sum)
+
+    def apply_transformation(self, set_name, func, direct_apply=False, **func_kwargs):
+        data = make_batch(np.array(self._internal_data_dict[set_name][0]),
+                          original_shape=self._internal_data_dict[set_name][1])
+        transformed_data = make_batch(np.array(func(data, **func_kwargs)),
+                                      original_shape=self._internal_data_dict[set_name][1])
+        if transformed_data.shape != data.shape:
+            raise TransformationResultedToDifferentShape()
+        elif direct_apply is True:
+            self._internal_data_dict[set_name][0] = transformed_data
+        return transformed_data
+
+    def apply_op(self, set_name, func, **func_kwargs):
+        data = make_batch(np.array(self._internal_data_dict[set_name][0]),
+                          original_shape=self._internal_data_dict[set_name][1])
+        applied_op_data = np.array(func(data, **func_kwargs))
+        return applied_op_data
 
     def shuffle(self, index: list = None):
         if not index:
@@ -225,3 +247,15 @@ class TrajectoryData(SampleData):
     def return_generator(self, batch_size=None, shuffle_flag=False):
         return self.return_as_transition_data(shuffle_flag=False).return_generator(batch_size=batch_size,
                                                                                    shuffle_flag=shuffle_flag)
+
+    def apply_transformation(self, set_name, func, direct_apply=False, **func_kwargs):
+        # TODO unit test
+        for traj in self.trajectories:
+            traj.apply_transformation(set_name, func, direct_apply, **func_kwargs)
+
+    def apply_op(self, set_name, func, **func_kwargs):
+        # TODO unit test
+        res = []
+        for traj in self.trajectories:
+            res.append(traj.apply_op(set_name, func, **func_kwargs))
+        return np.array(res)

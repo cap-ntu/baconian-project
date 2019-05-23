@@ -13,7 +13,8 @@ Welcome to Baconian!
     :maxdepth: 1
     :caption: Tutorial and Examples
 
-    tutorial.rst
+    step_by_step.rst
+    best_practice.rst
     examples.rst
     how_to_log.rst
     implement_new_algo.rst

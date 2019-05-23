@@ -14,7 +14,7 @@ from functools import wraps
 Logger Module
 1. a global console output file
 2. each module/instance will have a single log file
-3. support for tf related utility, tf model, tensorboard
+3. support for tf related utility, tf model, tensorboard (todo)
 4. support for different log file types
 5. support for different level of logging
 """
@@ -266,8 +266,8 @@ class Recorder(object):
                                              get_method=None):
         """
         register an attribute that will be recorded periodically during training, duplicated registered will be ignored
+
         :param obj:
-        :param obj_name:
         :param attr_name:
         :param static_flag:
         :param get_method:

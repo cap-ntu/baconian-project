@@ -1,10 +1,10 @@
-Tutorial (Highly recommend to read before you start)
-========================================================
+Best practice of Baconian
+===========================================================================
 
-Here we introduce some very basic usage about the Baconian, to make sure you utilize the code correctly. As
+Here we introduce core ideas and features about the Baconian, to make sure you utilize the code correctly. As
 for detail usage of different algorithms, dynamics, please refer to the :doc:`API <API>` page
 
-Put everything into a function
+Put your task into a function
 ------------------------------
 Here we introduce the basic usage of baconian, and introduce how it can help you
 to set up the model-based RL experiments.
@@ -35,7 +35,7 @@ Specifically, you can do it by:
     duplicate_exp_runner(10, you_function)
 
 
-Global Configuration Usage
+Global Configuration
 ---------------------------
 The global configuration offer the setting including default log path, log level, and some other system related default
 configuration. We implement the global configuration module with singleton method, and you can utilize it by following
@@ -60,7 +60,7 @@ examples:
 During the time task is running, the global configuration will be frozen, if you try to change it, an error will be
 raised.
 
-Train and Test Workflow for RL Experiments
+Workflow for RL Experiments
 --------------------------------------------
 In Baconian, the control flow of the experiments is delegated to an independent module ``baconian.core.flow.train_test_flow:Flow``
 which is  an abstract class. The reason to do so is to improve the flexibility and extensibility of framework.
@@ -73,7 +73,7 @@ model-free algorithms pipeline, which is sampling-training-testing pipeline. Ano
     Do get freaked out by the long list of parameters you need to initialize the flow!
     This is caused by the fact that we want the flow to be fully configurable by users, currently we are working to simplify this module.
 
-Work with Status Control
+Status Control
 -------------------------
 Status control is a must for DRL experiments. For instance, off-policy DRL methods need to switch between behavior
 policy and target policy during sampling and testing or decay the exploration action noise w.r.t the training progress status.

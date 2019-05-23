@@ -3,6 +3,7 @@ from baconian.envs.gym_env import make
 from baconian.core.core import EnvSpec
 import numpy as np
 from baconian.test.tests.set_up.setup import BaseTestCase
+from baconian.common.error import *
 
 
 class TestSampleData(BaseTestCase):
@@ -59,6 +60,32 @@ class TestSampleData(BaseTestCase):
         self.assertEqual(a('state_set').shape[0], 100)
         self.assertEqual(a('new_state_set').shape[0], 100)
         self.assertEqual(a('action_set').shape[0], 100)
+
+        self.assertTrue(np.equal(a.get_mean_of('state_set'), a.apply_op('state_set', np.mean)).all())
+        self.assertTrue(np.equal(a.get_sum_of('state_set'), a.apply_op('state_set', np.sum)).all())
+
+        self.assertTrue(np.equal(a.get_sum_of('reward_set'), a.apply_op('reward_set', np.sum)).all())
+        self.assertTrue(np.equal(a.get_sum_of('reward_set'), a.apply_op('reward_set', np.sum)).all())
+
+        self.assertTrue(np.equal(a.get_sum_of('action_set'), a.apply_op('action_set', np.sum)).all())
+        self.assertTrue(np.equal(a.get_sum_of('action_set'), a.apply_op('action_set', np.sum)).all())
+        self.assertTrue(np.equal(a.apply_op('state_set', np.max, axis=-1), np.max(a('state_set'), axis=-1)).all())
+
+        tmp_action = a('action_set').copy()
+        a.apply_transformation(set_name='action_set', func=lambda x: x * 2, direct_apply=False)
+        self.assertTrue(np.equal(tmp_action, a('action_set')).all())
+        a.apply_transformation(set_name='action_set', func=lambda x: x * 2, direct_apply=True)
+        self.assertTrue(np.equal(tmp_action * 2.0, a('action_set')).all())
+        try:
+            a.apply_transformation(set_name='action_set', func=lambda _: np.array([1, 2, 3]), direct_apply=True)
+        except TransformationResultedToDifferentShape as e:
+            pass
+        else:
+            raise TypeError
+
+        a.apply_transformation(set_name='action_set', func=lambda x: x // 2, direct_apply=True)
+        self.assertTrue(np.equal(tmp_action, a('action_set')).all())
+
         index = np.arange(len(a._internal_data_dict['state_set'][0])).tolist()
         b = a.get_copy()
         a.shuffle(index=list(index))

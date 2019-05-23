@@ -40,3 +40,7 @@ class AttemptToChangeFreezeGlobalConfigError(BaconianError):
 
 class MissedConfigError(BaconianError):
     pass
+
+
+class TransformationResultedToDifferentShape(BaconianError):
+    pass
