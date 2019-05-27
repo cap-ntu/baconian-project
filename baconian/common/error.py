@@ -45,3 +45,10 @@ class MissedConfigError(BaconianError):
 class TransformationResultedToDifferentShapeError(BaconianError):
     pass
 
+
+class WrongValueRangeError(BaconianError):
+    pass
+
+
+class ShapeNotCompatibleError(BaconianError):
+    pass

@@ -31,6 +31,7 @@ from baconian.common.noise import *
 from baconian.common.sampler.sampler import Sampler
 from baconian.core.flow.dyna_flow import DynaFlow
 from baconian.common.data_pre_processing import *
+from baconian.common.sampler.sample_data import TransitionData, TrajectoryData
 
 
 class Foo(Basic):
@@ -556,12 +557,19 @@ class ClassCreatorSetup(unittest.TestCase):
                             cost_fn=DebuggingCostFunc())
         return policy, locals()
 
-    # def create_gp_dynamics(self, env_id='Pendulum-v0'):
-    #     env = make(env_id)
-    #     env_spec = EnvSpec(obs_space=env.observation_space,
-    #                        action_space=env.action_space)
-    #     a = GaussianProcessDyanmicsModel(env_spec=env_spec)
-    #     return a, locals()
+    def sample_transition(self, env, count=100):
+        data = TransitionData(env.env_spec)
+        st = env.get_state()
+        for i in range(count):
+            ac = env.env_spec.action_space.sample()
+            new_st, re, done, info = env.step(action=ac)
+            data.append(state=st,
+                        action=ac,
+                        new_state=new_st,
+                        done=done,
+                        reward=re)
+        return data
+
 
     def create_sampler(self, env_spec):
         return Sampler(env_spec=env_spec, name='sampler')

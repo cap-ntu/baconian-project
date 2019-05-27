@@ -103,16 +103,18 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DifferentiableDynami
     def train(self, batch_data: TransitionData, **kwargs) -> dict:
         self.set_status('TRAIN')
 
-        self.output_delta_state_scaler.update_scaler(batch_data.new_state_set - batch_data.state_set)
         self.state_input_scaler.update_scaler(batch_data.state_set)
         self.action_input_scaler.update_scaler(batch_data.action_set)
+        self.output_delta_state_scaler.update_scaler(batch_data.new_state_set - batch_data.state_set)
 
         tf_sess = kwargs['sess'] if ('sess' in kwargs and kwargs['sess']) else tf.get_default_session()
         train_iter = self.parameters('train_iter') if 'train_iter' not in kwargs else kwargs['train_iter']
         feed_dict = {
-            self.state_input: batch_data.state_set,
-            self.action_input: flatten_n(self.env_spec.action_space, batch_data.action_set),
-            self.delta_state_label_ph: batch_data.new_state_set - batch_data.state_set,
+            self.state_input: self.state_input_scaler.process(batch_data.state_set),
+            self.action_input: self.action_input_scaler.process(
+                flatten_n(self.env_spec.action_space, batch_data.action_set)),
+            self.delta_state_label_ph: self.output_delta_state_scaler.process(
+                batch_data.new_state_set - batch_data.state_set),
             **self.parameters.return_tf_parameter_feed_dict()
         }
         average_loss = 0.0
@@ -152,8 +154,9 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DifferentiableDynami
                                       self.action_input: action,
                                       self.state_input: state
                                   })
-        new_state = np.clip(np.squeeze(self.state_input_scaler.process(data=np.squeeze(delta_state)) + state),
-                            self.env_spec.obs_space.low, self.env_spec.obs_space.high)
+        new_state = np.clip(
+            np.squeeze(self.output_delta_state_scaler.inverse_process(data=np.squeeze(delta_state)) + state),
+            self.env_spec.obs_space.low, self.env_spec.obs_space.high)
         return new_state
 
     def _setup_loss(self):

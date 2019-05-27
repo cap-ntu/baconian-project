@@ -7,7 +7,7 @@ try:
     from gym.envs.mujoco import mujoco_env
 except Exception:
     have_mujoco_flag = False
-
+import roboschool
 import numpy as np
 import types
 from gym.spaces import *
@@ -15,7 +15,7 @@ from gym.spaces import Space as GymSpace
 import baconian.common.spaces as garage_space
 from typeguard import typechecked
 from baconian.core.status import register_counter_info_to_status_decorator
-
+import gym.error as gym_error
 _env_inited_count = dict()
 
 
@@ -71,7 +71,9 @@ class GymEnv(Env):
         """
         super().__init__(name=name if name else gym_env_id)
         self.env_id = gym_env_id
-        if gym_env_id not in self._all_gym_env_id:
+        try:
+            self._gym_env = gym.make(gym_env_id)
+        except gym_error.UnregisteredEnv:
             raise ValueError('Env id: {} is not supported currently'.format(gym_env_id))
         self._gym_env = gym.make(gym_env_id)
         self.action_space = space_converter(self._gym_env.action_space)

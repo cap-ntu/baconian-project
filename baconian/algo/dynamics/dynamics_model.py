@@ -52,6 +52,17 @@ class DynamicsModel(Basic):
 
     @register_counter_info_to_status_decorator(increment=1, info_key='step_counter')
     def step(self, action: np.ndarray, state=None, allow_clip=False, **kwargs_for_transit):
+        """
+        State transition function (only support one sample transition instead of batch data)
+
+        :param action: action to be taken
+        :param state: current state, if None, will use stored state (saved from last transition)
+        :param allow_clip: boolean, if True, will clip the output to fit it bound, if False, will not, and if the output
+            is out bound, will throw an error
+        :param kwargs_for_transit: extra kwargs for calling the _state_transit, this is typically related to the specific
+            mode you used
+        :return:
+        """
         state = np.array(state).reshape(self.env_spec.obs_shape) if state is not None else self.state
         action = action.reshape(self.env_spec.action_shape)
         if allow_clip is True:
@@ -106,7 +117,7 @@ class GlobalDynamicsModel(DynamicsModel):
     pass
 
 
-class TrainableDyanmicsModel(DynamicsModel):
+class TrainableDyanmicsModel(object):
     def train(self, *args, **kwargs):
         raise NotImplementedError
 

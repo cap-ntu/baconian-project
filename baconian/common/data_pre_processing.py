@@ -3,6 +3,7 @@ A scikit-learn liked module for handle the data pre-processing including normali
 """
 
 import numpy as np
+from baconian.common.error import *
 
 
 class DataScaler(object):
@@ -18,7 +19,7 @@ class DataScaler(object):
     def _compute_stat_of_batch_data(self, data):
         data = np.array(data)
         if self._check_data(data) is False:
-            raise ValueError("data shape is not compatible")
+            raise ShapeNotCompatibleError("data shape is not compatible")
         else:
             return np.min(data, axis=0), np.max(data, axis=0), np.mean(data, axis=0), np.var(data, axis=0)
 
@@ -60,7 +61,7 @@ class MinMaxScaler(DataScaler):
         else:
             if len(desired_range) != 2 or self._check_scaler(np.array(desired_range[0])) is False or self._check_scaler(
                     np.array(desired_range[1])) is False:
-                raise ValueError("desired value dims is not compatible with dims")
+                raise ShapeNotCompatibleError("desired value dims is not compatible with dims")
             self._desired_range = (np.array(desired_range[0]), np.array(desired_range[1]))
 
     def process(self, data):
@@ -76,16 +77,23 @@ class MinMaxScaler(DataScaler):
         if self._check_scaler(min):
             self._min = min
         else:
-            raise ValueError('the shape of min/max range is not as same as shape')
+            raise ShapeNotCompatibleError('the shape of min/max range is not as same as shape')
         if self._check_scaler(max):
             self._max = max
         else:
-            raise ValueError('the shape of min/max range is not as same as shape')
+            raise ShapeNotCompatibleError('the shape of min/max range is not as same as shape')
         if len(desired_range) != 2 and self._check_scaler(np.array(desired_range[0])) is False or self._check_scaler(
                 np.array(desired_range[1])) is False:
-            raise ValueError("desired value dims is not compatible with dims")
+            raise ShapeNotCompatibleError("desired value dims is not compatible with dims")
         else:
             self._desired_range = (np.array(desired_range[0]), np.array(desired_range[1]))
+
+    def inverse_process(self, data):
+        if np.greater(data, self._desired_range[1]).any() or np.less(data, self._desired_range[0]).any():
+            raise WrongValueRangeError('data for inverse process not in the range {} {}'.format(self._desired_range[0],
+                                                                                                self._desired_range[1]))
+        return (data - self._desired_range[0]) / (self._desired_range[1] - self._desired_range[0]) * \
+               (self._max - self._min) + self._min
 
 
 class RunningMinMaxScaler(MinMaxScaler):
@@ -103,7 +111,7 @@ class RunningMinMaxScaler(MinMaxScaler):
         elif init_data is not None:
             self._min, self._max, _, _ = self._compute_stat_of_batch_data(init_data)
         if self._check_scaler(self._min) is False or self._check_scaler(self._max) is False:
-            raise ValueError('the shape of min/max range is not as same as shape')
+            raise ShapeNotCompatibleError('the shape of min/max range is not as same as shape')
 
     def update_scaler(self, data):
         if self._min is not None:
@@ -120,7 +128,7 @@ class BatchMinMaxScaler(MinMaxScaler):
 
     def process(self, data):
         if self._check_data(data) is False:
-            raise ValueError("data is compatible with scaler")
+            raise ShapeNotCompatibleError("data is compatible with scaler, make sure only scale the box type data")
         self._min, self._max, _, _ = self._compute_stat_of_batch_data(data)
         return super().process(data)
 
@@ -147,7 +155,7 @@ class StandardScaler(DataScaler):
 class BatchStandardScaler(StandardScaler):
     def process(self, data):
         if self._check_data(data) is False:
-            raise ValueError("data is compatible with scaler")
+            raise ShapeNotCompatibleError("data is compatible with scaler")
         _, _, self._mean, self._var = self._compute_stat_of_batch_data(data)
         return super().process(data)
 
