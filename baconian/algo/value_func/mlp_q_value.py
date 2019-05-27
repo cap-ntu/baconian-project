@@ -68,7 +68,7 @@ class MLPQValueFunction(QValueFunction, PlaceholderInput):
                                 action_input=action_input,
                                 state_input=state_input,
                                 parameters=None)
-        PlaceholderInput.__init__(self, parameters=parameters, inputs=mlp_input_ph)
+        PlaceholderInput.__init__(self, parameters=parameters)
 
         self.mlp_config = mlp_config
         self.input_norm = input_norm

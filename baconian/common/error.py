@@ -10,7 +10,7 @@ class StatusInfoNotRegisteredError(BaconianError):
     pass
 
 
-class DynamicsNextStepOutputBoundError(BaconianError):
+class StateOrActionOutOfBoundError(BaconianError):
     pass
 
 
@@ -42,5 +42,6 @@ class MissedConfigError(BaconianError):
     pass
 
 
-class TransformationResultedToDifferentShape(BaconianError):
+class TransformationResultedToDifferentShapeError(BaconianError):
     pass
+

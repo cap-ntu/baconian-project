@@ -128,7 +128,7 @@ class TransitionData(SampleData):
         transformed_data = make_batch(np.array(func(data, **func_kwargs)),
                                       original_shape=self._internal_data_dict[set_name][1])
         if transformed_data.shape != data.shape:
-            raise TransformationResultedToDifferentShape()
+            raise TransformationResultedToDifferentShapeError()
         elif direct_apply is True:
             self._internal_data_dict[set_name][0] = transformed_data
         return transformed_data

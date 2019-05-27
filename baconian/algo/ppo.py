@@ -16,7 +16,8 @@ from baconian.common.logging import record_return_decorator
 from baconian.core.status import register_counter_info_to_status_decorator
 from baconian.algo.misc.placeholder_input import MultiPlaceholderInput, PlaceholderInput
 from baconian.common.error import *
-from baconian.algo.utils import Scaler
+from baconian.common.data_pre_processing import RunningStandardScaler
+from baconian.common.special import *
 
 
 class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
@@ -37,7 +38,8 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         self.trajectory_memory = TrajectoryData(env_spec=env_spec)
         self.transition_data_for_trajectory = TransitionData(env_spec=env_spec)
         self.value_func_train_data_buffer = None
-        self.scaler = Scaler(obs_dim=self.env_spec.flat_obs_dim)
+        # self.scaler = Scaler(obs_dim=self.env_spec.flat_obs_dim)
+        self.scaler = RunningStandardScaler(dims=self.env_spec.flat_obs_dim)
 
         with tf.variable_scope(name):
             self.advantages_ph = tf.placeholder(tf.float32, (None,), 'advantages')
@@ -83,7 +85,6 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                                                                         ),
                                                                    dict(obj=self.policy,
                                                                         attr_name='policy')],
-                                       inputs=(self.advantages_ph, self.v_func_val_ph),
                                        parameters=self.parameters)
 
     @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='JUST_INITED')
@@ -138,8 +139,8 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
     @typechecked
     def predict(self, obs: np.ndarray, sess=None, batch_flag: bool = False):
         tf_sess = sess if sess else tf.get_default_session()
-        scale, offset = self.scaler.get()
-        obs = np.squeeze((np.squeeze(obs) - offset) * scale)
+        obs = make_batch(obs, original_shape=self.env_spec.obs_shape)
+        obs = self.scaler.process(data=obs)
         ac = self.policy.forward(obs=obs, sess=tf_sess, feed_dict=self.parameters.return_tf_parameter_feed_dict())
         return ac
 
@@ -147,19 +148,19 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
     def append_to_memory(self, samples: SampleData):
         # todo how to make sure the data's time sequential
         iter_samples = samples.return_generator()
-        scale, offset = self.scaler.get()
+        # scale, offset = self.scaler.get()
         obs_list = []
-        for obs0, obs1, action, reward, terminal1 in iter_samples:
-            obs_list.append(obs0)
-            self.transition_data_for_trajectory.append(state=(obs0 - offset) * scale,
-                                                       new_state=(obs1 - offset) * scale,
+        for state, new_state, action, reward, done in iter_samples:
+            obs_list.append(state)
+            self.transition_data_for_trajectory.append(state=self.scaler.process(state),
+                                                       new_state=self.scaler.process(new_state),
                                                        action=action,
                                                        reward=reward,
-                                                       done=terminal1)
-            if terminal1 is True:
+                                                       done=done)
+            if done is True:
                 self.trajectory_memory.append(self.transition_data_for_trajectory)
                 self.transition_data_for_trajectory.reset()
-        self.scaler.update(x=np.array(obs_list))
+        self.scaler.update_scaler(data=np.array(obs_list))
 
     @record_return_decorator(which_recorder='self')
     def save(self, global_step, save_path=None, name=None, **kwargs):

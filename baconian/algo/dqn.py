@@ -15,6 +15,7 @@ from baconian.algo.value_func.mlp_q_value import MLPQValueFunction
 from baconian.common.logging import record_return_decorator
 from baconian.core.status import register_counter_info_to_status_decorator
 from baconian.algo.misc.placeholder_input import MultiPlaceholderInput
+from baconian.common.error import *
 
 
 class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
@@ -73,7 +74,6 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
                                                                         ),
                                                                    dict(obj=self.target_q_value_func,
                                                                         attr_name='target_q_value_func')],
-                                       inputs=(self.state_input, self.action_input),
                                        parameters=self.parameters)
 
     @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='JUST_INITED')
@@ -194,7 +194,8 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
 
     def _predict_action(self, obs: np.ndarray, q_value_tensor: tf.Tensor, action_ph: tf.Tensor, state_ph: tf.Tensor,
                         sess=None):
-        assert self.env_spec.obs_space.contains(obs)
+        if self.env_spec.obs_space.contains(obs) is False:
+            raise StateOrActionOutOfBoundError("obs {} out of bound {}".format(obs, self.env_spec.obs_space.bound()))
         obs = repeat_ndarray(obs, repeats=self.env_spec.flat_action_dim)
         tf_sess = sess if sess else tf.get_default_session()
         feed_dict = {action_ph: generate_n_actions_hot_code(n=self.env_spec.flat_action_dim),

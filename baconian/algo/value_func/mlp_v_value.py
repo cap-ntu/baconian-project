@@ -56,9 +56,7 @@ class MLPVValueFunc(VValueFunction, PlaceholderInput):
                                 state_input=state_input,
                                 name=name,
                                 parameters=None)
-        PlaceholderInput.__init__(self,
-                                  inputs=mlp_input_ph,
-                                  parameters=parameters)
+        PlaceholderInput.__init__(self, parameters=parameters)
 
         self.name_scope = name_scope
         self.mlp_config = mlp_config

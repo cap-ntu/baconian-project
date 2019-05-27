@@ -25,8 +25,6 @@ def task_fn():
         env_spec=env_spec,
         name_scope=name + '_mlp_dyna',
         name=name + '_mlp_dyna',
-        output_low=env_spec.obs_space.low,
-        output_high=env_spec.obs_space.high,
         learning_rate=0.01,
         mlp_config=[
             {

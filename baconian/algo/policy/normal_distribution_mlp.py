@@ -102,7 +102,7 @@ class NormalDistributionMLPPolicy(StochasticPolicy, PlaceholderInput):
                                                                **mlp_kwargs
                                                            ),
                                                            name='normal_distribution_mlp_tf_param')
-        PlaceholderInput.__init__(self, parameters=self.parameters, inputs=tuple(ph_inputs))
+        PlaceholderInput.__init__(self, parameters=self.parameters)
 
     @typechecked
     @overrides.overrides

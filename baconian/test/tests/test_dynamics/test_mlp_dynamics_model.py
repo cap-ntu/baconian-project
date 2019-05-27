@@ -6,7 +6,7 @@ import numpy as np
 class TestDynamicsModel(TestWithAll):
 
     def test_mlp_dynamics_model(self):
-        mlp_dyna, local = self.create_continue_dynamics_model()
+        mlp_dyna, local = self.create_continue_dynamics_model(name='mlp_dyna_model')
         env = local['env']
         env_spec = local['env_spec']
         env.reset()

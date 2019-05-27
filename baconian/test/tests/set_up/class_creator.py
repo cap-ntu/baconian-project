@@ -30,6 +30,7 @@ from baconian.algo.dynamics.random_dynamics_model import UniformRandomDynamicsMo
 from baconian.common.noise import *
 from baconian.common.sampler.sampler import Sampler
 from baconian.core.flow.dyna_flow import DynaFlow
+from baconian.common.data_pre_processing import *
 
 
 class Foo(Basic):
@@ -125,7 +126,7 @@ class ClassCreatorSetup(unittest.TestCase):
                                                  to_ph_parameter_dict=dict(
                                                      var1=tf.placeholder(shape=(), dtype=tf.int32)))
         param.init()
-        a = PlaceholderInput(parameters=param, inputs=None)
+        a = PlaceholderInput(parameters=param)
 
         return a, locals()
 
@@ -307,36 +308,12 @@ class ClassCreatorSetup(unittest.TestCase):
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
 
-        mlp_dyna = ContinuousMLPGlobalDynamicsModel(
-            env_spec=env_spec,
-            name_scope=name + 'mlp_dyna',
-            name=name + 'mlp_dyna',
-            output_low=env_spec.obs_space.low,
-            output_high=env_spec.obs_space.high,
-            learning_rate=0.01,
-            mlp_config=[
-                {
-                    "ACT": "RELU",
-                    "B_INIT_VALUE": None,
-                    "NAME": "1",
-                    "N_UNITS": 16,
-                    "TYPE": "DENSE",
-                    "W_NORMAL_STDDEV": 0.03
-                },
-                {
-                    "ACT": "LINEAR",
-                    "B_INIT_VALUE": 0.0,
-                    "NAME": "OUPTUT",
-                    "N_UNITS": env_spec.flat_obs_dim,
-                    "TYPE": "DENSE",
-                    "W_NORMAL_STDDEV": 0.03
-                }
-            ])
+        mlp_dyna, _ = self.create_continuous_mlp_global_dynamics_model(env_spec=env_spec, name=name)
         return mlp_dyna, locals()
 
     def create_mpc(self, env_id='Acrobot-v1', name='mpc', policy=None, mlp_dyna=None, env_spec=None, env=None):
         if mlp_dyna is None:
-            mlp_dyna, local = self.create_continue_dynamics_model(env_id, name)
+            mlp_dyna, local = self.create_continue_dynamics_model(env_id, name + 'mlp_dyna')
             env_spec = local['env_spec']
             env = local['env']
 
@@ -497,8 +474,9 @@ class ClassCreatorSetup(unittest.TestCase):
             env_spec=env_spec,
             name_scope=name,
             name=name,
-            output_low=env_spec.obs_space.low,
-            output_high=env_spec.obs_space.high,
+            state_input_scaler=RunningStandardScaler(dims=env_spec.flat_obs_dim),
+            action_input_scaler=RunningStandardScaler(dims=env_spec.flat_action_dim),
+            output_delta_state_scaler=RunningStandardScaler(dims=env_spec.flat_obs_dim),
             learning_rate=0.01,
             mlp_config=[
                 {

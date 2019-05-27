@@ -176,3 +176,6 @@ class GymEnv(Env):
         return np.clip(np.random.uniform(low=low, high=high, size=space.low.shape),
                        a_min=space.low,
                        a_max=space.high)
+
+    def __str__(self):
+        return "<GymEnv instance> {}".format(self.env_id)

@@ -17,6 +17,7 @@ from baconian.algo.dyna import Dyna
 from baconian.algo.dynamics.reward_func.reward_func import RandomRewardFunc
 from baconian.algo.dynamics.terminal_func.terminal_func import FixedEpisodeLengthTerminalFunc
 from baconian.core.flow.dyna_flow import create_dyna_flow
+from baconian.common.data_pre_processing import RunningStandardScaler
 
 
 def task_fn():
@@ -94,9 +95,10 @@ def task_fn():
         env_spec=env_spec,
         name_scope=name + '_mlp_dyna',
         name=name + '_mlp_dyna',
-        output_low=env_spec.obs_space.low,
-        output_high=env_spec.obs_space.high,
         learning_rate=0.01,
+        state_input_scaler=RunningStandardScaler(dims=env_spec.flat_obs_dim),
+        action_input_scaler=RunningStandardScaler(dims=env_spec.flat_action_dim),
+        output_delta_state_scaler=RunningStandardScaler(dims=env_spec.flat_obs_dim),
         mlp_config=[
             {
                 "ACT": "RELU",

@@ -123,8 +123,7 @@ class Agent(Basic):
         """
         predict the action given the state
 
-        :param kwargs: rest parameters
-        :param obs: observation/state
+        :param kwargs: rest parameters, include key: obs
         :return:
         """
         if self.explorations_strategy and not self.is_testing:

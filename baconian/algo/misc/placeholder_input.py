@@ -10,12 +10,8 @@ from baconian.config.global_config import GlobalConfig
 
 class PlaceholderInput(object):
     @tg.typechecked
-    def __init__(self, inputs: (tuple, tf.Tensor), parameters: ParametersWithTensorflowVariable = None,
+    def __init__(self, parameters: ParametersWithTensorflowVariable = None,
                  name_scope=None):
-        if isinstance(inputs, tuple):
-            for input in inputs:
-                assert isinstance(input, tf.Tensor)
-        self.inputs = inputs
         self.parameters = parameters
         if name_scope:
             self.name_scope = name_scope
@@ -49,7 +45,7 @@ class PlaceholderInput(object):
 
 class MultiPlaceholderInput(object):
     @tg.typechecked
-    def __init__(self, sub_placeholder_input_list: list, inputs: (tuple, tf.Tensor),
+    def __init__(self, sub_placeholder_input_list: list,
                  parameters: ParametersWithTensorflowVariable):
         self._placeholder_input_list = sub_placeholder_input_list
         for param in self._placeholder_input_list:
@@ -57,7 +53,7 @@ class MultiPlaceholderInput(object):
             assert 'attr_name' in param
             assert 'obj' in param and isinstance(param['obj'], PlaceholderInput) and isinstance(param['obj'], Basic)
 
-        self._own_placeholder_input_obj = PlaceholderInput(inputs=inputs, parameters=parameters)
+        self._own_placeholder_input_obj = PlaceholderInput(parameters=parameters)
 
     def save(self, global_step, save_path, name, **kwargs):
         sess = kwargs['sess'] if 'sess' in kwargs else None

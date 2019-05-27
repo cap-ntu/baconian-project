@@ -41,7 +41,7 @@ class DeterministicMLPPolicy(DeterministicPolicy, PlaceholderInput):
                       **mlp_kwargs,
                       net_name='deterministic_mlp_policy')
 
-        PlaceholderInput.__init__(self, inputs=state_input, parameters=None)
+        PlaceholderInput.__init__(self, parameters=None)
         self.parameters = ParametersWithTensorflowVariable(tf_var_list=mlp_net.var_list,
                                                            rest_parameters=mlp_kwargs,
                                                            name='deterministic_mlp_policy_tf_param')

@@ -28,19 +28,32 @@ class DataScaler(object):
         else:
             return True
 
+    def process(self, data):
+        raise NotImplementedError
 
-class RunningDataScaler(object):
-    """Interface for running scaler"""
+    def inverse_process(self, data):
+        raise NotImplementedError
 
     def update_scaler(self, data):
-        raise NotImplementedError
+        pass
+
+
+class IdenticalDataScaler(DataScaler):
+    def __init__(self, dims):
+        self.data_dims = dims
+
+    def process(self, data):
+        return data
+
+    def inverse_process(self, data):
+        return data
 
 
 class MinMaxScaler(DataScaler):
     def __init__(self, dims: int, desired_range: tuple = None):
         super().__init__(dims)
-        self._min = None
-        self._max = None
+        self._min = np.zeros([dims])
+        self._max = np.ones([dims])
 
         if desired_range is None:
             self._desired_range = (np.zeros(dims), np.ones(dims))
@@ -75,7 +88,7 @@ class MinMaxScaler(DataScaler):
             self._desired_range = (np.array(desired_range[0]), np.array(desired_range[1]))
 
 
-class RunningMinMaxScaler(MinMaxScaler, RunningDataScaler):
+class RunningMinMaxScaler(MinMaxScaler):
     """
     A scaler with running mean and max across all data updated into the scaler and scale the data to a desired range
     """
@@ -115,13 +128,16 @@ class BatchMinMaxScaler(MinMaxScaler):
 class StandardScaler(DataScaler):
     def __init__(self, dims: int):
         super().__init__(dims)
-        self._var = None
-        self._mean = None
+        self._var = np.ones([dims])
+        self._mean = np.zeros([dims])
         self._data_count = 0
         self._epsilon = 0.01
 
     def process(self, data):
         return (data - self._mean) / (np.sqrt(self._var) + self._epsilon)
+
+    def inverse_process(self, data):
+        return data * (np.sqrt(self._var) + self._epsilon) + self._mean
 
     def get_param(self):
         return dict(mean=self._mean.tolist(),
@@ -136,7 +152,7 @@ class BatchStandardScaler(StandardScaler):
         return super().process(data)
 
 
-class RunningStandardScaler(StandardScaler, RunningDataScaler):
+class RunningStandardScaler(StandardScaler):
     """
     A scaler with running mean and variance across all data passed into the scaler and scale the data with zero mean and
     unit variance.

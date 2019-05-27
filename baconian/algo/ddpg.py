@@ -94,8 +94,6 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
                                                                    dict(obj=self.target_critic,
                                                                         attr_name='target_critic')
                                                                    ],
-                                       inputs=(self.state_input, self.reward_input, self.next_state_input,
-                                               self.done_input, self.target_q_input),
                                        parameters=self.parameters)
 
     @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='JUST_INITED')
