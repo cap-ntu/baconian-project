@@ -4,7 +4,7 @@ from baconian.test.tests.set_up.setup import TestWithLogSet
 
 class TestEnv(TestWithLogSet):
     def test_dmcontrol_env(self):
-        a = DMControlEnv('cheetah', 'run')
+        a = DMControlEnv('cartpole', 'swingup')
         a.set_status('TRAIN')
         self.assertEqual(a.total_step_count_fn(), 0)
         self.assertEqual(a._last_reset_point, 0)
