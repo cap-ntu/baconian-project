@@ -1,6 +1,7 @@
 from baconian.core.core import Env, EnvSpec
 import gym.envs
 from gym.envs.registration import registry
+import roboschool
 
 have_mujoco_flag = True
 try:
