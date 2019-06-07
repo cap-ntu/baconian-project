@@ -74,7 +74,8 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DifferentiableDynami
         self.delta_state_label_ph = delta_state_label_ph
         self.delta_state_output = mlp_net.output
         self.mlp_net = mlp_net
-        self.output_delta_state_scaler = output_delta_state_scaler if output_delta_state_scaler else IdenticalDataScaler
+        self.output_delta_state_scaler = output_delta_state_scaler if output_delta_state_scaler else IdenticalDataScaler(
+            dims=self.env_spec.flat_obs_dim)
         self._status = StatusWithSubInfo(obj=self)
 
         with tf.variable_scope(name_scope):

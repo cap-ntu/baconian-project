@@ -41,12 +41,3 @@ class TestDynamicsModel(TestWithAll):
             predict.append(a.step(state=state, action=action))
         print(np.linalg.norm(np.array(predict) - data.new_state_set, ord=1))
         print(np.linalg.norm(np.array(predict) - data.new_state_set, ord=2))
-
-        a = LinearRegressionDynamicsModel(env_spec=real_env.env_spec,
-                                          state_input_scaler=RunningStandardScaler(
-                                              dims=real_env.observation_space.flat_dim),
-                                          action_input_scaler=RunningStandardScaler(
-                                              dims=real_env.action_space.flat_dim),
-                                          state_output_scaler=RunningStandardScaler(
-                                              dims=real_env.observation_space.flat_dim))
-        data = self.sample_transition(env=real_env, count=100)
