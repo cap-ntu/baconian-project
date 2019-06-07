@@ -48,4 +48,4 @@ gpflow==1.3.0
 matplotlib==3.0.3
 seaborn==0.9.0
 scikit-learn==0.21.1
-roboschool==1.0.46
+roboschool
