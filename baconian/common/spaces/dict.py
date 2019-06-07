@@ -128,7 +128,7 @@ class Dict(Space):
             OrderedDict
 
         """
-        raise NotImplementedError
+        return OrderedDict([(k, space.sample()) for k, space in self.spaces.items()])
 
     def new_tensor_variable(self, name, extra_dims):
         """

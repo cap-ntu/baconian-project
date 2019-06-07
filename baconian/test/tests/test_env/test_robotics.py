@@ -1,10 +1,14 @@
 from baconian.envs.gym_env import GymEnv
 from baconian.test.tests.set_up.setup import TestWithLogSet
 from gym import make
+import os
+
+os.environ['LD_LIBRARY_PATH'] = os.environ['LD_LIBRARY_PATH'] + ':/home/dls/.mujoco/mujoco200/bin'
 
 
 class TestEnv(TestWithLogSet):
     def test_gym_env(self):
+
         a = GymEnv('FetchPickAndPlace-v1')
         a.set_status('TRAIN')
         self.assertEqual(a.total_step_count_fn(), 0)
