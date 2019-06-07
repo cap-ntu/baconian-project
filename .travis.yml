@@ -3,7 +3,8 @@ python:
   - "3.5"
 
 before_install:
-  - sudo apt-get install libgl1-mesa-dev
+  - sudo apt install libgl1-mesa-dev
+  - sudo apt install libpcre16-3
 
 install:
   - pip install pip==9.0.1
