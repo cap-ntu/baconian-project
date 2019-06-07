@@ -1,3 +1,6 @@
+import os
+import platform
+from pathlib import Path
 from baconian.core.core import Env, EnvSpec
 import gym.envs
 from dm_control import suite
@@ -11,7 +14,7 @@ from collections import OrderedDict
 
 have_mujoco_flag = True
 try:
-    from gym.envs.mujoco import mujoco_env
+    from dm_control import mujoco
 except Exception:
     have_mujoco_flag = False
 
@@ -22,6 +25,21 @@ from gym.spaces import Space as GymSpace
 import baconian.common.spaces as garage_space
 from typeguard import typechecked
 from baconian.core.status import register_counter_info_to_status_decorator
+
+_PLATFORM = platform.system()
+try:
+    _PLATFORM_SUFFIX = {
+        "Linux": "linux",
+        "Darwin": "macos",
+        "Windows": "win64"
+    }[_PLATFORM]
+except KeyError:
+    raise OSError("Unsupported platform: {}".format(_PLATFORM))
+
+os.environ['LD_LIBRARY_PATH'] = os.environ.get('LD_LIBRARY_PATH', '') \
+                                + ':' + str(Path.home()) + '/.mujoco/mujoco200_{}/bin'.format(_PLATFORM_SUFFIX)
+os.environ['MUJOCO_PY_MUJOCO_PATH'] = os.environ.get('MUJOCO_PY_MUJOCO_PATH', '') \
+                                      + str(Path.home()) + '/.mujoco/mujoco200_{}'.format(_PLATFORM_SUFFIX)
 
 
 def convert_dm_control_to_gym_space(dm_control_space):
@@ -100,6 +118,7 @@ class DMControlEnv(Env):
             self.observation_space.low = np.nan_to_num(self.observation_space.low)
             self.observation_space.high = np.nan_to_num(self.observation_space.high)
             self.observation_space.sample = types.MethodType(self._sample_with_nan, self.observation_space)
+
         self.env_spec = EnvSpec(obs_space=self.observation_space,
                                 action_space=self.action_space)
 

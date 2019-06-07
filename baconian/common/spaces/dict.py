@@ -3,6 +3,8 @@ from collections import OrderedDict
 
 from baconian.common.spaces.base import Space
 
+import numpy as np
+
 
 class Dict(Space):
     """
@@ -128,7 +130,18 @@ class Dict(Space):
             OrderedDict
 
         """
-        raise NotImplementedError
+        # raise NotImplementedError
+        ordered = OrderedDict()
+        for k, space in self.spaces.items():
+            for a in space.low:
+                if np.isinf(a):
+                    a = np.nan_to_num(a)
+            for b in space.high:
+                if np.isinf(b):
+                    b = np.nan_to_num(b)
+            ordered.update([(k, space.sample())])
+        # return OrderedDict([(k, space.sample()) for k, space in self.spaces.items()])
+        return ordered
 
     def new_tensor_variable(self, name, extra_dims):
         """
