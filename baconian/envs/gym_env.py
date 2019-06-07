@@ -14,7 +14,6 @@ from gym.spaces import *
 from gym.spaces import Space as GymSpace
 import baconian.common.spaces as garage_space
 from typeguard import typechecked
-from baconian.core.status import register_counter_info_to_status_decorator
 import gym.error as gym_error
 _env_inited_count = dict()
 
