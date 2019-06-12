@@ -166,7 +166,8 @@ class Dict(Space):
         :param space:
         :return:
         """
-        assert isinstance(space, Box)
+        if not isinstance(space, Box):
+            raise TypeError('space is not of type Box')
         high = np.ones_like(space.low)
         low = -1 * np.ones_like(space.high)
         return np.clip(np.random.uniform(low=low, high=high, size=space.low.shape),
