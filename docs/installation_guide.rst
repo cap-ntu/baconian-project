@@ -17,7 +17,7 @@ overwrites some of already installed packages with a different version.
 .. code-block:: bash
 
     git clone git@github.com:Lukeeeeee/baconian-project.git baconian
-    cd path/to/baconian
+    cd ./baconian
     pip install -e .
 
 The ``-e`` means "editable", so changes you make to files in the Ray

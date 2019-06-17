@@ -1,4 +1,3 @@
-from baconian.envs.dmcontrol_env import DMControlEnv
 from baconian.test.tests.set_up.setup import TestWithLogSet
 
 
@@ -11,6 +10,7 @@ class TestEnv(TestWithLogSet):
             have_mujoco_flag = False
 
         if have_mujoco_flag:
+            from baconian.envs.dmcontrol_env import DMControlEnv
             a = DMControlEnv('cartpole', 'swingup')
             a.set_status('TRAIN')
             self.assertEqual(a.total_step_count_fn(), 0)
