@@ -3,20 +3,21 @@ A simple example to show how to build up an experiment with Dyna training and te
 """
 from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
-from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
-from baconian.algo.rl.model_free.ddpg import DDPG
-from baconian.algo.rl.policy.deterministic_mlp import DeterministicMLPPolicy
+from baconian.algo.value_func.mlp_q_value import MLPQValueFunction
+from baconian.algo.ddpg import DDPG
+from baconian.algo.policy import DeterministicMLPPolicy
 from baconian.core.agent import Agent
-from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
+from baconian.algo.misc import EpsilonGreedy
 from baconian.core.experiment import Experiment
 from baconian.config.global_config import GlobalConfig
 from baconian.core.status import get_global_status_collect
 from baconian.common.schedules import PeriodicalEventSchedule
 from baconian.algo.dynamics.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
-from baconian.algo.rl.model_based.dyna import Dyna
+from baconian.algo.dyna import Dyna
 from baconian.algo.dynamics.reward_func.reward_func import RandomRewardFunc
 from baconian.algo.dynamics.terminal_func.terminal_func import FixedEpisodeLengthTerminalFunc
-from baconian.core.flow.dyna_flow import DynaFlow, create_dyna_flow
+from baconian.core.flow.dyna_flow import create_dyna_flow
+from baconian.common.data_pre_processing import RunningStandardScaler
 
 
 def task_fn():
@@ -94,9 +95,10 @@ def task_fn():
         env_spec=env_spec,
         name_scope=name + '_mlp_dyna',
         name=name + '_mlp_dyna',
-        output_low=env_spec.obs_space.low,
-        output_high=env_spec.obs_space.high,
         learning_rate=0.01,
+        state_input_scaler=RunningStandardScaler(dims=env_spec.flat_obs_dim),
+        action_input_scaler=RunningStandardScaler(dims=env_spec.flat_action_dim),
+        output_delta_state_scaler=RunningStandardScaler(dims=env_spec.flat_obs_dim),
         mlp_config=[
             {
                 "ACT": "RELU",

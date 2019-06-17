@@ -1,13 +1,5 @@
-import numpy as np
-import tensorflow as tf
-from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
-from baconian.config.dict_config import DictConfig
-from baconian.core.core import Basic, EnvSpec
 from baconian.test.tests.set_up.setup import TestWithAll
 from baconian.config.global_config import GlobalConfig
-from baconian.tf.util import create_new_tf_session
-from baconian.algo.rl.model_free.dqn import DQN
-from baconian.envs.gym_env import make
 import glob
 
 

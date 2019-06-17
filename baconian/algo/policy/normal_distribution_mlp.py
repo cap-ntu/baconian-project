@@ -1,16 +1,14 @@
-from baconian.algo.rl.policy.policy import StochasticPolicy
-from typeguard import typechecked
+from baconian.algo.policy.policy import StochasticPolicy
 from baconian.core.core import EnvSpec
 import overrides
-import numpy as np
 import tensorflow as tf
 from baconian.tf.mlp import MLP
 from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.common.special import *
 import tensorflow_probability as tfp
 from baconian.tf.util import *
-from baconian.algo.rl.utils import _get_copy_arg_with_tf_reuse
-from baconian.algo.placeholder_input import PlaceholderInput
+from baconian.algo.utils import _get_copy_arg_with_tf_reuse
+from baconian.algo.misc.placeholder_input import PlaceholderInput
 
 """
 logvar and logvar_speed is referred from https://github.com/pat-coady/trpo
@@ -104,7 +102,7 @@ class NormalDistributionMLPPolicy(StochasticPolicy, PlaceholderInput):
                                                                **mlp_kwargs
                                                            ),
                                                            name='normal_distribution_mlp_tf_param')
-        PlaceholderInput.__init__(self, parameters=self.parameters, inputs=tuple(ph_inputs))
+        PlaceholderInput.__init__(self, parameters=self.parameters)
 
     @typechecked
     @overrides.overrides

@@ -3,11 +3,11 @@ A simple example to show how to build up an experiment with ddpg training and te
 """
 from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
-from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
-from baconian.algo.rl.model_free.ddpg import DDPG
-from baconian.algo.rl.policy.deterministic_mlp import DeterministicMLPPolicy
+from baconian.algo.value_func.mlp_q_value import MLPQValueFunction
+from baconian.algo.ddpg import DDPG
+from baconian.algo.policy import DeterministicMLPPolicy
 from baconian.core.agent import Agent
-from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
+from baconian.algo.misc import EpsilonGreedy
 from baconian.core.experiment import Experiment
 from baconian.core.flow.train_test_flow import create_train_test_flow
 from baconian.config.global_config import GlobalConfig

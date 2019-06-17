@@ -1,8 +1,7 @@
 import unittest
 from baconian.envs.gym_env import make
 from baconian.core.core import EnvSpec
-import numpy as np
-from baconian.algo.rl.policy.normal_distribution_mlp import NormalDistributionMLPPolicy
+from baconian.algo.policy.normal_distribution_mlp import NormalDistributionMLPPolicy
 from baconian.common.special import *
 from baconian.test.tests.set_up.setup import TestTensorflowSetup
 

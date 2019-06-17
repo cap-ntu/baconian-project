@@ -3,21 +3,17 @@ DDPG bechmark on Pendulum
 """
 from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
-from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
-from baconian.algo.rl.model_free.ddpg import DDPG
-from baconian.algo.rl.policy.deterministic_mlp import DeterministicMLPPolicy
+from baconian.algo.value_func.mlp_q_value import MLPQValueFunction
+from baconian.algo.ddpg import DDPG
+from baconian.algo.policy import DeterministicMLPPolicy
 from baconian.core.agent import Agent
-from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
 from baconian.core.experiment import Experiment
 from baconian.core.flow.train_test_flow import TrainTestFlow
 from baconian.config.global_config import GlobalConfig
 from benchmark.ddpg_bechmark.mountain_car_continuous_conf import *
-from benchmark.ddpg_bechmark.pendulum_conf import *
-from baconian.common.schedules import LinearSchedule
 from baconian.core.status import get_global_status_collect
 from baconian.common.noise import *
 from baconian.common.schedules import *
-from baconian.core.experiment_runner import duplicate_exp_runner
 
 
 def mountiancar_task_fn():

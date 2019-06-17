@@ -78,7 +78,7 @@ class TestSampleData(BaseTestCase):
         self.assertTrue(np.equal(tmp_action * 2.0, a('action_set')).all())
         try:
             a.apply_transformation(set_name='action_set', func=lambda _: np.array([1, 2, 3]), direct_apply=True)
-        except TransformationResultedToDifferentShape as e:
+        except TransformationResultedToDifferentShapeError as e:
             pass
         else:
             raise TypeError

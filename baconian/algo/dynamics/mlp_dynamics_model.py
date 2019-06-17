@@ -1,23 +1,23 @@
 from baconian.common.special import flatten_n
 from baconian.core.core import EnvSpec
-from baconian.algo.dynamics.dynamics_model import GlobalDynamicsModel, DerivableDynamics, TrainableDyanmicsModel
+from baconian.algo.dynamics.dynamics_model import GlobalDynamicsModel, DifferentiableDynamics, TrainableDyanmicsModel
 import tensorflow as tf
 from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.tf.mlp import MLP
-import tensorflow.contrib as tf_contrib
 from baconian.common.sampler.sample_data import TransitionData
 from typeguard import typechecked
 import numpy as np
 from baconian.tf.util import *
-from baconian.algo.placeholder_input import PlaceholderInput
+from baconian.algo.misc.placeholder_input import PlaceholderInput
 import overrides
-
+from baconian.common.error import *
 from baconian.common.logging import record_return_decorator
 from baconian.core.status import register_counter_info_to_status_decorator, StatusWithSubInfo
 from baconian.common.spaces.box import Box
+from baconian.common.data_pre_processing import DataScaler, IdenticalDataScaler
 
 
-class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, PlaceholderInput,
+class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DifferentiableDynamics, PlaceholderInput,
                                        TrainableDyanmicsModel):
     STATUS_LIST = GlobalDynamicsModel.STATUS_LIST + ('TRAIN',)
     INIT_STATUS = 'NOT_INIT'
@@ -27,10 +27,9 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
                  name: str,
                  mlp_config: list,
                  learning_rate: float,
-                 output_norm: np.ndarray = None,
-                 input_norm: np.ndarray = None,
-                 output_low: np.ndarray = None,
-                 output_high: np.ndarray = None,
+                 state_input_scaler: DataScaler = None,
+                 action_input_scaler: DataScaler = None,
+                 output_delta_state_scaler: DataScaler = None,
                  init_state=None):
         if not isinstance(env_spec.obs_space, Box):
             raise TypeError('ContinuousMLPGlobalDynamicsModel only support to predict state that hold space Box type')
@@ -38,8 +37,9 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
                                      env_spec=env_spec,
                                      parameters=None,
                                      name=name,
+                                     state_input_scaler=state_input_scaler,
+                                     action_input_scaler=action_input_scaler,
                                      init_state=init_state)
-
         with tf.variable_scope(name_scope):
             state_input = tf.placeholder(shape=[None, env_spec.flat_obs_dim], dtype=tf.float32, name='state_ph')
             action_input = tf.placeholder(shape=[None, env_spec.flat_action_dim], dtype=tf.float32,
@@ -50,32 +50,21 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
         mlp_net = MLP(input_ph=mlp_input_ph,
                       reuse=False,
                       mlp_config=mlp_config,
-                      input_norm=input_norm,
-                      output_norm=output_norm,
-                      # todo have a running-up mean module
-                      output_high=output_high - output_low,
-                      output_low=output_low - output_high,
                       name_scope=name_scope,
                       net_name='mlp')
-        assert mlp_net.output.shape[1] == env_spec.flat_obs_dim
+        if mlp_net.output.shape[1] != env_spec.flat_obs_dim:
+            raise InappropriateParameterSetting(
+                "mlp output dims {} != env spec obs dim {}".format(mlp_net.output.shape[1], env_spec.flat_obs_dim))
 
         parameters = ParametersWithTensorflowVariable(tf_var_list=mlp_net.var_list,
                                                       name=name + '_''mlp_continuous_dynamics_model',
-                                                      rest_parameters=dict(output_low=output_low,
-                                                                           output_high=output_high,
-                                                                           input_norm=input_norm,
-                                                                           learning_rate=learning_rate))
-        with tf.variable_scope(name_scope):
-            with tf.variable_scope('train'):
-                new_state_output = mlp_net.output + state_input
+                                                      rest_parameters=dict(learning_rate=learning_rate))
 
-        DerivableDynamics.__init__(self,
-                                   input_node_dict=dict(state_input=state_input,
-                                                        action_action_input=action_input),
-                                   output_node_dict=dict(new_state_output=new_state_output))
-        PlaceholderInput.__init__(self,
-                                  inputs=(state_input, action_input, delta_state_label_ph),
-                                  parameters=parameters)
+        DifferentiableDynamics.__init__(self,
+                                        input_node_dict=dict(state_input=state_input,
+                                                             action_action_input=action_input),
+                                        output_node_dict=dict(delta_state_output=mlp_net.output))
+        PlaceholderInput.__init__(self, parameters=parameters)
 
         self.mlp_config = mlp_config
         self.name_scope = name_scope
@@ -83,9 +72,10 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
         self.state_input = state_input
         self.mlp_input_ph = mlp_input_ph
         self.delta_state_label_ph = delta_state_label_ph
-        self.new_state_output = new_state_output
+        self.delta_state_output = mlp_net.output
         self.mlp_net = mlp_net
-
+        self.output_delta_state_scaler = output_delta_state_scaler if output_delta_state_scaler else IdenticalDataScaler(
+            dims=self.env_spec.flat_obs_dim)
         self._status = StatusWithSubInfo(obj=self)
 
         with tf.variable_scope(name_scope):
@@ -113,12 +103,19 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
     @typechecked
     def train(self, batch_data: TransitionData, **kwargs) -> dict:
         self.set_status('TRAIN')
+
+        self.state_input_scaler.update_scaler(batch_data.state_set)
+        self.action_input_scaler.update_scaler(batch_data.action_set)
+        self.output_delta_state_scaler.update_scaler(batch_data.new_state_set - batch_data.state_set)
+
         tf_sess = kwargs['sess'] if ('sess' in kwargs and kwargs['sess']) else tf.get_default_session()
         train_iter = self.parameters('train_iter') if 'train_iter' not in kwargs else kwargs['train_iter']
         feed_dict = {
-            self.state_input: batch_data.state_set,
-            self.action_input: flatten_n(self.env_spec.action_space, batch_data.action_set),
-            self.delta_state_label_ph: batch_data.new_state_set - batch_data.state_set,
+            self.state_input: self.state_input_scaler.process(batch_data.state_set),
+            self.action_input: self.action_input_scaler.process(
+                flatten_n(self.env_spec.action_space, batch_data.action_set)),
+            self.delta_state_label_ph: self.output_delta_state_scaler.process(
+                batch_data.new_state_set - batch_data.state_set),
             **self.parameters.return_tf_parameter_feed_dict()
         }
         average_loss = 0.0
@@ -140,6 +137,10 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
         return PlaceholderInput.copy_from(self, obj)
 
     def _state_transit(self, state, action, **kwargs) -> np.ndarray:
+        state = self.state_input_scaler.process(
+            np.array(state).reshape(self.env_spec.obs_shape)) if state is not None else self.state
+        action = self.action_input_scaler.process(action.reshape(self.env_spec.flat_action_dim))
+
         if 'sess' in kwargs:
             tf_sess = kwargs['sess']
         else:
@@ -149,12 +150,15 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DerivableDynamics, P
             state = np.expand_dims(state, 0)
         if len(action.shape) < 2:
             action = np.expand_dims(action, 0)
-        new_state = tf_sess.run(self.new_state_output,
-                                feed_dict={
-                                    self.action_input: action,
-                                    self.state_input: state
-                                })
-        return np.clip(np.squeeze(new_state), self.parameters('output_low'), self.parameters('output_high'))
+        delta_state = tf_sess.run(self.delta_state_output,
+                                  feed_dict={
+                                      self.action_input: action,
+                                      self.state_input: state
+                                  })
+        new_state = np.clip(
+            np.squeeze(self.output_delta_state_scaler.inverse_process(data=np.squeeze(delta_state)) + state),
+            self.env_spec.obs_space.low, self.env_spec.obs_space.high)
+        return new_state
 
     def _setup_loss(self):
         reg_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES, scope=self.name_scope)

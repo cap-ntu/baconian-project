@@ -1,13 +1,12 @@
 from baconian.test.tests.set_up.setup import TestWithAll
 from baconian.config.global_config import GlobalConfig
 
-from baconian.algo.rl.model_free.dqn import DQN
-from baconian.core.core import Basic, EnvSpec
+from baconian.algo.dqn import DQN
+from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
-from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
+from baconian.algo.value_func.mlp_q_value import MLPQValueFunction
 from baconian.common.sampler.sample_data import TransitionData
 import numpy as np
-import tensorflow as tf
 
 
 class TestDQN(TestWithAll):
@@ -122,7 +121,7 @@ class TestDQN(TestWithAll):
             a.append(state=st, new_state=st_new, action=ac, done=done, reward=re)
             st = st_new
             dqn.append_to_memory(a)
-        for i in range(100):
+        for i in range(20):
             print('dqn1 loss: ', dqn.train(batch_data=a, train_iter=10, sess=None, update_target=True))
             print('dqn2 loss: ', dqn2.train(batch_data=a, train_iter=10, sess=None, update_target=True))
         var_list = self.sess.run(dqn.q_value_func.parameters('tf_var_list'))

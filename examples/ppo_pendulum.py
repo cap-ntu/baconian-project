@@ -7,11 +7,11 @@ A simple example to show how to build up an experiment with ppo training and tes
 """
 from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
-from baconian.algo.rl.value_func.mlp_v_value import MLPVValueFunc
-from baconian.algo.rl.model_free.ppo import PPO
-from baconian.algo.rl.policy.normal_distribution_mlp import NormalDistributionMLPPolicy
+from baconian.algo.value_func import MLPVValueFunc
+from baconian.algo.ppo import PPO
+from baconian.algo.policy.normal_distribution_mlp import NormalDistributionMLPPolicy
 from baconian.core.agent import Agent
-from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
+from baconian.algo.misc import EpsilonGreedy
 from baconian.core.experiment import Experiment
 from baconian.core.flow.train_test_flow import create_train_test_flow
 from baconian.config.global_config import GlobalConfig

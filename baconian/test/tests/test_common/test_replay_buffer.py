@@ -1,7 +1,7 @@
 from baconian.envs.gym_env import make
 from baconian.core.core import EnvSpec
 from baconian.test.tests.set_up.setup import BaseTestCase
-from baconian.algo.rl.misc.replay_buffer import UniformRandomReplayBuffer
+from baconian.algo.misc.replay_buffer import UniformRandomReplayBuffer
 
 
 class TestReplaybuffer(BaseTestCase):
