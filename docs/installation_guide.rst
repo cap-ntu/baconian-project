@@ -18,7 +18,7 @@ overwrites some of already installed packages with a different version.
 
     git clone git@github.com:Lukeeeeee/baconian-project.git baconian
     cd ./baconian
-    pip install -e .
+    ./installation.sh
 
 The ``-e`` means "editable", so changes you make to files in the Ray
 directory will take effect without reinstalling the package. In contrast, if
