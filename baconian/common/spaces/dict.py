@@ -2,6 +2,10 @@
 from collections import OrderedDict
 
 from baconian.common.spaces.base import Space
+from baconian.common.spaces import Box
+
+import numpy as np
+import types
 
 
 class Dict(Space):
@@ -128,7 +132,22 @@ class Dict(Space):
             OrderedDict
 
         """
-        return OrderedDict([(k, space.sample()) for k, space in self.spaces.items()])
+        # raise NotImplementedError
+        # return OrderedDict([(k, space.sample()) for k, space in self.spaces.items()])
+
+        ordered = OrderedDict()
+        for k, space in self.spaces.items():
+            for a in space.low:
+                if np.isinf(a):
+                    a = np.nan_to_num(a)
+                    space.sample = types.MethodType(self._sample_with_nan, space)
+            for b in space.high:
+                if np.isinf(b):
+                    b = np.nan_to_num(b)
+                    space.sample = types.MethodType(self._sample_with_nan, space)
+
+            ordered.update([(k, space.sample())])
+        return ordered
 
     def new_tensor_variable(self, name, extra_dims):
         """
@@ -139,3 +158,18 @@ class Dict(Space):
 
         """
         raise NotImplementedError
+
+    @staticmethod
+    def _sample_with_nan(space: Space):
+        """
+
+        :param space:
+        :return:
+        """
+        if not isinstance(space, Box):
+            raise TypeError('space is not of type Box')
+        high = np.ones_like(space.low)
+        low = -1 * np.ones_like(space.high)
+        return np.clip(np.random.uniform(low=low, high=high, size=space.low.shape),
+                       a_min=space.low,
+                       a_max=space.high)
