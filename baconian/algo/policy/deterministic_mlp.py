@@ -1,14 +1,12 @@
-from baconian.algo.rl.policy.policy import DeterministicPolicy
-from typeguard import typechecked
+from baconian.algo.policy.policy import DeterministicPolicy
 from baconian.core.core import EnvSpec
 import overrides
-import numpy as np
 import tensorflow as tf
 from baconian.tf.mlp import MLP
 from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.common.special import *
-from baconian.algo.rl.utils import _get_copy_arg_with_tf_reuse
-from baconian.algo.placeholder_input import PlaceholderInput
+from baconian.algo.utils import _get_copy_arg_with_tf_reuse
+from baconian.algo.misc.placeholder_input import PlaceholderInput
 
 
 class DeterministicMLPPolicy(DeterministicPolicy, PlaceholderInput):
@@ -43,7 +41,7 @@ class DeterministicMLPPolicy(DeterministicPolicy, PlaceholderInput):
                       **mlp_kwargs,
                       net_name='deterministic_mlp_policy')
 
-        PlaceholderInput.__init__(self, inputs=state_input, parameters=None)
+        PlaceholderInput.__init__(self, parameters=None)
         self.parameters = ParametersWithTensorflowVariable(tf_var_list=mlp_net.var_list,
                                                            rest_parameters=mlp_kwargs,
                                                            name='deterministic_mlp_policy_tf_param')

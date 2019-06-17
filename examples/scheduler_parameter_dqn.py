@@ -3,12 +3,12 @@ In this example, we demonstrate how to utilize the scheduler module to dynamical
 learning rate of your algorithm, or epsilon-greedy probability
 """
 
-from baconian.algo.rl.model_free.dqn import DQN
+from baconian.algo.dqn import DQN
 from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
-from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
+from baconian.algo.value_func.mlp_q_value import MLPQValueFunction
 from baconian.core.agent import Agent
-from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
+from baconian.algo.misc import EpsilonGreedy
 from baconian.core.experiment import Experiment
 from baconian.core.flow.train_test_flow import create_train_test_flow
 from baconian.config.global_config import GlobalConfig

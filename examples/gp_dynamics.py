@@ -6,7 +6,7 @@ from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
 import numpy as np
 from baconian.common.sampler.sample_data import TransitionData
-from baconian.algo.rl.policy.random_policy import UniformRandomPolicy
+from baconian.algo.policy import UniformRandomPolicy
 from baconian.algo.dynamics.gaussian_process_dynamiocs_model import GaussianProcessDyanmicsModel
 from baconian.algo.dynamics.dynamics_model import DynamicsEnvWrapper
 from baconian.algo.dynamics.terminal_func.terminal_func import RandomTerminalFunc

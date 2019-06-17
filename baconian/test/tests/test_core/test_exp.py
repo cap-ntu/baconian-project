@@ -1,8 +1,7 @@
 from baconian.test.tests.set_up.setup import BaseTestCase
 from baconian.core.experiment_runner import single_exp_runner, duplicate_exp_runner
-from baconian.common.schedules import LinearSchedule, PiecewiseSchedule
+from baconian.common.schedules import LinearSchedule
 from baconian.config.global_config import GlobalConfig
-from baconian.core.status import get_global_status_collect
 import os
 
 
@@ -121,7 +120,7 @@ def _saving_scheduler(self, creat_func=None):
                                       eps=self.create_eps(env_spec)[0],
                                       env_spec=env_spec)[0]
             flow = None
-            from baconian.algo.rl.model_based.dyna import Dyna
+            from baconian.algo.dyna import Dyna
             if isinstance(algo, Dyna):
                 flow = self.create_dyna_flow(agent=agent, env=env)[0]
             exp = self.create_exp(name='model_free', env=env, agent=agent, flow=flow)

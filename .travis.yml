@@ -1,6 +1,13 @@
 language: python
 python:
   - "3.5"
+dist: xenial
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install libgl1-mesa-dev
+  - sudo apt-get install libpcre16-3
+
 install:
   - pip install pip==9.0.1
   - pip install -e .

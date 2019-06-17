@@ -1,5 +1,5 @@
 from baconian.core.core import EnvSpec
-from baconian.algo.rl.policy.policy import Policy
+from baconian.algo.policy.policy import Policy
 from typeguard import typechecked
 from overrides.overrides import overrides
 import numpy as np

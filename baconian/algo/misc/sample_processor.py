@@ -1,5 +1,5 @@
 from baconian.common.sampler.sample_data import TransitionData, TrajectoryData
-from baconian.algo.rl.value_func.value_func import ValueFunction
+from baconian.algo.value_func import ValueFunction
 import scipy.signal
 from baconian.common.special import *
 

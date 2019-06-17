@@ -49,3 +49,4 @@ matplotlib==3.0.3
 seaborn==0.9.0
 roboschool==1.0.46
 opencv-python==4.1.0.25
+scikit-learn==0.21.1
