@@ -1,11 +1,11 @@
+import numpy as np
 from matplotlib import pyplot as plt
 import json
 import seaborn as sns
 import os
 import glob
-import numpy as np
 
-sns.set_style('ticks')
+sns.set_style('whitegrid')
 
 
 class Plotter(object):
@@ -59,53 +59,105 @@ class Plotter(object):
         plt.legend()
 
     @staticmethod
-    def plot_any_key_in_log(file_name, key, index, scatter_flag=False, save_flag=False,
+    def plot_any_key_in_log(data, key, index, exp_num=1,
+                            scatter_flag=False,
+                            histogram_flag=False,
+                            save_flag=False,
                             save_path=None,
+                            save_format='png',
+                            file_name=None,
+                            seperate_exp_flag=True,
+                            mean_stddev_flag=False,
+                            marker='*',
                             path_list=None,
                             res_dict=None,
                             res_name=None,
-                            histogram_flag=False,
+                            sub_log_dir_name=None,
                             his_bins=1,
                             sub_graph_flag=False,
                             value_range=None,
-                            average_over=1,
                             fig_id=4, label='', restrict_dict=None, fn=None):
-        if not path_list:
-            with open(res_dict[res_name], 'r') as f:
-                path_list = json.load(f)
+
+        marker_every = max(int(data.shape[0] / 10), 1)
+
+        plt.figure()
+        fig, ax = plt.subplots(1)
+
+        if seperate_exp_flag is True:
+            for i in range(exp_num):
+                if scatter_flag is True:
+                    ax.scatter(data[index], data.iloc[:, i + 1], lw=1, label=key + '_' + str(i),
+                               c=Plotter.color_list[i], alpha=0.8, )
+                elif histogram_flag is True:
+                    num_bins = 20
+                    n, bins, patches = ax.hist(x=data, bins=num_bins)
+                else:
+                    ax.plot(data[index], data.iloc[:, i + 1], lw=1, label=key + '_' + str(i),
+                            color=Plotter.color_list[i],
+                            marker=Plotter.markers[i], markevery=marker_every, markersize=6, )
+        if mean_stddev_flag is True:
+            if histogram_flag is not True:
+                ax.plot(data[index], data['MEAN'], lw=3, label='MEAN', color='silver')
+                ax.fill_between(data[index], data['MEAN'] + data['STD_DEV'], data['MEAN'] - data['STD_DEV'],
+                                facecolor='silver', alpha=0.5)
+
+        plt.title(sub_log_dir_name)
+        lgd = ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.2), shadow=True, ncol=3)
+        if histogram_flag is not True:
+            plt.xlabel(index)
+            plt.ylabel(key)
+        else:
+            plt.xlabel(key)
+            plt.ylabel('count')
+
+        # Save the figure to a file to a path or paths in a list
+        if save_flag is True:
+            if file_name is None:
+                file_name = '/%s_VERSUS_%s' % (key, index)
+
+            if path_list is not None:
+                for path in path_list:
+                    plt.savefig(path + '/%s.%s' % (file_name, save_format), bbox_extra_artists=(lgd,),
+                                bbox_inches='tight', format=save_format)
+                    print("Save plot figure to {path} as {file_name}".format(path=path,
+                                                                             file_name='%s.%s' % (
+                                                                                 file_name, save_format)))
+            if save_path is not None:
+                plt.savefig(save_path + '/%s_VERSUS_%s.%s' % (key, index, save_format), bbox_extra_artists=(lgd,),
+                            bbox_inches='tight', format=save_format)
+                print("Save plot figure to {path} as {file_name}".format(path=save_path,
+                                                                         file_name='%s.%s' % (
+                                                                             file_name, save_format)))
+        plt.show()
+
+    @staticmethod
+    def plot_any_scatter_in_log(res_dict, res_name, file_name, key, index, op, scatter_flag=False, save_flag=False,
+                                save_path=None,
+                                fig_id=4, label='', restrict_dict=None):
+        with open(res_dict[res_name], 'r') as f:
+            path_list = json.load(f)
         plt.figure(fig_id)
         plt.title("%s_%s_%s" % (res_name, file_name, key))
-        plt.xlabel(index) # index or 'index' ?
+        plt.xlabel('index')
         plt.ylabel(key)
-        total_graph = len(path_list)
         for i in range(len(path_list)):
-            print("Load {}".format(path_list[i]))
             test_reward = []
             real_env_sample_count_index = []
-            with open(file=path_list[i] + file_name, mode='r') as f:
-                if fn(sample) is not None:
-                    test_reward.append(fn(sample))
-
+            with open(file=path_list[i] + '/loss/' + file_name, mode='r') as f:
                 test_data = json.load(fp=f)
-                if value_range:
-                    test_data = test_data[value_range[0]: min(len(test_data), value_range[1])]
                 for sample in test_data:
-                    if fn:
-                          real_env_sample_count_index.append(sample[index] // average_over)
+                    if restrict_dict is not None:
+                        flag = True
+                        for re_key, re_value in restrict_dict.items():
+                            if sample[re_key] != re_value:
+                                flag = False
+                        if flag is True:
+                            test_reward.append(sample[key])
+                            real_env_sample_count_index.append(sample[index])
                     else:
-                        if restrict_dict is not None:
-                            flag = True
-                            for re_key, re_value in restrict_dict.items():
-                                if sample[re_key] != re_value:
-                                    flag = False
-                            if flag is True:
-                                test_reward.append(sample[key])
-                                real_env_sample_count_index.append(sample[index] // average_over)
-                        else:
-                            if sample[key]:
-                                test_reward.append(sample[key])
-                                real_env_sample_count_index.append(sample[index] // average_over)
-
+                        test_reward.append(sample[key])
+                        real_env_sample_count_index.append(sample[index])
+            test_reward, real_env_sample_count_index = op(test_reward, real_env_sample_count_index)
             x_keys = []
             y_values = []
             last_key = real_env_sample_count_index[0]
@@ -119,24 +171,21 @@ class Plotter(object):
                     y_values.append(last_set)
                     last_key = real_env_sample_count_index[j]
                     last_set = [test_reward[j]]
+            x_keys.append(last_key)
+            y_values.append(last_set)
             y_values_mean = [np.mean(y_values[j]) for j in range(len(y_values))]
-            if sub_graph_flag is True:
-                plt.subplot(total_graph, 1, i + 1)
             if scatter_flag is True:
                 plt.scatter(x_keys, y_values_mean, c=Plotter.color_list[i], label=key + label + str(i),
                             marker=Plotter.markers[i])
-            elif histogram_flag is True:
-                plt.hist(y_values_mean, bins=his_bins, label=key + label + str(i))
-
             else:
                 plt.plot(x_keys, y_values_mean, c=Plotter.color_list[i], label=key + label + str(i),
                          marker=Plotter.markers[i])
-            plt.legend()
 
+        plt.legend()
         if save_flag is True:
             for path in path_list:
                 plt.savefig(path + '/%s_%s.png' % (file_name, key))
         if save_path is not None:
             plt.savefig(save_path)
+            print()
         plt.show()
-

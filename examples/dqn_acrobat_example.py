@@ -8,6 +8,8 @@ from baconian.core.experiment import Experiment
 from baconian.core.flow.train_test_flow import TrainTestFlow
 from baconian.config.global_config import GlobalConfig
 from baconian.core.status import get_global_status_collect
+import baconian.common.log_data_loader as loader
+import os
 
 
 def task_fn():
@@ -91,7 +93,21 @@ def task_fn():
 
 
 
-from baconian.core.experiment_runner import single_exp_runner
+from baconian.core.experiment_runner import *
 
 GlobalConfig().set('DEFAULT_LOG_PATH', './log_path2')
-single_exp_runner(task_fn, del_if_log_path_existed=True)
+# single_exp_runner(task_fn, del_if_log_path_existed=True)
+# duplicate_exp_runner(10, task_fn, del_if_log_path_existed=True)
+
+
+import os
+
+# loader
+path = os.path.join('/home/david/Documents/baconian-internal/examples/log_path2')
+image = loader.MultipleExpLogDataLoader(path, num=10)
+# image = loader.SingleExpLogDataLoader(path)
+image.plot_res(sub_log_dir_name='demo_exp_dqn',
+               key="average_loss",
+               index='train_counter',
+               mode='plot',
+               )
