@@ -7,15 +7,15 @@ from baconian.common.noise import *
 from baconian.common.schedules import *
 from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
-from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
-from baconian.algo.rl.model_free.ddpg import DDPG
-from baconian.algo.rl.policy.deterministic_mlp import DeterministicMLPPolicy
+from baconian.algo.value_func.mlp_q_value import MLPQValueFunction
+from baconian.algo.ddpg import DDPG
+from baconian.algo.policy import DeterministicMLPPolicy
 from baconian.core.agent import Agent
 from baconian.core.experiment import Experiment
 from baconian.config.global_config import GlobalConfig
 from baconian.core.status import get_global_status_collect
 from baconian.algo.dynamics.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
-from baconian.algo.rl.model_based.dyna import Dyna
+from baconian.algo.dyna import Dyna
 from baconian.algo.dynamics.terminal_func.terminal_func import FixedEpisodeLengthTerminalFunc
 from baconian.core.flow.dyna_flow import DynaFlow
 from baconian.envs.gym_reward_func import REWARD_FUNC_DICT
@@ -54,8 +54,6 @@ def pendulum_task_fn():
         env_spec=env_spec,
         name_scope=name + '_mlp_dyna',
         name=name + '_mlp_dyna',
-        output_low=env_spec.obs_space.low,
-        output_high=env_spec.obs_space.high,
         **exp_config['DynamicsModel']
     )
     algo = Dyna(env_spec=env_spec,

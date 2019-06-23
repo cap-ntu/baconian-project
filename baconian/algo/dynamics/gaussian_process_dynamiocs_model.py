@@ -1,17 +1,16 @@
 from baconian.core.core import EnvSpec
-from baconian.algo.dynamics.dynamics_model import DynamicsModel, TrainableDyanmicsModel
+from baconian.algo.dynamics.dynamics_model import TrainableDyanmicsModel, LocalDyanmicsModel
 import gpflow
-from baconian.core.parameters import Parameters
 import numpy as np
-from copy import deepcopy
 from baconian.common.sampler.sample_data import TransitionData
 from baconian.algo.dynamics.third_party.mgpr import MGPR
 import tensorflow as tf
 from baconian.tf.util import *
 from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
+from baconian.common.data_pre_processing import DataScaler
 
 
-class GaussianProcessDyanmicsModel(TrainableDyanmicsModel):
+class GaussianProcessDyanmicsModel(LocalDyanmicsModel, TrainableDyanmicsModel):
     kernel_type_dict = {
         'RBF': (gpflow.kernels.RBF, dict(ARD=True))
     }
@@ -31,7 +30,7 @@ class GaussianProcessDyanmicsModel(TrainableDyanmicsModel):
                                                       rest_parameters=dict(),
                                                       name='{}_param'.format(name),
                                                       require_snapshot=False)
-        super().__init__(env_spec, parameters, init_state, name)
+        super().__init__(env_spec=env_spec, parameters=parameters, init_state=init_state, name=name)
         self.name_scope = name_scope
         state_action_data = np.hstack((batch_data.state_set, batch_data.action_set))
         delta_state_data = batch_data.new_state_set - batch_data.state_set
@@ -55,7 +54,6 @@ class GaussianProcessDyanmicsModel(TrainableDyanmicsModel):
 
     def copy_from(self, obj) -> bool:
         raise NotImplementedError
-        # return super().copy_from(obj)
 
     def make_copy(self):
         raise NotImplementedError

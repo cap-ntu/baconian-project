@@ -18,5 +18,5 @@ Abstraction class for different types of dynamics model:
 .. autoclass:: baconian.algo.dynamics.dynamics_model.TrainableDyanmicsModel
     :members:
 
-.. autoclass:: baconian.algo.dynamics.dynamics_model.DerivableDynamics
+.. autoclass:: baconian.algo.dynamics.dynamics_model.DifferentiableDynamics
     :members:

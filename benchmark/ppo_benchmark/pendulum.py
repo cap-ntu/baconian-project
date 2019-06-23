@@ -2,20 +2,16 @@
 PPO bechmark on Pendulum
 """
 from benchmark.ppo_benchmark.pendulum_conf import *
-from baconian.common.noise import *
-from baconian.common.schedules import *
-from baconian.core.experiment_runner import duplicate_exp_runner
 from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
-from baconian.algo.rl.value_func.mlp_v_value import MLPVValueFunc
-from baconian.algo.rl.model_free.ppo import PPO
-from baconian.algo.rl.policy.normal_distribution_mlp import NormalDistributionMLPPolicy
+from baconian.algo.value_func import MLPVValueFunc
+from baconian.algo.ppo import PPO
+from baconian.algo.policy.normal_distribution_mlp import NormalDistributionMLPPolicy
 from baconian.core.agent import Agent
 from baconian.core.experiment import Experiment
 from baconian.core.flow.train_test_flow import TrainTestFlow
 from baconian.config.global_config import GlobalConfig
 from baconian.core.status import get_global_status_collect
-from baconian.common.schedules import PeriodicalEventSchedule
 
 
 def pendulum_task_fn():

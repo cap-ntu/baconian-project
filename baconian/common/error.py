@@ -10,7 +10,7 @@ class StatusInfoNotRegisteredError(BaconianError):
     pass
 
 
-class DynamicsNextStepOutputBoundError(BaconianError):
+class StateOrActionOutOfBoundError(BaconianError):
     pass
 
 
@@ -39,4 +39,16 @@ class AttemptToChangeFreezeGlobalConfigError(BaconianError):
 
 
 class MissedConfigError(BaconianError):
+    pass
+
+
+class TransformationResultedToDifferentShapeError(BaconianError):
+    pass
+
+
+class WrongValueRangeError(BaconianError):
+    pass
+
+
+class ShapeNotCompatibleError(BaconianError):
     pass

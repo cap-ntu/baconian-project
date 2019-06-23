@@ -3,14 +3,14 @@ In this example, we demonstrate how to utilize the scheduler module to dynamical
 learning rate of your algorithm, or epsilon-greedy probability
 """
 
-from baconian.algo.rl.model_free.dqn import DQN
+from baconian.algo.dqn import DQN
 from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
-from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
+from baconian.algo.value_func.mlp_q_value import MLPQValueFunction
 from baconian.core.agent import Agent
-from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
+from baconian.algo.misc import EpsilonGreedy
 from baconian.core.experiment import Experiment
-from baconian.core.flow.train_test_flow import TrainTestFlow
+from baconian.core.flow.train_test_flow import create_train_test_flow
 from baconian.config.global_config import GlobalConfig
 from baconian.common.schedules import LinearSchedule, PiecewiseSchedule, PeriodicalEventSchedule
 from baconian.core.status import get_global_status_collect
@@ -69,30 +69,18 @@ def task_fn():
                                                          outside_value=0.0
                                                      ),
                                                      init_random_prob=0.5))
-    flow = TrainTestFlow(train_sample_count_func=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
-                         config_or_config_dict={
-                             "TEST_EVERY_SAMPLE_COUNT": 10,
-                             "TRAIN_EVERY_SAMPLE_COUNT": 10,
-                             "START_TRAIN_AFTER_SAMPLE_COUNT": 5,
-                             "START_TEST_AFTER_SAMPLE_COUNT": 5,
-                         },
-                         func_dict={
-                             'test': {'func': agent.test,
-                                      'args': list(),
-                                      'kwargs': dict(sample_count=10),
-                                      },
-                             'train': {'func': agent.train,
-                                       'args': list(),
-                                       'kwargs': dict(),
-                                       },
-                             'sample': {'func': agent.sample,
-                                        'args': list(),
-                                        'kwargs': dict(sample_count=100,
-                                                       env=agent.env,
-                                                       in_which_status='TRAIN',
-                                                       store_flag=True),
-                                        },
-                         })
+    flow = create_train_test_flow(
+        test_every_sample_count=10,
+        train_every_sample_count=10,
+        start_test_after_sample_count=5,
+        start_train_after_sample_count=5,
+        train_func_and_args=(agent.train, (), dict()),
+        test_func_and_args=(agent.test, (), dict(sample_count=10)),
+        sample_func_and_args=(agent.sample, (), dict(sample_count=100,
+                                                     env=agent.env,
+                                                     in_which_status='TRAIN',
+                                                     store_flag=True))
+    )
     experiment = Experiment(
         tuner=None,
         env=env,

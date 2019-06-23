@@ -1,4 +1,4 @@
-from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
+from baconian.algo.misc import EpsilonGreedy
 from baconian.test.tests.set_up.setup import TestWithAll
 from baconian.common.schedules import LinearSchedule
 

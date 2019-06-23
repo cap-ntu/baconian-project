@@ -82,6 +82,7 @@ class Experiment(Basic):
         create_new_tf_session(cuda_device=0)
         self.agent.init()
         self.env.init()
+        self.set_status('INITED')
 
     def run(self):
         GlobalConfig().freeze()

@@ -3,23 +3,21 @@ A simple example to show how to build up an experiment with Dyna training and te
 """
 from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
-from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
-from baconian.algo.rl.model_free.ddpg import DDPG
-from baconian.algo.rl.policy.deterministic_mlp import DeterministicMLPPolicy
+from baconian.algo.value_func.mlp_q_value import MLPQValueFunction
+from baconian.algo.ddpg import DDPG
+from baconian.algo.policy import DeterministicMLPPolicy
 from baconian.core.agent import Agent
-from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
+from baconian.algo.misc import EpsilonGreedy
 from baconian.core.experiment import Experiment
-from baconian.core.flow.train_test_flow import TrainTestFlow
 from baconian.config.global_config import GlobalConfig
 from baconian.core.status import get_global_status_collect
 from baconian.common.schedules import PeriodicalEventSchedule
 from baconian.algo.dynamics.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
-from baconian.algo.rl.model_based.dyna import Dyna
+from baconian.algo.dyna import Dyna
 from baconian.algo.dynamics.reward_func.reward_func import RandomRewardFunc
 from baconian.algo.dynamics.terminal_func.terminal_func import FixedEpisodeLengthTerminalFunc
-from baconian.core.flow.dyna_flow import DynaFlow
-import baconian.common.log_data_loader as loader
-
+from baconian.core.flow.dyna_flow import create_dyna_flow
+from baconian.common.data_pre_processing import RunningStandardScaler
 
 
 def task_fn():
@@ -97,9 +95,10 @@ def task_fn():
         env_spec=env_spec,
         name_scope=name + '_mlp_dyna',
         name=name + '_mlp_dyna',
-        output_low=env_spec.obs_space.low,
-        output_high=env_spec.obs_space.high,
         learning_rate=0.01,
+        state_input_scaler=RunningStandardScaler(dims=env_spec.flat_obs_dim),
+        action_input_scaler=RunningStandardScaler(dims=env_spec.flat_action_dim),
+        output_delta_state_scaler=RunningStandardScaler(dims=env_spec.flat_obs_dim),
         mlp_config=[
             {
                 "ACT": "RELU",
@@ -144,49 +143,31 @@ def task_fn():
                   name=name + '_agent',
                   exploration_strategy=EpsilonGreedy(action_space=env_spec.action_space,
                                                      init_random_prob=0.5))
-    flow = DynaFlow(
-        train_sample_count_func=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
-        config_or_config_dict={
-            "TRAIN_ALGO_EVERY_REAL_SAMPLE_COUNT_FROM_REAL_ENV": 10,
-            "TRAIN_ALGO_EVERY_REAL_SAMPLE_COUNT_FROM_DYNAMICS_ENV": 10,
-            "TEST_ALGO_EVERY_REAL_SAMPLE_COUNT": 10,
-            "TEST_DYNAMICS_EVERY_REAL_SAMPLE_COUNT": 10,
-            "TRAIN_DYNAMICS_EVERY_REAL_SAMPLE_COUNT": 10,
-            "START_TRAIN_ALGO_AFTER_SAMPLE_COUNT": 1,
-            "START_TRAIN_DYNAMICS_AFTER_SAMPLE_COUNT": 1,
-            "START_TEST_ALGO_AFTER_SAMPLE_COUNT": 1,
-            "START_TEST_DYNAMICS_AFTER_SAMPLE_COUNT": 1,
-            "WARM_UP_DYNAMICS_SAMPLES": 1
-        },
-        func_dict={
-            'train_algo': {'func': agent.train,
-                           'args': list(),
-                           'kwargs': dict(state='state_agent_training')},
-            'train_algo_from_synthesized_data': {'func': agent.train,
-                                                 'args': list(),
-                                                 'kwargs': dict(state='state_agent_training')},
-            'train_dynamics': {'func': agent.train,
-                               'args': list(),
-                               'kwargs': dict(state='state_dynamics_training')},
-            'test_algo': {'func': agent.test,
-                          'args': list(),
-                          'kwargs': dict(sample_count=10)},
-            'test_dynamics': {'func': agent.algo.test_dynamics,
-                              'args': list(),
-                              'kwargs': dict(sample_count=10, env=env)},
-            'sample_from_real_env': {'func': agent.sample,
-                                     'args': list(),
-                                     'kwargs': dict(sample_count=10,
-                                                    env=agent.env,
-                                                    in_which_status='TRAIN',
-                                                    store_flag=True)},
-            'sample_from_dynamics_env': {'func': agent.sample,
-                                         'args': list(),
-                                         'kwargs': dict(sample_count=10,
-                                                        env=agent.algo.dynamics_env,
-                                                        in_which_status='TRAIN',
-                                                        store_flag=True)}
-        }
+
+    flow = create_dyna_flow(
+        train_algo_func=(agent.train, (), dict(state='state_agent_training')),
+        train_algo_from_synthesized_data_func=(agent.train, (), dict(state='state_agent_training')),
+        train_dynamics_func=(agent.train, (), dict(state='state_dynamics_training')),
+        test_algo_func=(agent.test, (), dict(sample_count=10)),
+        test_dynamics_func=(agent.algo.test_dynamics, (), dict(sample_count=10, env=env)),
+        sample_from_real_env_func=(agent.sample, (), dict(sample_count=10,
+                                                          env=agent.env,
+                                                          in_which_status='TRAIN',
+                                                          store_flag=True)),
+        sample_from_dynamics_env_func=(agent.sample, (), dict(sample_count=10,
+                                                              env=agent.algo.dynamics_env,
+                                                              in_which_status='TRAIN',
+                                                              store_flag=True)),
+        train_algo_every_real_sample_count_by_data_from_real_env=10,
+        train_algo_every_real_sample_count_by_data_from_dynamics_env=10,
+        test_algo_every_real_sample_count=10,
+        test_dynamics_every_real_sample_count=10,
+        train_dynamics_ever_real_sample_count=10,
+        start_train_algo_after_sample_count=1,
+        start_train_dynamics_after_sample_count=1,
+        start_test_algo_after_sample_count=1,
+        start_test_dynamics_after_sample_count=1,
+        warm_up_dynamics_samples=1
     )
 
     experiment = Experiment(

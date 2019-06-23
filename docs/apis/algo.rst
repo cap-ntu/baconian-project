@@ -1,8 +1,11 @@
 Algorithm Module
 =================
 
-baconian.algo.algo
--------------------
+.. py:currentmodule:: baconian.algo.algo
 
-.. automodule::baconian.algo.algo
+baconian.algo.algo.Algo
+------------------------
+
+.. autoclass:: Algo
     :members:
+    :private-members:
