@@ -4,7 +4,7 @@ from baconian.envs.gym_env import make
 import numpy as np
 from baconian.core.core import EnvSpec
 from baconian.algo.dynamics.linear_dynamics_model import LinearDynamicsModel
-from baconian.algo.optimal_control.lqr_policy import LQRPolicy
+from baconian.algo.policy.lqr_policy import LQRPolicy
 
 
 class TestLQRPolicy(TestWithAll):

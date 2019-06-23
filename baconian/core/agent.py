@@ -3,14 +3,12 @@ from baconian.common.sampler.sampler import Sampler
 from baconian.common.error import *
 from baconian.algo.algo import Algo
 from typeguard import typechecked
-from baconian.algo.rl.misc.epsilon_greedy import ExplorationStrategy
+from baconian.algo.misc import ExplorationStrategy
 from baconian.common.sampler.sample_data import SampleData
-from baconian.common.logging import Recorder, record_return_decorator
+from baconian.common.logging import Recorder
 from baconian.core.status import StatusWithSubInfo
 from baconian.core.status import register_counter_info_to_status_decorator
 from baconian.core.util import init_func_arg_record_decorator
-from baconian.config.dict_config import DictConfig
-from baconian.common.misc import *
 from baconian.common.logging import ConsoleLogger
 from baconian.common.sampler.sample_data import TransitionData, TrajectoryData
 from baconian.common.schedules import EventSchedule
@@ -91,8 +89,9 @@ class Agent(Basic):
     def test(self, sample_count, sample_trajectory_flag: bool = False):
         """
         test the agent
-        :param sample_count:
-        :param sample_trajectory_flag:
+
+        :param sample_count: how many transitions/trajectories used to evaluate the agent's performance
+        :param sample_trajectory_flag: True for sampling trajectory instead of transitions
         :return:
         """
         self.set_status('TEST')
@@ -123,8 +122,8 @@ class Agent(Basic):
     def predict(self, **kwargs):
         """
         predict the action given the state
-        :param kwargs: rest parameters
-        :param obs: observation/state
+
+        :param kwargs: rest parameters, include key: obs
         :return:
         """
         if self.explorations_strategy and not self.is_testing:
@@ -142,6 +141,7 @@ class Agent(Basic):
             TransitionData, TrajectoryData):
         """
         sample a certain number of data from environment
+
         :param env:
         :param sample_count:
         :param in_which_status:

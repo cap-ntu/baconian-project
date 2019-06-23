@@ -6,6 +6,17 @@ from baconian.core.core import EnvSpec
 import pandas as pd
 
 
+def get_some_samples(env, num, env_spec, policy):
+    data = TransitionData(env_spec=env_spec)
+    st = env.reset()
+    for i in range(num):
+        ac = policy.forward(st)
+        new_st, re, _, _ = env.step(ac)
+        data.append(state=st, new_state=new_st, action=ac, reward=re, done=False)
+        st = new_st
+    return data
+
+
 class TestDynamicsModel(TestWithAll):
 
     def test_dynamics_model_basic(self):
@@ -57,17 +68,12 @@ class TestDynamicsModel(TestWithAll):
         env = self.create_env('Pendulum-v0')
         env_spec = EnvSpec(obs_space=env.observation_space, action_space=env.action_space)
         policy, _ = self.create_uniform_policy(env_spec=env_spec)
-        data = TransitionData(env_spec=env_spec)
-        st = env.reset()
-        for i in range(100):
-            ac = policy.forward(st)
-            new_st, re, _, _ = env.step(ac)
-            data.append(state=st, new_state=new_st, action=ac, reward=re, done=False)
-            st = new_st
+        data = get_some_samples(env=env, policy=policy, num=100, env_spec=env_spec)
 
         gp = GaussianProcessDyanmicsModel(env_spec=env_spec, batch_data=data)
         gp.init()
         gp.train()
+        print("gp first fit")
         for i in range(len(data.state_set)):
             res = gp.step(action=data.action_set[i],
                           state=data.state_set[i],
@@ -78,10 +84,10 @@ class TestDynamicsModel(TestWithAll):
             print(res)
             print(data.new_state_set[i])
             print(np.sqrt(var))
-            # self.assertTrue(np.isclose(res,
-            #                            data.new_state_set[i], atol=1e-3).all())
-            self.assertTrue(np.greater(data.new_state_set[i] + 1.96 * np.sqrt(var), res).all())
-            self.assertTrue(np.less(data.new_state_set[i] - 1.96 * np.sqrt(var), res).all())
+            self.assertTrue(np.isclose(res,
+                                       data.new_state_set[i], atol=1e-2).all())
+            self.assertTrue(np.greater_equal(data.new_state_set[i] + 1.96 * np.sqrt(var), res).all())
+            self.assertTrue(np.less_equal(data.new_state_set[i] - 1.96 * np.sqrt(var), res).all())
 
         lengthscales = {}
         variances = {}
@@ -98,3 +104,42 @@ class TestDynamicsModel(TestWithAll):
         print(pd.DataFrame(data=variances))
         print('---Noises---')
         print(pd.DataFrame(data=noises))
+
+        # re fit the gp
+        print("gp re fit")
+
+        data = get_some_samples(env=env, policy=policy, num=100, env_spec=env_spec)
+        gp.train(batch_data=data)
+        for i in range(len(data.state_set)):
+            res = gp.step(action=data.action_set[i],
+                          state=data.state_set[i],
+                          allow_clip=True)
+            _, var = gp._state_transit(action=data.action_set[i],
+                                       state=data.state_set[i],
+                                       required_var=True)
+            print(res)
+            print(data.new_state_set[i])
+            print(np.sqrt(var))
+            self.assertTrue(np.isclose(res,
+                                       data.new_state_set[i], atol=1e-2).all())
+            self.assertTrue(np.greater_equal(data.new_state_set[i] + 1.96 * np.sqrt(var), res).all())
+            self.assertTrue(np.less_equal(data.new_state_set[i] - 1.96 * np.sqrt(var), res).all())
+
+        # do test
+        print("gp test")
+        data = get_some_samples(env=env, policy=policy, num=100, env_spec=env_spec)
+        for i in range(len(data.state_set)):
+            res = gp.step(action=data.action_set[i],
+                          state=data.state_set[i],
+                          allow_clip=True)
+            _, var = gp._state_transit(action=data.action_set[i],
+                                       state=data.state_set[i],
+                                       required_var=True)
+            print(res)
+            print(data.new_state_set[i])
+            print(np.sqrt(var))
+            print('l1 loss {}'.format(np.linalg.norm(data.new_state_set[i] - res, 1)))
+            # self.assertTrue(np.isclose(res,
+            #                            data.new_state_set[i], atol=1e-2).all())
+            # self.assertTrue(np.greater(data.new_state_set[i] + 1.96 * np.sqrt(var), res).all())
+            # self.assertTrue(np.less(data.new_state_set[i] - 1.96 * np.sqrt(var), res).all())

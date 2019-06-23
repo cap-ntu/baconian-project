@@ -3,8 +3,6 @@ MPC bechmark on Pendulum
 """
 
 from benchmark.mpc_benchmark.pendulum_conf import *
-from baconian.common.noise import *
-from baconian.common.schedules import *
 from baconian.algo.dynamics.terminal_func.terminal_func import FixedEpisodeLengthTerminalFunc
 from baconian.core.flow.dyna_flow import DynaFlow
 from baconian.envs.gym_reward_func import REWARD_FUNC_DICT
@@ -12,8 +10,8 @@ from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
 from baconian.core.agent import Agent
 from baconian.core.experiment import Experiment
-from baconian.algo.rl.model_based.mpc import ModelPredictiveControl
-from baconian.algo.rl.policy.random_policy import UniformRandomPolicy
+from baconian.algo.mpc import ModelPredictiveControl
+from baconian.algo.policy import UniformRandomPolicy
 from baconian.algo.dynamics.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
 from baconian.config.global_config import GlobalConfig
 from baconian.core.status import get_global_status_collect
@@ -33,8 +31,6 @@ def pendulum_task_fn():
         env_spec=env_spec,
         name_scope=name + '_mlp_dyna',
         name=name + '_mlp_dyna',
-        output_low=env_spec.obs_space.low,
-        output_high=env_spec.obs_space.high,
         **exp_config['DynamicsModel']
     )
     algo = ModelPredictiveControl(

@@ -1,6 +1,6 @@
 from baconian.test.tests.set_up.setup import TestTensorflowSetup
 import tensorflow as tf
-from baconian.algo.dynamics.dynamics_model import DerivableDynamics
+from baconian.algo.dynamics.dynamics_model import DifferentiableDynamics
 import numpy as np
 
 
@@ -13,8 +13,8 @@ class TestBasicClassInAlgo(TestTensorflowSetup):
         in_node2 = tf.placeholder(shape=[None, 10], dtype=tf.float32)
 
         out_node = in_node * in_node * val + in_node2 * in_node2 * val2
-        a = DerivableDynamics(input_node_dict=dict(in_node=in_node, in_node2=in_node2),
-                              output_node_dict=dict(out_node=out_node))
+        a = DifferentiableDynamics(input_node_dict=dict(in_node=in_node, in_node2=in_node2),
+                                   output_node_dict=dict(out_node=out_node))
         self.sess.run(tf.global_variables_initializer())
         res = self.sess.run(a.grad_on_input_(key_or_node='in_node'), feed_dict={
             in_node: np.random.random([bs, 10]),

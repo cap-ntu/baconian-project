@@ -1,16 +1,24 @@
 language: python
 python:
   - "3.5"
+dist: xenial
+
+before_install:
+  -
+
 install:
-  - pip install pip==9.0.1
-  - pip install -e .
+  - bash installation.sh
 
 script:
-  - pytest baconian/test/
-  - pytest examples/
+  - pip install pytest pytest-cov
+  - pytest --cov=baconian ./examples/ ./baconian/test/
 branches:
   only:
   - master
   - travis_ci_test
+  - dev_*
 notifications:
   email: false
+
+after_success:
+  - codecov

@@ -2,9 +2,9 @@ from baconian.test.tests.set_up.setup import TestWithAll
 from baconian.common.logging import Logger, ConsoleLogger, Recorder, record_return_decorator
 import numpy as np
 from baconian.core.core import Basic, EnvSpec
-from baconian.algo.rl.model_free.dqn import DQN
+from baconian.algo.dqn import DQN
 from baconian.envs.gym_env import make
-from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
+from baconian.algo.value_func.mlp_q_value import MLPQValueFunction
 
 
 class Foo(Basic):

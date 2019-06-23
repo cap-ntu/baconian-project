@@ -4,7 +4,7 @@ from baconian.envs.gym_env import make
 import numpy as np
 from baconian.core.core import EnvSpec
 from baconian.algo.dynamics.dynamics_model import GlobalDynamicsModel
-from baconian.algo.optimal_control.ilqr_policy import iLQRPolicy
+from baconian.algo.policy.ilqr_policy import iLQRPolicy
 from baconian.algo.dynamics.dynamics_model import DynamicsEnvWrapper
 from baconian.algo.dynamics.terminal_func.terminal_func import RandomTerminalFunc
 

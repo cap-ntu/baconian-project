@@ -4,7 +4,7 @@ from typeguard import typechecked
 
 
 class Sampler(Basic):
-    def __init__(self, env_spec, name):
+    def __init__(self, env_spec, name='sampler'):
         super().__init__(name)
         self._data = TransitionData(env_spec)
         self.env_spec = env_spec

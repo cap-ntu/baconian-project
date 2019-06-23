@@ -1,36 +1,37 @@
 import unittest
 import tensorflow as tf
 from baconian.algo.dynamics.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
-from baconian.algo.placeholder_input import PlaceholderInput
-from baconian.algo.rl.model_free.dqn import DQN
+from baconian.algo.misc.placeholder_input import PlaceholderInput
+from baconian.algo.dqn import DQN
 from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.core.core import Basic, EnvSpec
 from baconian.envs.gym_env import make
-from baconian.algo.rl.value_func.mlp_q_value import MLPQValueFunction
-from baconian.algo.rl.model_free.ddpg import DDPG
-from baconian.algo.rl.policy.deterministic_mlp import DeterministicMLPPolicy
-from baconian.algo.rl.policy.constant_action_policy import ConstantActionPolicy
-from baconian.algo.rl.value_func.mlp_v_value import MLPVValueFunc
-from baconian.algo.rl.policy.normal_distribution_mlp import NormalDistributionMLPPolicy
-from baconian.algo.rl.model_free.ppo import PPO
+from baconian.algo.value_func.mlp_q_value import MLPQValueFunction
+from baconian.algo.ddpg import DDPG
+from baconian.algo.policy import DeterministicMLPPolicy
+from baconian.algo.policy import ConstantActionPolicy
+from baconian.algo.value_func import MLPVValueFunc
+from baconian.algo.policy.normal_distribution_mlp import NormalDistributionMLPPolicy
+from baconian.algo.ppo import PPO
 from baconian.core.parameters import Parameters, DictConfig
-from baconian.algo.rl.model_based.mpc import ModelPredictiveControl
+from baconian.algo.mpc import ModelPredictiveControl
 from baconian.algo.dynamics.terminal_func.terminal_func import RandomTerminalFunc
 from baconian.algo.dynamics.reward_func.reward_func import RandomRewardFunc, CostFunc
-from baconian.algo.rl.policy.random_policy import UniformRandomPolicy
+from baconian.algo.policy import UniformRandomPolicy
 from baconian.core.agent import Agent
-from baconian.algo.rl.misc.epsilon_greedy import EpsilonGreedy
+from baconian.algo.misc import EpsilonGreedy
 from baconian.core.experiment import Experiment
 from baconian.core.flow.train_test_flow import TrainTestFlow
-from baconian.algo.rl.model_based.dyna import Dyna
+from baconian.algo.dyna import Dyna
 from baconian.common.schedules import *
 from baconian.core.status import *
-from baconian.algo.optimal_control.ilqr_policy import iLQRPolicy
+from baconian.algo.policy.ilqr_policy import iLQRPolicy
 from baconian.algo.dynamics.random_dynamics_model import UniformRandomDynamicsModel
 from baconian.common.noise import *
-from baconian.algo.dynamics.gaussian_process_dynamiocs_model import GaussianProcessDyanmicsModel
 from baconian.common.sampler.sampler import Sampler
 from baconian.core.flow.dyna_flow import DynaFlow
+from baconian.common.data_pre_processing import *
+from baconian.common.sampler.sample_data import TransitionData, TrajectoryData
 
 
 class Foo(Basic):
@@ -126,7 +127,7 @@ class ClassCreatorSetup(unittest.TestCase):
                                                  to_ph_parameter_dict=dict(
                                                      var1=tf.placeholder(shape=(), dtype=tf.int32)))
         param.init()
-        a = PlaceholderInput(parameters=param, inputs=None)
+        a = PlaceholderInput(parameters=param)
 
         return a, locals()
 
@@ -308,36 +309,12 @@ class ClassCreatorSetup(unittest.TestCase):
         env_spec = EnvSpec(obs_space=env.observation_space,
                            action_space=env.action_space)
 
-        mlp_dyna = ContinuousMLPGlobalDynamicsModel(
-            env_spec=env_spec,
-            name_scope=name + 'mlp_dyna',
-            name=name + 'mlp_dyna',
-            output_low=env_spec.obs_space.low,
-            output_high=env_spec.obs_space.high,
-            learning_rate=0.01,
-            mlp_config=[
-                {
-                    "ACT": "RELU",
-                    "B_INIT_VALUE": None,
-                    "NAME": "1",
-                    "N_UNITS": 16,
-                    "TYPE": "DENSE",
-                    "W_NORMAL_STDDEV": 0.03
-                },
-                {
-                    "ACT": "LINEAR",
-                    "B_INIT_VALUE": 0.0,
-                    "NAME": "OUPTUT",
-                    "N_UNITS": env_spec.flat_obs_dim,
-                    "TYPE": "DENSE",
-                    "W_NORMAL_STDDEV": 0.03
-                }
-            ])
+        mlp_dyna, _ = self.create_continuous_mlp_global_dynamics_model(env_spec=env_spec, name=name)
         return mlp_dyna, locals()
 
     def create_mpc(self, env_id='Acrobot-v1', name='mpc', policy=None, mlp_dyna=None, env_spec=None, env=None):
         if mlp_dyna is None:
-            mlp_dyna, local = self.create_continue_dynamics_model(env_id, name)
+            mlp_dyna, local = self.create_continue_dynamics_model(env_id, name + 'mlp_dyna')
             env_spec = local['env_spec']
             env = local['env']
 
@@ -498,8 +475,9 @@ class ClassCreatorSetup(unittest.TestCase):
             env_spec=env_spec,
             name_scope=name,
             name=name,
-            output_low=env_spec.obs_space.low,
-            output_high=env_spec.obs_space.high,
+            state_input_scaler=RunningStandardScaler(dims=env_spec.flat_obs_dim),
+            action_input_scaler=RunningStandardScaler(dims=env_spec.flat_action_dim),
+            output_delta_state_scaler=RunningStandardScaler(dims=env_spec.flat_obs_dim),
             learning_rate=0.01,
             mlp_config=[
                 {
@@ -579,12 +557,19 @@ class ClassCreatorSetup(unittest.TestCase):
                             cost_fn=DebuggingCostFunc())
         return policy, locals()
 
-    # def create_gp_dynamics(self, env_id='Pendulum-v0'):
-    #     env = make(env_id)
-    #     env_spec = EnvSpec(obs_space=env.observation_space,
-    #                        action_space=env.action_space)
-    #     a = GaussianProcessDyanmicsModel(env_spec=env_spec)
-    #     return a, locals()
+    def sample_transition(self, env, count=100):
+        data = TransitionData(env.env_spec)
+        st = env.get_state()
+        for i in range(count):
+            ac = env.env_spec.action_space.sample()
+            new_st, re, done, info = env.step(action=ac)
+            data.append(state=st,
+                        action=ac,
+                        new_state=new_st,
+                        done=done,
+                        reward=re)
+        return data
+
 
     def create_sampler(self, env_spec):
         return Sampler(env_spec=env_spec, name='sampler')
