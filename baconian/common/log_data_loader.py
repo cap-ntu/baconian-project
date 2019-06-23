@@ -29,10 +29,11 @@ class SingleExpLogDataLoader(object):
     def init(self):
         pass
 
-    def plot_res(self, sub_log_dir_name, key, index, mode=('plot', 'hist', 'scatter'), average_over=1,
-                 save_format=None):
-        file_name = os.path.join(self._root_dir, 'record', sub_log_dir_name, 'TRAIN', 'log.json')
-        f = open(file_name, 'r')
+    def plot_res(self, sub_log_dir_name, key, index, mode=('line', 'hist', 'scatter'),
+                 average_over=1, file_name=None, save_format='png',
+                 ):
+        log_name = os.path.join(self._root_dir, 'record', sub_log_dir_name, 'log.json')
+        f = open(log_name, 'r')
         res_dict = json.load(f)
         key_list = res_dict[key]
         key_value = {}
@@ -47,35 +48,34 @@ class SingleExpLogDataLoader(object):
         data = pd.DataFrame.from_dict(key_value)  # Create dataframe for plotting
         row_num = data.shape[0]
         column_num = data.shape[1]
+        data_new = data
 
         # Calculate mean value in horizontal axis, incompatible with histogram mode
         if average_over != 1:
-            new_row_num = int(row_num / average_over)
-            data_new = data.head(new_row_num).copy()
-            data_new.loc[:, index] = data_new.loc[:, index] * average_over
-            for column in range(1, column_num):
-                for i in range(new_row_num):
-                    data_new.iloc[i, column] = data.iloc[i * average_over: i * average_over + average_over,
-                                               column].mean()
+            if mode != 'histogram':
+                new_row_num = int(row_num / average_over)
+                data_new = data.head(new_row_num).copy()
+                data_new.loc[:, index] = data_new.loc[:, index] * average_over
+                for column in range(1, column_num):
+                    for i in range(new_row_num):
+                        data_new.iloc[i, column] = data.iloc[i * average_over: i * average_over + average_over,
+                                                   column].mean()
 
         if mode == 'histogram':
             histogram_flag = True
             data_new = data.iloc[:, 1:].copy()
         else:
             histogram_flag = False
-            data = data_new
         if mode == 'scatter':
             scatter_flag = True
         else:
             scatter_flag = False
 
-        data = data_new
-
         Plotter.plot_any_key_in_log(data=data_new, index=index, key=key,
                                     sub_log_dir_name=sub_log_dir_name,
                                     scatter_flag=scatter_flag, save_flag=True,
                                     histogram_flag=histogram_flag, save_path=os.path.join(self._root_dir),
-                                    save_format=save_format)
+                                    save_format=save_format, file_name=file_name)
 
 
 # TODO
@@ -91,11 +91,11 @@ class MultipleExpLogDataLoader(object):
             SingleExpLogDataLoader(exp_root_dir)
 
     def plot_res(self, key, index, sub_log_dir_name: str, mode=('plot', 'hist', 'scatter'), average_over=1,
-                 save_format=None):
+                 save_format='png', file_name=None,):
         multiple_key_value = {}
         for i in range(self.num):
-            file_name = os.path.join(self._root_dir, 'exp_' + str(i), 'record', sub_log_dir_name, 'TRAIN', 'log.json')
-            f = open(file_name, 'r')
+            log_name = os.path.join(self._root_dir, 'exp_' + str(i), 'record', sub_log_dir_name, 'log.json')
+            f = open(log_name, 'r')
             res_dict = json.load(f)
             key_list = res_dict[key]
             key_vector = []
@@ -110,19 +110,21 @@ class MultipleExpLogDataLoader(object):
         data = pd.DataFrame.from_dict(multiple_key_value)  # Create dataframe for plotting
         row_num = data.shape[0]
         column_num = data.shape[1]
+        data_new = data
 
         # Calculate mean value in horizontal axis, incompatible with histogram mode
         if average_over != 1:
-            new_row_num = int(row_num / average_over)
-            data_new = data.head(new_row_num).copy()
-            data_new.loc[:, index] = data_new.loc[:, index] * average_over
-            for column in range(1, column_num):
-                for i in range(new_row_num):
-                    data_new.iloc[i, column] = data.iloc[i * average_over: i * average_over + average_over,
-                                               column].mean()
+            if mode != 'histogram':
+                new_row_num = int(row_num / average_over)
+                data_new = data.head(new_row_num).copy()
+                data_new.loc[:, index] = data_new.loc[:, index] * average_over
+                for column in range(1, column_num):
+                    for i in range(new_row_num):
+                        data_new.iloc[i, column] = data.iloc[i * average_over: i * average_over + average_over,
+                                                   column].mean()
 
-        data['MEAN'] = data[data.columns[1:]].mean(axis=1)  # axis = 1 in columns, first column not counted
-        data['STD_DEV'] = data[data.columns[1:-1]].std(axis=1)
+        data_new['MEAN'] = data_new[data_new.columns[1:]].mean(axis=1)  # axis = 1 in columns, first column not counted
+        data_new['STD_DEV'] = data_new[data_new.columns[1:-1]].std(axis=1)
 
         if mode == 'histogram':
             histogram_flag = True
@@ -138,4 +140,4 @@ class MultipleExpLogDataLoader(object):
                                     scatter_flag=scatter_flag, save_flag=True,
                                     mean_stddev_flag=True,
                                     histogram_flag=histogram_flag, save_path=os.path.join(self._root_dir),
-                                    sub_log_dir_name=sub_log_dir_name, save_format=save_format)
+                                    sub_log_dir_name=sub_log_dir_name, save_format=save_format, file_name=file_name)

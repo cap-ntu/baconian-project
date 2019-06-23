@@ -60,37 +60,48 @@ class Plotter(object):
 
     @staticmethod
     def plot_any_key_in_log(data, key, index, exp_num=1,
+                            sub_log_dir_name=None,
                             scatter_flag=False,
                             histogram_flag=False,
                             save_flag=False,
                             save_path=None,
                             save_format='png',
                             file_name=None,
-                            seperate_exp_flag=True,
+                            separate_exp_flag=True,
                             mean_stddev_flag=False,
-                            marker='*',
                             path_list=None,
-                            res_dict=None,
-                            res_name=None,
-                            sub_log_dir_name=None,
-                            his_bins=1,
-                            sub_graph_flag=False,
-                            value_range=None,
-                            fig_id=4, label='', restrict_dict=None, fn=None):
+                            ):
+        """
+        :param data: a pandas DataFrame containing (index and) key columns
+        :param key: in y-axis, the variable to plot, assigned by user
+        :param index: in x-axis, the argument assigned by user
+        :param sub_log_dir_name: the sub-directory which the log file to plot is saved in
+        :param exp_num: [optional] the number of experiments to visualize
+        :param scatter_flag: [optional] draw scatter plot if true
+        :param histogram_flag: [optional] draw histogram if true
+        :param save_flag: [optional] save the figure to a file if true
+        :param save_path: [optional] save path of figure, assigned by user, the directory of log_path by default
+        :param save_format: [optional] format of figure to save, png by default
+        :param file_name: [optional] the file name of the file to save, key_VERUS_index by default
+        :param separate_exp_flag: [optional] plot the results of each experiment separately if true
+        :param mean_stddev_flag: [optional] plot the mean value of multiple experiment results and standard deviation
+        :param path_list: [optional] the list of save paths assigned by users, figure file will be saved to each path
+        :return:
+        """
 
         marker_every = max(int(data.shape[0] / 10), 1)
 
         plt.figure()
         fig, ax = plt.subplots(1)
 
-        if seperate_exp_flag is True:
+        if separate_exp_flag is True:
             for i in range(exp_num):
                 if scatter_flag is True:
                     ax.scatter(data[index], data.iloc[:, i + 1], lw=1, label=key + '_' + str(i),
                                c=Plotter.color_list[i], alpha=0.8, )
                 elif histogram_flag is True:
                     num_bins = 20
-                    n, bins, patches = ax.hist(x=data, bins=num_bins)
+                    n, bins, patches = ax.hist(x=data[0], bins=num_bins)
                 else:
                     ax.plot(data[index], data.iloc[:, i + 1], lw=1, label=key + '_' + str(i),
                             color=Plotter.color_list[i],
@@ -123,7 +134,7 @@ class Plotter(object):
                                                                              file_name='%s.%s' % (
                                                                                  file_name, save_format)))
             if save_path is not None:
-                plt.savefig(save_path + '/%s_VERSUS_%s.%s' % (key, index, save_format), bbox_extra_artists=(lgd,),
+                plt.savefig(save_path + '/%s.%s' % (file_name, save_format), bbox_extra_artists=(lgd,),
                             bbox_inches='tight', format=save_format)
                 print("Save plot figure to {path} as {file_name}".format(path=save_path,
                                                                          file_name='%s.%s' % (
