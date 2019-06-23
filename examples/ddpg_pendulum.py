@@ -134,17 +134,3 @@ from baconian.core.experiment_runner import *
 
 GlobalConfig().set('DEFAULT_LOG_PATH', './log_path')
 single_exp_runner(task_fn, del_if_log_path_existed=True)
-# duplicate_exp_runner(10, task_fn, del_if_log_path_existed=True)
-
-
-import os
-
-# loader
-path = os.path.join('/home/david/Documents/baconian-internal/examples/log_path')
-# image = loader.MultipleExpLogDataLoader(path, num=10)
-image = loader.SingleExpLogDataLoader(path)
-image.plot_res(sub_log_dir_name='demo_exp_ddpg',
-               key="average_actor_loss",
-               index='train',
-               mode='plot',
-               )
