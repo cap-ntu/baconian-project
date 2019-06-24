@@ -13,7 +13,8 @@ from baconian.core.flow.train_test_flow import create_train_test_flow
 from baconian.config.global_config import GlobalConfig
 from baconian.core.status import get_global_status_collect
 from baconian.common.schedules import PeriodicalEventSchedule
-
+import baconian.common.log_data_loader as loader
+from pathlib import Path
 
 def task_fn():
     env = make('Pendulum-v0')
@@ -118,7 +119,7 @@ def task_fn():
     experiment.run()
 
 
-from baconian.core.experiment_runner import single_exp_runner
+from baconian.core.experiment_runner import *
 
 GlobalConfig().set('DEFAULT_LOG_PATH', './log_path')
 single_exp_runner(task_fn, del_if_log_path_existed=True)

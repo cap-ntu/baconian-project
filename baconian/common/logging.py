@@ -19,7 +19,6 @@ Logger Module
 5. support for different level of logging
 """
 
-
 class BaseLogger(object):
     required_key_dict = ()
 
@@ -61,10 +60,10 @@ class _SingletonConsoleLogger(BaseLogger):
             self.logger.removeHandler(handler)
             self.logger.root.removeHandler(handler)
 
-        self.logger.addHandler(logging.StreamHandler())
+        self.logger.addHandler(logging.StreamHandler()) #to console
 
         if to_file_flag is True:
-            self.logger.addHandler(logging.FileHandler(filename=to_file_name))
+            self.logger.addHandler(logging.FileHandler(filename=to_file_name)) #to json file
         for handler in self.logger.root.handlers[:] + self.logger.handlers[:]:
             handler.setFormatter(fmt=logging.Formatter(fmt=GlobalConfig().DEFAULT_LOGGING_FORMAT))
             handler.setLevel(getattr(logging, level))
