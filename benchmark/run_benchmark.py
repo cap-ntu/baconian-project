@@ -20,6 +20,7 @@ env_id_to_task_fn = {
     },
     'MountainCarContinuous-v0': {
         'ddpg': mountiancar_task_fn,
+
     }
 }
 alog_list = ['ddpg', 'dyna', 'mpc', 'ppo', 'ilqr']

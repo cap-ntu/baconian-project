@@ -47,7 +47,7 @@ Create the dyna-like workflow, and the experiments object, and run the experimen
     :language: python
     :lines: 145-178
 .. note::
-    Don't confuse the workflow wit the dyna algorithms itself. The flow only specifics how the algorithms interact
+    Don't confuse the workflow with the dyna algorithms itself. The flow only specifics how the algorithms interact
     with environments, and how to update and evaluate the ddpg (model-free method) and dynamics model.
 
 Set the global configuration and launch the experiment
@@ -61,4 +61,4 @@ Set the log path and wrap all the above task into a function `task_fn`, and pass
 
 Results logging/ Visualization
 --------------------------------
-todo
+Please refer to :doc:`Logging and Visualization <./how_to_log>`.

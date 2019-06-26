@@ -127,3 +127,5 @@ class Algo(Basic):
 #     @property
 #     def is_testing(self):
 #         return super().is_testing()
+
+# todo enrich
