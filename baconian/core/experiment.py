@@ -1,5 +1,5 @@
 """
-For experiments, it's functionality should include:
+For experiments, its functionality should include:
 1. experiment and config set up
 2. logging control
 3. hyper-param tuning etc.
@@ -42,12 +42,12 @@ class Experiment(Basic):
                  ):
         """
 
-        :param name:
-        :param agent:
-        :param env:
-        :param flow:
-        :param tuner:
-        :param register_default_global_status:
+        :param name: name of experiment
+        :param agent: agent of experiment
+        :param env: environment of experiment
+        :param flow: control flow to experiment
+        :param tuner: hyper-param tuning
+        :param register_default_global_status: register info key and status into global status collection
         """
         super().__init__(status=StatusWithSingleInfo(obj=self), name=name)
         self.agent = agent
@@ -79,12 +79,14 @@ class Experiment(Basic):
                                                                  return_name='TOTAL_ENV_STEP_TRAIN_SAMPLE_COUNT')
 
     def init(self):
+        """ Create a new TensorFlow session, and set status to 'INITED'."""
         create_new_tf_session(cuda_device=0)
         self.agent.init()
         self.env.init()
         self.set_status('INITED')
 
     def run(self):
+        """ Run the experiment, and set status to 'RUNNING'."""
         GlobalConfig().freeze()
         self.init()
         self.set_status('RUNNING')
@@ -96,6 +98,7 @@ class Experiment(Basic):
         self._exit()
 
     def _exit(self):
+        """ Exit the experiment, reset global configurations and logging module."""
         sess = tf.get_default_session()
         if sess:
             sess.__exit__(None, None, None)

@@ -25,10 +25,10 @@ class DynamicsModel(Basic):
                  action_input_scaler: DataScaler = None,
                  state_output_scaler: DataScaler = None):
         """
-        :param env_spec:
-        :param parameters:
-        :param init_state:
-        :param name:
+        :param env_spec: environment specifications, such as observation space and action space
+        :param parameters: parameters
+        :param init_state: initial state of dymamics model
+        :param name: name of instance, 'dynamics_model' by default
         """
         super().__init__(name=name)
         self.env_spec = env_spec
@@ -61,7 +61,7 @@ class DynamicsModel(Basic):
             is out bound, will throw an error
         :param kwargs_for_transit: extra kwargs for calling the _state_transit, this is typically related to the specific
             mode you used
-        :return:
+        :return: new state after the step
         """
         state = np.array(state).reshape(self.env_spec.obs_shape) if state is not None else self.state
         action = action.reshape(self.env_spec.action_shape)
@@ -87,17 +87,35 @@ class DynamicsModel(Basic):
 
     @abc.abstractmethod
     def _state_transit(self, state, action, **kwargs) -> np.ndarray:
+        """
+
+        :param state: original state
+        :param action: action taken by agent
+        :param kwargs:
+        :return: ndarray, new state after transition
+        """
         raise NotImplementedError
 
     def copy_from(self, obj) -> bool:
+        """
+
+        :param obj: object to copy from
+        :return: True
+        """
         if not isinstance(obj, type(self)):
             raise TypeError('Wrong type of obj %s to be copied, which should be %s' % (type(obj), type(self)))
         return True
 
     def make_copy(self):
+        """ Make a copy of parameters and environment specifications."""
         raise NotImplementedError
 
     def reset_state(self, state=None):
+        """
+
+        :param state: original state
+        :return: a random sample space in observation space
+        """
         if state is not None:
             assert self.env_spec.obs_space.contains(state)
             self.state = state
@@ -105,6 +123,10 @@ class DynamicsModel(Basic):
             self.state = self.env_spec.obs_space.sample()
 
     def return_as_env(self) -> Env:
+        """
+
+        :return: an environment with this dynamics model
+        """
         return DynamicsEnvWrapper(dynamics=self,
                                   name=self._name + '_env')
 

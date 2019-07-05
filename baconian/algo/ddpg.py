@@ -35,14 +35,12 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
         :param config_or_config_dict: configuraion dictionary, like learning rate or decay, if any
         :param value_func: value function
         :param policy: agent policy
-        :param schedule_param_list:
+        :param schedule_param_list: schedule parameter list, if any  initla final function to schedule learning process
         :param name: name of algorithm class instance
         :param replay_buffer: replay buffer, if any
         """
         ModelFreeAlgo.__init__(self, env_spec=env_spec, name=name)
         config = construct_dict_config(config_or_config_dict, self)
-
-
 
         self.config = config
         self.actor = policy
@@ -70,7 +68,9 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
                                                            name='ddpg_param',
                                                            source_config=config,
                                                            require_snapshot=False)
-        # todo parameters
+        """
+        self.parameters contains all the parameters (variables) of the algorithm
+        """
         self._critic_with_actor_output = self.critic.make_copy(reuse=True,
                                                                name='actor_input_{}'.format(self.critic.name),
                                                                state_input=self.state_input,

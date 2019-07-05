@@ -98,6 +98,12 @@ class TrainTestFlow(Flow):
         assert callable(train_sample_count_func)
 
     def _launch(self) -> bool:
+        """
+        Launch the flow until it finished or catch a system-allowed errors
+        (e.g., out of GPU memory, to ensure the log will be saved safely).
+
+        :return: Boolean, True for the flow correctly executed and finished.
+        """
         while True:
             self._call_func('sample')
             if self.time_step_func() - self.parameters(
@@ -115,6 +121,10 @@ class TrainTestFlow(Flow):
         return True
 
     def _is_ended(self):
+        """
+
+        :return: boolean, a True flag if an experiment is ended
+        """
         key_founded_flag = False
         finished_flag = False
         for key in GlobalConfig().DEFAULT_EXPERIMENT_END_POINT:

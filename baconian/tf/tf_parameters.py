@@ -12,14 +12,14 @@ from copy import deepcopy
 class ParametersWithTensorflowVariable(Parameters):
 
     @typechecked
-    def __init__(self, tf_var_list: object, rest_parameters: object, name: object,
-                 max_to_keep: object = GlobalConfig().DEFAULT_MAX_TF_SAVER_KEEP,
-                 default_save_type: object = 'tf',
-                 source_config: object = None,
-                 to_scheduler_param_tuple: object = None,
-                 save_rest_param_flag: object = True,
-                 to_ph_parameter_dict: object = None,
-                 require_snapshot: object = False) -> object:
+    def __init__(self, tf_var_list: list, rest_parameters: dict, name: str,
+                 max_to_keep=GlobalConfig().DEFAULT_MAX_TF_SAVER_KEEP,
+                 default_save_type='tf',
+                 source_config=None,
+                 to_scheduler_param_tuple: list = None,
+                 save_rest_param_flag=True,
+                 to_ph_parameter_dict: dict = None,
+                 require_snapshot=False):
         super(ParametersWithTensorflowVariable, self).__init__(parameters=rest_parameters,
                                                                name=name,
                                                                to_scheduler_param_tuple=to_scheduler_param_tuple,

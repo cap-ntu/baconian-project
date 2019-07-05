@@ -39,7 +39,7 @@ class Algo(Basic):
 
         :param arg:
         :param kwargs:
-        :return: a dic, contains the training results, e.g., loss
+        :return: a dict, contains the training results, e.g., loss
         """
 
         self._status.set_status('TRAIN')

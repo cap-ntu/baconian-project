@@ -33,6 +33,12 @@ class DynaFlow(Flow):
                  train_sample_count_func,
                  config_or_config_dict: (DictConfig, dict),
                  func_dict: dict, ):
+        """
+
+        :param train_sample_count_func: function to count train samples
+        :param config_or_config_dict: configuration dictionary
+        :param func_dict: function dictionary of training flow
+        """
         super().__init__(func_dict)
         super(DynaFlow, self).__init__(func_dict=func_dict)
         config = construct_dict_config(config_or_config_dict, obj=self)
@@ -85,6 +91,10 @@ class DynaFlow(Flow):
         return True
 
     def _is_ended(self):
+        """
+
+        :return: boolean, a True flag if an experiment is ended
+        """
         key_founded_flag = False
         finished_flag = False
         for key in GlobalConfig().DEFAULT_EXPERIMENT_END_POINT:

@@ -19,6 +19,7 @@ Logger Module
 5. support for different level of logging
 """
 
+
 class BaseLogger(object):
     required_key_dict = ()
 

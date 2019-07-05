@@ -8,7 +8,6 @@ try:
     from gym.envs.mujoco import mujoco_env
 except Exception:
     have_mujoco_flag = False
-import roboschool
 import numpy as np
 import types
 from gym.spaces import *
@@ -22,8 +21,8 @@ _env_inited_count = dict()
 def make(gym_env_id, allow_multiple_env=True):
     """
 
-    :param gym_env_id:
-    :param allow_multiple_env:
+    :param gym_env_id: gym environment id
+    :param allow_multiple_env: allow multiple environments, by default True
     :return:
     """
     if allow_multiple_env is True:
@@ -41,8 +40,8 @@ def make(gym_env_id, allow_multiple_env=True):
 @typechecked
 def space_converter(space: GymSpace):
     """
-
-    :param space:
+    Convert space into any one of "Box", "Discrete", or "Tuple" type.
+    :param space: GymSpace, space of gym environment
     :return:
     """
     if isinstance(space, Box):
@@ -66,8 +65,8 @@ class GymEnv(Env):
     def __init__(self, gym_env_id: str, name: str = None):
         """
 
-        :param gym_env_id:
-        :param name:
+        :param gym_env_id: gym environment id
+        :param name: name of the gym environment instance
         """
         super().__init__(name=name if name else gym_env_id)
         self.env_id = gym_env_id
@@ -94,15 +93,15 @@ class GymEnv(Env):
     def step(self, action):
         """
 
-        :param action:
-        :return:
+        :param action: action to be taken by agent in the environment
+        :return: step of the unwrapped environment
         """
         super().step(action)
         return self.unwrapped.step(action=action)
 
     def reset(self):
         """
-
+        Reset the gym environment.
         :return:
         """
         super().reset()
@@ -111,7 +110,7 @@ class GymEnv(Env):
 
     def init(self):
         """
-
+        Initialize the gym environment.
         :return:
         """
         super().init()
@@ -121,15 +120,15 @@ class GymEnv(Env):
     def seed(self, seed=None):
         """
 
-        :param seed:
-        :return:
+        :param seed: seed of random number generalization
+        :return: seed of the unwrapped environment
         """
         return super().seed(seed)
 
     def get_state(self):
         """
 
-        :return:
+        :return:the state of unwrapped gym environment.
         """
         if (have_mujoco_flag is True and isinstance(self.unwrapped_gym, mujoco_env.MujocoEnv)) or (
                 hasattr(self.unwrapped_gym, '_get_obs') and callable(self.unwrapped_gym._get_obs)):
@@ -149,8 +148,7 @@ class GymEnv(Env):
     @property
     def unwrapped(self):
         """
-
-        :return:
+        :return: original unwrapped gym environment
         """
         return self._gym_env
 
@@ -158,7 +156,7 @@ class GymEnv(Env):
     def unwrapped_gym(self):
         """
 
-        :return:
+        :return: gym environment, depend on attribute 'unwrapped'
         """
         if hasattr(self._gym_env, 'unwrapped'):
             return self._gym_env.unwrapped
@@ -169,8 +167,8 @@ class GymEnv(Env):
     def _sample_with_nan(space: garage_space.Space):
         """
 
-        :param space:
-        :return:
+        :param space: a 'Box'type space
+        :return: numpy clip of space that contains nan values
         """
         assert isinstance(space, garage_space.Box)
         high = np.ones_like(space.low)

@@ -34,14 +34,14 @@ class Agent(Basic):
                  algo_saving_scheduler: EventSchedule = None):
         """
 
-        :param name:
-        :param env:
-        :param algo:
-        :param env_spec:
-        :param sampler:
-        :param noise_adder:
-        :param exploration_strategy:
-        :param algo_saving_scheduler:
+        :param name: string, the name of the agent instance
+        :param env: Env, environment that interacts with agent
+        :param algo: algorithm of the agent
+        :param env_spec: environment specifications: action apace and environment space
+        :param sampler: Sampler
+        :param noise_adder: AgentActionNoiseWrapper, add noise to agent action to explore new policies
+        :param exploration_strategy: ExplorationStrategy, exploration strategy in action space
+        :param algo_saving_scheduler: EventSchedule, control the schedule the varying parameters in training process
         """
         super(Agent, self).__init__(name=name, status=StatusWithSubInfo(self))
         self.parameters = Parameters(parameters=dict())
@@ -142,11 +142,11 @@ class Agent(Basic):
         """
         sample a certain number of data from environment
 
-        :param env:
-        :param sample_count:
-        :param in_which_status:
-        :param store_flag:
-        :param sample_type:
+        :param env: environment to sample
+        :param sample_count: int, sample count
+        :param in_which_status: string, environment status
+        :param store_flag: to store environment samples or not, default False
+        :param sample_type: the type of sample, 'transition' by default
         :return:
         """
         self.set_status(in_which_status)
@@ -176,7 +176,7 @@ class Agent(Basic):
 
     def init(self):
         """
-
+        Initialize the algorithm, and set status to 'JUST_INITED'.
         :return:
         """
         self.algo.init()
@@ -194,7 +194,7 @@ class Agent(Basic):
     @property
     def is_training(self):
         """
-
+        Check whether the agent is training. Return a boolean value.
         :return:
         """
         return self.get_status()['status'] == 'TRAIN'
@@ -202,7 +202,7 @@ class Agent(Basic):
     @property
     def is_testing(self):
         """
-
+        Check whether the agent is testing. Return a boolean value.
         :return:
         """
         return self.get_status()['status'] == 'TEST'
