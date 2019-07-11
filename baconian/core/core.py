@@ -26,9 +26,12 @@ class Basic(object):
         """
         Init a new Basic instance.
 
-        :param name: a string for the name of the object, can be determined to generate log path, handle tensorflow name scope etc.
+        :param name: name of the object, can be determined to generate log path, handle tensorflow name scope etc.
+        :type name: str
         :param status: A status instance :py:class:`~baconian.core.status.Status` to indicate the status of the object
+        :type status: Status
         """
+
         if not status:
             self._status = Status(self)
         else:
@@ -91,7 +94,7 @@ class Env(gym.Env, Basic):
         """
 
         :param action: agent's action, the environment will react responding to action
-        :return:
+        :type action: method
         """
         pass
 
@@ -114,7 +117,9 @@ class Env(gym.Env, Basic):
         """
 
         :param seed: seed to generate random number
+        :type seed: int
         :return: seed of the unwrapped environment
+        :rtype: int
         """
         return self.unwrapped.seed(seed=seed)
 
@@ -137,6 +142,7 @@ class EnvSpec(object):
         """
 
         :return: Observation space of environment
+        :rtype: Space
         """
         return self._obs_space
 
@@ -145,6 +151,7 @@ class EnvSpec(object):
         """
 
         :return: Action space of environment
+        :rtype: Space
         """
         return self._action_space
 
@@ -152,7 +159,8 @@ class EnvSpec(object):
     def flat_obs_dim(self) -> int:
         """
 
-        :return: the dimension(length), int, of flatten observation space
+        :return: the dimension(length) of flatten observation space
+        :rtype: int
         """
         return int(flat_dim(self.obs_space))
 
@@ -160,17 +168,20 @@ class EnvSpec(object):
     def flat_action_dim(self) -> int:
         """
 
-        :return: the dimension(length), int, of flatten action space
+        :return: the dimension(length) of flatten action space
+        :rtype: int
         """
         return int(flat_dim(self.action_space))
 
     @staticmethod
     def flat(space: Space, obs_or_action: (np.ndarray, list)):
         """
-
         :param space: space of environment
+        :type space: Space
         :param obs_or_action: action or observation space
+        :type obs_or_action: (np.ndarray, list)
         :return: flatten action or observation space
+        :rtype: Space
         """
         return flatten(space, obs_or_action)
 
@@ -178,7 +189,9 @@ class EnvSpec(object):
         """
 
         :param action: action taken by agent
+        :type action: (np.ndarray, list)
         :return: flatten action parameter
+        :rtype: np.ndarray
         """
         return flatten(self.action_space, action)
 
@@ -186,6 +199,8 @@ class EnvSpec(object):
         """
 
         :param obs: observation of the agent
+        :type obs:  (np.ndarray, list)
         :return: flatten observation parameter
+        :rtype: np.ndarray
         """
         return flatten(self.obs_space, obs)

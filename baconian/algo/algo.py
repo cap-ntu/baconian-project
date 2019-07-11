@@ -17,8 +17,10 @@ class Algo(Basic):
         """
         Constructor
 
-        :param env_spec: Env spec, must with type EnvSpec
-        :param name: name of the algorithms
+        :param env_spec: environment specifications
+        :type env_spec: EnvSpec
+        :param name: name of the algorithm
+        :type name: str
         """
 
         super().__init__(status=StatusWithSubInfo(obj=self), name=name)
@@ -37,9 +39,8 @@ class Algo(Basic):
         """
         Training API, specific arguments should be defined by each algorithms itself.
 
-        :param arg:
-        :param kwargs:
-        :return: a dict, contains the training results, e.g., loss
+        :return: training results, e.g., loss
+        :rtype: dict
         """
 
         self._status.set_status('TRAIN')
@@ -49,9 +50,8 @@ class Algo(Basic):
         """
         Testing API, most of the evaluation can be done by agent instead of algorithms, so this API can be skipped
 
-        :param arg:
-        :param kwargs:
-        :return: a dict, contains the testing results, e.g., rewards
+        :return: test results, e.g., rewards
+        :rtype: dict
         """
 
         self._status.set_status('TEST')
@@ -63,9 +63,8 @@ class Algo(Basic):
         Predict function, given the obs as input, return the action, obs will be read as the first argument passed into
         this API, like algo.predict(obs=x, ...)
 
-        :param arg:
-        :param kwargs:
-        :return: Action, usually with numpy.ndarray type
+        :return: predicted action
+        :rtype: np.ndarray
         """
         raise NotImplementedError
 
@@ -75,9 +74,6 @@ class Algo(Basic):
         For off-policy algorithm, use this API to append the data into replay buffer. samples will be read as the first
         argument passed into this API, like algo.append_to_memory(samples=x, ...)
 
-        :param args:
-        :param kwargs:
-        :return: None
         """
         raise NotImplementedError
 
@@ -86,7 +82,8 @@ class Algo(Basic):
         """
         A boolean indicate the if the algorithm is in training status
 
-        :return: Boolean, True for is in training.
+        :return: True if in training
+        :rtype: bool
         """
         return self.get_status()['status'] == 'TRAIN'
 
@@ -95,7 +92,8 @@ class Algo(Basic):
         """
         A boolean indicate the if the algorithm is in training status
 
-        :return: Boolean, True for is in testing.
+        :return: True if in testing
+        :rtype: bool
         """
         return self.get_status()['status'] == 'TEST'
 
@@ -127,5 +125,3 @@ class Algo(Basic):
 #     @property
 #     def is_testing(self):
 #         return super().is_testing()
-
-# todo enrich

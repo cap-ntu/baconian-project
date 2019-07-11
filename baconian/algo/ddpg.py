@@ -61,16 +61,15 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
             self.replay_buffer = UniformRandomReplayBuffer(limit=self.config('REPLAY_BUFFER_SIZE'),
                                                            action_shape=self.env_spec.action_shape,
                                                            observation_shape=self.env_spec.obs_shape)
-
+        """
+        self.parameters contains all the parameters (variables) of the algorithm
+        """
         self.parameters = ParametersWithTensorflowVariable(tf_var_list=[],
                                                            rest_parameters=dict(),
                                                            to_scheduler_param_tuple=schedule_param_list,
                                                            name='ddpg_param',
                                                            source_config=config,
                                                            require_snapshot=False)
-        """
-        self.parameters contains all the parameters (variables) of the algorithm
-        """
         self._critic_with_actor_output = self.critic.make_copy(reuse=True,
                                                                name='actor_input_{}'.format(self.critic.name),
                                                                state_input=self.state_input,

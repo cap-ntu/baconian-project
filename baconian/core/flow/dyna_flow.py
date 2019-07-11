@@ -35,9 +35,12 @@ class DynaFlow(Flow):
                  func_dict: dict, ):
         """
 
-        :param train_sample_count_func: function to count train samples
-        :param config_or_config_dict: configuration dictionary
-        :param func_dict: function dictionary of training flow
+        :param train_sample_count_func: a function indicates how much training samples the agent has collected currently.
+        :type train_sample_count_func: method
+        :param config_or_config_dict: a Config or a dict should have the keys: (TEST_EVERY_SAMPLE_COUNT, TRAIN_EVERY_SAMPLE_COUNT, START_TRAIN_AFTER_SAMPLE_COUNT, START_TEST_AFTER_SAMPLE_COUNT)
+        :type config_or_config_dict: Config or dict
+        :param func_dict: function dict, holds the keys: 'sample', 'train', 'test'. each item in the dict as also should be a dict, holds the keys 'func', 'args', 'kwargs'
+        :type func_dict: dict
         """
         super().__init__(func_dict)
         super(DynaFlow, self).__init__(func_dict=func_dict)
@@ -53,6 +56,13 @@ class DynaFlow(Flow):
 
     def _launch(self) -> bool:
 
+        """
+        Launch the flow until it finished or catch a system-allowed errors
+        (e.g., out of GPU memory, to ensure the log will be saved safely).
+
+        :return: True if the flow correctly executed and finished
+        :rtype: bool
+        """
         while True:
             real_batch_data = self._call_func('sample_from_real_env')
             if self.time_step_func() - self.parameters(
@@ -93,7 +103,8 @@ class DynaFlow(Flow):
     def _is_ended(self):
         """
 
-        :return: boolean, a True flag if an experiment is ended
+        :return: True if an experiment is ended
+        :rtype: bool
         """
         key_founded_flag = False
         finished_flag = False
@@ -127,7 +138,6 @@ def create_dyna_flow(train_algo_func, train_algo_from_synthesized_data_func,
                      start_test_dynamics_after_sample_count,
                      start_test_algo_after_sample_count,
                      warm_up_dynamics_samples,
-
                      train_samples_counter_func=None):
     config_dict = dict(
         TRAIN_ALGO_EVERY_REAL_SAMPLE_COUNT_FROM_REAL_ENV=train_algo_every_real_sample_count_by_data_from_real_env,

@@ -34,14 +34,22 @@ class Agent(Basic):
                  algo_saving_scheduler: EventSchedule = None):
         """
 
-        :param name: string, the name of the agent instance
-        :param env: Env, environment that interacts with agent
+        :param name: the name of the agent instance
+        :type name: str
+        :param env: environment that interacts with agent
+        :type env: Env
         :param algo: algorithm of the agent
+        :type algo: Algo
         :param env_spec: environment specifications: action apace and environment space
-        :param sampler: Sampler
-        :param noise_adder: AgentActionNoiseWrapper, add noise to agent action to explore new policies
-        :param exploration_strategy: ExplorationStrategy, exploration strategy in action space
-        :param algo_saving_scheduler: EventSchedule, control the schedule the varying parameters in training process
+        :type env_spec: EnvSpec
+        :param sampler: sampler
+        :type sampler: Sampler
+        :param noise_adder: add action noise for exploration in action space
+        :type noise_adder: AgentActionNoiseWrapper
+        :param exploration_strategy: exploration strategy in action space
+        :type exploration_strategy: ExplorationStrategy
+        :param algo_saving_scheduler: control the schedule the varying parameters in training process
+        :type algo_saving_scheduler: EventSchedule
         """
         super(Agent, self).__init__(name=name, status=StatusWithSubInfo(self))
         self.parameters = Parameters(parameters=dict())
@@ -68,7 +76,8 @@ class Agent(Basic):
         """
         train the agent
 
-        :return:
+        :return: Only if memory buffer did not have enough data to train, return False
+        :rtype: bool
         """
         self.set_status('TRAIN')
         self.algo.set_status('TRAIN')
@@ -91,8 +100,9 @@ class Agent(Basic):
         test the agent
 
         :param sample_count: how many transitions/trajectories used to evaluate the agent's performance
+        :type sample_count: int
         :param sample_trajectory_flag: True for sampling trajectory instead of transitions
-        :return:
+        :type sample_count: bool
         """
         self.set_status('TEST')
         self.algo.set_status('TEST')
@@ -124,7 +134,8 @@ class Agent(Basic):
         predict the action given the state
 
         :param kwargs: rest parameters, include key: obs
-        :return:
+        :return: predicted action
+        :rtype: ndarray
         """
         if self.explorations_strategy and not self.is_testing:
             return self.explorations_strategy.predict(**kwargs, algo=self.algo)
@@ -147,7 +158,8 @@ class Agent(Basic):
         :param in_which_status: string, environment status
         :param store_flag: to store environment samples or not, default False
         :param sample_type: the type of sample, 'transition' by default
-        :return:
+        :return: sample data from environment
+        :rtype: some subclass of SampleData: TrajectoryData or TransitionData
         """
         self.set_status(in_which_status)
         env.set_status(in_which_status)
@@ -177,7 +189,6 @@ class Agent(Basic):
     def init(self):
         """
         Initialize the algorithm, and set status to 'JUST_INITED'.
-        :return:
         """
         self.algo.init()
         self.set_status('JUST_INITED')
@@ -186,8 +197,9 @@ class Agent(Basic):
     def store_samples(self, samples: SampleData):
         """
         store the samples into memory/replay buffer if the algorithm that agent hold need to do so, like DQN, DDPG
-        :param samples:
-        :return:
+
+        :param samples: sample data of the experiment
+        :type samples: SampleData
         """
         self.algo.append_to_memory(samples=samples)
 
@@ -195,7 +207,9 @@ class Agent(Basic):
     def is_training(self):
         """
         Check whether the agent is training. Return a boolean value.
-        :return:
+
+        :return: true if the agent is training
+        :rtype: bool
         """
         return self.get_status()['status'] == 'TRAIN'
 
@@ -203,6 +217,8 @@ class Agent(Basic):
     def is_testing(self):
         """
         Check whether the agent is testing. Return a boolean value.
-        :return:
+
+        :return: true if the agent is testing
+        :rtype: bool
         """
         return self.get_status()['status'] == 'TEST'

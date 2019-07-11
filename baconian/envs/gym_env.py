@@ -22,8 +22,11 @@ def make(gym_env_id, allow_multiple_env=True):
     """
 
     :param gym_env_id: gym environment id
+    :type gym_env_id: int
     :param allow_multiple_env: allow multiple environments, by default True
-    :return:
+    :type allow_multiple_env: bool
+    :return: new gym environment
+    :rtype: GymEnv
     """
     if allow_multiple_env is True:
 
@@ -41,8 +44,11 @@ def make(gym_env_id, allow_multiple_env=True):
 def space_converter(space: GymSpace):
     """
     Convert space into any one of "Box", "Discrete", or "Tuple" type.
-    :param space: GymSpace, space of gym environment
-    :return:
+
+    :param space: space of gym environment
+    :type space: GymSpace
+    :return: converted space
+    :rtype: Box, Discrete, or Tuple
     """
     if isinstance(space, Box):
         return garage_space.Box(low=space.low, high=space.high)
@@ -66,7 +72,9 @@ class GymEnv(Env):
         """
 
         :param gym_env_id: gym environment id
+        :type gym_env_id: str
         :param name: name of the gym environment instance
+        :type name: str
         """
         super().__init__(name=name if name else gym_env_id)
         self.env_id = gym_env_id
@@ -94,7 +102,9 @@ class GymEnv(Env):
         """
 
         :param action: action to be taken by agent in the environment
+        :type action: action to be taken by agent in the environment
         :return: step of the unwrapped environment
+        :rtype: gym env
         """
         super().step(action)
         return self.unwrapped.step(action=action)
@@ -121,14 +131,17 @@ class GymEnv(Env):
         """
 
         :param seed: seed of random number generalization
+        :type seed: int
         :return: seed of the unwrapped environment
+        :rtype: int
         """
         return super().seed(seed)
 
     def get_state(self):
         """
 
-        :return:the state of unwrapped gym environment.
+        :return:the state of unwrapped gym environment
+        :rtype: np.ndarray
         """
         if (have_mujoco_flag is True and isinstance(self.unwrapped_gym, mujoco_env.MujocoEnv)) or (
                 hasattr(self.unwrapped_gym, '_get_obs') and callable(self.unwrapped_gym._get_obs)):
@@ -149,6 +162,7 @@ class GymEnv(Env):
     def unwrapped(self):
         """
         :return: original unwrapped gym environment
+        :rtype: gym env
         """
         return self._gym_env
 
@@ -157,6 +171,7 @@ class GymEnv(Env):
         """
 
         :return: gym environment, depend on attribute 'unwrapped'
+        :rtype: gym env
         """
         if hasattr(self._gym_env, 'unwrapped'):
             return self._gym_env.unwrapped
@@ -169,6 +184,7 @@ class GymEnv(Env):
 
         :param space: a 'Box'type space
         :return: numpy clip of space that contains nan values
+        :rtype: np.ndarray
         """
         assert isinstance(space, garage_space.Box)
         high = np.ones_like(space.low)

@@ -40,14 +40,21 @@ class Experiment(Basic):
                  tuner: Tuner = None,
                  register_default_global_status=True
                  ):
+
         """
 
         :param name: name of experiment
+        :type name: str
         :param agent: agent of experiment
+        :type agent: Agent
         :param env: environment of experiment
+        :type env: Env
         :param flow: control flow to experiment
-        :param tuner: hyper-param tuning
+        :type flow: Flow
+        :param tuner: hyper-parameter tuning method, currently in development
+        :type tuner: Tuner
         :param register_default_global_status: register info key and status into global status collection
+        :type register_default_global_status: bool
         """
         super().__init__(status=StatusWithSingleInfo(obj=self), name=name)
         self.agent = agent
