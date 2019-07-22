@@ -35,7 +35,7 @@ a graph with ``data_new`` DataFrame as input.
 
 Please refer to the following examples for single or multiple experiment visualisation:
 
- - Single Experiment Visualisation
+- Single Experiment Visualisation
 
 This example is to draw a ``line`` plot of ``average_reward`` in ``demo_exp_agent/TRAIN``
 as a result of ``dyna`` experiment. Because there are too many records in the original
@@ -55,8 +55,9 @@ line plot. Finally, we save the figure as ``average_reward_VERSUS_sample_counter
 
 .. image:: ./fig/average_reward_VERSUS_sample_counter.png
 
-NOTE: ``sub_log_dir_name`` should include the COMPLETE directory
-in between the ``log_path`` directory and ``json.log``.
+.. note::
+     ``sub_log_dir_name`` should include the COMPLETE directory
+     in between the ``log_path`` directory and ``json.log``.
 
 Another example is to draw a ``scatter`` plot of ``average_loss`` in ``demo_exp_dqn/TRAIN`` for a DQN experiment.
 We save the figure as ``average_loss_scatter.svg``.
@@ -88,15 +89,16 @@ Please note that ``histogram`` plot mode is a bit different from the other two m
 
 .. image:: ./fig/average_reward_histogram.png
 
-NOTE: ``MEAN`` or ``STD_DEV`` calculation is incompatible with ``histogram`` plot mode.
+.. note::
+ ``MEAN`` or ``STD_DEV`` calculation is incompatible with ``histogram`` plot mode.
 
-NOTE: Altough ``index`` is not shown in the histogram plot graph, in our Baconian project, it still must be specified by
-user, because ``log_data_loader`` file requires index to create a DataFrame. However, ``index`` can be any arbitrary
-argument in ``log.json`` without affecting the plotting graph.
+ Altough ``index`` is not shown in the histogram plot graph, in our Baconian project, it still must be specified by
+ user, because ``log_data_loader`` file requires index to create a DataFrame. However, ``index`` can be any arbitrary
+ argument in ``log.json`` without affecting the plotting graph.
 
 
 
- - Multiple Experiment Visualisation
+- Multiple Experiment Visualisation
 
 User can call ``MultipleExpLogDataLoader`` in ``log_data_loader`` to load multiple log files from a log path,
 passing the experiment number as ``num`` argument.

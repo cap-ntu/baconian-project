@@ -19,7 +19,8 @@ class Flow(object):
         """
         Constructor for Flow.
 
-        :param func_dict: a dict, contains the function and its arguments that will be called in the Flow.
+        :param func_dict: the function and its arguments that will be called in the Flow
+        :type func_dict: dict
         """
         self.func_dict = func_dict
         for key in self.required_func:
@@ -30,7 +31,8 @@ class Flow(object):
         """
         Launch the flow until it finished or catch a system-allowed errors (e.g., out of GPU memory, to ensure the log will be saved safely).
 
-        :return: Boolean, True for the flow correctly executed and finished.
+        :return: True if the flow correctly executed and finished
+        :rtype: bool
         """
         try:
             return self._launch()
@@ -42,7 +44,8 @@ class Flow(object):
         """
         Abstract method to be implemented by subclass for a certain workflow.
 
-        :return: Boolean, indicate the execution results.
+        :return: True if the flow correctly executed and finished
+        :rtype: bool
         """
         raise NotImplementedError
 
@@ -51,8 +54,10 @@ class Flow(object):
         Call a function that is pre-defined in self.func_dict
 
         :param key: name of the function, e.g., train, test, sample.
+        :type key: str
         :param extra_kwargs: some extra kwargs you may want to be passed in the function calling
         :return: actual return value of the called function if self.func_dict has such function otherwise None.
+        :rtype:
         """
 
         if self.func_dict[key]:
@@ -86,8 +91,11 @@ class TrainTestFlow(Flow):
         Constructor of TrainTestFlow
 
         :param train_sample_count_func: a function indicates how much training samples the agent has collected currently.
+        :type train_sample_count_func: method
         :param config_or_config_dict: a Config or a dict should have the keys: (TEST_EVERY_SAMPLE_COUNT, TRAIN_EVERY_SAMPLE_COUNT, START_TRAIN_AFTER_SAMPLE_COUNT, START_TEST_AFTER_SAMPLE_COUNT)
+        :type config_or_config_dict: Config or dict
         :param func_dict: function dict, holds the keys: 'sample', 'train', 'test'. each item in the dict as also should be a dict, holds the keys 'func', 'args', 'kwargs'
+        :type func_dict: dict
         """
         super(TrainTestFlow, self).__init__(func_dict=func_dict)
         config = construct_dict_config(config_or_config_dict, obj=self)
@@ -98,6 +106,13 @@ class TrainTestFlow(Flow):
         assert callable(train_sample_count_func)
 
     def _launch(self) -> bool:
+        """
+        Launch the flow until it finished or catch a system-allowed errors
+        (e.g., out of GPU memory, to ensure the log will be saved safely).
+
+        :return: True if the flow correctly executed and finished
+        :rtype: bool
+        """
         while True:
             self._call_func('sample')
             if self.time_step_func() - self.parameters(
@@ -115,6 +130,11 @@ class TrainTestFlow(Flow):
         return True
 
     def _is_ended(self):
+        """
+
+        :return: True if an experiment is ended
+        :rtype: bool
+        """
         key_founded_flag = False
         finished_flag = False
         for key in GlobalConfig().DEFAULT_EXPERIMENT_END_POINT:

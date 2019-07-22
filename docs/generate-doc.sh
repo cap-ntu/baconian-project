@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-source activate py3.5 || source activate baconian || source activate baconian-internal
-
+source activate baconian || source activate py3.5 || source activate baconian-internal
+# todo why here recommonmark package only work when baconian is the first one?
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 echo $DIR
 cd $DIR

@@ -29,6 +29,16 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
                  schedule_param_list=None,
                  name='ddpg',
                  replay_buffer=None):
+        """
+
+        :param env_spec: environment specifications, like action apace or observation space
+        :param config_or_config_dict: configuraion dictionary, like learning rate or decay, if any
+        :param value_func: value function
+        :param policy: agent policy
+        :param schedule_param_list: schedule parameter list, if any  initla final function to schedule learning process
+        :param name: name of algorithm class instance
+        :param replay_buffer: replay buffer, if any
+        """
         ModelFreeAlgo.__init__(self, env_spec=env_spec, name=name)
         config = construct_dict_config(config_or_config_dict, self)
 
@@ -51,7 +61,9 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
             self.replay_buffer = UniformRandomReplayBuffer(limit=self.config('REPLAY_BUFFER_SIZE'),
                                                            action_shape=self.env_spec.action_shape,
                                                            observation_shape=self.env_spec.obs_shape)
-
+        """
+        self.parameters contains all the parameters (variables) of the algorithm
+        """
         self.parameters = ParametersWithTensorflowVariable(tf_var_list=[],
                                                            rest_parameters=dict(),
                                                            to_scheduler_param_tuple=schedule_param_list,
@@ -246,3 +258,5 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
             op.append(tf.assign(target_var, ref_val))
 
         return loss, optimize_op, op, optimizer, grads
+
+# todo identify API and their examples, limitations

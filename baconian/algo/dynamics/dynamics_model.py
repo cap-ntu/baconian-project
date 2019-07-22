@@ -24,11 +24,23 @@ class DynamicsModel(Basic):
                  state_input_scaler: DataScaler = None,
                  action_input_scaler: DataScaler = None,
                  state_output_scaler: DataScaler = None):
+
         """
-        :param env_spec:
-        :param parameters:
-        :param init_state:
-        :param name:
+
+        :param env_spec: environment specifications, such as observation space and action space
+        :type env_spec: EnvSpec
+        :param parameters: parameters
+        :type parameters: Parameters
+        :param init_state: initial state of dymamics model
+        :type init_state: str
+        :param name: name of instance, 'dynamics_model' by default
+        :type name: str
+        :param state_input_scaler: data preprocessing scaler of state input
+        :type state_input_scaler: DataScaler
+        :param action_input_scaler: data preprocessing scaler of action input
+        :type action_input_scaler: DataScaler
+        :param state_output_scaler: data preprocessing scaler of state output
+        :type state_output_scaler: DataScaler
         """
         super().__init__(name=name)
         self.env_spec = env_spec
@@ -52,16 +64,21 @@ class DynamicsModel(Basic):
 
     @register_counter_info_to_status_decorator(increment=1, info_key='step_counter')
     def step(self, action: np.ndarray, state=None, allow_clip=False, **kwargs_for_transit):
+
         """
         State transition function (only support one sample transition instead of batch data)
 
         :param action: action to be taken
+        :type action: np.ndarray
         :param state: current state, if None, will use stored state (saved from last transition)
-        :param allow_clip: boolean, if True, will clip the output to fit it bound, if False, will not, and if the output
-            is out bound, will throw an error
-        :param kwargs_for_transit: extra kwargs for calling the _state_transit, this is typically related to the specific
-            mode you used
-        :return:
+        :type state: np.ndarray
+        :param allow_clip: allow clip of observation space, default False
+        :type allow_clip: bool
+        :param kwargs_for_transit: extra kwargs for calling the _state_transit, this is typically related to the
+                                    specific mode you used
+        :type kwargs_for_transit:
+        :return: new state after step
+        :rtype: np.ndarray
         """
         state = np.array(state).reshape(self.env_spec.obs_shape) if state is not None else self.state
         action = action.reshape(self.env_spec.action_shape)
@@ -87,17 +104,43 @@ class DynamicsModel(Basic):
 
     @abc.abstractmethod
     def _state_transit(self, state, action, **kwargs) -> np.ndarray:
+        """
+
+        :param state: original state
+        :type state: np.ndarray
+        :param action:  action taken by agent
+        :type action: np.ndarray
+        :param kwargs:
+        :type kwargs:
+        :return: new state after transition
+        :rtype: np.ndarray
+        """
         raise NotImplementedError
 
     def copy_from(self, obj) -> bool:
+        """
+
+        :param obj: object to copy from
+        :type obj:
+        :return: True if successful else raise an error
+        :rtype: bool
+        """
         if not isinstance(obj, type(self)):
             raise TypeError('Wrong type of obj %s to be copied, which should be %s' % (type(obj), type(self)))
         return True
 
     def make_copy(self):
+        """ Make a copy of parameters and environment specifications."""
         raise NotImplementedError
 
     def reset_state(self, state=None):
+        """
+
+        :param state: original state
+        :type state: np.ndarray
+        :return: a random sample space in observation space
+        :rtype: np.ndarray
+        """
         if state is not None:
             assert self.env_spec.obs_space.contains(state)
             self.state = state
@@ -105,6 +148,11 @@ class DynamicsModel(Basic):
             self.state = self.env_spec.obs_space.sample()
 
     def return_as_env(self) -> Env:
+        """
+
+        :return: an environment with this dynamics model
+        :rtype: DynamicsEnvWrapper
+        """
         return DynamicsEnvWrapper(dynamics=self,
                                   name=self._name + '_env')
 
