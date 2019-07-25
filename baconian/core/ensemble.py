@@ -21,10 +21,7 @@ class ModelEnsemble(Ensemble, DynamicsModel):
 
     def __init__(self, model, n_models=1, prediction_type='random', *args, **kwargs):
         """
-        :param env_spec:
-        :param parameters:
-        :param init_state:
-        :param name:
+        :param model:
         :param n_models:
         :param prediction_type:
         """
