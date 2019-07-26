@@ -1,9 +1,28 @@
 language: python
-python:
-  - "3.5"
-  - "3.6"
-  - "3.7"
-dist: xenial
+matrix:
+  include:
+    - name: "Python 3.5/6/7 on Xenial Linux 16.04"
+      python:
+        - "3.7"
+        - "3.6"
+        - "3.5"
+      dist: xenial
+    - name: "Python 3.5/6/7 on Bionic Linux 18.04"
+      python:
+        - "3.7"
+        - "3.6"
+        - "3.5"
+      dist: bionic
+    - name: "Python 3.5/6/7 on Trusty Linux 14.04"
+      python:
+        - "3.7"
+        - "3.6"
+        - "3.5"
+      dist: trusty
+    - name: "Python 3.7.2 on macOS"
+      os: osx
+      osx_image: xcode10.2  # Python 3.7.2 running on macOS 10.14.3
+      language: shell       # 'language: python' is an error on Travis CI macOS
 
 before_install:
   -
