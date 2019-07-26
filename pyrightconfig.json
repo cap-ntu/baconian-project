@@ -1,0 +1,21 @@
+{
+  "include": [
+      "baconian",
+      "benchmark",
+      "examples"
+  ],
+  "exclude": [
+
+  ],
+
+  "venvPath": "/home/david/anaconda3/envs",
+  "venv": "baconian",
+
+  "reportTypeshedErrors": false,
+  "reportMissingImports": true,
+  "reportMissingTypeStubs": false,
+
+  "pythonVersion": "3.5",
+  "pythonPlatform": "Linux"
+
+}
