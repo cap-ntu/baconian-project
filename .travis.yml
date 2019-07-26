@@ -19,6 +19,7 @@ branches:
   - master
   - travis_ci_test
   - dev_*
+  - dev_cly_0.2
 notifications:
   email: false
 
