@@ -1,30 +1,8 @@
 import os
 import platform
+
 from pathlib import Path
 from baconian.core.core import Env, EnvSpec
-import gym.envs
-from dm_control import suite
-import hashlib
-
-from dm_control.rl.specs import ArraySpec
-from dm_control.rl.specs import BoundedArraySpec
-
-from collections import OrderedDict
-
-
-have_mujoco_flag = True
-try:
-    from dm_control import mujoco
-except Exception:
-    have_mujoco_flag = False
-
-import numpy as np
-import types
-from gym.spaces import *
-from gym.spaces import Space as GymSpace
-import baconian.common.spaces as garage_space
-from typeguard import typechecked
-from baconian.core.status import register_counter_info_to_status_decorator
 
 _PLATFORM = platform.system()
 try:
@@ -40,6 +18,29 @@ os.environ['LD_LIBRARY_PATH'] = os.environ.get('LD_LIBRARY_PATH', '') \
                                 + ':' + str(Path.home()) + '/.mujoco/mujoco200_{}/bin'.format(_PLATFORM_SUFFIX)
 os.environ['MUJOCO_PY_MUJOCO_PATH'] = os.environ.get('MUJOCO_PY_MUJOCO_PATH', '') \
                                       + str(Path.home()) + '/.mujoco/mujoco200_{}'.format(_PLATFORM_SUFFIX)
+
+os.environ['MUJOCO_PY_MUJOCO_PATH'] = str(Path.home()) + '/.mujoco/mujoco200_{}'.format(_PLATFORM_SUFFIX)
+
+# TODO disable the rendering temporarily
+os.environ['DISABLE_MUJOCO_RENDERING'] = '1'
+
+have_mujoco_flag = True
+try:
+    from dm_control import mujoco
+    from gym.envs.mujoco import mujoco_env
+    from dm_control import suite
+
+    from dm_control.rl.specs import ArraySpec
+    from dm_control.rl.specs import BoundedArraySpec
+
+    from collections import OrderedDict
+except Exception:
+    have_mujoco_flag = False
+
+import numpy as np
+import types
+from gym.spaces import *
+import baconian.common.spaces as garage_space
 
 
 def convert_dm_control_to_gym_space(dm_control_space):
@@ -187,3 +188,8 @@ class DMControlEnv(Env):
         return np.clip(np.random.uniform(low=low, high=high, size=space.low.shape),
                        a_min=space.low,
                        a_max=space.high)
+
+
+if __name__ == '__main__':
+    a = suite.load("cartpole", "swingup")
+    a = DMControlEnv("cartpole", "swingup")

@@ -53,7 +53,7 @@ class MLPQValueFunction(QValueFunction, PlaceholderInput):
             name_scope=name_scope,
         )
         mlp_net = MLP(input_ph=mlp_input_ph,
-                      net_name='mlp',
+                      net_name=name_scope,
                       **mlp_net_kwargs)
         parameters = ParametersWithTensorflowVariable(tf_var_list=mlp_net.var_list,
                                                       rest_parameters=dict(

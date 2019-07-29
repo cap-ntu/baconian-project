@@ -18,7 +18,7 @@ import gym.error as gym_error
 _env_inited_count = dict()
 
 
-def make(gym_env_id, allow_multiple_env=True):
+def make(gym_env_id: str, allow_multiple_env=True):
     """
 
     :param gym_env_id: gym environment id
@@ -52,8 +52,8 @@ def space_converter(space: GymSpace):
     """
     if isinstance(space, Box):
         return garage_space.Box(low=space.low, high=space.high)
-    # elif isinstance(space, Dict):
-    #     return garage_space.Dict(space.spaces)
+    elif isinstance(space, Dict):
+        return garage_space.Dict(space.spaces)
     elif isinstance(space, Discrete):
         return garage_space.Discrete(space.n)
     elif isinstance(space, Tuple):
