@@ -3,20 +3,20 @@ matrix:
   include:
     - name: "Python 3.5/6/7 on Xenial Linux 16.04"
       python:
-        - "3.7"
-        - "3.6"
         - "3.5"
+        - "3.6"
+        - "3.7"
       dist: xenial
     - name: "Python 3.5/6/7 on Bionic Linux 18.04" # 3.5 may NOT be supported
       python:
-        - "3.7"
-        - "3.6"
         - "3.5"
+        - "3.6"
+        - "3.7"
       dist: bionic
     - name: "Python 3.5/6 on Trusty Linux 14.04"
       python:
-        - "3.6"
         - "3.5"
+        - "3.6"
       dist: trusty
 
 before_install:
