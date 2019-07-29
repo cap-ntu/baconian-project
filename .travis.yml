@@ -29,6 +29,10 @@ matrix:
       python:
         - "3.6"
       dist: trusty
+    - name: "Python 3.7 on Trusty Linux 14.04"
+      python:
+        - "3.7"
+      dist: trusty
 
 before_install:
   -
