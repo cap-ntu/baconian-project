@@ -1,6 +1,14 @@
 language: python
 matrix:
   include:
+    - name: "Python 3.5 on Trusty Linux 14.04"
+      python:
+        - "3.5"
+      dist: trusty
+    - name: "Python 3.6 on Trusty Linux 14.04"
+      python:
+        - "3.6"
+      dist: trusty
     - name: "Python 3.5 on Xenial Linux 16.04"
       python:
         - "3.5"
@@ -21,14 +29,7 @@ matrix:
       python:
         - "3.7"
       dist: bionic
-    - name: "Python 3.5 on Trusty Linux 14.04"
-      python:
-        - "3.5"
-      dist: trusty
-    - name: "Python 3.6 on Trusty Linux 14.04"
-      python:
-        - "3.6"
-      dist: trusty
+
 
 before_install:
   -
