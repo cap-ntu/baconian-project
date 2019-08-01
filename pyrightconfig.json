@@ -8,9 +8,6 @@
 
   ],
 
-  "venvPath": "/home/david/anaconda3/envs",
-  "venv": "baconian",
-
   "reportTypeshedErrors": false,
   "reportMissingImports": true,
   "reportMissingTypeStubs": false,
