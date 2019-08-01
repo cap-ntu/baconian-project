@@ -16,6 +16,7 @@ from baconian.common.schedules import PeriodicalEventSchedule
 import baconian.common.log_data_loader as loader
 from pathlib import Path
 
+
 def task_fn():
     env = make('Pendulum-v0')
     name = 'demo_exp'

@@ -340,13 +340,13 @@ class ClassCreatorSetup(unittest.TestCase):
                       env_spec=env_spec,
                       algo=algo,
                       noise_adder=AgentActionNoiseWrapper(noise=OUNoise(),
-                                                          action_weight_scheduler=LinearSchedule(
+                                                          action_weight_scheduler=LinearScheduler(
                                                               t_fn=lambda: get_global_status_collect()(
                                                                   'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
                                                               schedule_timesteps=100,
                                                               final_p=1.0,
                                                               initial_p=0.0),
-                                                          noise_weight_scheduler=LinearSchedule(
+                                                          noise_weight_scheduler=LinearScheduler(
                                                               t_fn=lambda: get_global_status_collect()(
                                                                   'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
                                                               schedule_timesteps=100,

@@ -12,7 +12,7 @@ from baconian.algo.misc import EpsilonGreedy
 from baconian.core.experiment import Experiment
 from baconian.core.flow.train_test_flow import create_train_test_flow
 from baconian.config.global_config import GlobalConfig
-from baconian.common.schedules import LinearSchedule, PiecewiseSchedule, PeriodicalEventSchedule
+from baconian.common.schedules import LinearScheduler, PiecewiseScheduler, PeriodicalEventSchedule
 from baconian.core.status import get_global_status_collect
 
 
@@ -60,7 +60,7 @@ def task_fn():
                       trigger_every_step=20,
                       after_t=10),
                   exploration_strategy=EpsilonGreedy(action_space=env_spec.action_space,
-                                                     prob_scheduler=PiecewiseSchedule(
+                                                     prob_scheduler=PiecewiseScheduler(
                                                          t_fn=lambda: get_global_status_collect()(
                                                              'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
                                                          endpoints=((10, 0.3), (100, 0.1), (200, 0.0)),
@@ -88,7 +88,7 @@ def task_fn():
     )
 
     dqn.parameters.set_scheduler(param_key='LEARNING_RATE',
-                                 scheduler=LinearSchedule(
+                                 scheduler=LinearScheduler(
                                      t_fn=experiment.TOTAL_AGENT_TRAIN_SAMPLE_COUNT,
                                      schedule_timesteps=GlobalConfig().DEFAULT_EXPERIMENT_END_POINT[
                                          'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'],

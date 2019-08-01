@@ -4,7 +4,7 @@ import abc
 from baconian.common.logging import Logger
 import baconian.common.files as files
 import os
-from baconian.common.schedules import Schedule
+from baconian.common.schedules import Scheduler
 from copy import deepcopy
 
 
@@ -100,7 +100,7 @@ class Parameters(object):
             setattr(self._source_config, 'config_dict', res['_source_config'])
 
     @typechecked
-    def set_scheduler(self, param_key: str, scheduler: Schedule, **kwargs):
+    def set_scheduler(self, param_key: str, scheduler: Scheduler, **kwargs):
         ori_value = self(param_key)
         scheduler.initial_p = ori_value
         self._scheduler_info_dict[param_key] = dict(param_key=param_key, scheduler=scheduler)
