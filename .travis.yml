@@ -31,8 +31,9 @@ install:
 
 script:
   - pip install pytest pytest-cov
-  - pytest --cov=baconian ./examples/ ./baconian/test/
   - travis_wait 30 pytest
+  - pytest --cov=baconian ./examples/ ./baconian/test/
+
   - npm install -g pyright
   - pyright --stats
 
