@@ -32,6 +32,8 @@ install:
 script:
   - pip install pytest pytest-cov
   - pytest --cov=baconian ./examples/ ./baconian/test/
+  - npm install -g pyright
+  - pyright --stats
 branches:
   only:
   - master
