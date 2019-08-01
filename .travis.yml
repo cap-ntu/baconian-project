@@ -27,13 +27,15 @@ before_install:
   -
 
 install:
+  - travis_wait 30 mvn install
   - bash installation.sh
 
 script:
-  - pip install pytest pytest-cov
-  - pytest --cov=baconian ./examples/ ./baconian/test/
   - npm install -g pyright
   - pyright --stats
+  - pip install pytest pytest-cov
+  - pytest --cov=baconian ./examples/ ./baconian/test/
+
 branches:
   only:
   - master

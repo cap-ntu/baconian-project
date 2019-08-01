@@ -16,7 +16,7 @@ class ExplorationStrategy(object):
 class EpsilonGreedy(ExplorationStrategy):
     @typechecked
     def __init__(self, action_space: Space, init_random_prob: float, prob_scheduler: Schedule = None):
-        super(ExplorationStrategy, self).__init__()
+        super(self).__init__()
 
         self.action_space = action_space
         self.random_prob_func = lambda: init_random_prob

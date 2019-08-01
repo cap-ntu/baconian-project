@@ -260,6 +260,7 @@ class iLQRPolicy(DeterministicPolicy):
                           delta=self.parameters('delta'),
                           iteration=self.parameters('iteration'),
                           cost_fn=self.iLqr_instance.cost_fn,
+                          dynamics_model_train_iter=self.parameters('dynamics_model_train_iter'),
                           dynamics=dynamics)
 
     def init(self, source_obj=None):
