@@ -3,6 +3,7 @@ from baconian.core.status import StatusWithSubInfo
 import abc
 from typeguard import typechecked
 from baconian.common.logging import Recorder
+from baconian.core.parameters import Parameters
 
 
 class Algo(Basic):
@@ -25,6 +26,7 @@ class Algo(Basic):
 
         super().__init__(status=StatusWithSubInfo(obj=self), name=name)
         self.env_spec = env_spec
+        self.parameters = Parameters(dict())
         self.recorder = Recorder()
 
     def init(self):

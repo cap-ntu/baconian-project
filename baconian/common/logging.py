@@ -10,6 +10,7 @@ from baconian.common import files as files
 from baconian.core.global_var import get_all
 from baconian.config.global_config import GlobalConfig
 from functools import wraps
+
 """
 Logger Module
 1. a global console output file
@@ -61,10 +62,9 @@ class _SingletonConsoleLogger(BaseLogger):
             self.logger.removeHandler(handler)
             self.logger.root.removeHandler(handler)
 
-        self.logger.addHandler(logging.StreamHandler()) #to console
-
+        self.logger.addHandler(logging.StreamHandler())
         if to_file_flag is True:
-            self.logger.addHandler(logging.FileHandler(filename=to_file_name)) #to json file
+            self.logger.addHandler(logging.FileHandler(filename=to_file_name))
         for handler in self.logger.root.handlers[:] + self.logger.handlers[:]:
             handler.setFormatter(fmt=logging.Formatter(fmt=GlobalConfig().DEFAULT_LOGGING_FORMAT))
             handler.setLevel(getattr(logging, level))
@@ -324,12 +324,6 @@ class Recorder(object):
 
     def flush(self):
         Logger().flush_recorder(recorder=self)
-
-    # def save_snapshot_status(self) -> dict:
-    #     status_dict = {}
-    #     for obj in self._obj_log:
-    #         status_dict[obj.name] = deepcopy(obj.get_status())
-    #     return status_dict
 
     def _record_by_getter(self):
         for key, obj_dict in self._registered_log_attr_by_get_dict.items():

@@ -50,24 +50,24 @@ def mountiancar_task_fn():
                   algo=ddpg,
                   exploration_strategy=None,
                   noise_adder=AgentActionNoiseWrapper(noise=OUNoise(),
-                                                      noise_weight_scheduler=LinearSchedule(initial_p=1.0,
-                                                                                            final_p=0.0,
-                                                                                            schedule_timesteps=
+                                                      noise_weight_scheduler=LinearScheduler(initial_p=1.0,
+                                                                                             final_p=0.0,
+                                                                                             schedule_timesteps=
                                                                                             exp_config[
                                                                                                 'DEFAULT_EXPERIMENT_END_POINT'][
                                                                                                 'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'],
-                                                                                            t_fn=lambda: get_global_status_collect()(
+                                                                                             t_fn=lambda: get_global_status_collect()(
                                                                                                 'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
-                                                                                            ),
-                                                      action_weight_scheduler=LinearSchedule(initial_p=0.0,
-                                                                                             final_p=1.0,
-                                                                                             schedule_timesteps=
+                                                                                             ),
+                                                      action_weight_scheduler=LinearScheduler(initial_p=0.0,
+                                                                                              final_p=1.0,
+                                                                                              schedule_timesteps=
                                                                                              exp_config[
                                                                                                  'DEFAULT_EXPERIMENT_END_POINT'][
                                                                                                  'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'],
-                                                                                             t_fn=lambda: get_global_status_collect()(
+                                                                                              t_fn=lambda: get_global_status_collect()(
                                                                                                  'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
-                                                                                             ), ),
+                                                                                              ), ),
                   name=name + '_agent')
 
     flow = TrainTestFlow(train_sample_count_func=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),

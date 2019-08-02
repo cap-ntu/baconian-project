@@ -4,7 +4,7 @@ from baconian.config.global_config import GlobalConfig
 from overrides.overrides import overrides
 from typeguard import typechecked
 import os
-from baconian.common.schedules import Schedule
+from baconian.common.schedules import Scheduler
 import numpy as np
 from copy import deepcopy
 
@@ -209,7 +209,7 @@ class ParametersWithTensorflowVariable(Parameters):
             target_dict[key] = deepcopy(val)
 
     @typechecked
-    def set_scheduler(self, param_key: str, scheduler: Schedule, to_tf_ph_flag=True):
+    def set_scheduler(self, param_key: str, scheduler: Scheduler, to_tf_ph_flag=True):
         ori_val = self(param_key)
         if to_tf_ph_flag is True:
             self.to_tf_ph(key=param_key,

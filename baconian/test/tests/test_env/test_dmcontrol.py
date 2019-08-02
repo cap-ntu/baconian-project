@@ -1,14 +1,9 @@
-from baconian.test.tests.set_up.setup import TestWithLogSet
+from baconian.envs.dmcontrol_env import DMControlEnv, have_mujoco_flag
+import unittest
 
 
-class TestEnv(TestWithLogSet):
+class TestEnv(unittest.TestCase):
     def test_dmcontrol_env(self):
-        have_mujoco_flag = True
-        try:
-            from dm_control import mujoco
-        except Exception:
-            have_mujoco_flag = False
-
         if have_mujoco_flag:
             from baconian.envs.dmcontrol_env import DMControlEnv
             a = DMControlEnv('cartpole', 'swingup')

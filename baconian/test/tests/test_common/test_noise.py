@@ -12,14 +12,14 @@ def get_t():
 
 class TestNoise(BaseTestCase):
     def test_all_noise(self):
-        action_w = LinearSchedule(t_fn=get_t,
+        action_w = LinearScheduler(t_fn=get_t,
+                                   schedule_timesteps=100,
+                                   final_p=1.0,
+                                   initial_p=0.0)
+        noise_w = LinearScheduler(t_fn=get_t,
+                                  final_p=0.0,
                                   schedule_timesteps=100,
-                                  final_p=1.0,
-                                  initial_p=0.0)
-        noise_w = LinearSchedule(t_fn=get_t,
-                                 final_p=0.0,
-                                 schedule_timesteps=100,
-                                 initial_p=1.0)
+                                  initial_p=1.0)
 
         noise_wrapper = AgentActionNoiseWrapper(noise=OUNoise(),
                                                 action_weight_scheduler=action_w,

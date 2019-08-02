@@ -1,6 +1,6 @@
 from baconian.test.tests.set_up.setup import BaseTestCase
 from baconian.core.experiment_runner import single_exp_runner, duplicate_exp_runner
-from baconian.common.schedules import LinearSchedule
+from baconian.common.schedules import LinearScheduler
 from baconian.config.global_config import GlobalConfig
 import os
 
@@ -43,7 +43,7 @@ class TestExperiment(BaseTestCase):
                 exp = self.create_exp(name='model_free', env=env, agent=agent)
                 algo.parameters.set_scheduler(param_key='LEARNING_RATE',
                                               to_tf_ph_flag=True,
-                                              scheduler=LinearSchedule(
+                                              scheduler=LinearScheduler(
                                                   t_fn=exp.TOTAL_ENV_STEP_TRAIN_SAMPLE_COUNT,
                                                   schedule_timesteps=GlobalConfig().DEFAULT_EXPERIMENT_END_POINT[
                                                       'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'],

@@ -166,7 +166,9 @@ class Dict(Space):
         :param space:
         :return:
         """
-        if not isinstance(space, Box):
+        from gym.spaces.box import Box as GymBox
+
+        if not isinstance(space, GymBox):
             raise TypeError('space is not of type Box')
         high = np.ones_like(space.low)
         low = -1 * np.ones_like(space.high)

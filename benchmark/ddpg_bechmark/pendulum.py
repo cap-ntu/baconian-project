@@ -49,8 +49,8 @@ def pendulum_task_fn():
                   algo=ddpg,
                   exploration_strategy=None,
                   noise_adder=AgentActionNoiseWrapper(noise=NormalActionNoise(),
-                                                      noise_weight_scheduler=ConstantSchedule(value=0.3),
-                                                      action_weight_scheduler=ConstantSchedule(value=1.0)),
+                                                      noise_weight_scheduler=ConstantScheduler(value=0.3),
+                                                      action_weight_scheduler=ConstantScheduler(value=1.0)),
                   name=name + '_agent')
 
     flow = TrainTestFlow(train_sample_count_func=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),

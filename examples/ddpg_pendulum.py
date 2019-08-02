@@ -16,6 +16,7 @@ from baconian.common.schedules import PeriodicalEventSchedule
 import baconian.common.log_data_loader as loader
 from pathlib import Path
 
+
 def task_fn():
     env = make('Pendulum-v0')
     name = 'demo_exp'
@@ -71,8 +72,6 @@ def task_fn():
         config_or_config_dict={
             "REPLAY_BUFFER_SIZE": 10000,
             "GAMMA": 0.999,
-            "Q_NET_L1_NORM_SCALE": 0.01,
-            "Q_NET_L2_NORM_SCALE": 0.01,
             "CRITIC_LEARNING_RATE": 0.001,
             "ACTOR_LEARNING_RATE": 0.001,
             "DECAY": 0.5,
