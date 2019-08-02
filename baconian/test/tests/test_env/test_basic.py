@@ -28,10 +28,11 @@ class TestEnv(TestWithLogSet):
             try:
                 env = make(id)
                 type_list.append(type(env).__name__)
-                env.reset()
-                st = env.get_state()
+                st = env.reset()
                 self.assertTrue(env.observation_space.contains(st))
                 assert env.observation_space.contains(st)
-            except BaseException:
+            except Exception:
                 print("{} is not found".format(id))
+            else:
+                print("{} is found".format(id))
         print(set(type_list))
