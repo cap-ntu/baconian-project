@@ -11,5 +11,6 @@ New dynamics model in Baconian project are supposed to implement the methods and
     :lines: 19-158
 
 
+
 Similar to algorithms, dynamics models are categorized in ``baconian/algo/dynamics/dynamics_model.py``,
 such as ``GlobalDynamicsModel`` and ``DifferentiableDynamics``.
