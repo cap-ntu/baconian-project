@@ -2,7 +2,7 @@ from baconian.common.spaces.base import Space
 import numpy as np
 from typeguard import typechecked
 from baconian.core.parameters import Parameters
-from baconian.common.schedules import Schedule
+from baconian.common.schedules import Scheduler
 
 
 class ExplorationStrategy(object):
@@ -15,7 +15,7 @@ class ExplorationStrategy(object):
 
 class EpsilonGreedy(ExplorationStrategy):
     @typechecked
-    def __init__(self, action_space: Space, init_random_prob: float, prob_scheduler: Schedule = None):
+    def __init__(self, action_space: Space, init_random_prob: float, prob_scheduler: Scheduler = None):
         super(ExplorationStrategy, self).__init__()
 
         self.action_space = action_space

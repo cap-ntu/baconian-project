@@ -3,8 +3,6 @@ from baconian.test.tests.set_up.setup import BaseTestCase
 from baconian.common.error import *
 from baconian.algo.dynamics.reward_func.reward_func import RandomRewardFunc
 from baconian.core.core import Basic
-from baconian.common.error import *
-
 
 class TestCore(BaseTestCase):
     def test_global_config(self):

@@ -3,9 +3,6 @@
 Baconian API Reference
 ======================
 
-(API reference is under construction)
--------------------------------------
-
 .. toctree::
     :maxdepth: 3
     :caption: Baconian API Reference:

@@ -2,7 +2,7 @@ from baconian.config.global_config import GlobalConfig
 from baconian.test.tests.set_up.setup import TestWithLogSet
 import numpy as np
 from baconian.core.parameters import Parameters
-from baconian.common.schedules import LinearSchedule, PiecewiseSchedule, PeriodicalEventSchedule
+from baconian.common.schedules import LinearScheduler, PiecewiseScheduler, PeriodicalEventSchedule
 
 x = 0
 
@@ -55,15 +55,15 @@ class TestParam(TestWithLogSet):
                        source_config=source_config,
                        name='test_params',
                        to_scheduler_param_tuple=(dict(param_key='param2',
-                                                      scheduler=LinearSchedule(t_fn=func,
-                                                                               schedule_timesteps=10,
-                                                                               final_p=0.0)),
+                                                      scheduler=LinearScheduler(t_fn=func,
+                                                                                schedule_timesteps=10,
+                                                                                final_p=0.0)),
                                                  dict(param_key='param4',
-                                                      scheduler=PiecewiseSchedule(t_fn=func,
-                                                                                  endpoints=(
+                                                      scheduler=PiecewiseScheduler(t_fn=func,
+                                                                                   endpoints=(
                                                                                       (2, 0.5), (8, 0.2), (10, 0.0)),
-                                                                                  outside_value=0.0,
-                                                                                  ))))
+                                                                                   outside_value=0.0,
+                                                                                   ))))
         a.init()
         for i in range(20):
             global x

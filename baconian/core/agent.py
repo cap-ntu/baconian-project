@@ -11,7 +11,7 @@ from baconian.core.status import register_counter_info_to_status_decorator
 from baconian.core.util import init_func_arg_record_decorator
 from baconian.common.logging import ConsoleLogger
 from baconian.common.sampler.sample_data import TransitionData, TrajectoryData
-from baconian.common.schedules import EventSchedule
+from baconian.common.schedules import EventScheduler
 from baconian.common.noise import AgentActionNoiseWrapper
 from baconian.core.parameters import Parameters
 
@@ -31,7 +31,7 @@ class Agent(Basic):
                  sampler: Sampler = None,
                  noise_adder: AgentActionNoiseWrapper = None,
                  exploration_strategy: ExplorationStrategy = None,
-                 algo_saving_scheduler: EventSchedule = None):
+                 algo_saving_scheduler: EventScheduler = None):
         """
 
         :param name: the name of the agent instance

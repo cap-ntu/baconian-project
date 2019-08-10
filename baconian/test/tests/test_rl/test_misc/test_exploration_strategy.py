@@ -1,6 +1,6 @@
 from baconian.algo.misc import EpsilonGreedy
 from baconian.test.tests.set_up.setup import TestWithAll
-from baconian.common.schedules import LinearSchedule
+from baconian.common.schedules import LinearScheduler
 
 x = 0
 
@@ -28,8 +28,8 @@ class TestExplorationStrategy(TestWithAll):
 
         dqn.init()
         eps = EpsilonGreedy(action_space=dqn.env_spec.action_space,
-                            prob_scheduler=LinearSchedule(initial_p=1.0, t_fn=func, schedule_timesteps=10,
-                                                          final_p=0.0),
+                            prob_scheduler=LinearScheduler(initial_p=1.0, t_fn=func, schedule_timesteps=10,
+                                                           final_p=0.0),
                             init_random_prob=1.0)
         st = env.reset()
         for i in range(10):

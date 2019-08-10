@@ -3,7 +3,7 @@ From openai baselines
 """
 import numpy as np
 from typeguard import typechecked
-from baconian.common.schedules import Schedule
+from baconian.common.schedules import Scheduler
 
 
 class AdaptiveParamNoiseSpec(object):
@@ -95,7 +95,7 @@ class AgentActionNoiseWrapper(object):
     INJECT_TYPE = ['WEIGHTED_DECAY', '']
 
     @typechecked
-    def __init__(self, noise: ActionNoise, action_weight_scheduler: Schedule, noise_weight_scheduler: Schedule):
+    def __init__(self, noise: ActionNoise, action_weight_scheduler: Scheduler, noise_weight_scheduler: Scheduler):
         self.action_weight_scheduler = action_weight_scheduler
         self.noise_weight_scheduler = noise_weight_scheduler
         self.noise = noise

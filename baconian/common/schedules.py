@@ -12,7 +12,7 @@ from baconian.common.error import *
 from baconian.common.logging import ConsoleLogger
 
 
-class Schedule(object):
+class Scheduler(object):
     def __init__(self):
         self.final_p = None
         self.initial_p = None
@@ -22,7 +22,7 @@ class Schedule(object):
         raise NotImplementedError()
 
 
-class ConstantSchedule(Schedule):
+class ConstantScheduler(Scheduler):
     def __init__(self, value):
         """Value remains constant over time.
 
@@ -32,7 +32,7 @@ class ConstantSchedule(Schedule):
             Constant value of the schedule
         """
         self._v = value
-        Schedule.__init__(self)
+        Scheduler.__init__(self)
 
     def value(self):
         """See Schedule.value"""
@@ -43,7 +43,7 @@ def linear_interpolation(l, r, alpha):
     return l + alpha * (r - l)
 
 
-class PiecewiseSchedule(Schedule):
+class PiecewiseScheduler(Scheduler):
     def __init__(self, endpoints, t_fn, interpolation=linear_interpolation, outside_value=None):
         """Piecewise schedule.
 
@@ -65,7 +65,7 @@ class PiecewiseSchedule(Schedule):
         """
         idxes = [e[0] for e in endpoints]
         assert idxes == sorted(idxes)
-        Schedule.__init__(self)
+        Scheduler.__init__(self)
 
         self._interpolation = interpolation
         self._outside_value = outside_value
@@ -86,7 +86,7 @@ class PiecewiseSchedule(Schedule):
         return self._outside_value
 
 
-class LinearSchedule(Schedule):
+class LinearScheduler(Scheduler):
     @typechecked
     def __init__(self, t_fn, schedule_timesteps: int, final_p: float, initial_p=1.0):
         """Linear interpolation between initial_p and final_p over
@@ -103,7 +103,7 @@ class LinearSchedule(Schedule):
         final_p: float
             final output value
         """
-        Schedule.__init__(self)
+        Scheduler.__init__(self)
         self.schedule_timesteps = schedule_timesteps
         self.final_p = final_p
         self.initial_p = initial_p
@@ -117,12 +117,12 @@ class LinearSchedule(Schedule):
         return self.initial_p + fraction * (self.final_p - self.initial_p)
 
 
-class EventSchedule(Schedule):
+class EventScheduler(Scheduler):
     def value(self) -> bool:
         return False
 
 
-class PeriodicalEventSchedule(EventSchedule):
+class PeriodicalEventSchedule(EventScheduler):
     """
     Trigger an event with certain scheduled period
     """

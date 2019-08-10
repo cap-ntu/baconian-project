@@ -16,10 +16,9 @@ offered.
 
 
 ### Release news:
+- 2019.7.30 Release the v0.2.0, updated full API documentations, added visualization module.
 - 2019.6.23 Released the v0.1.5, added data pre-processing module, added support for more Gym environment (Roboschool, Atari) and deep mind control suit.
-- 2019.4.26 We just finished our demo paper to introduce Baconian: https://arxiv.org/abs/1904.10762
-- 2019.4.4 Released the v0.1.4. Added benchmark results on DDPG, visualization of results will be given later. 
-Fixed some bugs. 
+
 
 For previous news, please go [here](./old_news.md) 
 
@@ -27,13 +26,12 @@ For previous news, please go [here](./old_news.md)
 Documentation is available at http://baconian-public.readthedocs.io/
 ### TODO and Road Map
 Currently, the project is under activate development. We are working towards a stable 1.0 version. Details of the road map 
-and future plans will be released as soon as possible. 
+and future plan will be released as soon as possible. 
 
 Currently we are working on
-- [ ] Visualization module
-- [ ] Simplify flow module
-- [ ] State-of-art model-based algorithms: PILCO, GPS etc.
+- [ ] Simplified flow module
 - [ ] Latent-space method supporting.
+- [ ] General Ensemble method 
 
 
 ### Acknowledgement 

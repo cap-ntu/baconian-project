@@ -103,6 +103,6 @@ venv.bak/
 # mypy
 .mypy_cache/
 .idea/
-examples/log_path
+examples/log_path*
 benchmark/benchmark_log
 log_path/
