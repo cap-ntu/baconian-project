@@ -2,7 +2,7 @@ Installation Guide
 ==================
 
 Baconian is easy to install. We offer the pip requirement file to install required packages. Make sure
-your machine have python 3.5.
+your machine have python 3.5, 3.6, or 3.7 with Ubuntu 16.04, 18.04 (recommend).
 
 
 1. We recommend you to use anaconda to manage your package and environment, since installing the required packages may
@@ -32,11 +32,17 @@ Then you are free to go. You can either use the Baconian as a third party packag
 directly modify it. If you want to use the full environments of gym, e.g., `Mujoco <http://www.mujoco.org>`_,
 please refer to its  page to obtain the license and library. Then install the requirements
 (you may need to re-install gym after that.)
-
 3. Support for mujoco, gym mujoco and DeepMind control suit
-If you want to utilize mujoco based environments in Gym and DeepMind control suit, you should follow this instruction in mujoco-py_
+If you want to utilize mujoco based environments in Gym and DeepMind Control Suit, you should follow this instruction in mujoco-py_ to get the mujoco license and install the muoco-py.
 
-.. _mujoco-py:: https://github.com/openai/mujoco-py to get the mujoco license and install the muoco-py.
+.. _mujoco-py: https://github.com/openai/mujoco-py/#requirements
+
+Then reinstall the gym by:
+
+.. code-block:: bash
+
+    pip install 'gym[all]'
+
 
 For DeepMind control suit, you should install it by:
 
@@ -45,7 +51,7 @@ For DeepMind control suit, you should install it by:
     pip install git+git://github.com/deepmind/dm_control.git
 
 And for the different default mujoco key and mujoco binaries for mujoco-py and DeepMind control suit, please follow the setting of mujoco-py and we will
-take care of the setting for DeepMind control at runtime.
+take care of the setting for DeepMind Control Suit at runtime.
 
 4. We have implemented many examples, you may try them first at :doc:`Examples <examples>`
 

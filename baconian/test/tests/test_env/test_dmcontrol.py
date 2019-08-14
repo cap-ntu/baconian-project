@@ -1,4 +1,4 @@
-from baconian.envs.dmcontrol_env import DMControlEnv, have_mujoco_flag
+from baconian.envs.dmcontrol_env import have_mujoco_flag
 import unittest
 
 

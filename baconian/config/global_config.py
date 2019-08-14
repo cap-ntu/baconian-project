@@ -60,6 +60,8 @@ class _SingletonDefaultGlobalConfig(object):
                                         TOTAL_AGENT_TEST_SAMPLE_COUNT=None,
                                         TOTAL_AGENT_UPDATE_COUNT=None)
 
+    DEFAULT_TURN_OFF_GLOBAL_NAME_FLAG = False
+
     # For internal use
     SAMPLE_TYPE_SAMPLE_TRANSITION_DATA = 'transition_data'
     SAMPLE_TYPE_SAMPLE_TRAJECTORY_DATA = 'trajectory_data'
