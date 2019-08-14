@@ -88,7 +88,7 @@ class MEPPO(ModelBasedAlgo):
 
     @register_counter_info_to_status_decorator(increment=1, info_key='test_counter', under_status='TEST')
     def test(self, *arg, **kwargs):
-        super().test(*arg, **kwargs)
+        return super().test(*arg, **kwargs)
 
     def validate(self, *args, **kwargs):
         old_result = self.result
