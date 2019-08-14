@@ -25,7 +25,7 @@ class GaussianProcessDyanmicsModel(LocalDyanmicsModel, TrainableDyanmicsModel):
                  gp_kernel_type='RBF'):
         if gp_kernel_type not in self.kernel_type_dict.keys():
             raise TypeError(
-                'Not supported {} kernel, choose from'.format(gp_kernel_type, list(self.kernel_type_dict.keys())))
+                'Not supported {} kernel, choose from {}'.format(gp_kernel_type, list(self.kernel_type_dict.keys())))
         parameters = ParametersWithTensorflowVariable(tf_var_list=[],
                                                       rest_parameters=dict(),
                                                       name='{}_param'.format(name),

@@ -75,7 +75,6 @@ def task_fn():
     experiment.run()
 
 
-
 from baconian.core.experiment_runner import *
 
 GlobalConfig().set('DEFAULT_LOG_PATH', './log_path2')

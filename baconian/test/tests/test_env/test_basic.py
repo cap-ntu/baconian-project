@@ -21,18 +21,19 @@ class TestEnv(TestWithLogSet):
                 a.reset()
                 self.assertEqual(a._last_reset_point, a.total_step_count_fn())
                 self.assertEqual(a._last_reset_point, i + 1)
-
-    def test_all_get_state(self):
-        type_list = []
-        for id in GymEnv._all_gym_env_id:
-            try:
-                env = make(id)
-                type_list.append(type(env).__name__)
-                st = env.reset()
-                self.assertTrue(env.observation_space.contains(st))
-                assert env.observation_space.contains(st)
-            except Exception:
-                print("{} is not found".format(id))
-            else:
-                print("{} is found".format(id))
-        print(set(type_list))
+    # def test_all_get_state(self):
+    #     type_list = []
+    #     for id in GymEnv._all_gym_env_id:
+    #         try:
+    #             print(id)
+    #             env = make(id)
+    #             type_list.append(type(env).__name__)
+    #             st = env.reset()
+    #             self.assertTrue(env.observation_space.contains(st))
+    #             assert env.observation_space.contains(st)
+    #             del env
+    #         except Exception:
+    #             print("{} is not found".format(id))
+    #         else:
+    #             print("{} is found".format(id))
+    #     print(set(type_list))
