@@ -1,7 +1,10 @@
 from baconian.algo.dynamics.dynamics_model import DynamicsModel
 from typeguard import typechecked
+
+from baconian.algo.dynamics.mlp_dynamics_model import ContinuousMLPGlobalDynamicsModel
 from baconian.config.dict_config import DictConfig
 from baconian.common.sampler.sample_data import TransitionData
+from baconian.core.ensemble import ModelEnsemble
 from baconian.core.parameters import Parameters
 from baconian.config.global_config import GlobalConfig
 from baconian.algo.rl_algo import ModelFreeAlgo, ModelBasedAlgo
@@ -13,20 +16,22 @@ from baconian.algo.misc.placeholder_input import PlaceholderInput
 import os
 
 
-class Dyna(ModelBasedAlgo):
+class MEPPO(ModelBasedAlgo):
     """
-    Dyna algorithms, Sutton, R. S. (1991).
-    You can replace the dynamics model with any dynamics models you want.
+    Model Ensemble, Proximal Policy Optimisation
+
     """
     required_key_dict = DictConfig.load_json(file_path=GlobalConfig().DEFAULT_ALGO_DYNA_REQUIRED_KEY_LIST)
 
     @init_func_arg_record_decorator()
     @typechecked
-    def __init__(self, env_spec, dynamics_model: DynamicsModel,
+    def __init__(self, env_spec, dynamics_model: ModelEnsemble,
                  model_free_algo: ModelFreeAlgo,
                  config_or_config_dict: (DictConfig, dict),
                  name='sample_with_dynamics'
                  ):
+        if not isinstance(dynamics_model.model[0], ContinuousMLPGlobalDynamicsModel):
+            raise TypeError("Model ensemble elements should be of type ContinuousMLPGlobalDynamicsModel")
         super().__init__(env_spec, dynamics_model, name)
         config = construct_dict_config(config_or_config_dict, self)
         parameters = Parameters(parameters=dict(),
@@ -42,6 +47,9 @@ class Dyna(ModelBasedAlgo):
         self.model_free_algo = model_free_algo
         self.config = config
         self.parameters = parameters
+        self.result = list()
+        self.validation_result = [0] * len(dynamics_model)
+        self._dynamics_model.__class__ = ModelEnsemble
 
     @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='JUST_INITED')
     def init(self):
@@ -53,7 +61,7 @@ class Dyna(ModelBasedAlgo):
     @record_return_decorator(which_recorder='self')
     @register_counter_info_to_status_decorator(increment=1, info_key='train_counter', under_status='TRAIN')
     def train(self, *args, **kwargs) -> dict:
-        super(Dyna, self).train()
+        super(MEPPO, self).train()
         res_dict = {}
         batch_data = kwargs['batch_data'] if 'batch_data' in kwargs else None
         if 'state' in kwargs:
@@ -81,6 +89,21 @@ class Dyna(ModelBasedAlgo):
     @register_counter_info_to_status_decorator(increment=1, info_key='test_counter', under_status='TEST')
     def test(self, *arg, **kwargs):
         return super().test(*arg, **kwargs)
+
+    def validate(self, *args, **kwargs):
+        old_result = self.result
+        self.validation_result = 0
+        for a in range(len(self._dynamics_model)):
+            individual_model = self._dynamics_model.model[a]
+            env = individual_model.return_as_env()
+            new_state, reward, terminal, () = env.step(self, *args, **kwargs)
+            self.result[a] = reward
+            if reward > old_result[a]:
+                self.validation_result += 1
+
+        self.validation_result = self.validation_result / len(self._dynamics_model)
+
+        return self.validation_result
 
     @register_counter_info_to_status_decorator(increment=1, info_key='predict_counter')
     def predict(self, obs, **kwargs):

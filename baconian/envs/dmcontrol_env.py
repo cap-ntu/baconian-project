@@ -1,38 +1,12 @@
-import os
-import platform
-
-from pathlib import Path
 from baconian.core.core import Env, EnvSpec
-
-_PLATFORM = platform.system()
-try:
-    _PLATFORM_SUFFIX = {
-        "Linux": "linux",
-        "Darwin": "macos",
-        "Windows": "win64"
-    }[_PLATFORM]
-except KeyError:
-    raise OSError("Unsupported platform: {}".format(_PLATFORM))
-
-os.environ['LD_LIBRARY_PATH'] = os.environ.get('LD_LIBRARY_PATH', '') \
-                                + ':' + str(Path.home()) + '/.mujoco/mujoco200_{}/bin'.format(_PLATFORM_SUFFIX)
-os.environ['MUJOCO_PY_MUJOCO_PATH'] = os.environ.get('MUJOCO_PY_MUJOCO_PATH', '') \
-                                      + str(Path.home()) + '/.mujoco/mujoco200_{}'.format(_PLATFORM_SUFFIX)
-
-os.environ['MUJOCO_PY_MUJOCO_PATH'] = str(Path.home()) + '/.mujoco/mujoco200_{}'.format(_PLATFORM_SUFFIX)
-
-# TODO disable the rendering temporarily
-os.environ['DISABLE_MUJOCO_RENDERING'] = '1'
 
 have_mujoco_flag = True
 try:
     from dm_control import mujoco
     from gym.envs.mujoco import mujoco_env
     from dm_control import suite
-
     from dm_control.rl.specs import ArraySpec
     from dm_control.rl.specs import BoundedArraySpec
-
     from collections import OrderedDict
 except Exception:
     have_mujoco_flag = False
