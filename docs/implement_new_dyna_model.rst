@@ -8,7 +8,7 @@ New dynamics model in Baconian project are supposed to implement the methods and
 .. literalinclude:: ../baconian/algo/dynamics/dynamics_model.py
     :linenos:
     :language: python
-    :lines: 19-86
+    :lines: 19-158
 
 
 Similar to algorithms, dynamics models are categorized in ``baconian/algo/dynamics/dynamics_model.py``,

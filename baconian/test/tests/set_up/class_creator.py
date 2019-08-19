@@ -550,6 +550,7 @@ class ClassCreatorSetup(unittest.TestCase):
                             delta=0.0005,
                             iteration=5,
                             dynamics=dyna,
+                            dynamics_model_train_iter=1,
                             cost_fn=DebuggingCostFunc())
         return policy, locals()
 

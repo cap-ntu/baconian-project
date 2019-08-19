@@ -1,0 +1,18 @@
+{
+  "include": [
+      "baconian",
+      "benchmark",
+      "examples"
+  ],
+  "exclude": [
+
+  ],
+
+  "reportTypeshedErrors": false,
+  "reportMissingImports": true,
+  "reportMissingTypeStubs": false,
+
+  "pythonVersion": "3.5",
+  "pythonPlatform": "Linux"
+
+}

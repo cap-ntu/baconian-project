@@ -49,7 +49,7 @@ class Agent(Basic):
         :param exploration_strategy: exploration strategy in action space
         :type exploration_strategy: ExplorationStrategy
         :param algo_saving_scheduler: control the schedule the varying parameters in training process
-        :type algo_saving_scheduler: EventScheduler
+        :type algo_saving_scheduler: EventSchedule
         """
         super(Agent, self).__init__(name=name, status=StatusWithSubInfo(self))
         self.parameters = Parameters(parameters=dict())
