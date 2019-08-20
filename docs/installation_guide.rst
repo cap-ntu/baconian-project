@@ -2,7 +2,7 @@ Installation Guide
 ==================
 
 Baconian is easy to install. We offer the pip requirement file to install required packages. Make sure
-your machine have python 3.5, 3.6, or 3.7 with Ubuntu 16.04, 18.04 (recommend).
+your machine have python 3.5, 3.6, or 3.7 with Ubuntu 16.04, 18.04 (recommend python 3.5 and ubuntu 16.04).
 
 
 1. We recommend you to use anaconda to manage your package and environment, since installing the required packages may
