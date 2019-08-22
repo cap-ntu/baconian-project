@@ -38,6 +38,7 @@ class RingBuffer(object):
 
 def array_min2d(x):
     x = np.array(x)
+
     if x.ndim >= 2:
         return x
     return x.reshape(-1, 1)
@@ -80,7 +81,6 @@ class BaseReplayBuffer(object):
 
 
 class UniformRandomReplayBuffer(BaseReplayBuffer):
-
     def __init__(self, limit, action_shape, observation_shape):
         super().__init__(limit, action_shape, observation_shape)
 
@@ -88,6 +88,60 @@ class UniformRandomReplayBuffer(BaseReplayBuffer):
         if self.nb_entries < batch_size:
             raise MemoryBufferLessThanBatchSizeError()
 
+        batch_idxs = np.random.randint(self.nb_entries - 2, size=batch_size)
+        pass
+
+        obs0_batch = self.observations0.get_batch(batch_idxs)
+        obs1_batch = self.observations1.get_batch(batch_idxs)
+        action_batch = self.actions.get_batch(batch_idxs)
+        reward_batch = self.rewards.get_batch(batch_idxs)
+        terminal1_batch = self.terminals1.get_batch(batch_idxs)
+
+        result = {
+            'obs0': array_min2d(obs0_batch),
+            'obs1': array_min2d(obs1_batch),
+            'rewards': array_min2d(reward_batch),
+            'actions': array_min2d(action_batch),
+            'terminals1': array_min2d(terminal1_batch),
+        }
+
+        res = TransitionData(obs_shape=self.obs_shape, action_shape=self.action_shape)
+        for obs0, obs1, action, terminal, re in zip(result['obs0'], result['obs1'], result['actions'],
+                                                    result['terminals1'], result['rewards']):
+            res.append(state=obs0, new_state=obs1, action=action, done=terminal, reward=re)
+        return res
+        pass
+
+
+class PrioritisedReplayBuffer(BaseReplayBuffer):
+    def __init__(self, limit, action_shape, observation_shape, alpha, beta, beta_increment):
+        super().__init__(limit, action_shape, observation_shape)
+
+        it_capacity = 1
+        while it_capacity < limit:
+            it_capacity *= 2
+
+        assert alpha >= 0
+        self.alpha = alpha
+        self.beta = beta
+        self.beta_increment = beta_increment
+        self.max_priority = 1.0
+
+    def update_priorities(self, idxes, priorities):
+        assert len(idxes) == len(priorities)
+        for idx, priority in zip(idxes, priorities):
+            assert priority > 0
+            assert 0 <= idx < len(self.observations0)
+            self.it_sum[idx] = priority ** self.alpha
+            self.it_min[idx] = priority ** self.alpha
+
+            self.max_priority = max(self.max_priority, priority)
+
+    def sample(self, batch_size) -> SampleData:
+        if self.nb_entries < batch_size:
+            raise MemoryBufferLessThanBatchSizeError()
+
+        # todo This will be changed to prioritised
         batch_idxs = np.random.randint(self.nb_entries - 2, size=batch_size)
 
         obs0_batch = self.observations0.get_batch(batch_idxs)
