@@ -23,6 +23,7 @@ offered.
 For previous news, please go [here](./old_news.md) 
 
 ### Documentation
+We support python 3.5, 3.6, and 3.7 with Ubuntu 16.04 or 18.04.
 Documentation is available at http://baconian-public.readthedocs.io/
 ### TODO and Road Map
 Currently, the project is under activate development. We are working towards a stable 1.0 version. Details of the road map 

@@ -21,7 +21,6 @@ class TestEnv(TestWithLogSet):
                 a.reset()
                 self.assertEqual(a._last_reset_point, a.total_step_count_fn())
                 self.assertEqual(a._last_reset_point, i + 1)
-
     # def test_all_get_state(self):
     #     type_list = []
     #     for id in GymEnv._all_gym_env_id:

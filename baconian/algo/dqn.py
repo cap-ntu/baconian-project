@@ -127,7 +127,7 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
 
     @register_counter_info_to_status_decorator(increment=1, info_key='test_counter', under_status='TEST')
     def test(self, *arg, **kwargs):
-        super().test()
+        return super().test(*arg, **kwargs)
 
     @register_counter_info_to_status_decorator(increment=1, info_key='predict_counter')
     @typechecked

@@ -56,13 +56,11 @@ class Parameters(object):
     def __getitem__(self, item):
         return self.__call__(key=item)
 
-    @abc.abstractmethod
     def init(self):
         if self.to_scheduler_param_list:
             for val_dict in self.to_scheduler_param_list:
                 self.set_scheduler(**val_dict)
 
-    @abc.abstractmethod
     def copy_from(self, source_parameter):
         if not isinstance(source_parameter, type(self)):
             raise TypeError()

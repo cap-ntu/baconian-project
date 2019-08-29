@@ -3,6 +3,7 @@ from collections import Hashable
 from baconian.common.error import *
 from baconian.core.global_var import get_all, reset
 from functools import wraps
+from baconian.config.global_config import GlobalConfig
 
 
 def init_func_arg_record_decorator():
@@ -36,7 +37,9 @@ def copy_globally(arg_dict, source_obj_list):
 
 def register_name_globally(name: str, obj):
     if name in get_all()['_global_name_dict'] and not id(obj) == id(
-            get_all()['_global_name_dict'][name]) and obj.allow_duplicate_name is False:
+            get_all()['_global_name_dict'][name]) and obj.allow_duplicate_name is False and \
+            get_all()['_global_name_dict'][
+                name].allow_duplicate_name is False and GlobalConfig().DEFAULT_TURN_OFF_GLOBAL_NAME_FLAG is False:
         raise GlobalNameExistedError(
             'name : {} is existed with object: {}'.format(name, get_all()['_global_name_dict'][name]))
     else:

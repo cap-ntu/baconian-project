@@ -23,6 +23,9 @@ class _SingletonDefaultGlobalConfig(object):
 
     DEFAULT_ALGO_DYNA_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS,
                                                        'dyna.json')
+
+    DEFAULT_ALGO_ME_PPO_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS,
+                                                         'meppo.json')
     DEFAULT_MODEL_FREE_PIPELINE_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS,
                                                                  'model_free_pipeline.json')
 
@@ -59,6 +62,8 @@ class _SingletonDefaultGlobalConfig(object):
     DEFAULT_EXPERIMENT_END_POINT = dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=500,
                                         TOTAL_AGENT_TEST_SAMPLE_COUNT=None,
                                         TOTAL_AGENT_UPDATE_COUNT=None)
+
+    DEFAULT_TURN_OFF_GLOBAL_NAME_FLAG = False
 
     # For internal use
     SAMPLE_TYPE_SAMPLE_TRANSITION_DATA = 'transition_data'
