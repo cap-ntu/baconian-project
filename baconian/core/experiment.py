@@ -87,7 +87,7 @@ class Experiment(Basic):
 
     def init(self):
         """ Create a new TensorFlow session, and set status to 'INITED'."""
-        create_new_tf_session(cuda_device=0)
+        create_new_tf_session()
         self.agent.init()
         self.env.init()
         self.set_status('INITED')
