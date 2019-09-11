@@ -2,6 +2,7 @@ from benchmark.ddpg_bechmark import mountiancar_task_fn, pendulum_task_fn
 from benchmark.dyna_benchmark import dyna_pendulum_task_fn
 from benchmark.mpc_benchmark import mpc_pendulum_task_fn
 from benchmark.ppo_benchmark import pendulum_task_fn as ppo_pendulum_task_fn
+from benchmark.ppo_benchmark import inverted_pendulum_task_fn
 from benchmark.iLQR_benchmark import ilqr_pendulum_task_fn
 import argparse
 import os
@@ -21,6 +22,9 @@ env_id_to_task_fn = {
     'MountainCarContinuous-v0': {
         'ddpg': mountiancar_task_fn,
 
+    },
+    'InvertedPendulum-v2': {
+        'ppo': inverted_pendulum_task_fn,
     }
 }
 alog_list = ['ddpg', 'dyna', 'mpc', 'ppo', 'ilqr']

@@ -1,1 +1,2 @@
 from benchmark.ppo_benchmark.pendulum import pendulum_task_fn
+from benchmark.ppo_benchmark.invertedPendulum import inverted_pendulum_task_fn

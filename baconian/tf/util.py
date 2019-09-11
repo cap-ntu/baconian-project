@@ -35,19 +35,19 @@ def clip_grad(optimizer, loss, clip_norm: float, var_list):
     return grad_var_pair, grad
 
 
-def create_new_tf_session(cuda_device: int, **kwargs):
+def create_new_tf_session(**kwargs):
     """Get default session or create one with a given config"""
     sess = tf.get_default_session()
     if sess is None:
-        sess = make_session(cuda_device=cuda_device, **kwargs)
+        sess = make_session(**kwargs)
     sess.__enter__()
     assert tf.get_default_session()
     return sess
 
 
-def make_session(cuda_device: int, config=None, num_cpu=None, make_default=False, graph=None):
+def make_session(config=None, num_cpu=None, make_default=False, graph=None):
     """Returns a session that will use <num_cpu> CPU's only"""
-    os.environ["CUDA_VISIBLE_DEVICES"] = str(cuda_device)
+    # os.environ["CUDA_VISIBLE_DEVICES"] = str(cuda_device)
     if num_cpu is None:
         num_cpu = int(os.getenv('RCALL_NUM_CPU', multiprocessing.cpu_count()))
     if config is None:

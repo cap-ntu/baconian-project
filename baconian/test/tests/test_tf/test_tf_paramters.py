@@ -54,7 +54,10 @@ class TestTensorflowParameters(TestWithAll):
             sess.__exit__(None, None, None)
         tf.reset_default_graph()
         print('set tf device as {}'.format(self.default_id))
-        self.sess = create_new_tf_session(cuda_device=self.default_id)
+        import os
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(self.default_id)
+
+        self.sess = create_new_tf_session()
 
         param2, _ = self.create_tf_parameters('param')
         param2.init()
