@@ -101,7 +101,7 @@ def task_fn():
                       t_fn=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
                       trigger_every_step=20,
                       after_t=10),
-                  name=name + '_agent',
+                  name=name + 'agent',
                   exploration_strategy=EpsilonGreedy(action_space=env_spec.action_space,
                                                      init_random_prob=0.5))
     flow = create_train_test_flow(
@@ -127,7 +127,14 @@ def task_fn():
     experiment.run()
 
 
-from baconian.core.experiment_runner import single_exp_runner
+from baconian.core.experiment_runner import single_exp_runner, duplicate_exp_runner
+from baconian.common.log_data_loader import SingleExpLogDataLoader, MultipleExpLogDataLoader
 
 GlobalConfig().set('DEFAULT_LOG_PATH', './log_path')
-single_exp_runner(task_fn, del_if_log_path_existed=True)
+# single_exp_runner(task_fn, del_if_log_path_existed=True)
+# duplicate_exp_runner(10, task_fn, del_if_log_path_existed=True)
+# SingleExpLogDataLoader('./log_path').plot_res(sub_log_dir_name='demo_exp_agent/TRAIN', key='average_reward', index='predict_counter',
+#                                 mode='line', average_over=1, file_name=None, save_format='png',)
+MultipleExpLogDataLoader(exp_root_dir_list='./log_path', num=10).plot_res(sub_log_dir_name='demo_exp_agent/TRAIN',
+                         key='sum_reward', index='predict_counter',
+                         mode='line', average_over=1, file_name=None, save_format='png',)
