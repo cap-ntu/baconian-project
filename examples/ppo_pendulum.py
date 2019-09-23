@@ -125,16 +125,3 @@ def task_fn():
         name=name
     )
     experiment.run()
-
-
-from baconian.core.experiment_runner import single_exp_runner, duplicate_exp_runner
-from baconian.common.log_data_loader import SingleExpLogDataLoader, MultipleExpLogDataLoader
-
-GlobalConfig().set('DEFAULT_LOG_PATH', './log_path')
-# single_exp_runner(task_fn, del_if_log_path_existed=True)
-# duplicate_exp_runner(10, task_fn, del_if_log_path_existed=True)
-# SingleExpLogDataLoader('./log_path').plot_res(sub_log_dir_name='demo_exp_agent/TRAIN', key='average_reward', index='predict_counter',
-#                                 mode='line', average_over=1, file_name=None, save_format='png',)
-MultipleExpLogDataLoader(exp_root_dir_list='./log_path', num=10).plot_res(sub_log_dir_name='demo_exp_agent/TRAIN',
-                         key='sum_reward', index='predict_counter',
-                         mode='line', average_over=1, file_name=None, save_format='png',)
