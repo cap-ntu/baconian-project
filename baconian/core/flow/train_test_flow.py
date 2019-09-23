@@ -93,7 +93,7 @@ class TrainTestFlow(Flow):
         :param train_sample_count_func: a function indicates how much training samples the agent has collected currently.
         :type train_sample_count_func: method
         :param config_or_config_dict: a Config or a dict should have the keys: (TEST_EVERY_SAMPLE_COUNT, TRAIN_EVERY_SAMPLE_COUNT, START_TRAIN_AFTER_SAMPLE_COUNT, START_TEST_AFTER_SAMPLE_COUNT)
-        :type config_or_config_dict: Config or dictTRAIN_SAMPLES_COUNT
+        :type config_or_config_dict: Config or dict
         :param func_dict: function dict, holds the keys: 'sample', 'train', 'test'. each item in the dict as also should be a dict, holds the keys 'func', 'args', 'kwargs'
         :type func_dict: dict
         """
