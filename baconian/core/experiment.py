@@ -69,6 +69,11 @@ class Experiment(Basic):
                                                                  under_status='TRAIN',
                                                                  return_name='TOTAL_AGENT_TRAIN_SAMPLE_COUNT')
             get_global_status_collect().register_info_key_status(obj=agent,
+                                                                 info_key='sample_counter',
+                                                                 under_status='TRAIN',
+                                                                 return_name='TOTAL_AGENT_TRAIN_SAMPLE_FUNC_COUNT')
+
+            get_global_status_collect().register_info_key_status(obj=agent,
                                                                  info_key='predict_counter',
                                                                  under_status='TEST',
                                                                  return_name='TOTAL_AGENT_TEST_SAMPLE_COUNT')
