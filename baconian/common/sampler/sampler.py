@@ -68,6 +68,7 @@ class Sampler(Basic):
                                    new_state=new_state,
                                    done=done)
                 state = new_state
+            done = False
             state = env.reset()
             sample_record.append(traj_record)
         return sample_record
