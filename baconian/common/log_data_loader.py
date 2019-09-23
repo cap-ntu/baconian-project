@@ -6,7 +6,7 @@ from baconian.common.error import *
 import json_tricks as json
 import pandas as pd
 from baconian.common.files import *
-from pathlib import Path
+from collections import OrderedDict
 
 
 class SingleExpLogDataLoader(object):
@@ -36,7 +36,7 @@ class SingleExpLogDataLoader(object):
         f = open(log_name, 'r')
         res_dict = json.load(f)
         key_list = res_dict[key]
-        key_value = {}
+        key_value = OrderedDict()
         key_vector = []
         index_vector = []
         for record in key_list:

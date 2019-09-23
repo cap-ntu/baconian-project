@@ -4,7 +4,7 @@ from baconian.config.dict_config import DictConfig
 from typeguard import typechecked
 from baconian.core.util import init_func_arg_record_decorator
 from baconian.tf.util import *
-from baconian.algo.misc.replay_buffer import UniformRandomReplayBuffer, BaseReplayBuffer
+from baconian.algo.misc.replay_buffer import UniformRandomReplayBuffer, BaseReplayBuffer, PrioritisedReplayBuffer
 import tensorflow as tf
 import numpy as np
 from baconian.common.sampler.sample_data import TransitionData
@@ -61,6 +61,7 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
                                                                    name='{}_targe_q_value_net'.format(name),
                                                                    reuse=False)
             self.predict_q_value = (1. - done) * self.config('GAMMA') * self.target_q_input + self.reward_input
+            self.td_error = self.predict_q_value - self.q_value_func.q_tensor
             with tf.variable_scope('train'):
                 self.q_value_func_loss, self.optimizer, self.update_q_value_func_op = self._set_up_loss()
                 self.update_target_q_value_func_op = self._set_up_target_update()
@@ -233,3 +234,16 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
             ref_val = self.parameters('DECAY') * target_var + (1.0 - self.parameters('DECAY')) * var
             op.append(tf.assign(target_var, ref_val))
         return op
+
+    def _evaluate_td_error(self, sess=None):
+        # tf_sess = sess if sess else tf.get_default_session()
+        # feed_dict = {
+        #     self.reward_input: train_data.reward_set,
+        #     self.action_input: flatten_n(self.env_spec.action_space, train_data.action_set),
+        #     self.state_input: train_data.state_set,
+        #     self.done_input: train_data.done_set,
+        #     self.target_q_input: target_q_val_on_new_s,
+        #     **self.parameters.return_tf_parameter_feed_dict()
+        # }
+        # td_loss = tf_sess.run([self.td_error], feed_dict=feed_dict)
+        pass

@@ -13,7 +13,6 @@ from baconian.core.flow.train_test_flow import TrainTestFlow
 from baconian.config.global_config import GlobalConfig
 from baconian.core.status import get_global_status_collect
 
-
 def inverted_pendulum_task_fn():
     exp_config = INVERTED_PENDULUM_BENCHMARK_CONFIG_DICT
     GlobalConfig().set('DEFAULT_EXPERIMENT_END_POINT',
@@ -41,7 +40,7 @@ def inverted_pendulum_task_fn():
         **exp_config['PPO'],
         value_func=mlp_v,
         stochastic_policy=policy,
-        name=name + 'ppo'
+        name=name + '_ppo'
     )
     agent = Agent(env=env, env_spec=env_spec,
                   algo=ppo,
@@ -49,9 +48,10 @@ def inverted_pendulum_task_fn():
                   noise_adder=None,
                   name=name + '_agent')
 
-    flow = TrainTestFlow(train_sample_count_func=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
-                         config_or_config_dict=exp_config['TrainTestFlow']['config_or_config_dict'],
-                         func_dict={
+    flow = TrainTestFlow(
+        train_sample_count_func=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_FUNC_COUNT'),
+        config_or_config_dict=exp_config['TrainTestFlow']['config_or_config_dict'],
+        func_dict={
                              'test': {'func': agent.test,
                                       'args': list(),
                                       'kwargs': dict(sample_count=exp_config['TrainTestFlow']['TEST_SAMPLES_COUNT'],
