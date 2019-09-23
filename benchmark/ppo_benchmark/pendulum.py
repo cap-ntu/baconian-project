@@ -19,7 +19,7 @@ def pendulum_task_fn():
     GlobalConfig().set('DEFAULT_EXPERIMENT_END_POINT',
                        exp_config['DEFAULT_EXPERIMENT_END_POINT'])
 
-    env = make('InvertedPendulum-v2')
+    env = make('Pendulum-v0')
     name = 'benchmark'
     env_spec = EnvSpec(obs_space=env.observation_space,
                        action_space=env.action_space)
