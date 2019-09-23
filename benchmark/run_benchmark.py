@@ -9,7 +9,6 @@ import os
 import time
 from baconian.config.global_config import GlobalConfig
 from baconian.core.experiment_runner import duplicate_exp_runner
-from baconian.common.log_data_loader import MultipleExpLogDataLoader
 
 arg = argparse.ArgumentParser()
 env_id_to_task_fn = {
