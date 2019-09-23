@@ -1,5 +1,5 @@
 PENDULUM_BENCHMARK_CONFIG_DICT = {
-    'env_id': "InvertedPendulum-v2",
+    'env_id': "Pendulum-v0",
     'MLP_V': {
         'mlp_config': [
             {
