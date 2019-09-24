@@ -294,13 +294,14 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         else:
             self.value_func_train_data_buffer.union(train_data)
         y_hat = self.value_func.forward(obs=train_data('state_set'))
-        old_exp_var = 1 - np.var(train_data('advantage_set') - y_hat) / np.var(train_data('advantage_set'))
+        old_exp_var = 1 - np.var(self.value_func_train_data_buffer('discount_set') - y_hat) / np.var(
+            self.value_func_train_data_buffer('discount_set'))
         for i in range(train_iter):
             data_gen = self.value_func_train_data_buffer.return_generator(
                 batch_size=self.parameters('value_func_train_batch_size'),
                 infinite_run=False,
                 shuffle_flag=True,
-                assigned_keys=('state_set', 'new_state_set', 'action_set', 'reward_set', 'done_set', 'advantage_set'))
+                assigned_keys=('state_set', 'new_state_set', 'action_set', 'reward_set', 'done_set', 'discount_set'))
             for batch in data_gen:
                 loss, _ = sess.run([self.value_func_loss, self.value_func_update_op],
                                    feed_dict={
@@ -308,10 +309,10 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                                        self.v_func_val_ph: batch[5],
                                        **self.parameters.return_tf_parameter_feed_dict()
                                    })
-        y_hat = self.value_func.forward(obs=train_data('state_set'))
-        loss = np.mean(np.square(y_hat - train_data('advantage_set')))
-        exp_var = 1 - np.var(train_data('advantage_set') - y_hat) / np.var(train_data('advantage_set'))
-        self.value_func_train_data_buffer = train_data
+        y_hat = self.value_func.forward(obs=self.value_func_train_data_buffer('state_set'))
+        loss = np.mean(np.square(y_hat - self.value_func_train_data_buffer('discount_set')))
+        exp_var = 1 - np.var(self.value_func_train_data_buffer('discount_set') - y_hat) / np.var(
+            self.value_func_train_data_buffer('discount_set'))
         return dict(
             value_func_loss=loss,
             value_func_policy_exp_var=exp_var,

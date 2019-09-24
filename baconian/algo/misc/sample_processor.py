@@ -38,8 +38,9 @@ class SampleProcessor(object):
         for traj in data.trajectories:
             # scale if gamma less than 1
             dis_set = traj('reward_set') * (1 - gamma) if gamma < 0.999 else traj('reward_set')
-            dis_set = discount(dis_set, gamma)
-            traj.append_new_set(name=name, data_set=make_batch(dis_set, original_shape=[]), shape=[])
+            # TODO add a unit test
+            dis_reward_set = discount(np.reshape(dis_set, [-1, ]), gamma)
+            traj.append_new_set(name=name, data_set=make_batch(dis_reward_set, original_shape=[]), shape=[])
 
     @staticmethod
     def add_estimated_v_value(data: (TrajectoryData, TransitionData), value_func: ValueFunction, name='v_value_set'):

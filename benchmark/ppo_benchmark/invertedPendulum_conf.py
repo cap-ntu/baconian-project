@@ -91,7 +91,7 @@ INVERTED_PENDULUM_BENCHMARK_CONFIG_DICT = {
             "gamma": 0.995,
             "lam": 0.98,
             "policy_train_iter": 20,
-            "value_func_train_iter": 20,
+            "value_func_train_iter": 10,
             "clipping_range": None,
             "beta": 1.0,
             "eta": 50,
@@ -109,8 +109,8 @@ INVERTED_PENDULUM_BENCHMARK_CONFIG_DICT = {
         'config_or_config_dict': {
             "TEST_EVERY_SAMPLE_COUNT": 5,
             "TRAIN_EVERY_SAMPLE_COUNT": 1,
-            "START_TRAIN_AFTER_SAMPLE_COUNT": 0,
-            "START_TEST_AFTER_SAMPLE_COUNT": 0,
+            "START_TRAIN_AFTER_SAMPLE_COUNT": 1,
+            "START_TEST_AFTER_SAMPLE_COUNT": 1000,
         }
     },
     'DEFAULT_EXPERIMENT_END_POINT': dict(TOTAL_AGENT_TRAIN_SAMPLE_FUNC_COUNT=50,
