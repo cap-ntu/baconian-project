@@ -149,7 +149,7 @@ class TransitionData(SampleData):
     def return_generator(self, batch_size=None, shuffle_flag=False, assigned_keys=None, infinite_run=False):
         if assigned_keys is None:
             assigned_keys = ('state_set', 'new_state_set', 'action_set', 'reward_set', 'done_set')
-        # todo unit test should be tested
+        # todo unit test should be tested, the dataset should not be shuffled, only the generator should be shuffled
         if shuffle_flag is True:
             self.shuffle()
         if batch_size is not None:
