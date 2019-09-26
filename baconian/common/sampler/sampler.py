@@ -20,13 +20,11 @@ class Sampler(Basic):
                sample_type='transition',
                reset_at_start=False) -> (TransitionData, TrajectoryData):
         self.set_status(in_which_status)
-        if reset_at_start is True:
-            state = env.reset()
-        else:
-            state = env.get_state()
         if sample_type == 'transition':
+            state = env.get_state()
             return self._sample_transitions(env, agent, sample_count, state)
         elif sample_type == 'trajectory':
+            state = env.reset()
             return self._sample_trajectories(env, agent, sample_count, state)
         else:
             raise ValueError()
