@@ -7,6 +7,8 @@ from baconian.algo.misc import EpsilonGreedy
 from baconian.core.experiment import Experiment
 from baconian.core.flow.train_test_flow import create_train_test_flow
 from baconian.config.global_config import GlobalConfig
+from baconian.common.schedules import LinearScheduler
+from baconian.core.status import get_global_status_collect
 
 def task_fn():
     env = make('Acrobot-v1')
@@ -55,7 +57,7 @@ def task_fn():
                                          GAMMA=0.99,
                                          BATCH_SIZE=32,
                                          LEARNING_RATE=0.001,
-                                         TRAIN_ITERATION=10,
+                                         TRAIN_ITERATION=1,
                                          DECAY=0.5),
               name=name + '_dqn',
               value_func=mlp_q)
@@ -63,14 +65,20 @@ def task_fn():
                   algo=dqn,
                   name=name + '_agent',
                   exploration_strategy=EpsilonGreedy(action_space=env_spec.action_space,
-                                                     init_random_prob=0.5))
+                                                     prob_scheduler=LinearScheduler(
+                                                         t_fn=lambda: get_global_status_collect()(
+                                                             'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
+                                                         schedule_timesteps=int(0.1 * 100000),
+                                                         initial_p=1.0,
+                                                         final_p=0.02),
+                                                     init_random_prob=0.1))
     flow = create_train_test_flow(
         test_every_sample_count=100,
         train_every_sample_count=1,
-        start_test_after_sample_count=1000,
+        start_test_after_sample_count=0,
         start_train_after_sample_count=1000,
         train_func_and_args=(agent.train, (), dict()),
-        test_func_and_args=(agent.test, (), dict(sample_count=1, sample_trajectory_flag=True)),
+        test_func_and_args=(agent.test, (), dict(sample_count=3, sample_trajectory_flag=True)),
         sample_func_and_args=(agent.sample, (), dict(sample_count=1,
                                                      env=agent.env,
                                                      in_which_status='TRAIN',
