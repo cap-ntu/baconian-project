@@ -1,7 +1,7 @@
 """
-PPO bechmark on Pendulum
+PPO bechmark on Reacher
 """
-from benchmark.ppo_benchmark.pendulum_conf import *
+from benchmark.ppo_benchmark.reacher_conf import *
 from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
 from baconian.algo.value_func import MLPVValueFunc
@@ -14,12 +14,12 @@ from baconian.config.global_config import GlobalConfig
 from baconian.core.status import get_global_status_collect
 
 
-def pendulum_task_fn():
-    exp_config = PENDULUM_BENCHMARK_CONFIG_DICT
+def reacher_task_fn():
+    exp_config = REACHER_BENCHMARK_CONFIG_DICT
     GlobalConfig().set('DEFAULT_EXPERIMENT_END_POINT',
                        exp_config['DEFAULT_EXPERIMENT_END_POINT'])
 
-    env = make('Pendulum-v0')
+    env = make('Reacher-v2')
     name = 'benchmark'
     env_spec = EnvSpec(obs_space=env.observation_space,
                        action_space=env.action_space)
