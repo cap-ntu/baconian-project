@@ -4,6 +4,7 @@ from benchmark.mpc_benchmark import mpc_pendulum_task_fn
 from benchmark.ppo_benchmark import pendulum_task_fn as ppo_pendulum_task_fn
 from benchmark.ppo_benchmark import inverted_pendulum_task_fn
 from benchmark.iLQR_benchmark import ilqr_pendulum_task_fn
+from examples.dqn_acrobot_example import task_fn as dqn_acrobot_task_fn
 import argparse
 import os
 import time
@@ -25,9 +26,12 @@ env_id_to_task_fn = {
     },
     'InvertedPendulum-v2': {
         'ppo': inverted_pendulum_task_fn,
+    },
+    'Acrobot-v1': {
+        'dqn': dqn_acrobot_task_fn,
     }
 }
-alog_list = ['ddpg', 'dyna', 'mpc', 'ppo', 'ilqr']
+alog_list = ['ddpg', 'dyna', 'mpc', 'ppo', 'ilqr', 'dqn']
 
 arg.add_argument('--env_id', type=str, choices=list(env_id_to_task_fn.keys()))
 arg.add_argument('--algo', type=str, choices=alog_list)
