@@ -1,7 +1,7 @@
 """
-PPO bechmark on Pendulum
+PPO bechmark on Hopper
 """
-from benchmark.ppo_benchmark.pendulum_conf import *
+from benchmark.ppo_benchmark.hopper_conf import *
 from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
 from baconian.algo.value_func import MLPVValueFunc
@@ -13,13 +13,12 @@ from baconian.core.flow.train_test_flow import TrainTestFlow
 from baconian.config.global_config import GlobalConfig
 from baconian.core.status import get_global_status_collect
 
-
-def pendulum_task_fn():
-    exp_config = PENDULUM_BENCHMARK_CONFIG_DICT
+def hopper_task_fn():
+    exp_config = HOPPER_BENCHMARK_CONFIG_DICT
     GlobalConfig().set('DEFAULT_EXPERIMENT_END_POINT',
                        exp_config['DEFAULT_EXPERIMENT_END_POINT'])
 
-    env = make('Pendulum-v0')
+    env = make('Hopper-v2')
     name = 'benchmark'
     env_spec = EnvSpec(obs_space=env.observation_space,
                        action_space=env.action_space)
@@ -41,7 +40,7 @@ def pendulum_task_fn():
         **exp_config['PPO'],
         value_func=mlp_v,
         stochastic_policy=policy,
-        name=name + 'ppo'
+        name=name + '_ppo'
     )
     agent = Agent(env=env, env_spec=env_spec,
                   algo=ppo,
@@ -49,9 +48,10 @@ def pendulum_task_fn():
                   noise_adder=None,
                   name=name + '_agent')
 
-    flow = TrainTestFlow(train_sample_count_func=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
-                         config_or_config_dict=exp_config['TrainTestFlow']['config_or_config_dict'],
-                         func_dict={
+    flow = TrainTestFlow(
+        train_sample_count_func=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_FUNC_COUNT'),
+        config_or_config_dict=exp_config['TrainTestFlow']['config_or_config_dict'],
+        func_dict={
                              'test': {'func': agent.test,
                                       'args': list(),
                                       'kwargs': dict(sample_count=exp_config['TrainTestFlow']['TEST_SAMPLES_COUNT'],
@@ -79,4 +79,3 @@ def pendulum_task_fn():
         name=name
     )
     experiment.run()
-
