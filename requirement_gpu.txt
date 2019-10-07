@@ -39,7 +39,7 @@ autograd>=1.2
 gpflow==1.4.1
 matplotlib>=3.0.3
 seaborn>=0.9.0
-roboschool>=1.0.48
+roboschool==1.0.48
 opencv-python>=4.1.0.25
 scikit-learn>=0.21.1
 atari-py>=0.1.14
