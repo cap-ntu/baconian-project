@@ -16,6 +16,7 @@ offered.
 
 
 ### Release news:
+- 2019.10.7 Currently we are working on the benchmark test, stay tuned!
 - 2019.7.30 Release the v0.2.0, updated full API documentations, added visualization module.
 - 2019.6.23 Released the v0.1.5, added data pre-processing module, added support for more Gym environment (Roboschool, Atari) and deep mind control suit.
 
