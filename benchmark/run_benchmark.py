@@ -9,7 +9,7 @@ from benchmark.ppo_benchmark import half_cheetah_task_fn
 from benchmark.ppo_benchmark import inverted_pendulum_task_fn
 
 from benchmark.iLQR_benchmark import ilqr_pendulum_task_fn
-from examples.dqn_acrobot_example import task_fn as dqn_acrobot_task_fn
+from examples.dqn_acrobat_example import task_fn as dqn_acrobot_task_fn
 import argparse
 import os
 import time
