@@ -50,9 +50,9 @@ class Sampler(Basic):
         """
         self.set_status(in_which_status)
         state = None
-        if reset_at_start is True or (reset_at_start is None and sample_type == 'transition'):
+        if reset_at_start is True or (reset_at_start is None and sample_type == 'trajectory'):
             state = env.reset()
-        elif reset_at_start is False or (reset_at_start is None and sample_type == 'trajectory'):
+        elif reset_at_start is False or (reset_at_start is None and sample_type == 'transition'):
             state = env.get_state()
         if sample_type == 'transition':
             return self._sample_transitions(env, agent, sample_count, state)
