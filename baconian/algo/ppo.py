@@ -98,7 +98,6 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
 
     @record_return_decorator(which_recorder='self')
     @register_counter_info_to_status_decorator(increment=1, info_key='train', under_status='TRAIN')
-    @typechecked
     def train(self, trajectory_data: TrajectoryData = None, train_iter=None, sess=None) -> dict:
         super(PPO, self).train()
         if trajectory_data is None:
@@ -136,7 +135,6 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         return super().test(*arg, **kwargs)
 
     @register_counter_info_to_status_decorator(increment=1, info_key='predict')
-    @typechecked
     def predict(self, obs: np.ndarray, sess=None, batch_flag: bool = False):
         tf_sess = sess if sess else tf.get_default_session()
         obs = make_batch(obs, original_shape=self.env_spec.obs_shape)
@@ -144,7 +142,6 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         ac = self.policy.forward(obs=obs, sess=tf_sess, feed_dict=self.parameters.return_tf_parameter_feed_dict())
         return ac
 
-    @typechecked
     def append_to_memory(self, samples: SampleData):
         # todo how to make sure the data's time sequential
         iter_samples = samples.return_generator()

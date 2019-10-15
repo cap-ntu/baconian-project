@@ -82,7 +82,6 @@ class MLPCreator(object):
     }
 
     @staticmethod
-    @typechecked
     def create_network_with_tf_layers(input: tf.Tensor, network_config: list, tf_var_scope: str, net_name='',
                                       input_norm=None,
                                       output_norm=None,

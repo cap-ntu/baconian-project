@@ -188,8 +188,7 @@ class DifferentiableDynamics(object):
         for val in input_node_dict:
             self._grad_dict[0][val] = self.output_node_list
 
-    @typechecked
-    def grad_on_input_(self, key_or_node: (str, tf.Tensor), order=1, batch_flag=False):
+    def grad_on_input(self, key_or_node: (str, tf.Tensor), order=1, batch_flag=False):
         if batch_flag:
             raise NotImplementedError
         node = key_or_node if isinstance(key_or_node, tf.Tensor) else self.input_node_dict[key_or_node]

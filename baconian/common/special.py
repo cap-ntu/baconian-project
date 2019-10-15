@@ -167,7 +167,6 @@ def rk4(derivs, y0, t, *args, **kwargs):
     return yout
 
 
-@typechecked
 def make_batch(v, original_shape: (list, tuple)):
     if not isinstance(v, np.ndarray):
         v = np.array(v)

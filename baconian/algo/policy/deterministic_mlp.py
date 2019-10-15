@@ -56,7 +56,6 @@ class DeterministicMLPPolicy(DeterministicPolicy, PlaceholderInput):
         self.output_high = output_high
         self.name_scope = name_scope
 
-    @typechecked
     @overrides.overrides
     def forward(self, obs: (np.ndarray, list), sess=None, feed_dict=None, **kwargs):
         obs = make_batch(obs, original_shape=self.env_spec.obs_shape)

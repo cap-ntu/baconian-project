@@ -88,7 +88,6 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
 
     @record_return_decorator(which_recorder='self')
     @register_counter_info_to_status_decorator(increment=1, info_key='train_counter', under_status='TRAIN')
-    @typechecked
     def train(self, batch_data=None, train_iter=None, sess=None, update_target=True) -> dict:
         super(DQN, self).train()
         self.recorder.record()
@@ -130,7 +129,6 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
         return super().test(*arg, **kwargs)
 
     @register_counter_info_to_status_decorator(increment=1, info_key='predict_counter')
-    @typechecked
     def predict(self, obs: np.ndarray, sess=None, batch_flag: bool = False):
         if batch_flag:
             action, q_val = self._predict_batch_action(obs=obs,
@@ -149,7 +147,6 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
         else:
             return action.astype(np.int).tolist()
 
-    @typechecked
     def predict_target_with_q_val(self, obs: np.ndarray, sess=None, batch_flag: bool = False):
         if batch_flag:
             action, q_val = self._predict_batch_action(obs=obs,
@@ -166,7 +163,6 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
         return action, q_val
 
     @register_counter_info_to_status_decorator(increment=1, info_key='append_to_memory')
-    @typechecked
     def append_to_memory(self, samples: TransitionData):
         iter_samples = samples.return_generator()
         data_count = 0

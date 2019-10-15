@@ -104,7 +104,6 @@ class NormalDistributionMLPPolicy(StochasticPolicy, PlaceholderInput):
                                                            name='normal_distribution_mlp_tf_param')
         PlaceholderInput.__init__(self, parameters=self.parameters)
 
-    @typechecked
     @overrides.overrides
     def forward(self, obs: (np.ndarray, list), sess=None, feed_dict=None, **kwargs):
         obs = make_batch(obs, original_shape=self.env_spec.obs_shape)

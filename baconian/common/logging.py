@@ -199,7 +199,6 @@ class _SingletonLogger(BaseLogger):
                          file_name='global_config.json')
 
     @staticmethod
-    @typechecked
     def out_to_file(file_path: str, content: (tuple, list, dict), file_name: str, force_new=False):
 
         if len(content) == 0:
@@ -243,7 +242,6 @@ class Recorder(object):
         Logger().append_recorder(self)
         self.flush_by_split_status = flush_by_split_status
 
-    @typechecked
     def append_to_obj_log(self, obj, attr_name: str, status_info: dict, log_val):
         assert hasattr(obj, 'name')
         if obj not in self._obj_log:
@@ -261,7 +259,6 @@ class Recorder(object):
     def record(self):
         self._record_by_getter()
 
-    @typechecked
     def register_logging_attribute_by_record(self, obj, attr_name: str, static_flag: bool,
                                              get_method=None):
         """

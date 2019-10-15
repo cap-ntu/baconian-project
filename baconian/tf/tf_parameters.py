@@ -62,7 +62,6 @@ class ParametersWithTensorflowVariable(Parameters):
         self.saver = tf.train.Saver(max_to_keep=self.max_to_keep,
                                     var_list=self._tf_var_list)
 
-    @typechecked
     def return_tf_parameter_feed_dict(self) -> dict:
         res = dict()
         for key, val in self._registered_tf_ph_dict.items():
@@ -184,7 +183,6 @@ class ParametersWithTensorflowVariable(Parameters):
             assert isinstance(var, (tf.Tensor, tf.Variable))
         self._tf_var_list += tf_var_list
 
-    @typechecked
     def to_tf_ph(self, key, ph: tf.Tensor):
         # call the parameters first to make sure it have an init value
         self(key)

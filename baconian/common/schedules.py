@@ -108,7 +108,8 @@ class LinearScheduler(Scheduler):
         self.final_p = final_p
         self.initial_p = initial_p
         self.t_fn = t_fn
-        assert callable(self.t_fn)
+        if not callable(self.t_fn):
+            raise TypeError("t_fn {} is not callable".format(self.t_fn))
 
     def value(self):
         t = wrap_t_fn(self.t_fn)
