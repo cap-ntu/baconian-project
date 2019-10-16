@@ -1,7 +1,7 @@
 """
-PPO bechmark on Pendulum
+PPO bechmark on Hopper
 """
-from benchmark.ppo_benchmark.invertedPendulum_conf import *
+from benchmark.ppo_benchmark.hopper_conf import *
 from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
 from baconian.algo.value_func import MLPVValueFunc
@@ -13,12 +13,12 @@ from baconian.core.flow.train_test_flow import TrainTestFlow
 from baconian.config.global_config import GlobalConfig
 from baconian.core.status import get_global_status_collect
 
-def inverted_pendulum_task_fn():
-    exp_config = INVERTED_PENDULUM_BENCHMARK_CONFIG_DICT
+def hopper_task_fn():
+    exp_config = HOPPER_BENCHMARK_CONFIG_DICT
     GlobalConfig().set('DEFAULT_EXPERIMENT_END_POINT',
                        exp_config['DEFAULT_EXPERIMENT_END_POINT'])
 
-    env = make('InvertedPendulum-v2')
+    env = make('Hopper-v2')
     name = 'benchmark'
     env_spec = EnvSpec(obs_space=env.observation_space,
                        action_space=env.action_space)

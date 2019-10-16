@@ -101,7 +101,7 @@ def task_fn():
                       t_fn=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
                       trigger_every_step=20,
                       after_t=10),
-                  name=name + '_agent',
+                  name=name + 'agent',
                   exploration_strategy=EpsilonGreedy(action_space=env_spec.action_space,
                                                      init_random_prob=0.5))
     flow = create_train_test_flow(
@@ -125,9 +125,3 @@ def task_fn():
         name=name
     )
     experiment.run()
-
-
-from baconian.core.experiment_runner import single_exp_runner
-
-GlobalConfig().set('DEFAULT_LOG_PATH', './log_path')
-single_exp_runner(task_fn, del_if_log_path_existed=True)

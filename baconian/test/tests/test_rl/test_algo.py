@@ -16,7 +16,7 @@ class TestBasicClassInAlgo(TestTensorflowSetup):
         a = DifferentiableDynamics(input_node_dict=dict(in_node=in_node, in_node2=in_node2),
                                    output_node_dict=dict(out_node=out_node))
         self.sess.run(tf.global_variables_initializer())
-        res = self.sess.run(a.grad_on_input_(key_or_node='in_node'), feed_dict={
+        res = self.sess.run(a.grad_on_input(key_or_node='in_node'), feed_dict={
             in_node: np.random.random([bs, 10]),
             in_node2: np.random.random([bs, 10])
         })
@@ -24,7 +24,7 @@ class TestBasicClassInAlgo(TestTensorflowSetup):
 
         # self.assertTrue(np.equal(res, val).all())
 
-        res = self.sess.run(a.grad_on_input_(key_or_node='in_node2'), feed_dict={
+        res = self.sess.run(a.grad_on_input(key_or_node='in_node2'), feed_dict={
             in_node: np.random.random([bs, 10]),
             in_node2: np.random.random([bs, 10])
         })
@@ -32,19 +32,19 @@ class TestBasicClassInAlgo(TestTensorflowSetup):
 
         # self.assertTrue(np.equal(res, val2).all())
 
-        res = self.sess.run(a.grad_on_input_(key_or_node=in_node), feed_dict={
+        res = self.sess.run(a.grad_on_input(key_or_node=in_node), feed_dict={
             in_node: np.random.random([bs, 10]),
             in_node2: np.random.random([bs, 10])
         })
         # self.assertTrue(np.equal(res, val).all())
 
-        res = self.sess.run(a.grad_on_input_(key_or_node=in_node2), feed_dict={
+        res = self.sess.run(a.grad_on_input(key_or_node=in_node2), feed_dict={
             in_node: np.random.random([bs, 10]),
             in_node2: np.random.random([bs, 10])
         })
         # self.assertTrue(np.equal(res, val2).all())
 
-        res = self.sess.run(a.grad_on_input_(key_or_node=in_node, order=2), feed_dict={
+        res = self.sess.run(a.grad_on_input(key_or_node=in_node, order=2), feed_dict={
             in_node: np.random.random([bs, 10]),
             in_node2: np.random.random([bs, 10])
         })
@@ -52,7 +52,7 @@ class TestBasicClassInAlgo(TestTensorflowSetup):
 
         # self.assertTrue(np.equal(res, 0).all())
 
-        res = self.sess.run(a.grad_on_input_(key_or_node=in_node2, order=2), feed_dict={
+        res = self.sess.run(a.grad_on_input(key_or_node=in_node2, order=2), feed_dict={
             in_node: np.random.random([bs, 10]),
             in_node2: np.random.random([bs, 10])
         })

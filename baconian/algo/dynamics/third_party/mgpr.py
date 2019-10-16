@@ -33,7 +33,6 @@ class MGPR(gpflow.Parameterized):
         self.models = []
         self._create_models(X=x, Y=y)
 
-    @typechecked
     def _create_models(self, X: np.ndarray, Y: np.ndarray):
         for i in range(self.num_outputs):
             kern = gpflow.kernels.RBF(input_dim=X.shape[1], ARD=True)
@@ -45,7 +44,6 @@ class MGPR(gpflow.Parameterized):
             model.compile()
             self.models.append(model)
 
-    @typechecked
     def set_XY(self, X: np.ndarray, Y: np.ndarray):
         for i in range(len(self.models)):
             self.models[i].X = X

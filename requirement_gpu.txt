@@ -27,11 +27,11 @@ requests>=2.21.0
 scipy>=1.2.1
 six>=1.12.0
 tensorflow-gpu==1.14.0
-tensorflow-probability>=0.7.0
+tensorflow-probability==0.7.0
 transitions>=0.6.9
 typeguard>=2.1.0
 urllib3>=1.24.2
-Werkzeug>=0.14.1
+Werkzeug>=0.15.3
 coverage>=4.5.2
 codecov>=2.0.15
 pandas>=0.24.2
@@ -39,7 +39,7 @@ autograd>=1.2
 gpflow==1.4.1
 matplotlib>=3.0.3
 seaborn>=0.9.0
-roboschool>=1.0.48
+roboschool==1.0.48
 opencv-python>=4.1.0.25
 scikit-learn>=0.21.1
 atari-py>=0.1.14

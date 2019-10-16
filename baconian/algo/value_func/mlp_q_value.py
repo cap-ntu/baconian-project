@@ -84,7 +84,6 @@ class MLPQValueFunction(QValueFunction, PlaceholderInput):
     def copy_from(self, obj: PlaceholderInput) -> bool:
         return PlaceholderInput.copy_from(self, obj)
 
-    @typechecked
     @overrides.overrides
     def forward(self, obs: (np.ndarray, list), action: (np.ndarray, list), sess=None,
                 feed_dict=None, *args,

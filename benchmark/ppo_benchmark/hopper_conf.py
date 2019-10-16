@@ -2,7 +2,7 @@ from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
 import numpy as np
 
-env = make("InvertedPendulum-v2")
+env = make("Hopper-v2")
 env_spec = EnvSpec(obs_space=env.observation_space, action_space=env.action_space)
 
 OBS_DIM = env_spec.flat_obs_dim
@@ -17,8 +17,8 @@ POLICY_HID3_SIZE = ACT_DIM * 10
 POLICY_HID1_SIZE = OBS_DIM * POLICY_HID_MULTI
 POLICY_HID2_SIZE = int(np.sqrt(POLICY_HID1_SIZE * POLICY_HID3_SIZE))
 
-INVERTED_PENDULUM_BENCHMARK_CONFIG_DICT = {
-    'env_id': "InvertedPendulum-v2",
+HOPPER_BENCHMARK_CONFIG_DICT = {
+    'env_id': "Hopper-v2",
     'MLP_V': {
         'mlp_config': [
             {
@@ -118,7 +118,7 @@ INVERTED_PENDULUM_BENCHMARK_CONFIG_DICT = {
             "START_TEST_AFTER_SAMPLE_COUNT": 1000,
         }
     },
-    'DEFAULT_EXPERIMENT_END_POINT': dict(TOTAL_AGENT_TRAIN_SAMPLE_FUNC_COUNT=200,
+    'DEFAULT_EXPERIMENT_END_POINT': dict(TOTAL_AGENT_TRAIN_SAMPLE_FUNC_COUNT=1500,
                                          TOTAL_AGENT_TEST_SAMPLE_COUNT=None,
                                          TOTAL_AGENT_UPDATE_COUNT=None),
 }

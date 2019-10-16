@@ -4,7 +4,7 @@ from baconian.config.dict_config import DictConfig
 from typeguard import typechecked
 from baconian.core.util import init_func_arg_record_decorator
 from baconian.tf.util import *
-from baconian.algo.misc.replay_buffer import UniformRandomReplayBuffer, BaseReplayBuffer
+from baconian.algo.misc.replay_buffer import UniformRandomReplayBuffer, BaseReplayBuffer, PrioritisedReplayBuffer
 import tensorflow as tf
 import numpy as np
 from baconian.common.sampler.sample_data import TransitionData
@@ -61,6 +61,7 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
                                                                    name='{}_targe_q_value_net'.format(name),
                                                                    reuse=False)
             self.predict_q_value = (1. - done) * self.config('GAMMA') * self.target_q_input + self.reward_input
+            self.td_error = self.predict_q_value - self.q_value_func.q_tensor
             with tf.variable_scope('train'):
                 self.q_value_func_loss, self.optimizer, self.update_q_value_func_op = self._set_up_loss()
                 self.update_target_q_value_func_op = self._set_up_target_update()
@@ -87,7 +88,6 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
 
     @record_return_decorator(which_recorder='self')
     @register_counter_info_to_status_decorator(increment=1, info_key='train_counter', under_status='TRAIN')
-    @typechecked
     def train(self, batch_data=None, train_iter=None, sess=None, update_target=True) -> dict:
         super(DQN, self).train()
         self.recorder.record()
@@ -129,7 +129,6 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
         return super().test(*arg, **kwargs)
 
     @register_counter_info_to_status_decorator(increment=1, info_key='predict_counter')
-    @typechecked
     def predict(self, obs: np.ndarray, sess=None, batch_flag: bool = False):
         if batch_flag:
             action, q_val = self._predict_batch_action(obs=obs,
@@ -148,7 +147,6 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
         else:
             return action.astype(np.int).tolist()
 
-    @typechecked
     def predict_target_with_q_val(self, obs: np.ndarray, sess=None, batch_flag: bool = False):
         if batch_flag:
             action, q_val = self._predict_batch_action(obs=obs,
@@ -165,7 +163,6 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
         return action, q_val
 
     @register_counter_info_to_status_decorator(increment=1, info_key='append_to_memory')
-    @typechecked
     def append_to_memory(self, samples: TransitionData):
         iter_samples = samples.return_generator()
         data_count = 0
@@ -233,3 +230,16 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
             ref_val = self.parameters('DECAY') * target_var + (1.0 - self.parameters('DECAY')) * var
             op.append(tf.assign(target_var, ref_val))
         return op
+
+    def _evaluate_td_error(self, sess=None):
+        # tf_sess = sess if sess else tf.get_default_session()
+        # feed_dict = {
+        #     self.reward_input: train_data.reward_set,
+        #     self.action_input: flatten_n(self.env_spec.action_space, train_data.action_set),
+        #     self.state_input: train_data.state_set,
+        #     self.done_input: train_data.done_set,
+        #     self.target_q_input: target_q_val_on_new_s,
+        #     **self.parameters.return_tf_parameter_feed_dict()
+        # }
+        # td_loss = tf_sess.run([self.td_error], feed_dict=feed_dict)
+        pass

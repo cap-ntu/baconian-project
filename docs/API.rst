@@ -14,3 +14,4 @@ Baconian API Reference
     ./apis/dynamics.rst
     ./apis/algo.rst
     ./apis/flow.rst
+    ./apis/common.rst

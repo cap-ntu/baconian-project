@@ -73,7 +73,6 @@ class MLPVValueFunc(VValueFunction, PlaceholderInput):
     def copy_from(self, obj: PlaceholderInput) -> bool:
         return PlaceholderInput.copy_from(self, obj)
 
-    @typechecked
     @overrides.overrides
     def forward(self, obs: (np.ndarray, list), sess=None,
                 feed_dict=None, *args,

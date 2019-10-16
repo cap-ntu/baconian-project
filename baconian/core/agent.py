@@ -165,7 +165,8 @@ class Agent(Basic):
         env.set_status(in_which_status)
         self.algo.set_status(in_which_status)
         ConsoleLogger().print('info',
-                              "agent sampled {} samples under status {}".format(sample_count, self.get_status()))
+                              "agent sampled {} {} under status {}".format(sample_count, sample_type,
+                                                                           self.get_status()))
         batch_data = self.sampler.sample(agent=self,
                                          env=env,
                                          sample_type=sample_type,

@@ -115,14 +115,12 @@ class TrainTestFlow(Flow):
         """
         while True:
             self._call_func('sample')
-            if self.time_step_func() - self.parameters(
-                    'TRAIN_EVERY_SAMPLE_COUNT') >= self.last_train_point and self.time_step_func() > self.parameters(
-                'START_TRAIN_AFTER_SAMPLE_COUNT'):
+            if self.time_step_func() - self.parameters('TRAIN_EVERY_SAMPLE_COUNT') >= self.last_train_point and \
+                    self.time_step_func() > self.parameters('START_TRAIN_AFTER_SAMPLE_COUNT'):
                 self.last_train_point = self.time_step_func()
                 self._call_func('train')
-            if self.time_step_func() - self.parameters(
-                    'TEST_EVERY_SAMPLE_COUNT') >= self.last_test_point and self.time_step_func() > self.parameters(
-                'START_TEST_AFTER_SAMPLE_COUNT'):
+            if self.time_step_func() - self.parameters('TEST_EVERY_SAMPLE_COUNT') >= self.last_test_point and \
+                    self.time_step_func() > self.parameters('START_TEST_AFTER_SAMPLE_COUNT'):
                 self.last_test_point = self.time_step_func()
                 self._call_func('test')
             if self._is_ended() is True:
