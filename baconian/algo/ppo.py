@@ -73,6 +73,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         with tf.variable_scope(name):
             with tf.variable_scope('train'):
                 self.kl = tf.reduce_mean(self.old_policy.kl(other=self.policy))
+                self.average_entropy = tf.reduce_mean(self.policy.entropy())
                 self.policy_loss, self.policy_optimizer, self.policy_update_op = self._setup_policy_loss()
                 self.value_func_loss, self.value_func_optimizer, self.value_func_update_op = self._setup_value_func_loss()
         var_list = get_tf_collection_var_list(
@@ -252,7 +253,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         kl = None
         for i in range(train_iter):
             loss, kl, entropy, _ = sess.run(
-                [self.policy_loss, self.kl, tf.reduce_mean(self.policy.entropy()), self.policy_update_op],
+                [self.policy_loss, self.kl, self.average_entropy, self.policy_update_op],
                 feed_dict=feed_dict)
             average_loss += loss
             average_kl += kl
