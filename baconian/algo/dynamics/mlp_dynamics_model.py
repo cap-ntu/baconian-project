@@ -94,13 +94,11 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DifferentiableDynami
         GlobalDynamicsModel.init(self)
 
     @register_counter_info_to_status_decorator(increment=1, info_key='step')
-    @typechecked
     def step(self, action: np.ndarray, state=None, **kwargs_for_transit):
         return super().step(action, state, **kwargs_for_transit)
 
     @record_return_decorator(which_recorder='self')
     @register_counter_info_to_status_decorator(increment=1, info_key='train_counter', under_status='TRAIN')
-    @typechecked
     def train(self, batch_data: TransitionData, **kwargs) -> dict:
         self.set_status('TRAIN')
 

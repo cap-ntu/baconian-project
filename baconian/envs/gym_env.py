@@ -40,7 +40,6 @@ def make(gym_env_id: str, allow_multiple_env=True):
         return GymEnv(gym_env_id)
 
 
-@typechecked
 def space_converter(space: GymSpace):
     """
     Convert space into any one of "Box", "Discrete", or "Tuple" type.

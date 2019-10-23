@@ -33,7 +33,6 @@ class MultiAgentEnv(gym.Env, Basic):
     def get_state(self):
         pass
 
-    @typechecked
     def register_agent(self, agent: Agent):
         if agent.name in self._registered_agent_name_list:
             raise DuplicatedRegisteredError('Agent {} already registered'.format(agent.name))

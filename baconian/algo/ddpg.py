@@ -20,7 +20,7 @@ from baconian.tf.util import clip_grad
 class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
     required_key_dict = DictConfig.load_json(file_path=GlobalConfig().DEFAULT_DDPG_REQUIRED_KEY_LIST)
 
-    @typechecked()
+    @typechecked
     def __init__(self,
                  env_spec: EnvSpec,
                  config_or_config_dict: (DictConfig, dict),
@@ -121,7 +121,6 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
 
     @record_return_decorator(which_recorder='self')
     @register_counter_info_to_status_decorator(increment=1, info_key='train', under_status='TRAIN')
-    @typechecked
     def train(self, batch_data=None, train_iter=None, sess=None, update_target=True) -> dict:
         super(DDPG, self).train()
         if isinstance(batch_data, TrajectoryData):
@@ -183,7 +182,6 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
     def test(self, *arg, **kwargs) -> dict:
         return super().test(*arg, **kwargs)
 
-    @typechecked
     def predict(self, obs: np.ndarray, sess=None, batch_flag: bool = False):
         tf_sess = sess if sess else tf.get_default_session()
         feed_dict = {
@@ -192,7 +190,6 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
         }
         return self.actor.forward(obs=obs, sess=tf_sess, feed_dict=feed_dict)
 
-    @typechecked
     def append_to_memory(self, samples: TransitionData):
         iter_samples = samples.return_generator()
 

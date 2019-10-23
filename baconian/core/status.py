@@ -36,8 +36,9 @@ class Status(object):
     def __call__(self, *args, **kwargs):
         return dict(status=self._status_val)
 
-    @tg.typechecked
     def set_status(self, new_status: str):
+        if not isinstance(new_status, str):
+            raise TypeError("{} is not string".format(new_status))
         if self._status_list:
             try:
                 assert new_status in self._status_list
@@ -87,7 +88,6 @@ class StatusWithSingleInfo(StatusWithInfo):
     def set_status(self, new_status: str):
         return super().set_status(new_status)
 
-    @typechecked
     def get_status(self) -> dict:
         return self()
 
