@@ -43,7 +43,8 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
         self.q_value_func = value_func
         self.state_input = self.q_value_func.state_input
         self.action_input = self.q_value_func.action_input
-        self.update_target_q_every_train = self.config('UPDATE_TARGET_Q_FREQUENCY') or 1
+        self.update_target_q_every_train = self.config('UPDATE_TARGET_Q_FREQUENCY') if 'UPDATE_TARGET_Q_FREQUENCY' in \
+                                                                                       self.config.config_dict else 1
         self.parameters = ParametersWithTensorflowVariable(tf_var_list=[],
                                                            rest_parameters=dict(),
                                                            to_scheduler_param_tuple=schedule_param_list,
