@@ -43,3 +43,5 @@ roboschool==1.0.48
 opencv-python>=4.1.0.25
 scikit-learn>=0.21.1
 atari-py>=0.1.14
+box2d>=2.3.2
+box2d-kengz>=2.3.3
