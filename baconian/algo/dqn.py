@@ -43,7 +43,8 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
         self.q_value_func = value_func
         self.state_input = self.q_value_func.state_input
         self.action_input = self.q_value_func.action_input
-
+        self.update_target_q_every_train = self.config('UPDATE_TARGET_Q_FREQUENCY') if 'UPDATE_TARGET_Q_FREQUENCY' in \
+                                                                                       self.config.config_dict else 1
         self.parameters = ParametersWithTensorflowVariable(tf_var_list=[],
                                                            rest_parameters=dict(),
                                                            to_scheduler_param_tuple=schedule_param_list,
@@ -119,7 +120,7 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
             average_loss += res
 
         average_loss /= train_iter
-        if update_target is True:
+        if update_target is True and self.get_status()['train_counter'] % self.update_target_q_every_train == 0:
             tf_sess.run(self.update_target_q_value_func_op,
                         feed_dict=self.parameters.return_tf_parameter_feed_dict())
         return dict(average_loss=average_loss)
