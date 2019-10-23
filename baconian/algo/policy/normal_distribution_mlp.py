@@ -5,10 +5,10 @@ import tensorflow as tf
 from baconian.tf.mlp import MLP
 from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.common.special import *
-import tensorflow_probability as tfp
 from baconian.tf.util import *
 from baconian.algo.utils import _get_copy_arg_with_tf_reuse
 from baconian.algo.misc.placeholder_input import PlaceholderInput
+import baconian.algo.distribution.mvn as mvn
 
 """
 logvar and logvar_speed is referred from https://github.com/pat-coady/trpo
@@ -58,7 +58,7 @@ class NormalDistributionMLPPolicy(StochasticPolicy, PlaceholderInput):
             assert list(self.logvar_output.shape)[-1] == action_dim
             self.mlp_net = None
         else:
-            with tf.variable_scope(self.name_scope):
+            with tf.variable_scope(name_scope):
                 self.state_input = tf.placeholder(shape=[None, obs_dim], dtype=tf.float32, name='state_ph')
                 ph_inputs.append(self.state_input)
             self.mlp_net = MLP(input_ph=self.state_input,
@@ -71,7 +71,6 @@ class NormalDistributionMLPPolicy(StochasticPolicy, PlaceholderInput):
                     logvar_output = tf.get_variable(name='normal_distribution_variance',
                                                     shape=[logvar_speed, self.mlp_config[-1]['N_UNITS']],
                                                     dtype=tf.float32)
-                    # self.logvar_output = tf.reduce_sum(logvar_output, axis=0) + self.parameters('log_var_init')
                     self.logvar_output = tf.reduce_sum(logvar_output, axis=0)
         with tf.variable_scope(name_scope, reuse=reuse):
             self.action_input = tf.placeholder(shape=[None, action_dim], dtype=tf.float32, name='action_ph')
@@ -79,17 +78,9 @@ class NormalDistributionMLPPolicy(StochasticPolicy, PlaceholderInput):
             with tf.variable_scope('norm_dist', reuse=reuse):
                 self.stddev_output = tf.exp(self.logvar_output / 2.0, name='std_dev')
                 self.var_output = tf.exp(self.logvar_output, name='variance')
-                self.action_distribution = tfp.distributions.MultivariateNormalDiag(loc=self.mean_output,
-                                                                                    scale_diag=self.stddev_output,
-                                                                                    name='mlp_normal_distribution')
-                self.action_output = self.action_distribution.sample()
-        self.dist_info_tensor_op_dict = {
-            # todo support more in future
-            'prob': self.action_distribution.prob,
-            'log_prob': self.action_distribution.log_prob,
-            'entropy': self.action_distribution.entropy,
-            'kl': self.kl
-        }
+                self.action_output = mvn.sample(mean_p=self.mean_output,
+                                                var_p=self.var_output,
+                                                dims=self.action_space.flat_dim)
         var_list = get_tf_collection_var_list(scope='{}/norm_dist'.format(name_scope))
         if self.mlp_net:
             var_list += self.mlp_net.var_list
@@ -134,7 +125,15 @@ class NormalDistributionMLPPolicy(StochasticPolicy, PlaceholderInput):
         return copy_mlp_policy
 
     def compute_dist_info(self, name, sess=None, **kwargs) -> np.ndarray:
-        assert name in ['log_prob', 'prob', 'entropy', 'kl']
+        # todo to be optimized, every time call the function will add computing tensor into the graph
+        dist_info_map = {
+            'log_prob': self.log_prob,
+            'prob': self.prob,
+            'entropy': self.entropy,
+            'kl': self.kl,
+        }
+        if name not in dist_info_map.keys():
+            raise ValueError("only support compute {} info".format(list(dist_info_map.keys())))
         sess = sess if sess else tf.get_default_session()
         if name in ['log_prob', 'prob']:
             if 'value' not in kwargs:
@@ -153,21 +152,22 @@ class NormalDistributionMLPPolicy(StochasticPolicy, PlaceholderInput):
         else:
             feed_dict = None
 
-        return sess.run(self.dist_info_tensor_op_dict[name](**kwargs), feed_dict=feed_dict)
+        return sess.run(dist_info_map[name](**kwargs), feed_dict=feed_dict)
 
     def kl(self, other, *args, **kwargs) -> tf.Tensor:
-        if not isinstance(other.action_distribution, tfp.distributions.Distribution):
+        if not isinstance(other, type(self)):
             raise TypeError()
-        return self.action_distribution.kl_divergence(other.action_distribution)
+        return mvn.kl(mean_p=self.mean_output, var_p=self.var_output,
+                      mean_q=other.mean_output, var_q=other.var_output, dims=self.action_space.flat_dim)
 
     def log_prob(self, *args, **kwargs) -> tf.Tensor:
-        return self.dist_info_tensor_op_dict['log_prob'](value=self.action_input)
+        return mvn.log_prob(variable_ph=self.action_output, mean_p=self.mean_output, var_p=self.var_output)
 
     def prob(self, *args, **kwargs) -> tf.Tensor:
-        return self.dist_info_tensor_op_dict['prob'](value=self.action_input)
+        return mvn.prob(variable_ph=self.action_output, mean_p=self.mean_output, var_p=self.var_output)
 
     def entropy(self, *args, **kwargs) -> tf.Tensor:
-        return self.dist_info_tensor_op_dict['entropy']()
+        return mvn.entropy(self.mean_output, self.var_output, dims=self.action_space.flat_dim)
 
     def get_dist_info(self) -> tuple:
         res = (
@@ -178,7 +178,7 @@ class NormalDistributionMLPPolicy(StochasticPolicy, PlaceholderInput):
             dict(shape=tuple(self.logvar_output.shape.as_list()),
                  name='logvar_output',
                  obj=self.logvar_output,
-                 dtype=self.logvar_output.dtype)
+                 dtype=self.logvar_output.dtype),
         )
         for re in res:
             attr = getattr(self, re['name'])

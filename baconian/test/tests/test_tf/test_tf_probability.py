@@ -6,6 +6,7 @@ import numpy as np
 from baconian.envs.gym_env import make
 from baconian.common.special import *
 from baconian.test.tests.set_up.setup import TestTensorflowSetup
+import baconian.algo.distribution.mvn as mvn
 
 
 def describe_sample_tensor_shape(sample_shape, distribution):
@@ -58,6 +59,14 @@ def kl_entropy_logprob_from_pat_cody(old_mean, old_var, mean, var, sess, action_
                                      tf.exp(old_log_var), axis=1)
     # logp_old += -0.5 * np.log(2 * np.pi * action_dim)
 
+    return sess.run([kl, entropy, logp, logp_old], feed_dict=feed_dict)
+
+
+def kl_entropy_logprob_from_mvn(old_mean, old_var, mean, var, sess, action_dim, action_ph, feed_dict):
+    kl = mvn.kl(mean, var, old_mean, old_var, action_dim)
+    entropy = mvn.entropy(mean, var, action_dim)
+    logp = mvn.log_prob(action_ph, mean, var)
+    logp_old = mvn.log_prob(action_ph, old_mean, old_var)
     return sess.run([kl, entropy, logp, logp_old], feed_dict=feed_dict)
 
 
@@ -175,3 +184,16 @@ class TestTFP(TestTensorflowSetup):
         self.assertTrue(np.isclose(log_p_old, log_p_old_tfp).all())
         self.assertTrue(np.isclose(kl, kl_tfp).all())
         self.assertTrue(np.isclose(entropy, entropy_tfp).all())
+
+        kl, entropy, logp, log_p_old = kl_entropy_logprob_from_mvn(old_mean=mean_old,
+                                                                   old_var=var1,
+                                                                   mean=mean2,
+                                                                   var=var2,
+                                                                   feed_dict=feed_dict,
+                                                                   sess=sess,
+                                                                   action_ph=action_ph,
+                                                                   action_dim=action_dim)
+        self.assertTrue(np.isclose(logp, log_prob_tfp).all())
+        self.assertTrue(np.isclose(log_p_old, log_p_old_tfp).all())
+        self.assertTrue(np.isclose(entropy, entropy_tfp).all())
+        self.assertTrue(np.isclose(kl, kl_tfp).all())
