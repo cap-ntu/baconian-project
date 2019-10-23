@@ -1,5 +1,5 @@
 """
-DDPG bechmark on Pendulum
+DDPG benchmark on Pendulum
 """
 from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
@@ -10,19 +10,18 @@ from baconian.core.agent import Agent
 from baconian.core.experiment import Experiment
 from baconian.core.flow.train_test_flow import TrainTestFlow
 from baconian.config.global_config import GlobalConfig
-from benchmark.ddpg_bechmark.mountain_car_continuous_conf import *
+from benchmark.ddpg_benchmark.pendulum_conf import *
 from baconian.core.status import get_global_status_collect
 from baconian.common.noise import *
 from baconian.common.schedules import *
 
 
-def mountiancar_task_fn():
-    exp_config = MOUNTAIN_CAR_CONTINUOUS_BENCHMARK_CONFIG_DICT
-
+def pendulum_task_fn():
+    exp_config = PENDULUM_BENCHMARK_CONFIG_DICT
     GlobalConfig().set('DEFAULT_EXPERIMENT_END_POINT',
                        exp_config['DEFAULT_EXPERIMENT_END_POINT'])
 
-    env = make('MountainCarContinuous-v0')
+    env = make('Pendulum-v0')
     name = 'benchmark'
     env_spec = EnvSpec(obs_space=env.observation_space,
                        action_space=env.action_space)
@@ -49,25 +48,9 @@ def mountiancar_task_fn():
     agent = Agent(env=env, env_spec=env_spec,
                   algo=ddpg,
                   exploration_strategy=None,
-                  noise_adder=AgentActionNoiseWrapper(noise=OUNoise(),
-                                                      noise_weight_scheduler=LinearScheduler(initial_p=1.0,
-                                                                                             final_p=0.0,
-                                                                                             schedule_timesteps=
-                                                                                            exp_config[
-                                                                                                'DEFAULT_EXPERIMENT_END_POINT'][
-                                                                                                'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'],
-                                                                                             t_fn=lambda: get_global_status_collect()(
-                                                                                                'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
-                                                                                             ),
-                                                      action_weight_scheduler=LinearScheduler(initial_p=0.0,
-                                                                                              final_p=1.0,
-                                                                                              schedule_timesteps=
-                                                                                             exp_config[
-                                                                                                 'DEFAULT_EXPERIMENT_END_POINT'][
-                                                                                                 'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'],
-                                                                                              t_fn=lambda: get_global_status_collect()(
-                                                                                                 'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
-                                                                                              ), ),
+                  noise_adder=AgentActionNoiseWrapper(noise=NormalActionNoise(),
+                                                      noise_weight_scheduler=ConstantScheduler(value=0.3),
+                                                      action_weight_scheduler=ConstantScheduler(value=1.0)),
                   name=name + '_agent')
 
     flow = TrainTestFlow(train_sample_count_func=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),

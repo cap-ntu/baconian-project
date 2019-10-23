@@ -1,5 +1,5 @@
 """
-MPC bechmark on Pendulum
+MPC benchmark on Pendulum
 """
 
 from benchmark.mpc_benchmark.pendulum_conf import *

@@ -1,4 +1,4 @@
-from benchmark.ddpg_bechmark import mountiancar_task_fn, pendulum_task_fn
+from benchmark.ddpg_benchmark import mountiancar_task_fn, pendulum_task_fn
 from benchmark.dyna_benchmark import dyna_pendulum_task_fn
 from benchmark.mpc_benchmark import mpc_pendulum_task_fn
 from benchmark.ppo_benchmark import pendulum_task_fn as ppo_pendulum_task_fn
@@ -9,7 +9,7 @@ from benchmark.ppo_benchmark import half_cheetah_task_fn
 from benchmark.ppo_benchmark import inverted_pendulum_task_fn
 
 from benchmark.iLQR_benchmark import ilqr_pendulum_task_fn
-from examples.dqn_acrobat_example import task_fn as dqn_acrobot_task_fn
+from benchmark.dqn_benchmark import acrobot_task_fn
 import argparse
 import os
 import time
@@ -27,7 +27,6 @@ env_id_to_task_fn = {
     },
     'MountainCarContinuous-v0': {
         'ddpg': mountiancar_task_fn,
-
     },
     'InvertedPendulum-v2': {
         'ppo': inverted_pendulum_task_fn,
@@ -45,7 +44,7 @@ env_id_to_task_fn = {
         'ppo': half_cheetah_task_fn,
     },
     'Acrobot-v1': {
-        'dqn': dqn_acrobot_task_fn,
+        'dqn': acrobot_task_fn,
     }
 }
 alog_list = ['ddpg', 'dyna', 'mpc', 'ppo', 'ilqr', 'dqn']

@@ -1,5 +1,5 @@
 """
-PPO bechmark on Swimmer
+PPO benchmark on Swimmer
 """
 from benchmark.ppo_benchmark.swimmer_conf import *
 from baconian.core.core import EnvSpec

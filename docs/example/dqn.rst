@@ -1,5 +1,5 @@
-DQN with Acrobat-v1
+DQN with Acrobot-v1
 ============================
 
-.. literalinclude:: ../../examples/dqn_acrobat_example.py
+.. literalinclude:: ../../examples/dqn_acrobot_example.py
     :language: python

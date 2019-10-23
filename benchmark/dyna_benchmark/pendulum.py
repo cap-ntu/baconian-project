@@ -1,5 +1,5 @@
 """
-DYNA bechmark on Pendulum
+DYNA benchmark on Pendulum
 """
 
 from benchmark.dyna_benchmark.pendulum_conf import PENDULUM_BENCHMARK_CONFIG_DICT as exp_config
