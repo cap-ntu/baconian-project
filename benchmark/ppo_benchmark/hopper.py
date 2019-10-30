@@ -1,5 +1,5 @@
 """
-PPO bechmark on Hopper
+PPO benchmark on Hopper
 """
 from benchmark.ppo_benchmark.hopper_conf import *
 from baconian.core.core import EnvSpec

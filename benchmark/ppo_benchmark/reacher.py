@@ -1,5 +1,5 @@
 """
-PPO bechmark on Reacher
+PPO benchmark on Reacher
 """
 from benchmark.ppo_benchmark.reacher_conf import *
 from baconian.core.core import EnvSpec

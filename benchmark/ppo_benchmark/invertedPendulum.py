@@ -1,5 +1,5 @@
 """
-PPO bechmark on Pendulum
+PPO benchmark on Pendulum
 """
 from benchmark.ppo_benchmark.invertedPendulum_conf import *
 from baconian.core.core import EnvSpec
