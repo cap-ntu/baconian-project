@@ -2,6 +2,7 @@ from baconian.common.sampler.sample_data import TransitionData, TrajectoryData
 from baconian.algo.value_func import ValueFunction
 import scipy.signal
 from baconian.common.special import *
+from memory_profiler import profile
 
 
 def discount(x, gamma):
@@ -13,6 +14,7 @@ def discount(x, gamma):
 class SampleProcessor(object):
 
     @staticmethod
+    @profile
     def add_gae(data: TrajectoryData, gamma, lam, value_func: ValueFunction = None, name='advantage_set'):
         for traj in data.trajectories:
             # scale if gamma less than 1
@@ -34,6 +36,7 @@ class SampleProcessor(object):
             traj.append_new_set(name=name, data_set=make_batch(advantages, original_shape=[]), shape=[])
 
     @staticmethod
+    @profile
     def add_discount_sum_reward(data: TrajectoryData, gamma, name='discount_set'):
         for traj in data.trajectories:
             # scale if gamma less than 1
@@ -43,6 +46,7 @@ class SampleProcessor(object):
             traj.append_new_set(name=name, data_set=make_batch(dis_reward_set, original_shape=[]), shape=[])
 
     @staticmethod
+    @profile
     def add_estimated_v_value(data: (TrajectoryData, TransitionData), value_func: ValueFunction, name='v_value_set'):
         if isinstance(data, TrajectoryData):
             for path in data.trajectories:
@@ -51,11 +55,13 @@ class SampleProcessor(object):
             SampleProcessor._add_estimated_v_value(data, value_func, name)
 
     @staticmethod
+    @profile
     def _add_estimated_v_value(data: TransitionData, value_func: ValueFunction, name):
         v_set = value_func.forward(data.state_set)
         data.append_new_set(name=name, data_set=make_batch(np.array(v_set), original_shape=[]), shape=[])
 
     @staticmethod
+    @profile
     def normalization(data: TransitionData, key, mean: np.ndarray = None, std_dev: np.ndarray = None):
         if mean is not None:
             assert mean.shape == data(key).shape[1:]

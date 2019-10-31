@@ -226,6 +226,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         train_op = optimizer.minimize(loss, var_list=self.value_func.parameters('tf_var_list'))
         return loss, optimizer, train_op
 
+    @profile
     def _update_policy(self, train_data: TransitionData, train_iter, sess):
         old_policy_feed_dict = dict()
 
@@ -285,6 +286,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
             policy_total_train_epoch=total_epoch
         )
 
+    @profile
     def _update_value_func(self, train_data: TransitionData, train_iter, sess):
         if self.value_func_train_data_buffer is None:
             self.value_func_train_data_buffer = train_data
