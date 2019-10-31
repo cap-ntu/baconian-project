@@ -239,7 +239,7 @@ class Recorder(object):
     def __init__(self, flush_by_split_status=True):
         self._obj_log = {}
         self._registered_log_attr_by_get_dict = {}
-        Logger().append_recorder(self)
+        # Logger().append_recorder(self)
         self.flush_by_split_status = flush_by_split_status
 
     def append_to_obj_log(self, obj, attr_name: str, status_info: dict, log_val):
