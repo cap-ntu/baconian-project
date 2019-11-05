@@ -48,7 +48,7 @@ def pendulum_task_fn():
     agent = Agent(env=env, env_spec=env_spec,
                   algo=ddpg,
                   exploration_strategy=None,
-                  noise_adder=AgentActionNoiseWrapper(noise=NormalActionNoise(),
+                  noise_adder=AgentActionNoiseWrapper(noise=OrnsteinUhlenbeckActionNoise(np.zeros(1,), 0.15),
                                                       noise_weight_scheduler=ConstantScheduler(value=0.3),
                                                       action_weight_scheduler=ConstantScheduler(value=1.0)),
                   name=name + '_agent')
@@ -82,3 +82,8 @@ def pendulum_task_fn():
         name=name
     )
     experiment.run()
+
+from baconian.core.experiment_runner import *
+
+GlobalConfig().set('DEFAULT_LOG_PATH', './log_path')
+single_exp_runner(pendulum_task_fn, del_if_log_path_existed=True)
