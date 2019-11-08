@@ -109,7 +109,7 @@ HALF_CHEETAH_BENCHMARK_CONFIG_DICT = {
         }
     },
     'TrainTestFlow': {
-        "TEST_SAMPLES_COUNT": 5,
+        "TEST_SAMPLES_COUNT": 2,
         "TRAIN_SAMPLES_COUNT": 5,
         'config_or_config_dict': {
             "TEST_EVERY_SAMPLE_COUNT": 5,

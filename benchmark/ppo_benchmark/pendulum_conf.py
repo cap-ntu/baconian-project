@@ -74,8 +74,8 @@ PENDULUM_BENCHMARK_CONFIG_DICT = {
         }
     },
     'TrainTestFlow': {
-        "TEST_SAMPLES_COUNT": 800,
-        "TRAIN_SAMPLES_COUNT": 2048,
+        "TEST_SAMPLES_COUNT": 1,
+        "TRAIN_SAMPLES_COUNT": 1,
         'config_or_config_dict': {
             "TEST_EVERY_SAMPLE_COUNT": 1000,
             "TRAIN_EVERY_SAMPLE_COUNT": 10,
