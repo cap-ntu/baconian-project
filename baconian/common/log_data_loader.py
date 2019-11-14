@@ -1,12 +1,14 @@
 from baconian.common.plotter import Plotter
 import glob
 import os
+from os import walk
 import sys
 from baconian.common.error import *
 import json_tricks as json
 import pandas as pd
 from baconian.common.files import *
 from collections import OrderedDict
+from typing import Union
 
 
 class SingleExpLogDataLoader(object):
@@ -20,7 +22,6 @@ class SingleExpLogDataLoader(object):
 
     def load_record_data(self, agent_log_dir_name, algo_log_dir_name, env_log_dir_name):
         # todo maybe add a verbose mode to load all log
-
         agent_log_dir = os.path.join(self._root_dir, agent_log_dir_name)
         algo_log_dir = os.path.join(self._root_dir, algo_log_dir_name)
         check_dir(agent_log_dir)
@@ -29,7 +30,7 @@ class SingleExpLogDataLoader(object):
     def init(self):
         pass
 
-    def plot_res(self, sub_log_dir_name, key, index, mode=('line', 'hist', 'scatter'),
+    def plot_res(self, sub_log_dir_name, key, index, save_path, mode=('line', 'hist', 'scatter'),
                  average_over=1, file_name=None, save_format='png',
                  ):
         log_name = os.path.join(self._root_dir, 'record', sub_log_dir_name, 'log.json')
@@ -66,15 +67,12 @@ class SingleExpLogDataLoader(object):
             data_new = data.iloc[:, 1:].copy()
         else:
             histogram_flag = False
-        if mode == 'scatter':
-            scatter_flag = True
-        else:
-            scatter_flag = False
+        scatter_flag = True if mode == 'scatter' else False
 
         Plotter.plot_any_key_in_log(data=data_new, index=index, key=key,
                                     sub_log_dir_name=sub_log_dir_name,
                                     scatter_flag=scatter_flag, save_flag=True,
-                                    histogram_flag=histogram_flag, save_path=os.path.join(self._root_dir),
+                                    histogram_flag=histogram_flag, save_path=save_path,
                                     save_format=save_format, file_name=file_name)
 
 
@@ -83,19 +81,32 @@ class SingleExpLogDataLoader(object):
 # normalisation
 
 class MultipleExpLogDataLoader(object):
-    def __init__(self, exp_root_dir_list: str, num: int):
+    def __init__(self, exp_root_dir_list: Union[str, list]):
         self._root_dir = exp_root_dir_list
-        self.num = num
-        for i in range(num):
-            exp_root_dir = exp_root_dir_list + "/exp_" + str(i)
-            SingleExpLogDataLoader(exp_root_dir)
+        self.exp_list = []
+        self.num = 0
+        if type(self._root_dir) is str:
+            for path in os.listdir(self._root_dir):
+                print('path: ', path)
+                exp_root_dir = os.path.join(self._root_dir, path)
+                print(exp_root_dir)
+                self.exp_list.append(exp_root_dir)
+                self.num += 1
+                SingleExpLogDataLoader(exp_root_dir)
+        else:
+            for dependent_exp in self._root_dir:
+                assert type(dependent_exp) is str
+                for path in os.listdir(dependent_exp):
+                    exp_root_dir = os.path.join(dependent_exp, path)
+                    self.exp_list.append(exp_root_dir)
+                    self.num += 1
+                    SingleExpLogDataLoader(exp_root_dir)
 
-    def plot_res(self, key, index, sub_log_dir_name: str, mode=('plot', 'hist', 'scatter'), average_over=1,
-                 save_format='png', file_name=None,):
+    def plot_res(self, key, index, save_path, sub_log_dir_name: str, mode=('plot', 'hist', 'scatter'), average_over=1,
+                 save_format='png', file_name=None, ):
         multiple_key_value = {}
-        for i in range(self.num):
-            log_name = os.path.join(self._root_dir, 'exp_' + str(i), 'record', sub_log_dir_name, 'log.json')
-            f = open(log_name, 'r')
+        for exp in self.exp_list:
+            f = open(os.path.join(exp, 'record', sub_log_dir_name, 'log.json'), 'r')
             res_dict = json.load(f)
             key_list = res_dict[key]
             key_vector = []
@@ -105,8 +116,7 @@ class MultipleExpLogDataLoader(object):
                 index_vector.append(num_index)
                 key_vector.append(record["log_val"])
             multiple_key_value[index] = index_vector
-            multiple_key_value[key + '_' + str(i)] = key_vector
-
+            multiple_key_value[key + '_' + exp] = key_vector
         data = pd.DataFrame.from_dict(multiple_key_value)  # Create dataframe for plotting
         row_num = data.shape[0]
         column_num = data.shape[1]
@@ -139,5 +149,5 @@ class MultipleExpLogDataLoader(object):
         Plotter.plot_any_key_in_log(data=data_new, index=index, key=key, exp_num=self.num,
                                     scatter_flag=scatter_flag, save_flag=True,
                                     mean_stddev_flag=True,
-                                    histogram_flag=histogram_flag, save_path=os.path.join(self._root_dir),
+                                    histogram_flag=histogram_flag, save_path=save_path,
                                     sub_log_dir_name=sub_log_dir_name, save_format=save_format, file_name=file_name)
