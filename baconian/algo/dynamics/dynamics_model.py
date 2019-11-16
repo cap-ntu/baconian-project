@@ -259,3 +259,6 @@ class DynamicsEnvWrapper(Env):
     def set_terminal_reward_func(self, terminal_func: TerminalFunc, reward_func: RewardFunc):
         self._terminal_func = terminal_func
         self._reward_func = reward_func
+
+class DynamicsPriorModel(DynamicsModel):
+    pass
