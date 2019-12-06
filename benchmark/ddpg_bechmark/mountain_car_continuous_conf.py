@@ -59,12 +59,12 @@ MOUNTAIN_CAR_CONTINUOUS_BENCHMARK_CONFIG_DICT = {
     },
     'DDPG': {
         'config_or_config_dict': {
-            "REPLAY_BUFFER_SIZE": 10000,
+            "REPLAY_BUFFER_SIZE": 25000,
             "GAMMA": 0.99,
-            "CRITIC_LEARNING_RATE": 0.001,
-            "ACTOR_LEARNING_RATE": 0.0001,
+            "CRITIC_LEARNING_RATE": 0.00001,
+            "ACTOR_LEARNING_RATE": 0.000001,
             "DECAY": 0.99,
-            "BATCH_SIZE": 256,
+            "BATCH_SIZE": 8,
             "TRAIN_ITERATION": 1,
             "critic_clip_norm": None,
             "actor_clip_norm": None,
@@ -72,16 +72,16 @@ MOUNTAIN_CAR_CONTINUOUS_BENCHMARK_CONFIG_DICT = {
         'replay_buffer': None
     },
     'TrainTestFlow': {
-        "TEST_SAMPLES_COUNT": 1000,
-        "TRAIN_SAMPLES_COUNT": 1,
+        "TEST_SAMPLES_COUNT": 100,
+        "TRAIN_SAMPLES_COUNT": 100,
         'config_or_config_dict': {
-            "TEST_EVERY_SAMPLE_COUNT": 1000,
-            "TRAIN_EVERY_SAMPLE_COUNT": 1,
+            "TEST_EVERY_SAMPLE_COUNT": 20,
+            "TRAIN_EVERY_SAMPLE_COUNT": 20,
             "START_TRAIN_AFTER_SAMPLE_COUNT": 0,
             "START_TEST_AFTER_SAMPLE_COUNT": 0,
         }
     },
-    'DEFAULT_EXPERIMENT_END_POINT': dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=30000,
+    'DEFAULT_EXPERIMENT_END_POINT': dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=20000,
                                          TOTAL_AGENT_TEST_SAMPLE_COUNT=None,
                                          TOTAL_AGENT_UPDATE_COUNT=None),
 }
