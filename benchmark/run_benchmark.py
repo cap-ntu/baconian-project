@@ -58,12 +58,13 @@ arg.add_argument('--count', type=int, default=1)
 arg.add_argument('--cuda_id', type=int, default=-1)
 args = arg.parse_args()
 
-CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
+if __name__ == '__main__':
+    CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
 
-GlobalConfig().set('DEFAULT_LOG_PATH', os.path.join(CURRENT_PATH, 'benchmark_log', args.env_id, args.algo,
-                                                    time.strftime("%Y-%m-%d_%H-%M-%S")))
-ExpRootPath = GlobalConfig().DEFAULT_LOG_PATH
-duplicate_exp_runner(args.count, env_id_to_task_fn[args.env_id][args.algo], gpu_id=args.cuda_id)
+    GlobalConfig().set('DEFAULT_LOG_PATH', os.path.join(CURRENT_PATH, 'benchmark_log', args.env_id, args.algo,
+                                                        time.strftime("%Y-%m-%d_%H-%M-%S")))
+    ExpRootPath = GlobalConfig().DEFAULT_LOG_PATH
+    duplicate_exp_runner(args.count, env_id_to_task_fn[args.env_id][args.algo], gpu_id=args.cuda_id)
 
 # MultipleExpLogDataLoader(exp_root_dir_list='/home/cly/Documents/baconian-internal/benchmark/benchmark_log/InvertedPendulum-v2/ppo/2019-09-23_11-53-12', num=args.count)\
 #                          .plot_res(sub_log_dir_name='benchmark_agent/TRAIN',

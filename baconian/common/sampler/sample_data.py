@@ -211,7 +211,6 @@ class TrajectoryData(SampleData):
     def reset(self):
         self.trajectories = []
 
-    @typechecked
     def append(self, transition_data: TransitionData):
         self.trajectories.append(transition_data.get_copy())
 

@@ -2,27 +2,24 @@ from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
 import numpy as np
 
-env = make("HalfCheetah-v2")
+env = make("Hopper-v2")
 env_spec = EnvSpec(obs_space=env.observation_space, action_space=env.action_space)
 
 OBS_DIM = env_spec.flat_obs_dim
-HID1_MULT = 10
-HID3_SIZE = 5
-HID1_SIZE = OBS_DIM * HID1_MULT
-HID2_SIZE = int(np.sqrt(HID1_SIZE * HID3_SIZE))
+HID1_SIZE = 100
+HID2_SIZE = 100
 
 POLICY_HID_MULTI = 10
 ACT_DIM = env_spec.flat_action_dim
-POLICY_HID3_SIZE = ACT_DIM * 10
-POLICY_HID1_SIZE = OBS_DIM * POLICY_HID_MULTI
-POLICY_HID2_SIZE = int(np.sqrt(POLICY_HID1_SIZE * POLICY_HID3_SIZE))
+POLICY_HID1_SIZE = HID1_SIZE
+POLICY_HID2_SIZE = HID2_SIZE
 
-HALF_CHEETAH_BENCHMARK_CONFIG_DICT = {
-    'env_id': "HalfCheetah-v2",
+HOPPER_BENCHMARK_CONFIG_DICT = {
+    'env_id': "Hopper-v2",
     'MLP_V': {
         'mlp_config': [
             {
-                "ACT": "TANH",
+                "ACT": "RELU",
                 "B_INIT_VALUE": 0.0,
                 "NAME": "1",
                 "N_UNITS": HID1_SIZE,
@@ -30,7 +27,7 @@ HALF_CHEETAH_BENCHMARK_CONFIG_DICT = {
                 "W_NORMAL_STDDEV": np.sqrt(1 / OBS_DIM)
             },
             {
-                "ACT": "TANH",
+                "ACT": "RELU",
                 "B_INIT_VALUE": 0.0,
                 "NAME": "2",
                 "N_UNITS": HID2_SIZE,
@@ -38,20 +35,12 @@ HALF_CHEETAH_BENCHMARK_CONFIG_DICT = {
                 "W_NORMAL_STDDEV": np.sqrt(1 / HID1_SIZE)
             },
             {
-                "ACT": "TANH",
-                "B_INIT_VALUE": 0.0,
-                "NAME": "3",
-                "N_UNITS": HID3_SIZE,
-                "TYPE": "DENSE",
-                "W_NORMAL_STDDEV": np.sqrt(1 / HID2_SIZE)
-            },
-            {
                 "ACT": "IDENTITY",
                 "B_INIT_VALUE": 0.0,
                 "NAME": "OUPTUT",
                 "N_UNITS": 1,
                 "TYPE": "DENSE",
-                "W_NORMAL_STDDEV": np.sqrt(1 / HID3_SIZE),
+                "W_NORMAL_STDDEV": np.sqrt(1 / HID2_SIZE),
             }
         ]
     },
@@ -74,51 +63,44 @@ HALF_CHEETAH_BENCHMARK_CONFIG_DICT = {
                 "W_NORMAL_STDDEV": np.sqrt(1 / POLICY_HID1_SIZE)
             },
             {
-                "ACT": "TANH",
-                "B_INIT_VALUE": 0.0,
-                "NAME": "3",
-                "N_UNITS": POLICY_HID3_SIZE,
-                "TYPE": "DENSE",
-                "W_NORMAL_STDDEV": np.sqrt(1 / POLICY_HID2_SIZE)
-            },
-            {
                 "ACT": "IDENTITY",
                 "B_INIT_VALUE": 0.0,
                 "NAME": "OUPTUT",
                 "N_UNITS": ACT_DIM,
                 "TYPE": "DENSE",
-                "W_NORMAL_STDDEV": np.sqrt(1 / POLICY_HID3_SIZE)
+                "W_NORMAL_STDDEV": np.sqrt(1 / POLICY_HID2_SIZE)
             }
         ]
     },
-    'PPO': {
+    'DDPG': {
         'config_or_config_dict': {
-            "gamma": 0.995,
-            "lam": 0.98,
-            "policy_train_iter": 20,
-            "value_func_train_iter": 10,
-            "clipping_range": None,
-            "beta": 1.0,
-            "eta": 50,
-            "log_var_init": -1.0,
-            "kl_target": 0.003,
-            "policy_lr": 9e-4 / np.sqrt(POLICY_HID2_SIZE),
-            "value_func_lr": 1e-2 / np.sqrt(HID2_SIZE),
-            "value_func_train_batch_size": 256,
-            "lr_multiplier": 1.0
-        }
+            "REPLAY_BUFFER_SIZE": 1000000,
+            "GAMMA": 0.99,
+            "CRITIC_LEARNING_RATE": 0.0001,
+            "ACTOR_LEARNING_RATE": 0.00001,
+            "DECAY": 0.999,
+            "BATCH_SIZE": 128,
+            "TRAIN_ITERATION": 120,
+            "critic_clip_norm": None,
+            "actor_clip_norm": None,
+        },
+        'replay_buffer': None
     },
     'TrainTestFlow': {
-        "TEST_SAMPLES_COUNT": 2,
-        "TRAIN_SAMPLES_COUNT": 5,
+        "TEST_SAMPLES_COUNT": 10,
+        "TRAIN_SAMPLES_COUNT": 1,
         'config_or_config_dict': {
-            "TEST_EVERY_SAMPLE_COUNT": 5,
+            "TEST_EVERY_SAMPLE_COUNT": 1000,
             "TRAIN_EVERY_SAMPLE_COUNT": 1,
-            "START_TRAIN_AFTER_SAMPLE_COUNT": 1,
-            "START_TEST_AFTER_SAMPLE_COUNT": 1000,
+            "START_TRAIN_AFTER_SAMPLE_COUNT": 10000,
+            "START_TEST_AFTER_SAMPLE_COUNT": 20,
         }
     },
-    'DEFAULT_EXPERIMENT_END_POINT': dict(TOTAL_AGENT_TRAIN_SAMPLE_FUNC_COUNT=600,
+
+    'DEFAULT_EXPERIMENT_END_POINT': dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=100000,
                                          TOTAL_AGENT_TEST_SAMPLE_COUNT=None,
                                          TOTAL_AGENT_UPDATE_COUNT=None),
+    'AGENT_NOISE': {
+
+    }
 }

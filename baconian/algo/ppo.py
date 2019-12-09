@@ -289,6 +289,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         y_hat = self.value_func.forward(obs=train_data('state_set'))
         old_exp_var = 1 - np.var(self.value_func_train_data_buffer('discount_set') - y_hat) / np.var(
             self.value_func_train_data_buffer('discount_set'))
+        param_dict = self.parameters.return_tf_parameter_feed_dict()
         for i in range(train_iter):
             data_gen = self.value_func_train_data_buffer.return_generator(
                 batch_size=self.parameters('value_func_train_batch_size'),
@@ -300,7 +301,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                                    feed_dict={
                                        self.value_func.state_input: batch[0],
                                        self.v_func_val_ph: batch[5],
-                                       **self.parameters.return_tf_parameter_feed_dict()
+                                       **param_dict
                                    })
         y_hat = self.value_func.forward(obs=self.value_func_train_data_buffer('state_set'))
         loss = np.mean(np.square(y_hat - self.value_func_train_data_buffer('discount_set')))
