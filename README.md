@@ -28,16 +28,40 @@ We support python 3.5, 3.6, and 3.7 with Ubuntu 16.04 or 18.04.
 Documentation is available at http://baconian-public.readthedocs.io/
 
 ### Benchmark 
+Currently we are working on the benchmark test, stay tuned!
 
-### TODO and Road Map
-Currently, the project is under activate development. We are working towards a stable 1.0 version. Details of the road map 
-and future plan will be released as soon as possible. 
+### Algorithms:
 
-Currently we are working on
-- [ ] Simplified flow module
-- [ ] Latent-space method supporting.
-- [ ] General Ensemble method 
+#### Model-based: 
 
+#### 1. Dyna
+Sutton, Richard S. "Dyna, an integrated architecture for learning, planning, and reacting." ACM Sigart Bulletin 2.4 (1991): 160-163.
+#### 2. LQR
+Abbeel, P. "Optimal Control for Linear Dynamical Systems and Quadratic Cost (‘LQR’)." (2012).
+#### 3. iLQR
+Abbeel, P. "Optimal Control for Linear Dynamical Systems and Quadratic Cost (‘LQR’)." (2012).
+#### 4. MPC
+Garcia, Carlos E., David M. Prett, and Manfred Morari. "Model predictive control: theory and practice—a survey." Automatica 25.3 (1989): 335-348.
+#### Model-free
+
+#### 1. DQN
+Mnih, Volodymyr, et al. "Playing atari with deep reinforcement learning." arXiv preprint arXiv:1312.5602 (2013).
+#### 2. PPO
+Schulman, John, et al. "Proximal policy optimization algorithms." arXiv preprint arXiv:1707.06347 (2017).
+#### 3. DDPG
+Lillicrap, Timothy P., et al. "Continuous control with deep reinforcement learning." arXiv preprint arXiv:1509.02971 (2015).
+
+### Algorithms in Progress
+#### 1. ME-TRPO
+Kurutach, Thanard, et al. "Model-ensemble trust-region policy optimization." arXiv preprint arXiv:1802.10592 (2018).
+#### 2. GPS
+Levine, Sergey, et al. "End-to-end training of deep visuomotor policies." The Journal of Machine Learning Research 17.1 (2016): 1334-1373.
+#### 3. Random Shooting
+Rao, Anil V. "A survey of numerical methods for optimal control." Advances in the Astronautical Sciences 135.1 (2009): 497-528.
+#### 4. TRPO
+Schulman, John, et al. "Trust region policy optimization." International conference on machine learning. 2015.
+#### 5. MB-MF
+Nagabandi, Anusha, et al. "Neural network dynamics for model-based deep reinforcement learning with model-free fine-tuning." 2018 IEEE International Conference on Robotics and Automation (ICRA). IEEE, 2018.
 
 ### Acknowledgement 
 Thanks to the following open-source projects:
@@ -47,7 +71,7 @@ Thanks to the following open-source projects:
 - baselines: https://github.com/openai/baselines
 - gym: https://github.com/openai/gym
 - trpo: https://github.com/pat-coady/trpo
-- PILCO: https://github.com/nrontsis/PILCO
+- GPS: http://rll.berkeley.edu/gps/
 
 ### Citing Baconian
 If you find Baconian is useful for your research, please consider cite our demo paper here:
