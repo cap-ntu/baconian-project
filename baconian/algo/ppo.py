@@ -1,9 +1,8 @@
 from baconian.core.core import EnvSpec
 from baconian.algo.rl_algo import ModelFreeAlgo, OnPolicyAlgo
 from baconian.config.dict_config import DictConfig
-from typeguard import typechecked
 import tensorflow as tf
-import numpy as np
+from baconian.algo.distribution.mvn import kl, entropy, log_prob
 from baconian.common.sampler.sample_data import TrajectoryData, TransitionData, SampleData
 from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
 from baconian.config.global_config import GlobalConfig
@@ -18,6 +17,8 @@ from baconian.algo.misc.placeholder_input import MultiPlaceholderInput, Placehol
 from baconian.common.error import *
 from baconian.common.data_pre_processing import RunningStandardScaler
 from baconian.common.special import *
+
+from memory_profiler import profile
 
 
 class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
@@ -72,14 +73,13 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                                                            require_snapshot=False)
         with tf.variable_scope(name):
             with tf.variable_scope('train'):
-                self.kl = tf.reduce_mean(self.old_policy.kl(other=self.policy))
+                self.kl = tf.reduce_mean(self.old_policy.kl(self.policy))
                 self.average_entropy = tf.reduce_mean(self.policy.entropy())
                 self.policy_loss, self.policy_optimizer, self.policy_update_op = self._setup_policy_loss()
                 self.value_func_loss, self.value_func_optimizer, self.value_func_update_op = self._setup_value_func_loss()
         var_list = get_tf_collection_var_list(
             '{}/train'.format(name)) + self.policy_optimizer.variables() + self.value_func_optimizer.variables()
         self.parameters.set_tf_var_list(tf_var_list=sorted(list(set(var_list)), key=lambda x: x.name))
-
         MultiPlaceholderInput.__init__(self,
                                        sub_placeholder_input_list=[dict(obj=self.value_func,
                                                                         attr_name='value_func',
@@ -99,6 +99,8 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
 
     @record_return_decorator(which_recorder='self')
     @register_counter_info_to_status_decorator(increment=1, info_key='train', under_status='TRAIN')
+    @profile
+    # TODO: profile train and functions
     def train(self, trajectory_data: TrajectoryData = None, train_iter=None, sess=None) -> dict:
         super(PPO, self).train()
         if trajectory_data is None:
@@ -224,6 +226,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         train_op = optimizer.minimize(loss, var_list=self.value_func.parameters('tf_var_list'))
         return loss, optimizer, train_op
 
+    @profile
     def _update_policy(self, train_data: TransitionData, train_iter, sess):
         old_policy_feed_dict = dict()
 
@@ -283,6 +286,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
             policy_total_train_epoch=total_epoch
         )
 
+    @profile
     def _update_value_func(self, train_data: TransitionData, train_iter, sess):
         if self.value_func_train_data_buffer is None:
             self.value_func_train_data_buffer = train_data

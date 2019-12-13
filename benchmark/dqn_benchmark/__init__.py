@@ -1,1 +1,3 @@
 from benchmark.dqn_benchmark.acrobot import acrobot_task_fn
+from benchmark.dqn_benchmark.mountaincar import mountaincar_task_fn
+from benchmark.dqn_benchmark.cartpole import cartpole_task_fn

@@ -16,7 +16,7 @@ from baconian.common.noise import *
 from baconian.common.schedules import *
 
 
-def mountiancar_task_fn():
+def mountaincarcontinuous_task_fn():
     exp_config = MOUNTAIN_CAR_CONTINUOUS_BENCHMARK_CONFIG_DICT
 
     GlobalConfig().set('DEFAULT_EXPERIMENT_END_POINT',

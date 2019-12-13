@@ -1,2 +1,2 @@
 from benchmark.ddpg_benchmark.pendulum import pendulum_task_fn
-from benchmark.ddpg_benchmark.mountaincar import mountiancar_task_fn
+from benchmark.ddpg_benchmark.mountaincar import mountaincarcontinuous_task_fn

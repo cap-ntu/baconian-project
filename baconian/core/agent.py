@@ -99,7 +99,7 @@ class Agent(Basic):
         """
         test the agent
 
-        :param sample_count: how many transitions/trajectories used to evaluate the agent's performance
+        :param sample_count: how many transitions, or, transitions in trajectories used to evaluate the agent's performance
         :type sample_count: int
         :param sample_trajectory_flag: True for sampling trajectory instead of transitions
         :type sample_count: bool
