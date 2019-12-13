@@ -24,12 +24,6 @@ matrix:
 
 
 before_install:
-  -
-
-install:
-  - bash installation.sh
-
-script:
   # Install Anaconda
   - sudo apt-get update
   # We do this conditionally because it saves us some downloading if the
@@ -50,7 +44,11 @@ script:
   # Replace dep1 dep2 ... with your dependencies
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
   - conda activate test-environment
-  - python setup.py install
+
+install:
+  - bash installation.sh
+
+script:
   - pip install pytest pytest-cov
   - pytest --cov=baconian ./examples/ ./baconian/test/
 
