@@ -20,19 +20,19 @@ overwrites some of already installed packages with a different version.
     cd ./baconian
     ./installation.sh
 
-The ``-e`` means "editable", so changes you make to files in the Ray
-directory will take effect without reinstalling the package. In contrast, if
-you do ``python setup.py install``, files will be copied from the Baconian
-directory to a directory of Python packages (often something like
-``/home/ubuntu/anaconda3/lib/python3.5/site-packages/baconian``). This means that
-changes you make to files in the Baconian directory will not have any effect.
-
-
 Then you are free to go. You can either use the Baconian as a third party package and import into your own project, or
-directly modify it. If you want to use the full environments of gym, e.g., `Mujoco <http://www.mujoco.org>`_,
-please refer to its  page to obtain the license and library. Then install the requirements
+directly modify it.
+
+After you finish the above installation, you are able to run the following tasks:
+* algorithmic
+* toy_text
+* classic_control
+
+If you want to use the full environments of gym, please refer to this page `Gym <https://github.com/openai/gym#installing-everything>` _ to obtain the license and library. Then install the requirements
 (you may need to re-install gym after that.)
-3. Support for mujoco, gym mujoco and DeepMind control suit
+
+3. Support for mujoco, gym mujoco, gym box-2d, and DeepMind control suit
+
 If you want to utilize mujoco based environments in Gym and DeepMind Control Suit, you should follow this instruction in mujoco-py_ to get the mujoco license and install the muoco-py.
 
 .. _mujoco-py: https://github.com/openai/mujoco-py/#requirements
