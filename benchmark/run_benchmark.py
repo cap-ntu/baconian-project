@@ -15,6 +15,8 @@ import os
 import time
 from baconian.config.global_config import GlobalConfig
 from baconian.core.experiment_runner import duplicate_exp_runner
+from baconian.envs.gym_env import make
+from baconian.common.error import EnvNotExistedError
 
 arg = argparse.ArgumentParser()
 env_id_to_task_fn = {
@@ -58,15 +60,22 @@ arg.add_argument('--count', type=int, default=1)
 arg.add_argument('--cuda_id', type=int, default=-1)
 args = arg.parse_args()
 
+
+def check_env_available(env_id):
+    try:
+        make(env_id)
+    except Exception as e:
+        return False
+    return True
+
+
 if __name__ == '__main__':
     CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
+
+    if not check_env_available(args.env_id):
+        raise EnvNotExistedError('Env {} not available'.format(args.env_id))
 
     GlobalConfig().set('DEFAULT_LOG_PATH', os.path.join(CURRENT_PATH, 'benchmark_log', args.env_id, args.algo,
                                                         time.strftime("%Y-%m-%d_%H-%M-%S")))
     ExpRootPath = GlobalConfig().DEFAULT_LOG_PATH
     duplicate_exp_runner(args.count, env_id_to_task_fn[args.env_id][args.algo], gpu_id=args.cuda_id)
-
-# MultipleExpLogDataLoader(exp_root_dir_list='/home/cly/Documents/baconian-internal/benchmark/benchmark_log/InvertedPendulum-v2/ppo/2019-09-23_11-53-12', num=args.count)\
-#                          .plot_res(sub_log_dir_name='benchmark_agent/TRAIN',
-#                          key='sum_reward', index='sample_counter',
-#                          mode='line', average_over=1, file_name=None, save_format='png',)

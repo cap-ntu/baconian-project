@@ -14,6 +14,7 @@ from baconian.config.global_config import GlobalConfig
 from baconian.common.schedules import LinearScheduler
 from baconian.core.status import get_global_status_collect
 
+
 def lunarlander_task_fn():
     exp_config = LUNARLANDER_BENCHMARK_CONFIG_DICT
     GlobalConfig().set('DEFAULT_EXPERIMENT_END_POINT',
