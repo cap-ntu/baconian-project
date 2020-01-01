@@ -227,10 +227,8 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
 
         res = sess.run([getattr(self.policy, tensor[1]) for tensor in self.old_dist_tensor],
                        feed_dict={
-                           self.policy.parameters('state_input'): train_data(
-                               'state_set'),
-                           self.policy.parameters('action_input'): train_data(
-                               'action_set'),
+                           self.policy.parameters('state_input'): train_data('state_set'),
+                           self.policy.parameters('action_input'): train_data('action_set'),
                            **self.parameters.return_tf_parameter_feed_dict()
                        })
 

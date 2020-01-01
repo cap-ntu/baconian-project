@@ -1,5 +1,5 @@
 """
-PPO bechmark on HalfCheetah
+PPO benchmark on HalfCheetah
 """
 from benchmark.ppo_benchmark.halfCheetah_conf import *
 from baconian.core.core import EnvSpec

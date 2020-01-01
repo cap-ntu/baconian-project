@@ -20,29 +20,23 @@ overwrites some of already installed packages with a different version.
     cd ./baconian
     ./installation.sh
 
-The ``-e`` means "editable", so changes you make to files in the Ray
-directory will take effect without reinstalling the package. In contrast, if
-you do ``python setup.py install``, files will be copied from the Baconian
-directory to a directory of Python packages (often something like
-``/home/ubuntu/anaconda3/lib/python3.5/site-packages/baconian``). This means that
-changes you make to files in the Baconian directory will not have any effect.
-
-
 Then you are free to go. You can either use the Baconian as a third party package and import into your own project, or
-directly modify it. If you want to use the full environments of gym, e.g., `Mujoco <http://www.mujoco.org>`_,
-please refer to its  page to obtain the license and library. Then install the requirements
-(you may need to re-install gym after that.)
-3. Support for mujoco, gym mujoco and DeepMind control suit
-If you want to utilize mujoco based environments in Gym and DeepMind Control Suit, you should follow this instruction in mujoco-py_ to get the mujoco license and install the muoco-py.
+directly modify it.
 
-.. _mujoco-py: https://github.com/openai/mujoco-py/#requirements
+After you finish the above installation, you are able to run the following environments of Gym:
 
-Then reinstall the gym by:
+* algorithmic
+* toy_text
+* classic_control
 
-.. code-block:: bash
+3. Support for Gym full environments
 
-    pip install 'gym[all]'
+If you want to use the full environments of gym, please refer to gym_ to obtain the license and library.
+.. _gym: <https://github.com/openai/gym#installing-everything
 
+Mostly you will need to install requirements for mujoco environments and box-2d environments.
+
+4. Support for DeepMind Control Suit
 
 For DeepMind control suit, you should install it by:
 
@@ -50,8 +44,11 @@ For DeepMind control suit, you should install it by:
 
     pip install git+git://github.com/deepmind/dm_control.git
 
-And for the different default mujoco key and mujoco binaries for mujoco-py and DeepMind control suit, please follow the setting of mujoco-py and we will
-take care of the setting for DeepMind Control Suit at runtime.
+DeepMind control suit also rely on the mujoco engine which is the same as the mujoco-py environments in gym. They provides
+similar tasks with slightly differences.
+
+And for the different default mujoco key and mujoco binaries for mujoco-py and DeepMind control suit, please follow the
+setting of mujoco-py and we will take care of the setting for DeepMind Control Suit at runtime.
 
 4. We have implemented many examples, you may try them first at :doc:`Examples <examples>`
 

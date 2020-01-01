@@ -1,5 +1,5 @@
 """
-iLQR bechmark on Pendulum
+iLQR benchmark on Pendulum
 """
 
 from benchmark.iLQR_benchmark.pendulum_conf import *

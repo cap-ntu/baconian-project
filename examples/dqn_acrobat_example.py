@@ -58,7 +58,7 @@ def task_fn():
                                          BATCH_SIZE=32,
                                          LEARNING_RATE=0.001,
                                          TRAIN_ITERATION=1,
-                                         DECAY=0.5),
+                                         DECAY=0),
               name=name + '_dqn',
               value_func=mlp_q)
     agent = Agent(env=env, env_spec=env_spec,

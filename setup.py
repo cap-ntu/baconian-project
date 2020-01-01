@@ -30,8 +30,8 @@ req = parse_requirements(filename=os.path.join(CURRENT_PATH, req_file))
 # req = [str(ir.req) for ir in req]
 
 # print(req)
-with open(os.path.join(CURRENT_PATH, 'README.md'), 'r') as f:
-    long_description = f.read()
+# with open(os.path.join(CURRENT_PATH, 'README.md'), 'r') as f:
+#     long_description = f.read()
 exec(open('./baconian/__version__.py').read())
 
 ver = __version__
@@ -44,6 +44,6 @@ setup(
     author_email='linsen001@e.ntu.edu.sg',
     description='model-based reinforcement learning toolbox',
     install_requires=req,
-    long_description=long_description,
+    # long_description=long_description,
     long_description_content_type='text/markdown'
 )
