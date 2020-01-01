@@ -10,6 +10,7 @@ from baconian.config.global_config import GlobalConfig
 from baconian.common.schedules import LinearScheduler
 from baconian.core.status import get_global_status_collect
 
+
 def task_fn():
     env = make('LunarLander-v2')
     name = 'demo_exp'
@@ -95,20 +96,11 @@ def task_fn():
     )
     experiment.run()
 
+
 from baconian.core.experiment_runner import single_exp_runner, duplicate_exp_runner
 from baconian.common.log_data_loader import SingleExpLogDataLoader, MultipleExpLogDataLoader
 
 GlobalConfig().set('DEFAULT_LOG_PATH', './log_path/DQNtest_lunarlander3')
 GlobalConfig().set('DEFAULT_EXPERIMENT_END_POINT', dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=500000,
                                                         TOTAL_AGENT_TEST_SAMPLE_COUNT=None,
-                                                        TOTAL_AGENT_UPDATE_COUNT=None), )
-# single_exp_runner(task_fn, del_if_log_path_existed=True)
-# duplicate_exp_runner(3, task_fn, del_if_log_path_existed=True)
-# SingleExpLogDataLoader('./log_path/DQNtest_break_cnn').plot_res(sub_log_dir_name='demo_exp_agent/TEST',
-#                                                                 key='sum_reward', index='sample_counter', mode='line',
-#                                                                 average_over=10, file_name='average_over_10',
-#                                                                 save_format='png', )
-MultipleExpLogDataLoader(exp_root_dir_list='./log_path/DQNtest_lunarlander3', num=2) \
-    .plot_res(sub_log_dir_name='demo_exp_agent/TEST',
-              key='sum_reward', index='sample_counter',
-              mode='line', average_over=20, file_name='Lunar_average_over_20', save_format='png', )
+                                                        TOTAL_AGENT_UPDATE_COUNT=None))
