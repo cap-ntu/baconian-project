@@ -125,3 +125,10 @@ def task_fn():
         name=name
     )
     experiment.run()
+
+
+if __name__ == '__main__':
+    from baconian.core.experiment_runner import single_exp_runner
+
+    GlobalConfig().set('DEFAULT_LOG_PATH', './log_path')
+    single_exp_runner(task_fn, del_if_log_path_existed=True)
