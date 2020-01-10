@@ -87,7 +87,7 @@ PENDULUM_BENCHMARK_CONFIG_DICT = {
         'replay_buffer': None
     },
     'TrainTestFlow': {
-        "TEST_SAMPLES_COUNT": 20,
+        "TEST_SAMPLES_COUNT": 1,
         "TRAIN_SAMPLES_COUNT": 20,
         'config_or_config_dict': {
             "TEST_EVERY_SAMPLE_COUNT": 10,

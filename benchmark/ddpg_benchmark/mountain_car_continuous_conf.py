@@ -72,7 +72,7 @@ MOUNTAIN_CAR_CONTINUOUS_BENCHMARK_CONFIG_DICT = {
         'replay_buffer': None
     },
     'TrainTestFlow': {
-        "TEST_SAMPLES_COUNT": 100,
+        "TEST_SAMPLES_COUNT": 1,
         "TRAIN_SAMPLES_COUNT": 100,
         'config_or_config_dict': {
             "TEST_EVERY_SAMPLE_COUNT": 20,
@@ -81,7 +81,7 @@ MOUNTAIN_CAR_CONTINUOUS_BENCHMARK_CONFIG_DICT = {
             "START_TEST_AFTER_SAMPLE_COUNT": 0,
         }
     },
-    'DEFAULT_EXPERIMENT_END_POINT': dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=20000,
+    'DEFAULT_EXPERIMENT_END_POINT': dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=300000,
                                          TOTAL_AGENT_TEST_SAMPLE_COUNT=None,
                                          TOTAL_AGENT_UPDATE_COUNT=None),
 }
