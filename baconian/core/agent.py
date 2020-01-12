@@ -30,6 +30,8 @@ class Agent(Basic):
                  env_spec: EnvSpec,
                  sampler: Sampler = None,
                  noise_adder: AgentActionNoiseWrapper = None,
+                 reset_noise_every_terminal_state=False,
+                 reset_state_every_sample=False,
                  exploration_strategy: ExplorationStrategy = None,
                  algo_saving_scheduler: EventScheduler = None):
         """
@@ -44,6 +46,10 @@ class Agent(Basic):
         :type env_spec: EnvSpec
         :param sampler: sampler
         :type sampler: Sampler
+        :param reset_noise_every_terminal_state: reset the noise every sampled trajectory
+        :type reset_noise_every_terminal_state: bool
+        :param reset_state_every_sample: reset the state everytime perofrm the sample/rollout
+        :type reset_state_every_sample: bool
         :param noise_adder: add action noise for exploration in action space
         :type noise_adder: AgentActionNoiseWrapper
         :param exploration_strategy: exploration strategy in action space
@@ -52,7 +58,8 @@ class Agent(Basic):
         :type algo_saving_scheduler: EventSchedule
         """
         super(Agent, self).__init__(name=name, status=StatusWithSubInfo(self))
-        self.parameters = Parameters(parameters=dict())
+        self.parameters = Parameters(parameters=dict(reset_noise_every_terminal_state=reset_noise_every_terminal_state,
+                                                     reset_state_every_sample=reset_state_every_sample))
         self.total_test_samples = 0
         self.total_train_samples = 0
         self.env = env
@@ -169,6 +176,7 @@ class Agent(Basic):
                                                                            self.get_status()))
         batch_data = self.sampler.sample(agent=self,
                                          env=env,
+                                         reset_at_start=self.parameters('reset_state_every_sample'),
                                          sample_type=sample_type,
                                          in_which_status=in_which_status,
                                          sample_count=sample_count)
@@ -186,6 +194,10 @@ class Agent(Basic):
                                         status_info=self.get_status(),
                                         log_val=batch_data.get_sum_of('reward_set'))
         return batch_data
+
+    def reset_on_terminal_state(self):
+        if self.parameters('reset_noise_every_terminal_state') is True and self.noise_adder is not None:
+            self.noise_adder.reset()
 
     def init(self):
         """
