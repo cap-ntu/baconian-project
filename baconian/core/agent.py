@@ -83,7 +83,7 @@ class Agent(Basic):
         """
         train the agent
 
-        :return: Only if memory buffer did not have enough data to train, return False
+        :return: True for successfully train the agent, false if memory buffer did not have enough data.
         :rtype: bool
         """
         self.set_status('TRAIN')

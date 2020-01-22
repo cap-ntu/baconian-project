@@ -1,5 +1,5 @@
-PENDULUM_BENCHMARK_CONFIG_DICT = {
-    'env_id': "Pendulum-v0",
+MOUNTAIN_CAR_BENCHMARK_CONFIG_DICT = {
+    'env_id': "MountainCarContinuous-v0",
     'MLPQValueFunction': {
         'mlp_config': [
             {

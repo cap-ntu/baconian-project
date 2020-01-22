@@ -101,9 +101,5 @@ PENDULUM_BENCHMARK_CONFIG_DICT = {
         'final_p': 0.0,
         'schedule_timesteps': 10000
     },
-    'DEFAULT_EXPERIMENT_END_POINT': dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=9000,
-                                         TOTAL_AGENT_TEST_SAMPLE_COUNT=None,
-                                         TOTAL_AGENT_UPDATE_COUNT=None),
-    'AGENT_NOISE': {
-    }
+    'DEFAULT_EXPERIMENT_END_POINT': dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=10000)
 }

@@ -1,5 +1,5 @@
 """
-DYNA benchmark on Pendulum
+Dyna benchmark on Pendulum
 """
 
 from benchmark.dyna_benchmark.pendulum_conf import PENDULUM_BENCHMARK_CONFIG_DICT as exp_config
@@ -71,7 +71,7 @@ def pendulum_task_fn():
     agent = Agent(env=env, env_spec=env_spec,
                   algo=algo,
                   exploration_strategy=None,
-                  noise_adder=AgentActionNoiseWrapper(noise=NormalActionNoise(),
+                  noise_adder=AgentActionNoiseWrapper(noise=OrnsteinUhlenbeckActionNoise(np.zeros(1, ), 0.15),
                                                       noise_weight_scheduler=ConstantScheduler(value=0.3),
                                                       action_weight_scheduler=ConstantScheduler(value=1.0)),
                   name=name + '_agent')
@@ -85,6 +85,8 @@ def pendulum_task_fn():
                            'kwargs': dict(state='state_agent_training')},
             'train_algo_from_synthesized_data': {'func': agent.train,
                                                  'args': list(),
+                                                 # TODO use a decomposed way to represetn the state
+                                                 #  e.g., TRAIN:AGENT:CYBER
                                                  'kwargs': dict(state='state_agent_training', train_iter=1)},
             'train_dynamics': {'func': agent.train,
                                'args': list(),
@@ -97,13 +99,14 @@ def pendulum_task_fn():
                               'kwargs': dict(sample_count=10, env=env)},
             'sample_from_real_env': {'func': agent.sample,
                                      'args': list(),
-                                     'kwargs': dict(sample_count=10,
+                                     'kwargs': dict(sample_count=20,
                                                     env=agent.env,
+                                                    sample_type='transition',
                                                     in_which_status='TRAIN',
                                                     store_flag=True)},
             'sample_from_dynamics_env': {'func': agent.sample,
                                          'args': list(),
-                                         'kwargs': dict(sample_count=50,
+                                         'kwargs': dict(sample_count=20,
                                                         sample_type='transition',
                                                         env=agent.algo.dynamics_env,
                                                         in_which_status='TRAIN',
