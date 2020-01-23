@@ -178,7 +178,7 @@ def task_fn():
         start_test_after_sample_count=5,
         start_train_after_sample_count=5,
         train_func_and_args=(agent.train, (), dict()),
-        test_func_and_args=(agent.test, (), dict(sample_count=10)),
+        test_func_and_args=(agent.test, (), dict(sample_count=10, sample_trajectory_flag=True)),
         sample_func_and_args=(agent.sample, (), dict(sample_count=100,
                                                      env=agent.env,
                                                      in_which_status='TRAIN',
@@ -200,7 +200,7 @@ if __name__ == '__main__':
 
     GlobalConfig().set('DEFAULT_LOG_PATH', './log_path')
     GlobalConfig().set('DEFAULT_EXPERIMENT_END_POINT',
-                       dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=10000,
+                       dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=9000,
                             TOTAL_AGENT_TEST_SAMPLE_COUNT=None,
                             TOTAL_AGENT_UPDATE_COUNT=None))
     single_exp_runner(task_fn, del_if_log_path_existed=True)
