@@ -5,7 +5,7 @@ from baconian.algo.algo import Algo
 from typeguard import typechecked
 from baconian.algo.misc import ExplorationStrategy
 from baconian.common.sampler.sample_data import SampleData
-from baconian.common.logging import Recorder
+from baconian.common.logging import Recorder, record_return_decorator
 from baconian.core.status import StatusWithSubInfo
 from baconian.core.status import register_counter_info_to_status_decorator
 from baconian.core.util import init_func_arg_record_decorator
@@ -135,15 +135,20 @@ class Agent(Basic):
 
         :param kwargs: rest parameters, include key: obs
         :return: predicted action
-        :rtype: ndarray
+        :rtype: numpy ndarray
         """
+        res = None
         if self.explorations_strategy and not self.is_testing:
-            return self.explorations_strategy.predict(**kwargs, algo=self.algo)
+            res = self.explorations_strategy.predict(**kwargs, algo=self.algo)
         else:
             if self.noise_adder and not self.is_testing:
-                return self.env_spec.action_space.clip(self.noise_adder(self.algo.predict(**kwargs)))
+                res = self.env_spec.action_space.clip(self.noise_adder(self.algo.predict(**kwargs)))
             else:
-                return self.algo.predict(**kwargs)
+                res = self.algo.predict(**kwargs)
+        self.recorder.append_to_obj_log(obj=self, attr_name='action',
+                                        status_info=self.get_status(),
+                                        log_val=res)
+        return res
 
     @register_counter_info_to_status_decorator(increment=1, info_key='sample_counter', under_status=('TRAIN', 'TEST'),
                                                ignore_wrong_status=True)
