@@ -59,7 +59,7 @@ class Agent(Basic):
         self.algo = algo
         self._env_step_count = 0
         self.sampler = sampler
-        self.recorder = Recorder()
+        self.recorder = Recorder(default_obj=self)
         self.env_spec = env_spec
         if exploration_strategy:
             assert isinstance(exploration_strategy, ExplorationStrategy)

@@ -56,3 +56,7 @@ class ShapeNotCompatibleError(BaconianError):
 
 class EnvNotExistedError(BaconianError):
     pass
+
+
+class LogItemNotExisted(BaconianError):
+    pass

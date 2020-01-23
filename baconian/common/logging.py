@@ -10,15 +10,7 @@ from baconian.common import files as files
 from baconian.core.global_var import get_all
 from baconian.config.global_config import GlobalConfig
 from functools import wraps
-
-"""
-Logger Module
-1. a global console output file
-2. each module/instance will have a single log file
-3. support for tf related utility, tf model, tensorboard (todo)
-4. support for different log file types
-5. support for different level of logging
-"""
+from baconian.common.error import *
 
 
 class BaseLogger(object):
@@ -236,11 +228,12 @@ class ConsoleLogger(object):
 
 
 class Recorder(object):
-    def __init__(self, flush_by_split_status=True):
+    def __init__(self, flush_by_split_status=True, default_obj=None):
         self._obj_log = {}
         self._registered_log_attr_by_get_dict = {}
         Logger().append_recorder(self)
         self.flush_by_split_status = flush_by_split_status
+        self._default_obj = default_obj
 
     def append_to_obj_log(self, obj, attr_name: str, status_info: dict, log_val):
         assert hasattr(obj, 'name')
@@ -252,6 +245,28 @@ class Recorder(object):
         info['attr_name'] = deepcopy(attr_name)
         info['log_val'] = deepcopy(log_val)
         self._obj_log[obj][attr_name].append(info)
+
+    def get_log(self, attr_name: str, filter_by_status: dict = None, obj=None):
+        if obj is None:
+            obj = self._default_obj
+        if obj not in self._obj_log:
+            raise LogItemNotExisted('object {} has no records in this recorder'.format(obj))
+        if attr_name not in self._obj_log[obj]:
+            raise LogItemNotExisted('no log item {} found at object {} recorder'.format(attr_name, obj))
+        record = self._obj_log[obj][attr_name]
+        if filter_by_status is not None:
+            # TODO reduce the time complexity of the code snippet
+            filtered_record = []
+            for r in record:
+                not_equal_flag = False
+                for key in filter_by_status.keys():
+                    if key in r and r[key] != filter_by_status[key]:
+                        not_equal_flag = True
+                if not not_equal_flag:
+                    filtered_record.append(r)
+            return filtered_record
+        else:
+            return deepcopy(record)
 
     def is_empty(self):
         return len(self._obj_log) == 0

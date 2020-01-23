@@ -60,7 +60,7 @@ class Experiment(Basic):
         self.agent = agent
         self.env = env
         self.tuner = tuner
-        self.recorder = Recorder(flush_by_split_status=False)
+        self.recorder = Recorder(flush_by_split_status=False, default_obj=self)
         # self.status_collector = StatusCollector()
         self.flow = flow
         if register_default_global_status is True:
