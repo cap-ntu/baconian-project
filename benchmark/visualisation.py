@@ -14,4 +14,5 @@ if __name__ == "__main__":
     MultipleExpLogDataLoader(exp_root_dir_list=exp_root_dir_list)\
                          .plot_res(sub_log_dir_name='benchmark_agent/TRAIN',
                          key='sum_reward', index='sample_counter',
-                         mode='line', average_over=1, file_name=None, save_format='png', save_path='/home/cly/Documents/baconian-internal/benchmark/')
+                         mode='line', average_over=1, file_name=None, save_format='png', save_path='/home/cly/Document'
+                                                                                                   's/baconian-internal/benchmark/')

@@ -24,6 +24,7 @@ class SingleExpLogDataLoader(object):
         # todo maybe add a verbose mode to load all log
         agent_log_dir = os.path.join(self._root_dir, agent_log_dir_name)
         algo_log_dir = os.path.join(self._root_dir, algo_log_dir_name)
+        # TODO : load all data here
         check_dir(agent_log_dir)
         check_dir(algo_log_dir)
 
@@ -151,3 +152,6 @@ class MultipleExpLogDataLoader(object):
                                     mean_stddev_flag=True,
                                     histogram_flag=histogram_flag, save_path=save_path,
                                     sub_log_dir_name=sub_log_dir_name, save_format=save_format, file_name=file_name)
+
+
+#TODO: restructure plot_res, seperate file io
