@@ -32,12 +32,9 @@ class EarlyStoppingFlow(TrainTestFlow):
         self.agent = agent
 
     def _is_ended(self):
-        test_reward = self.agent.recorder.get_log(attr_name='sum_reward',
-                                                  filter_by_status=dict(status='TEST'))
-        test_reward = sorted(test_reward, key=lambda x: x['sample_counter'])
-        if len(test_reward) < self.parameters('USE_LAST_K_EVALUATION_REWARD') * 2:
-            pass
-        else:
+        test_reward = sorted(self.agent.recorder.get_log(attr_name='sum_reward', filter_by_status=dict(status='TEST')),
+                             key=lambda x: x['sample_counter'])
+        if len(test_reward) >= self.parameters('USE_LAST_K_EVALUATION_REWARD') * 2:
             last_reward = test_reward[-self.parameters('USE_LAST_K_EVALUATION_REWARD'):]
             pre_reward = test_reward[-self.parameters('USE_LAST_K_EVALUATION_REWARD') * 2: -self.parameters(
                 'USE_LAST_K_EVALUATION_REWARD')]
@@ -45,9 +42,9 @@ class EarlyStoppingFlow(TrainTestFlow):
             pre_reward = np.mean([r['log_val'] for r in pre_reward])
             if last_reward < pre_reward:
                 ConsoleLogger().print('info',
-                                      'pipeline ended because last {} reward: {} ls less than previous {} step reward {}'.
-                                      format(self.parameters('USE_LAST_K_EVALUATION_REWARD'), last_reward,
-                                             self.parameters('USE_LAST_K_EVALUATION_REWARD'), pre_reward))
+                                      'pipeline ended because last {} reward: {} ls less than previous {} step reward {}'.format(
+                                          self.parameters('USE_LAST_K_EVALUATION_REWARD'), last_reward,
+                                          self.parameters('USE_LAST_K_EVALUATION_REWARD'), pre_reward))
                 return True
         return super()._is_ended()
 
