@@ -26,7 +26,7 @@ PyOpenGL>=3.1.0
 requests>=2.21.0
 scipy>=1.2.1
 six>=1.12.0
-tensorflow==1.14.0
+tensorflow==1.15.2
 tensorflow-probability==0.7.0
 transitions>=0.6.9
 typeguard>=2.1.0
