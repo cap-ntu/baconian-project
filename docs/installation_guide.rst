@@ -31,7 +31,7 @@ After you finish the above installation, you are able to run the following envir
 
 3. Support for Gym full environments
 
-If you want to use the full environments of gym, please refer to gym_ to obtain the license and library.
+If you want to use the full environments of gym, please refer to `gym`_ to obtain the license and library.
 .. _gym: <https://github.com/openai/gym#installing-everything
 
 Mostly you will need to install requirements for mujoco environments and box-2d environments.
