@@ -1,3 +1,7 @@
 #!/usr/bin/env bash
-pip install pip==9.0.1
+
+conda install -c anaconda swig
+conda install pip
+conda install tensorflow-gpu==1.15.0
 pip install -e .
+``
