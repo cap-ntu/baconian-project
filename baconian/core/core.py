@@ -84,7 +84,7 @@ class Env(gym.Env, Basic):
         self.action_space = None
         self.observation_space = None
         self.step_count = None
-        self.recorder = Recorder()
+        self.recorder = Recorder(default_obj=self)
         self._last_reset_point = 0
         self.total_step_count_fn = lambda: self._status.group_specific_info_key(info_key='step', group_way='sum')
 

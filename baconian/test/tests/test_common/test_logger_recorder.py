@@ -5,13 +5,14 @@ from baconian.core.core import Basic, EnvSpec
 from baconian.algo.dqn import DQN
 from baconian.envs.gym_env import make
 from baconian.algo.value_func.mlp_q_value import MLPQValueFunction
+from baconian.core.agent import Agent
 
 
 class Foo(Basic):
     def __init__(self, name='foo'):
         super().__init__(name=name)
         self.loss = 1.0
-        self.recorder = Recorder(flush_by_split_status=False)
+        self.recorder = Recorder(flush_by_split_status=False, default_obj=self)
 
     def get_status(self):
         return dict(x=1)
@@ -31,8 +32,7 @@ class Foo(Basic):
 class TestLogger(TestWithAll):
     def test_register(self):
         obj = Foo()
-
-        a = Recorder(flush_by_split_status=False)
+        a = Recorder(flush_by_split_status=False, default_obj=obj)
         a.register_logging_attribute_by_record(obj=obj, attr_name='val', get_method=lambda x: x['obj'].get_val(),
                                                static_flag=False)
         a.register_logging_attribute_by_record(obj=obj, attr_name='loss', static_flag=True)
@@ -43,7 +43,7 @@ class TestLogger(TestWithAll):
         obj.loss = 10.0
         a.record()
 
-        b = Recorder(flush_by_split_status=False)
+        b = Recorder(flush_by_split_status=False, default_obj=obj)
         b.register_logging_attribute_by_record(obj=obj, attr_name='val', get_method=lambda x: x['obj'].get_val(),
                                                static_flag=False)
         b.register_logging_attribute_by_record(obj=obj, attr_name='loss', static_flag=True)
@@ -132,16 +132,25 @@ class TesTLoggerWithDQN(TestWithAll):
                                              TRAIN_ITERATION=1,
                                              DECAY=0.5),
                   value_func=mlp_q)
-        dqn.init()
+        agent = Agent(env=env, env_spec=env_spec,
+                      algo=dqn,
+                      name='agent')
+        agent.init()
+        # dqn.init()
         st = env.reset()
         from baconian.common.sampler.sample_data import TransitionData
         a = TransitionData(env_spec)
         res = []
-        for i in range(100):
-            ac = dqn.predict(obs=st, sess=self.sess, batch_flag=False)
-            st_new, re, done, _ = env.step(action=ac)
-            a.append(state=st, new_state=st_new, action=ac, done=done, reward=re)
-            dqn.append_to_memory(a)
+        agent.sample(env=env,
+                     sample_count=100,
+                     in_which_status='TRAIN',
+                     store_flag=True,
+                     sample_type='transition')
+        agent.sample(env=env,
+                     sample_count=100,
+                     in_which_status='TRAIN',
+                     store_flag=True,
+                     sample_type='transition')
         res.append(dqn.train(batch_data=a, train_iter=10, sess=None, update_target=True)['average_loss'])
         res.append(dqn.train(batch_data=None, train_iter=10, sess=None, update_target=True)['average_loss'])
         self.assertTrue(dqn in dqn.recorder._obj_log)
@@ -152,7 +161,12 @@ class TesTLoggerWithDQN(TestWithAll):
 
         self.assertTrue(len(Logger()._registered_recorders) > 0)
         self.assertTrue(dqn.recorder in Logger()._registered_recorders)
-
+        res = dqn.recorder.get_log(attr_name='average_loss', filter_by_status=dict())
+        self.assertEqual(len(res), 2)
+        res = agent.recorder.get_log(attr_name='sum_reward', filter_by_status={'status': 'TRAIN'})
+        self.assertEqual(len(res), 2)
+        res = agent.recorder.get_log(attr_name='sum_reward', filter_by_status={'status': 'TEST'})
+        self.assertEqual(len(res), 0)
         Logger().flush_recorder()
 
     def test_console_logger(self):
