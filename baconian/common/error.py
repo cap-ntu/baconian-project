@@ -52,3 +52,11 @@ class WrongValueRangeError(BaconianError):
 
 class ShapeNotCompatibleError(BaconianError):
     pass
+
+
+class EnvNotExistedError(BaconianError):
+    pass
+
+
+class LogItemNotExisted(BaconianError):
+    pass

@@ -14,13 +14,13 @@ __all__ = ['Status', 'StatusWithSubInfo', 'StatusWithSingleInfo', 'StatusWithInf
 
 class Status(object):
     """
-    One of the core module, a class to indicate the current status of an object in baconian.
+    One of the core module, a class to indicate the current status of an object in Baconian.
     """
 
     def __init__(self, obj):
         """
-        The object that status willlu
-        :param obj:
+        The object that status will composed into.
+        :param obj: A object of Baconian, e.g., Environment, Agent, Algo.
         """
         self.obj = obj
         self._status_val = None

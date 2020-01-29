@@ -27,7 +27,7 @@ class Algo(Basic):
         super().__init__(status=StatusWithSubInfo(obj=self), name=name)
         self.env_spec = env_spec
         self.parameters = Parameters(dict())
-        self.recorder = Recorder()
+        self.recorder = Recorder(default_obj=self)
 
     def init(self):
         """

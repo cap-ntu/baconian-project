@@ -15,6 +15,7 @@ from gym.spaces import Space as GymSpace
 import baconian.common.spaces as garage_space
 from typeguard import typechecked
 import gym.error as gym_error
+
 _env_inited_count = dict()
 
 
@@ -154,6 +155,9 @@ class GymEnv(Env):
             return self.unwrapped_gym.observation if isinstance(self.unwrapped_gym.observation,
                                                                 np.ndarray) else np.array(
                 self.unwrapped_gym.state)
+        elif hasattr(self.unwrapped_gym, 'spec') and hasattr(self.unwrapped_gym.spec,
+                                                             'id') and self.unwrapped_gym.spec.id in specialEnv:
+            return specialEnv[self.unwrapped_gym.spec.id](self)
         else:
             raise ValueError('Env id: {} is not supported for method get_state'.format(self.env_id))
 
@@ -194,3 +198,29 @@ class GymEnv(Env):
 
     def __str__(self):
         return "<GymEnv instance> {}".format(self.env_id)
+
+
+def get_lunarlander_state(env):
+    pos = env.unwrapped_gym.lander.position
+    vel = env.unwrapped_gym.lander.linearVelocity
+    fps = 50
+    scale = 30.0  # affects how fast-paced the game is, forces should be adjusted as well
+    leg_down = 18
+    viewport_w = 600
+    viewport_h = 400
+    state = [
+        (pos.x - viewport_w / scale / 2) / (viewport_w / scale / 2),
+        (pos.y - (env.unwrapped_gym.helipad_y + leg_down / scale)) / (viewport_h / scale / 2),
+        vel.x * (viewport_w / scale / 2) / fps,
+        vel.y * (viewport_h / scale / 2) / fps,
+        env.unwrapped_gym.lander.angle,
+        20.0 * env.unwrapped_gym.lander.angularVelocity / fps,
+        1.0 if env.unwrapped_gym.legs[0].ground_contact else 0.0,
+        1.0 if env.unwrapped_gym.legs[1].ground_contact else 0.0
+    ]
+    return np.array(state, dtype=np.float32)
+
+
+specialEnv = {
+    'LunarLander-v2': get_lunarlander_state
+}

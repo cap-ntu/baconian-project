@@ -49,7 +49,7 @@ class DynamicsModel(Basic):
         self.state_input = None
         self.action_input = None
         self.new_state_output = None
-        self.recorder = Recorder(flush_by_split_status=False)
+        self.recorder = Recorder(flush_by_split_status=False, default_obj=self)
         self._status = StatusWithSingleInfo(obj=self)
         self.state_input_scaler = state_input_scaler if state_input_scaler else IdenticalDataScaler(
             dims=env_spec.flat_obs_dim)
