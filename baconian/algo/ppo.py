@@ -18,8 +18,6 @@ from baconian.common.error import *
 from baconian.common.data_pre_processing import RunningStandardScaler
 from baconian.common.special import *
 
-from memory_profiler import profile
-
 
 class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
     required_key_dict = DictConfig.load_json(file_path=GlobalConfig().DEFAULT_PPO_REQUIRED_KEY_LIST)
@@ -99,8 +97,6 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
 
     @record_return_decorator(which_recorder='self')
     @register_counter_info_to_status_decorator(increment=1, info_key='train', under_status='TRAIN')
-    @profile
-    # TODO: profile train and functions
     def train(self, trajectory_data: TrajectoryData = None, train_iter=None, sess=None) -> dict:
         super(PPO, self).train()
         if trajectory_data is None:
@@ -226,7 +222,6 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         train_op = optimizer.minimize(loss, var_list=self.value_func.parameters('tf_var_list'))
         return loss, optimizer, train_op
 
-    @profile
     def _update_policy(self, train_data: TransitionData, train_iter, sess):
         old_policy_feed_dict = dict()
 
@@ -286,7 +281,6 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
             policy_total_train_epoch=total_epoch
         )
 
-    @profile
     def _update_value_func(self, train_data: TransitionData, train_iter, sess):
         if self.value_func_train_data_buffer is None:
             self.value_func_train_data_buffer = train_data

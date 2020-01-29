@@ -16,7 +16,6 @@ imageio>=2.5.0
 json-tricks>=3.13.0
 lockfile>=0.12.2
 Markdown>=3.0.1
-memory-profiler>=0.55.0
 numpy>=1.16.2
 overrides>=1.9
 pbr>=5.1.3

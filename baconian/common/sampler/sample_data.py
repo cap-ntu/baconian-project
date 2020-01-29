@@ -3,7 +3,6 @@ from baconian.core.core import EnvSpec
 from copy import deepcopy
 import typeguard as tg
 from baconian.common.error import *
-from memory_profiler import profile
 
 
 class SampleData(object):
@@ -209,7 +208,6 @@ class TrajectoryData(SampleData):
         super(TrajectoryData, self).__init__(env_spec=env_spec, obs_shape=obs_shape, action_shape=action_shape)
         self.trajectories = []
 
-    @profile
     def reset(self):
         self.trajectories = []
 
@@ -221,7 +219,6 @@ class TrajectoryData(SampleData):
             raise TypeError()
         self.trajectories += sample_data.trajectories
 
-    @profile
     def return_as_transition_data(self, shuffle_flag=False) -> TransitionData:
         transition_set = self.trajectories[0].get_copy()
         for i in range(1, len(self.trajectories)):
