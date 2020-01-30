@@ -1,5 +1,3 @@
-from benchmark.ddpg_benchmark import mountaincarcontinuous_task_fn, pendulum_task_fn
-from benchmark.dqn_benchmark import mountaincar_task_fn, cartpole_task_fn
 from benchmark.ddpg_benchmark import mountiancar_task_fn, pendulum_task_fn
 from benchmark.dyna_benchmark import dyna_pendulum_task_fn
 from benchmark.mpc_benchmark import mpc_pendulum_task_fn

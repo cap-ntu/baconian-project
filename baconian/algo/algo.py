@@ -98,32 +98,3 @@ class Algo(Basic):
         :rtype: bool
         """
         return self.get_status()['status'] == 'TEST'
-
-#
-# class AlgoPolicyWrapper(Algo):
-#     def __init__(self, policy: Policy, env_spec: EnvSpec, name: str = 'algo'):
-#         super().__init__(env_spec, name)
-#         self.policy = policy
-#
-#     def init(self):
-#         super().init()
-#
-#     def train(self, *arg, **kwargs) -> dict:
-#         return super().train(*arg, **kwargs)
-#
-#     def test(self, *arg, **kwargs) -> dict:
-#         return super().test(*arg, **kwargs)
-#
-#     def predict(self, obs, **kwargs):
-#         self.policy.forward(obs=obs)
-#
-#     def append_to_memory(self, *args, **kwargs):
-#         pass
-#
-#     @property
-#     def is_training(self):
-#         return super().is_training()
-#
-#     @property
-#     def is_testing(self):
-#         return super().is_testing()
