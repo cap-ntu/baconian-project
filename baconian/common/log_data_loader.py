@@ -1,10 +1,4 @@
 from baconian.common.plotter import Plotter
-import glob
-import os
-from os import walk
-import sys
-from baconian.common.error import *
-import json_tricks as json
 import pandas as pd
 from baconian.common.files import *
 from collections import OrderedDict
@@ -152,6 +146,3 @@ class MultipleExpLogDataLoader(object):
                                     mean_stddev_flag=True,
                                     histogram_flag=histogram_flag, save_path=save_path,
                                     sub_log_dir_name=sub_log_dir_name, save_format=save_format, file_name=file_name)
-
-
-#TODO: restructure plot_res, seperate file io
