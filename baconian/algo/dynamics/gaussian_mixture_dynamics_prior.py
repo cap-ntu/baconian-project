@@ -6,7 +6,7 @@ from baconian.common.sampler.sample_data import TransitionData
 from baconian.algo.dynamics.third_party.gmm import GMM
 import tensorflow as tf
 from baconian.tf.util import *
-from baconian.tf.tf_parameters import ParametersWithTensorflowVariable
+from baconian.core.parameters import Parameters
 from baconian.common.data_pre_processing import DataScaler
 
 class GaussianMixtureDynamicsPrior(DynamicsPriorModel):
@@ -18,21 +18,11 @@ class GaussianMixtureDynamicsPrior(DynamicsPriorModel):
         Appendix A.3.
     """
     def __init__(self, env_spec: EnvSpec, batch_data: TransitionData = None, epsilon=inf, init_sequential=False, eigreg=False, warmstart=True, init_state=None, name_scope='gp_dynamics_model', name='gp_dynamics_model'):
-        parameters = ParametersWithTensorflowVariable(tf_var_list=[],
-                                                      rest_parameters=dict(),
-                                                      name='{}_param'.format(name),
-                                                      require_snapshot=False)
-        
+        parameters = Parameters(dict(X = None, U = None, min_samp = 40, max_samples = inf, max_clusters = 20, strength = 1))
         super().__init__(env_spec=env_spec, parameters=parameters, init_state=init_state, name=name)
         self.name_scope = name_scope
-        self.X = None
-        self.U = None
         self.batch_data = batch_data
         self.gmm_model = GMM(epsilon=epsilon, init_sequential=False, eigreg=False, warmstart=True)
-        self._min_samp = 40
-        self._max_samples = inf
-        self._max_clusters = 20
-        self._strength = 1
 
     def init(self):
         super().init()
@@ -68,8 +58,8 @@ class GaussianMixtureDynamicsPrior(DynamicsPriorModel):
         mu0, Phi, m, n0 = self.gmm_model.inference(xux)
 
         # Factor in multiplier.
-        n0 = n0 * self._strength
-        m = m * self._strength
+        n0 = n0 * self.parameters('strength')
+        m = m * self.parameters('strength')
 
         # Multiply Phi by m (since it was normalized before).
         Phi *= m
@@ -96,32 +86,32 @@ class GaussianMixtureDynamicsPrior(DynamicsPriorModel):
         T = X.shape[1] - 1
 
         # Append data to dataset.
-        if self.X is None:
-            self.X = X
+        if self.parameters('X') is None:
+            self.parameters._parameters['X'] = X
         else:
-            self.X = np.concatenate([self.X, X], axis=0)
+            self.parameters._parameters['X'] = np.concatenate([self.parameters('X'), X], axis=0)
 
-        if self.U is None:
-            self.U = U
+        if self.parameters('U') is None:
+            self.parameters._parameters['U'] = U
         else:
-            self.U = np.concatenate([self.U, U], axis=0)
+            self.parameters._parameters['U'] = np.concatenate([self.parameters('U'), U], axis=0)
 
         # Remove excess samples from dataset.
-        start = max(0, self.X.shape[0] - self._max_samples + 1)
-        self.X = self.X[start:, :]
-        self.U = self.U[start:, :]
+        start = max(0, self.parameters('X').shape[0] - self.parameters('max_samples') + 1)
+        self.parameters._parameters['X'] = self.parameters('X')[start:, :]
+        self.parameters._parameters['U'] = self.parameters('U')[start:, :]
 
         # Compute cluster dimensionality.
         Do = X.shape[2] + U.shape[2] + X.shape[2]  #TODO: Use Xtgt.
 
         # Create dataset.
-        N = self.X.shape[0]
+        N = self.parameters('X').shape[0]
         xux = np.reshape(
-            np.c_[self.X[:, :T, :], self.U[:, :T, :], self.X[:, 1:(T+1), :]],
+            np.c_[self.parameters('X')[:, :T, :], self.parameters('U')[:, :T, :], self.parameters('X')[:, 1:(T+1), :]],
             [T * N, Do]
         )
 
         # Choose number of clusters.
-        K = int(max(2, min(self._max_clusters, np.floor(float(N * T) / self._min_samp))))
+        K = int(max(2, min(self.parameters('max_clusters'), np.floor(float(N * T) / self.parameters('min_samp')))))
 
         return xux, K
