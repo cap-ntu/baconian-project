@@ -1,7 +1,7 @@
 # Baconian:  Boosting the model-based reinforcement learning 
 [![Build Status](https://travis-ci.com/Lukeeeeee/baconian-project.svg?branch=master)](https://travis-ci.com/Lukeeeeee/baconian-project)
 [![Documentation Status](https://readthedocs.org/projects/baconian-public/badge/?version=latest)](https://baconian-public.readthedocs.io/en/latest/?badge=latest)
-![GitHub issues](https://img.shields.io/github/issues/Lukeeeeee/baconian-project.svg)
+![GitHub issues](https://img.shields.io/github/issues/cap-ntu/baconian-project)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/ea83a8fef57b4d8f8c9c2590337c8bc1)](https://www.codacy.com/app/Lukeeeeee/baconian?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Lukeeeeee/baconian&amp;utm_campaign=Badge_Grade)
 [![codecov](https://codecov.io/gh/Lukeeeeee/baconian-project/branch/master/graph/badge.svg)](https://codecov.io/gh/Lukeeeeee/baconian-project)
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/lukeeeeee/baconian-project.svg)
