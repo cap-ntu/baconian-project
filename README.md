@@ -9,7 +9,7 @@
 
 Baconian [beˈkonin] is a toolbox for model-based reinforcement learning with user-friendly experiment setting-up, logging 
 and visualization modules developed by [CAP](http://cap.scse.ntu.edu.sg/). We aim to develop a flexible, re-usable and 
-modularized framework that can allow the users to easily set-up one model-based rl experiments by reusing modules we 
+modularized framework that can allow the users to easily set-up their model-based RL experiments by reusing modules we 
 provide.
 
 ### Release news:
