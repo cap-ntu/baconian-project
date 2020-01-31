@@ -2,10 +2,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 import json
 import seaborn as sns
-import os
-import glob
-from baconian.common.log_data_loader import *
-
 
 sns.set_style('whitegrid')
 
@@ -93,7 +89,7 @@ class Plotter(object):
 
         marker_every = max(int(data.shape[0] / 10), 1)
 
-        plt.figure()
+        # plt.figure()
         fig, ax = plt.subplots(1)
 
         if separate_exp_flag is True:
@@ -122,7 +118,7 @@ class Plotter(object):
         else:
             plt.xlabel(key)
             plt.ylabel('count')
-
+        plt.legend()
         # Save the figure to a file to a path or paths in a list
         if save_flag is True:
             if file_name is None:
