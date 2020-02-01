@@ -145,9 +145,7 @@ class Agent(Basic):
                 res = self.env_spec.action_space.clip(self.noise_adder(self.algo.predict(**kwargs)))
             else:
                 res = self.algo.predict(**kwargs)
-        self.recorder.append_to_obj_log(obj=self, attr_name='action',
-                                        status_info=self.get_status(),
-                                        log_val=res)
+        self.recorder.append_to_obj_log(obj=self, attr_name='action', status_info=self.get_status(), log_val=res)
         return res
 
     @register_counter_info_to_status_decorator(increment=1, info_key='sample_counter', under_status=('TRAIN', 'TEST'),

@@ -2,17 +2,14 @@ from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
 import numpy as np
 
-env = make("Hopper-v2")
-env_spec = EnvSpec(obs_space=env.observation_space, action_space=env.action_space)
-
-OBS_DIM = env_spec.flat_obs_dim
+OBS_DIM = 11
 HID1_MULT = 10
 HID3_SIZE = 5
 HID1_SIZE = OBS_DIM * HID1_MULT
 HID2_SIZE = int(np.sqrt(HID1_SIZE * HID3_SIZE))
 
 POLICY_HID_MULTI = 10
-ACT_DIM = env_spec.flat_action_dim
+ACT_DIM = 3
 POLICY_HID3_SIZE = ACT_DIM * 10
 POLICY_HID1_SIZE = OBS_DIM * POLICY_HID_MULTI
 POLICY_HID2_SIZE = int(np.sqrt(POLICY_HID1_SIZE * POLICY_HID3_SIZE))
