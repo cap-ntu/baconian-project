@@ -1,5 +1,5 @@
 # Baconian:  Boosting model-based reinforcement learning 
-[![Build Status](https://travis-ci.com/Lukeeeeee/baconian-project.svg?branch=master)](https://travis-ci.com/Lukeeeeee/baconian-project)
+[![Build Status](https://travis-ci.com/cap-ntu/baconian-project.svg?branch=master)](https://travis-ci.com/cap-ntu/baconian-project)
 [![Documentation Status](https://readthedocs.org/projects/baconian-public/badge/?version=latest)](https://baconian-public.readthedocs.io/en/latest/?badge=latest)
 ![GitHub issues](https://img.shields.io/github/issues/cap-ntu/baconian-project)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/ea83a8fef57b4d8f8c9c2590337c8bc1)](https://www.codacy.com/app/Lukeeeeee/baconian?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Lukeeeeee/baconian&amp;utm_campaign=Badge_Grade)
@@ -9,7 +9,7 @@
 
 Baconian [beˈkonin] is a toolbox for model-based reinforcement learning with user-friendly experiment setting-up, logging 
 and visualization modules developed by [CAP](http://cap.scse.ntu.edu.sg/). We aim to develop a flexible, re-usable and 
-modularized framework that can allow the users to easily set-up one model-based rl experiments by reusing modules we 
+modularized framework that can allow the users to easily set-up their model-based RL experiments by reusing modules we 
 provide.
 
 ### Release news:

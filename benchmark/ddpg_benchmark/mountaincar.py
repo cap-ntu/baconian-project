@@ -46,25 +46,16 @@ def mountiancar_task_fn():
         name=name + '_ddpg',
         **exp_config['DDPG']
     )
+    n_actions = env.action_space.shape[0]
     agent = Agent(env=env, env_spec=env_spec,
                   algo=ddpg,
                   exploration_strategy=None,
-                  noise_adder=AgentActionNoiseWrapper(noise=UniformNoise(0.4),
-                                                      # noise_weight_scheduler=
-                                                      # noise_weight_scheduler=ConstantScheduler(1),
-                                                      # action_weight_scheduler=ConstantScheduler(0), ),
-                                                      noise_weight_scheduler=LinearScheduler(initial_p=1.0,
-                                                                                             final_p=0.0,
-                                                                                             schedule_timesteps= 100000,
-                                                                                             t_fn=lambda: get_global_status_collect()(
-                                                                                                'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
-                                                                                             ),
-                                                      action_weight_scheduler=LinearScheduler(initial_p=0.0,
-                                                                                              final_p=1.0,
-                                                                                              schedule_timesteps=100000,
-                                                                                              t_fn=lambda: get_global_status_collect()(
-                                                                                                 'TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
-                                                                                              ), ),
+                  noise_adder=AgentActionNoiseWrapper(noise=OrnsteinUhlenbeckActionNoise(mu=np.zeros(n_actions),
+                                                                                         sigma=0.5 * np.ones(
+                                                                                             n_actions)),
+                                                      noise_weight_scheduler=ConstantScheduler(value=1),
+                                                      action_weight_scheduler=ConstantScheduler(value=1.0)),
+                  reset_noise_every_terminal_state=True,
                   name=name + '_agent')
 
     flow = TrainTestFlow(train_sample_count_func=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'),
@@ -96,6 +87,7 @@ def mountiancar_task_fn():
         name=name
     )
     experiment.run()
+
 
 if __name__ == "__main__":
     from baconian.core.experiment_runner import *

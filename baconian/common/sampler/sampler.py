@@ -77,6 +77,7 @@ class Sampler(Basic):
                                  done=done)
             if done:
                 state = env.reset()
+                agent.reset_on_terminal_state()
             else:
                 state = new_state
         return sample_record
@@ -98,6 +99,7 @@ class Sampler(Basic):
                                    new_state=new_state,
                                    done=done)
                 state = new_state
+            agent.reset_on_terminal_state()
             done = False
             state = env.reset()
             sample_record.append(traj_record)
