@@ -75,6 +75,7 @@ class OrnsteinUhlenbeckActionNoise(ActionNoise):
     def __repr__(self):
         return 'OrnsteinUhlenbeckActionNoise(mu={}, sigma={})'.format(self.mu, self.sigma)
 
+
 class UniformNoise(ActionNoise):
     def __init__(self, scale):
         self.scale = scale
@@ -82,6 +83,7 @@ class UniformNoise(ActionNoise):
     def __call__(self):
         uniformNoiseValue = self.scale * (np.random.rand() - 0.5)
         return uniformNoiseValue
+
 
 class OUNoise(ActionNoise):
     def __init__(self, theta=0.05, sigma=0.25, init_state=0.0):
@@ -93,7 +95,6 @@ class OUNoise(ActionNoise):
         state = self.state - self.theta * self.state + self.sigma * np.random.randn()
         self.state = state
         return self.state
-
 
     def reset(self):
         self.state = 0.0
@@ -112,4 +113,5 @@ class AgentActionNoiseWrapper(object):
         noise = self.noise()
         return self.action_weight_scheduler.value() * action + self.noise_weight_scheduler.value() * noise
 
-
+    def reset(self):
+        self.noise.reset()

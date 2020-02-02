@@ -2,7 +2,7 @@
 Dyna benchmark on Pendulum
 """
 
-from benchmark.dyna_benchmark.pendulum_conf import PENDULUM_BENCHMARK_CONFIG_DICT as exp_config
+from benchmark.dyna_benchmark.mountaincar_conf import MOUNTAIN_CAR_BENCHMARK_CONFIG_DICT as exp_config
 from baconian.common.noise import *
 from baconian.common.schedules import *
 from baconian.core.core import EnvSpec
@@ -25,7 +25,7 @@ def pendulum_task_fn():
     GlobalConfig().set('DEFAULT_EXPERIMENT_END_POINT',
                        exp_config['DEFAULT_EXPERIMENT_END_POINT'])
 
-    env = make('Pendulum-v0')
+    env = make(exp_config['env_id'])
     name = 'benchmark'
     env_spec = EnvSpec(obs_space=env.observation_space,
                        action_space=env.action_space)

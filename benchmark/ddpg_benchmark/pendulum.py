@@ -83,3 +83,10 @@ def pendulum_task_fn():
     )
     experiment.run()
 
+
+if __name__ == "__main__":
+    from baconian.core.experiment_runner import *
+
+    GlobalConfig().set('DEFAULT_LOG_PATH', './mountain_log_path')
+    single_exp_runner(pendulum_task_fn, del_if_log_path_existed=True)
+
