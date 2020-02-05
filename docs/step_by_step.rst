@@ -2,7 +2,7 @@ Step by step guide
 ============================================================
 
 This is a step by step guide of how to compose an model-based RL experiments in Baconian, we will take the example of
-Dyna algorithms, which is a very typical model-based RL architecture proposed by Sutton in 1990.
+Dyna algorithm, which is a very typical model-based RL architecture proposed by Sutton in 1990.
 
 In this method, we need the environment and the task we aim to solve, a model-free method, an approximator as dynamics for real world
 environment. We also need to specific the hyper-parameters in Dyna architecture, e.g., how many samples we should get
@@ -47,7 +47,7 @@ Create the dyna-like workflow, and the experiments object, and run the experimen
     :language: python
     :lines: 145-178
 .. note::
-    Don't confuse the workflow with the dyna algorithms itself. The flow only specifics how the algorithms interact
+    Don't confuse the workflow with the Dyna algorithm itself. The flow only specifics how the algorithms interact
     with environments, and how to update and evaluate the ddpg (model-free method) and dynamics model.
 
 Set the global configuration and launch the experiment

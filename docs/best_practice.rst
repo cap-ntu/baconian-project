@@ -1,12 +1,12 @@
 Best practice of Baconian
 ===========================================================================
 
-Here we introduce core ideas and features about the Baconian, to make sure you utilize the code correctly. As
-for detail usage of different algorithms, dynamics, please refer to the :doc:`API <API>` page
+Here we introduce the core ideas and features about Baconian, to make sure you utilize the code correctly. As
+for the detailed usage of different algorithms, dynamics, please refer to the :doc:`API <API>` page
 
 Put your task into a function
 ------------------------------
-Here we introduce the basic usage of baconian, and introduce how it can help you
+Here we introduce the basic usage of Baconian, and introduce how it can help you
 to set up the model-based RL experiments.
 
 First of all, whenever you want to run some algorithms, or any codes within the
@@ -25,14 +25,14 @@ Specifically, you can do it by:
 
     from baconian.core.experiment_runner import single_exp_runner, duplicate_exp_runner
     # Define your function first.
-    def you_function():
+    def your_function():
         a = 1;
         b = 2;
         print(a + b)
     # Then pass the function object to single_exp_runner, then it will set up everything and run your code.
-    single_exp_runner(you_function)
+    single_exp_runner(your_function)
     # Or call duplicate_exp_runner to run multiple experiments in a row. 10 is the number of experiments:
-    duplicate_exp_runner(10, you_function)
+    duplicate_exp_runner(10, your_function)
 
 
 Global Configuration
@@ -45,7 +45,7 @@ examples:
 
     from baconian.config.global_config import GlobalConfig
     from baconian.core.experiment_runner import single_exp_runner, duplicate_exp_runner
-    def you_function():
+    def your_function():
         a = 1;
         b = 2;
         print(a + b)
@@ -65,13 +65,13 @@ Workflow for RL Experiments
 In Baconian, the control flow of the experiments is delegated to an independent module ``baconian.core.flow.train_test_flow:Flow``
 which is  an abstract class. The reason to do so is to improve the flexibility and extensibility of framework.
 Two typical flow are implemented. One is
-``baconian.core.flow.train_test_flow:TrainTestFlow``, which corresponds to most of
-model-free algorithms pipeline, which is sampling-training-testing pipeline. Another one is
-``baconian.core.flow.dyna_flow.py:DynaFlow``, which is the flow in Dyna algorithms [Sutton, 1992].
+``baconian.core.flow.train_test_flow:TrainTestFlow``, which corresponds to the pipeline of most
+model-free algorithms, which is sampling-training-testing pipeline. The other one is
+``baconian.core.flow.dyna_flow.py:DynaFlow``, which is the flow in Dyna algorithm [Sutton, 1992].
 
 .. note::
     Do get freaked out by the long list of parameters you need to initialize the flow!
-    This is caused by the fact that we want the flow to be fully configurable by users, currently we are working to simplify this module.
+    This is caused by the fact that we want the flow to be fully configurable by users, and currently we are working to simplify this module.
 
 Status Control
 -------------------------
@@ -89,7 +89,7 @@ by doing so:
 .. literalinclude:: ../baconian/core/agent.py
     :linenos:
     :language: python
-    :lines: 121-136
+    :lines: 137-156
 
 The counter for calling function ``predict`` is added as one attribute of status, which will be returned with the key
 ``predict_counter``

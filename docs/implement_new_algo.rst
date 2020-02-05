@@ -2,9 +2,8 @@ How to implement a new algorithm
 ===================================
 
 
-In this section, we will walk through the implementation of Deep Deterministic Policy Gradient (DDPG) algorithm
-, available at ``baconian/algo/ddpg.py``. It utilizes many functionalities
-provided by the framework, which we describe below.
+In this section, we will walk through the implementation of Deep Deterministic Policy Gradient (DDPG) algorithm, available at ``baconian/algo/ddpg.py``. It utilizes many functionalities
+provided by the framework, which we will describe below.
 
 - The ``ModelFreeAlgo`` and ``OffPolicyAlgo`` Classes
 
