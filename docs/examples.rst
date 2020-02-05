@@ -1,10 +1,10 @@
 Examples
 ==================
-We offer some examples on how to better use the baconian in a more practical and efficient way.
+We offer some examples on how to better use Baconian in a more practical and efficient way.
 
 .. toctree::
     :maxdepth: 1
-    :caption: Model-Free algorithms examples
+    :caption: Model-Free algorithm examples
 
     ./example/dqn.rst
     ./example/ddpg.rst
@@ -12,7 +12,7 @@ We offer some examples on how to better use the baconian in a more practical and
 
 .. toctree::
     :maxdepth: 1
-    :caption: Model-Based algorithms examples
+    :caption: Model-Based algorithm examples
 
     ./example/mpc.rst
     ./example/dyna.rst

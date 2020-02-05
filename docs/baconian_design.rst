@@ -2,7 +2,7 @@ System Overview of Baconian
 =========================================
 
 The system overview of Baconian is shown in below figure. We design Baconian with the objective to
-minimize users’ coding efforts on developing and testing MBRL algorithms. With Baconian, the user can easily setup a
+minimize users’ coding effort on developing and testing MBRL algorithms. With Baconian, the user can easily setup a
 MBRL experiment by configuring the target algorithms and modules without the need for understanding the inner
 mechanisms.
 
