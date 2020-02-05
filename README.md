@@ -35,8 +35,6 @@ Abbeel, P. "Optimal Control for Linear Dynamical Systems and Quadratic Cost (‘
 Garcia, Carlos E., David M. Prett, and Manfred Morari. "Model predictive control: theory and practice—a survey." Automatica 25.3 (1989): 335-348.
 #### 5. ME-TRPO
 Kurutach, Thanard, et al. "Model-ensemble trust-region policy optimization." arXiv preprint arXiv:1802.10592 (2018).
-#### 6. GPS
-Levine, Sergey, et al. "End-to-end training of deep visuomotor policies." The Journal of Machine Learning Research 17.1 (2016): 1334-1373.
 
 #### Model-free
 
@@ -52,6 +50,8 @@ Lillicrap, Timothy P., et al. "Continuous control with deep reinforcement learni
 Rao, Anil V. "A survey of numerical methods for optimal control." Advances in the Astronautical Sciences 135.1 (2009): 497-528.
 #### 2. MB-MF
 Nagabandi, Anusha, et al. "Neural network dynamics for model-based deep reinforcement learning with model-free fine-tuning." 2018 IEEE International Conference on Robotics and Automation (ICRA). IEEE, 2018.
+#### 3. GPS
+Levine, Sergey, et al. "End-to-end training of deep visuomotor policies." The Journal of Machine Learning Research 17.1 (2016): 1334-1373.
 
 ### Acknowledgement 
 Thanks to the following open-source projects:
@@ -61,7 +61,6 @@ Thanks to the following open-source projects:
 - baselines: https://github.com/openai/baselines
 - gym: https://github.com/openai/gym
 - trpo: https://github.com/pat-coady/trpo
-- GPS: http://rll.berkeley.edu/gps/
 
 ### Citing Baconian
 If you find Baconian is useful for your research, please consider cite our demo paper here:

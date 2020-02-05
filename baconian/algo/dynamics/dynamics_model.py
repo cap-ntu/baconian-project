@@ -260,5 +260,9 @@ class DynamicsEnvWrapper(Env):
         self._terminal_func = terminal_func
         self._reward_func = reward_func
 
-class DynamicsPriorModel(DynamicsModel):
-    pass
+
+class DynamicsPriorModel(Basic):
+    def __init__(self, env_spec: EnvSpec, parameters: Parameters, name: str):
+        super().__init__(name=name)
+        self.env_spec = env_spec
+        self.parameters = parameters
