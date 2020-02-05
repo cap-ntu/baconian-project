@@ -9,6 +9,7 @@ from baconian.tf.util import *
 from baconian.core.parameters import Parameters
 from baconian.common.data_pre_processing import DataScaler
 
+
 class GaussianMixtureDynamicsPrior(DynamicsPriorModel):
     """
     A dynamics prior encoded as a GMM over [x_t, u_t, x_t+1] points.
@@ -17,16 +18,19 @@ class GaussianMixtureDynamicsPrior(DynamicsPriorModel):
         training of Deep Visuomotor Policies", arXiv:1504.00702,
         Appendix A.3.
     """
-    def __init__(self, env_spec: EnvSpec, batch_data: TransitionData = None, epsilon=inf, init_sequential=False, eigreg=False, warmstart=True, init_state=None, name_scope='gp_dynamics_model', name='gp_dynamics_model'):
-        parameters = Parameters(dict(X = None, U = None, min_samp = 40, max_samples = inf, max_clusters = 20, strength = 1))
-        super().__init__(env_spec=env_spec, parameters=parameters, init_state=init_state, name=name)
+
+    def __init__(self, env_spec: EnvSpec, batch_data: TransitionData = None, epsilon=inf, init_sequential=False,
+                 eigreg=False, warmstart=True, name_scope='gp_dynamics_model',
+                 name='gp_dynamics_model'):
+        parameters = Parameters(dict(X=None, U=None, min_samp=40, max_samples=inf, max_clusters=20, strength=1))
+        super().__init__(env_spec=env_spec, parameters=parameters, name=name)
         self.name_scope = name_scope
         self.batch_data = batch_data
         self.gmm_model = GMM(epsilon=epsilon, init_sequential=False, eigreg=False, warmstart=True)
 
     def init(self):
         super().init()
-    
+
     def update(self, restart=1, batch_data: TransitionData = None, *kwargs):
         """
         Update prior with additional data.
@@ -87,27 +91,28 @@ class GaussianMixtureDynamicsPrior(DynamicsPriorModel):
 
         # Append data to dataset.
         if self.parameters('X') is None:
-            self.parameters._parameters['X'] = X
+            self.parameters.set('X', X)
         else:
-            self.parameters._parameters['X'] = np.concatenate([self.parameters('X'), X], axis=0)
+            self.parameters.set('X', np.concatenate([self.parameters('X'), X], axis=0))
 
         if self.parameters('U') is None:
-            self.parameters._parameters['U'] = U
+            self.parameters.set('U', U)
         else:
-            self.parameters._parameters['U'] = np.concatenate([self.parameters('U'), U], axis=0)
+            self.parameters.set('U', np.concatenate([self.parameters('U'), U], axis=0))
 
         # Remove excess samples from dataset.
         start = max(0, self.parameters('X').shape[0] - self.parameters('max_samples') + 1)
-        self.parameters._parameters['X'] = self.parameters('X')[start:, :]
-        self.parameters._parameters['U'] = self.parameters('U')[start:, :]
+        self.parameters.set('X', self.parameters('X')[start:, :])
+        self.parameters.set('U', self.parameters('U')[start:, :])
 
         # Compute cluster dimensionality.
-        Do = X.shape[2] + U.shape[2] + X.shape[2]  #TODO: Use Xtgt.
+        Do = X.shape[2] + U.shape[2] + X.shape[2]
 
         # Create dataset.
         N = self.parameters('X').shape[0]
         xux = np.reshape(
-            np.c_[self.parameters('X')[:, :T, :], self.parameters('U')[:, :T, :], self.parameters('X')[:, 1:(T+1), :]],
+            np.c_[
+                self.parameters('X')[:, :T, :], self.parameters('U')[:, :T, :], self.parameters('X')[:, 1:(T + 1), :]],
             [T * N, Do]
         )
 
