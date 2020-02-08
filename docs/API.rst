@@ -15,3 +15,4 @@ Baconian API Reference
     ./apis/algo.rst
     ./apis/flow.rst
     ./apis/common.rst
+    ./apis/visualisation.rst

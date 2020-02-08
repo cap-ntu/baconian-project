@@ -20,14 +20,14 @@ Create env Pendulum-v0, and the DDPG algorithms to solve the task
 .. literalinclude:: ../examples/dyna.py
     :linenos:
     :language: python
-    :lines: 22-91
+    :lines: 23-90
 
 Create a global dynamics model with MLP network
 --------------------------------------------------
 .. literalinclude:: ../examples/dyna.py
     :linenos:
     :language: python
-    :lines: 93-121
+    :lines: 92-121
 
 Create the Dyna architecture as algorithms
 --------------------------------------------------

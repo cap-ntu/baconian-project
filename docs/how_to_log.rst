@@ -5,7 +5,6 @@ In this part, we will introduce how to record and save everything you want durin
 organized as follows:
 
 * How the logging module of Baconian works.
-* How to modify your newly implemented module so that Baconian can capture the logging information you intend to save.
 * How to visualize with log file after experiment finished.
 
 How the logging module of Baconian works
@@ -21,14 +20,9 @@ How to visualize with log file after experiment finished
 --------------------------------------------------------------------------------
 
 
-There are two files of data visualisation: ``log_data_loader`` and ``plotter``, ``log_data_loader`` loads
-data from any ``log.json`` file produced in experiments. The user must assign the directory of the log file to plot,
-such as ``demo_exp_agent`` or ``demo_exp_ddpg``. The data loader will create a pandas DataFrame (named ``data`` before
-manipulation and ``data_new`` after manipulation ) to store ``index`` and ``key`` information,
-and calculate ``MEAN`` and ``STD_DEV`` (only for multiple experiments). The manipulated DataFrame ``data_new``
-will be passed to ``plotter`` to finish plotting work. Three plot modes: ``line``, ``scatter`` and ``histogram``
+Three plot modes: ``line``, ``scatter`` and ``histogram``
 are available within ``plot_res`` function in ``log_data_loader``. ``plotter`` will use Matplotlib package to plot
-a graph with ``data_new`` DataFrame as input.
+a graph with ``data_new`` DataFrame as input. Users may utilise visualisation.py for fast plotting, with existing single or multiple experiment results.
 
 Please refer to the following examples for single or multiple experiment visualisation:
 

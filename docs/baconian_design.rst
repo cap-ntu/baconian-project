@@ -7,8 +7,8 @@ MBRL experiment by configuring the target algorithms and modules without the nee
 mechanisms.
 
 
-.. figure:: ./fig/baconian-system-diagram_v1.jpg
-    :alt: baconian-system-diagram
+.. figure:: ./fig/baconian-system-design.jpg
+    :alt: baconian-system-design
 
     System Overview of Baconian.
 

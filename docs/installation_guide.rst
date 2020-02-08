@@ -16,7 +16,7 @@ overwrite some of already installed packages with a different version.
 
 .. code-block:: bash
 
-    git clone git@github.com:Lukeeeeee/baconian-project.git baconian
+    git clone git@github.com:cap-ntu/baconian-project.git baconian
     cd ./baconian
     ./installation.sh
 
