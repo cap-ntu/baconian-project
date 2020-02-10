@@ -29,8 +29,8 @@ class GaussianMixtureDynamicsPrior(DynamicsPriorModel):
         self.gmm_model = GMM(epsilon=epsilon, init_sequential=False, eigreg=False, warmstart=True)
 
     def init(self):
-        super().init()
-
+        pass
+    
     def update(self, restart=1, batch_data: TransitionData = None, *kwargs):
         """
         Update prior with additional data.
