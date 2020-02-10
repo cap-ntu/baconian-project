@@ -4,7 +4,7 @@ iLQR benchmark on Pendulum
 
 from benchmark.iLQR_benchmark.pendulum_conf import *
 from baconian.core.flow.dyna_flow import DynaFlow
-from baconian.envs.gym_reward_func import REWARD_FUNC_DICT
+from baconian.envs.envs_reward_func import REWARD_FUNC_DICT
 from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
 from baconian.core.agent import Agent

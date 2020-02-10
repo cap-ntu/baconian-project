@@ -24,8 +24,8 @@ class _SingletonDefaultGlobalConfig(object):
     DEFAULT_ALGO_DYNA_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS,
                                                        'dyna.json')
 
-    DEFAULT_ALGO_ME_PPO_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS,
-                                                         'meppo.json')
+    DEFAULT_ALGO_ME_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS,
+                                                     'me.json')
     DEFAULT_MODEL_FREE_PIPELINE_REQUIRED_KEY_LIST = os.path.join(SRC_UTIL_REQUIRED_KEYS,
                                                                  'model_free_pipeline.json')
 

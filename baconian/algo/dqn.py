@@ -218,8 +218,9 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
 
     def _set_up_loss(self):
         reg_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES, scope=self.q_value_func.name_scope)
-        loss = tf.reduce_sum((self.predict_q_value - self.q_value_func.q_tensor) ** 2) + tf.reduce_sum(reg_loss)
-
+        loss = tf.reduce_sum((self.predict_q_value - self.q_value_func.q_tensor) ** 2)
+        if len(reg_loss) > 0:
+            loss += tf.reduce_sum(reg_loss)
         optimizer = tf.train.AdamOptimizer(learning_rate=self.parameters('LEARNING_RATE'))
         optimize_op = optimizer.minimize(loss=loss, var_list=self.q_value_func.parameters('tf_var_list'))
         return loss, optimizer, optimize_op
