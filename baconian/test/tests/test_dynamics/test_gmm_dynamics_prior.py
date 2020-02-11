@@ -1,7 +1,6 @@
 from baconian.test.tests.set_up.setup import TestWithAll
 from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
-import numpy as np
 from baconian.common.sampler.sample_data import TransitionData
 from baconian.algo.policy import UniformRandomPolicy
 from baconian.algo.dynamics.gaussian_mixture_dynamics_prior import GaussianMixtureDynamicsPrior
