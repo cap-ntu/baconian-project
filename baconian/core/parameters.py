@@ -108,7 +108,7 @@ class Parameters(object):
             self.set(key=val['param_key'],
                      new_val=val['scheduler'].value())
 
-    def set(self, key, new_val):
+    def set(self, key, new_val, force_set=False):
         if not isinstance(new_val, type(self(key))):
             raise TypeError('new value of parameters {} should be type {} instead of {}'.format(key, type(self(key)),
                                                                                                 type(new_val)))

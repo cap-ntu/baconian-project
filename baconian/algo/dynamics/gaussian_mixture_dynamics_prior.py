@@ -22,7 +22,8 @@ class GaussianMixtureDynamicsPrior(DynamicsPriorModel):
     def __init__(self, env_spec: EnvSpec, batch_data: TransitionData = None, epsilon=inf, init_sequential=False,
                  eigreg=False, warmstart=True, name_scope='gp_dynamics_model',
                  name='gp_dynamics_model'):
-        parameters = Parameters(dict(X=None, U=None, min_samp=40, max_samples=inf, max_clusters=20, strength=1))
+        parameters = Parameters(dict(X=None, U=None, min_samp=40,
+                                     max_samples=inf, max_clusters=20, strength=1))
         super().__init__(env_spec=env_spec, parameters=parameters, name=name)
         self.name_scope = name_scope
         self.batch_data = batch_data
@@ -30,7 +31,7 @@ class GaussianMixtureDynamicsPrior(DynamicsPriorModel):
 
     def init(self):
         pass
-    
+
     def update(self, restart=1, batch_data: TransitionData = None, *kwargs):
         """
         Update prior with additional data.
