@@ -14,21 +14,23 @@ from baconian.core.status import register_counter_info_to_status_decorator
 from baconian.core.util import init_func_arg_record_decorator
 from baconian.algo.misc.placeholder_input import PlaceholderInput
 import os
+from baconian.core.agent import Agent
 
 
-class MEPPO(ModelBasedAlgo):
+class ModelEnsembleAlgo(ModelBasedAlgo):
     """
-    Model Ensemble, Proximal Policy Optimisation
-
+    Model Ensemble method, with any compatible built-in model-free methods.
+    Kurutach, Thanard, et al. "Model-ensemble trust-region policy optimization." arXiv preprint arXiv:1802.10592 (2018).
     """
-    required_key_dict = DictConfig.load_json(file_path=GlobalConfig().DEFAULT_ALGO_DYNA_REQUIRED_KEY_LIST)
+
+    required_key_dict = DictConfig.load_json(file_path=GlobalConfig().DEFAULT_ALGO_ME_REQUIRED_KEY_LIST)
 
     @init_func_arg_record_decorator()
     @typechecked
     def __init__(self, env_spec, dynamics_model: ModelEnsemble,
                  model_free_algo: ModelFreeAlgo,
                  config_or_config_dict: (DictConfig, dict),
-                 name='sample_with_dynamics'
+                 name='model_ensemble'
                  ):
         if not isinstance(dynamics_model.model[0], ContinuousMLPGlobalDynamicsModel):
             raise TypeError("Model ensemble elements should be of type ContinuousMLPGlobalDynamicsModel")
@@ -61,7 +63,7 @@ class MEPPO(ModelBasedAlgo):
     @record_return_decorator(which_recorder='self')
     @register_counter_info_to_status_decorator(increment=1, info_key='train_counter', under_status='TRAIN')
     def train(self, *args, **kwargs) -> dict:
-        super(MEPPO, self).train()
+        super().train()
         res_dict = {}
         batch_data = kwargs['batch_data'] if 'batch_data' in kwargs else None
         if 'state' in kwargs:
@@ -90,15 +92,20 @@ class MEPPO(ModelBasedAlgo):
     def test(self, *arg, **kwargs):
         return super().test(*arg, **kwargs)
 
-    def validate(self, *args, **kwargs):
+    def validate(self, agent: Agent, *args, **kwargs):
         old_result = self.result
         self.validation_result = 0
         for a in range(len(self._dynamics_model)):
             individual_model = self._dynamics_model.model[a]
             env = individual_model.return_as_env()
-            new_state, reward, terminal, () = env.step(self, *args, **kwargs)
-            self.result[a] = reward
-            if reward > old_result[a]:
+            batch_data = agent.sample(env=env,
+                                      sample_count=self.parameters('validation_trajectory_count'),
+                                      in_which_status='TEST',
+                                      sample_type='trajectory',
+                                      store_flag=False)
+
+            self.result[a] = batch_data.get_mean_of('reward')
+            if self.result[a] > old_result[a]:
                 self.validation_result += 1
 
         self.validation_result = self.validation_result / len(self._dynamics_model)

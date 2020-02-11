@@ -5,7 +5,7 @@ MPC benchmark on Pendulum
 from benchmark.mpc_benchmark.pendulum_conf import *
 from baconian.algo.dynamics.terminal_func.terminal_func import FixedEpisodeLengthTerminalFunc
 from baconian.core.flow.dyna_flow import DynaFlow
-from baconian.envs.gym_reward_func import REWARD_FUNC_DICT
+from baconian.envs.envs_reward_func import REWARD_FUNC_DICT
 from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
 from baconian.core.agent import Agent

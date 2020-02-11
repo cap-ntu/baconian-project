@@ -9,14 +9,15 @@ LOGGER = logging.getLogger(__name__)
 
 
 def logsum(vec, axis=0, keepdims=True):
-    #TODO: Add a docstring.
+    # TODO: Add a docstring.
     maxv = np.max(vec, axis=axis, keepdims=keepdims)
     maxv[maxv == -float('inf')] = 0
-    return np.log(np.sum(np.exp(vec-maxv), axis=axis, keepdims=keepdims)) + maxv
+    return np.log(np.sum(np.exp(vec - maxv), axis=axis, keepdims=keepdims)) + maxv
 
 
 class GMM(object):
     """ Gaussian Mixture Model. """
+
     def __init__(self, epsilon, init_sequential=False, eigreg=False, warmstart=True):
         self.init_sequential = init_sequential
         self.eigreg = eigreg
@@ -58,15 +59,15 @@ class GMM(object):
         N, D = data.shape
         K = self.sigma.shape[0]
 
-        logobs = -0.5*np.ones((N, K))*D*np.log(2*np.pi)
+        logobs = -0.5 * np.ones((N, K)) * D * np.log(2 * np.pi)
         for i in range(K):
             mu, sigma = self.mu[i], self.sigma[i]
             L = scipy.linalg.cholesky(sigma, lower=True)
             logobs[:, i] -= np.sum(np.log(np.diag(L)))
-            
+
             diff = (data - mu).T
             soln = scipy.linalg.solve_triangular(L, diff, lower=True)
-            logobs[:, i] -= 0.5*np.sum(soln**2, axis=0)
+            logobs[:, i] -= 0.5 * np.sum(soln ** 2, axis=0)
 
         logobs += self.logmass.T
         return logobs
@@ -89,7 +90,7 @@ class GMM(object):
         # Compute overall covariance.
         diff = self.mu - np.expand_dims(mu, axis=0)
         diff_expand = np.expand_dims(self.mu, axis=1) * \
-                np.expand_dims(diff, axis=2)
+                      np.expand_dims(diff, axis=2)
         wts_expand = np.expand_dims(wts, axis=2)
         sigma = np.sum((self.sigma + diff_expand) * wts_expand, axis=0)
         return mu, sigma
@@ -166,7 +167,7 @@ class GMM(object):
                 LOGGER.debug('Log-likelihood decreased! Ending on itr=%d/%d',
                              itr, max_iterations)
                 break
-            if np.abs(ll-prevll) < 1e-5*prevll:
+            if np.abs(ll - prevll) < 1e-5 * prevll:
                 LOGGER.debug('GMM converged on itr=%d/%d',
                              itr, max_iterations)
                 break
@@ -207,4 +208,4 @@ class GMM(object):
                 else:  # Use quick and dirty regularization.
                     sigma = self.sigma[i, :, :]
                     self.sigma[i, :, :] = 0.5 * (sigma + sigma.T) + \
-                            1e-6 * np.eye(Do)
+                                          1e-6 * np.eye(Do)
