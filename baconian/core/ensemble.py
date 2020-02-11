@@ -37,22 +37,33 @@ class ModelEnsemble(Ensemble, DynamicsModel):
             for a in range(n_models):
                 self._model.append(model.make_copy())
         else:
-            base_env_spec = model[0]
+            base_env_spec = model[0].env_spec
             for b in range(len(model)):
                 if model[b].env_spec != base_env_spec:
                     raise TypeError('EnvSpec of list of models do not match.')
             self._model = model
 
     def train(self, *args, **kwargs):
+        res = {}
         for idx in range(len(self._model)):
-            self._model[idx].train(*args, **kwargs)
+            res['model_{}'.format(idx)] = self._model[idx].train(*args, **kwargs)
+        return res
 
     def reset_state(self, *args, **kwargs):
         """
         Reset the model parameters.
         """
+        self._observations = list()
+
         for m in self.model:
             m.reset_state(*args, **kwargs)
+            self._observations.append(m.state)
+        if self._prediction_type == 'mean':
+            self.state = np.mean(self._observations, axis=0)
+        elif self._prediction_type == 'random':
+            self.state = self._observations[np.random.randint(low=0, high=len(self.model))]
+        else:
+            raise ValueError
 
     def init(self, *args, **kwargs):
 
@@ -95,7 +106,8 @@ class ModelEnsemble(Ensemble, DynamicsModel):
                                   name=self._name + '_env')
 
     def save(self, *args, **kwargs):
-        raise NotImplementedError
+        for model in self._model:
+            model.save(*args, **kwargs)
 
     def load(self, *args, **kwargs):
         raise NotImplementedError

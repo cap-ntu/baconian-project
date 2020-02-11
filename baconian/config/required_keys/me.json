@@ -1,0 +1,5 @@
+{
+  "dynamics_model_train_iter": 10,
+  "model_free_algo_train_iter": 10,
+  "validation_trajectory_count": 2
+}

@@ -13,6 +13,7 @@ modularized framework that can allow the users to easily set-up their model-base
 provide.
 
 ### Release news:
+- 2020.02.10 We are including external reward & terminal function of Gym/mujoco tasks with well-written documents.
 - 2020.01.30 Update some dependent packages versions, and release some preliminary benchmark results with hyper-parameters.
 
 For previous news, please go [here](./old_news.md) 
@@ -33,7 +34,7 @@ Abbeel, P. "Optimal Control for Linear Dynamical Systems and Quadratic Cost (‘
 Abbeel, P. "Optimal Control for Linear Dynamical Systems and Quadratic Cost (‘LQR’)." (2012).
 #### 4. MPC
 Garcia, Carlos E., David M. Prett, and Manfred Morari. "Model predictive control: theory and practice—a survey." Automatica 25.3 (1989): 335-348.
-#### 5. ME-TRPO
+#### 5. Model-ensemble
 Kurutach, Thanard, et al. "Model-ensemble trust-region policy optimization." arXiv preprint arXiv:1802.10592 (2018).
 
 #### Model-free

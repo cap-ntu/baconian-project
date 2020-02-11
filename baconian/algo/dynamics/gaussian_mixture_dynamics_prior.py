@@ -4,10 +4,7 @@ import numpy as np
 from math import inf
 from baconian.common.sampler.sample_data import TransitionData
 from baconian.algo.dynamics.third_party.gmm import GMM
-import tensorflow as tf
-from baconian.tf.util import *
 from baconian.core.parameters import Parameters
-from baconian.common.data_pre_processing import DataScaler
 
 
 class GaussianMixtureDynamicsPrior(DynamicsPriorModel):
@@ -20,43 +17,43 @@ class GaussianMixtureDynamicsPrior(DynamicsPriorModel):
     """
 
     def __init__(self, env_spec: EnvSpec, batch_data: TransitionData = None, epsilon=inf, init_sequential=False,
-                 eigreg=False, warmstart=True, name_scope='gp_dynamics_model',
+                 eigreg=False, warmstart=True, name_scope='gp_dynamics_model', min_samples_per_cluster=40,
+                 max_clusters=20, strength=1,
                  name='gp_dynamics_model'):
-        parameters = Parameters(dict(X=None, U=None, min_samp=40, max_samples=inf, max_clusters=20, strength=1))
+        parameters = Parameters(
+            dict(min_samp=min_samples_per_cluster, max_samples=inf, max_clusters=max_clusters, strength=strength,
+                 init_sequential=init_sequential, eigreg=eigreg, warmstart=warmstart))
         super().__init__(env_spec=env_spec, parameters=parameters, name=name)
         self.name_scope = name_scope
         self.batch_data = batch_data
-        self.gmm_model = GMM(epsilon=epsilon, init_sequential=False, eigreg=False, warmstart=True)
+        self.gmm_model = GMM(epsilon=epsilon, init_sequential=init_sequential, eigreg=eigreg, warmstart=warmstart)
+        self.X, self.U = None, None
 
     def init(self):
-        super().init()
+        pass
 
-    def update(self, restart=1, batch_data: TransitionData = None, *kwargs):
+    def update(self, batch_data: TransitionData = None):
         """
         Update prior with additional data.
-        Args:
-            X: A N x T x dX matrix of sequential state data.
-            U: A N x T x dU matrix of sequential control data.
+        :param batch_data: data used to update GMM prior
+        :return: None
         """
+
         # Format Data
-        xux, K = self.prepare_data(batch_data)
+        xux, K = self._prepare_data(batch_data)
 
         # Update GMM.
         self.gmm_model.update(xux, K)
 
-    def _state_transit(self, state, action, required_var=False, **kwargs):
-        # TODO: GETTING x(t+1) from x(t), u(t)
-        # Use np.random.multivariate_normal(means, covariances, samples)
-        return state
-
     def eval(self, batch_data: TransitionData = None):
         """
         Evaluate prior (prob of [x(t), u(t), x(t+1)] given gmm)
-        Args:
-            batch_data: A N x Dx+Du+Dx matrix.
+
+        :param batch_data: data used to evaluate the prior with.
+        :return: parameters mu0, Phi, m, n0 as defined in the paper.
         """
         # Format Data
-        xux, _ = self.prepare_data(batch_data)
+        xux, _ = self._prepare_data(batch_data)
 
         # Perform query and fix mean.
         mu0, Phi, m, n0 = self.gmm_model.inference(xux)
@@ -69,15 +66,7 @@ class GaussianMixtureDynamicsPrior(DynamicsPriorModel):
         Phi *= m
         return mu0, Phi, m, n0
 
-    def prepare_data(self, batch_data: TransitionData = None, *kwargs):
-        """
-        Formats Data into the correct shape and dimensions for feeding into gmm
-        Args:
-            X: A N x T x dX matrix of sequential state data.
-            U: A N x T x dU matrix of sequential control data.
-        Returns:
-            xux: A T*N x Do matrix of [X(t), U(t), X(t+1)] data
-        """
+    def _prepare_data(self, batch_data: TransitionData = None, *kwargs):
         if self.batch_data is None:
             self.batch_data = batch_data
 
@@ -90,29 +79,28 @@ class GaussianMixtureDynamicsPrior(DynamicsPriorModel):
         T = X.shape[1] - 1
 
         # Append data to dataset.
-        if self.parameters('X') is None:
-            self.parameters.set('X', X)
+        if self.X is None:
+            self.X = X
         else:
-            self.parameters.set('X', np.concatenate([self.parameters('X'), X], axis=0))
+            self.X = np.concatenate([self.X, X], axis=0)
 
-        if self.parameters('U') is None:
-            self.parameters.set('U', U)
+        if self.U is None:
+            self.U = U
         else:
-            self.parameters.set('U', np.concatenate([self.parameters('U'), U], axis=0))
+            self.U = np.concatenate([self.U, U], axis=0)
 
         # Remove excess samples from dataset.
-        start = max(0, self.parameters('X').shape[0] - self.parameters('max_samples') + 1)
-        self.parameters.set('X', self.parameters('X')[start:, :])
-        self.parameters.set('U', self.parameters('U')[start:, :])
+        start = max(0, self.X.shape[0] - self.parameters('max_samples') + 1)
+        self.X = self.X[start:, :]
+        self.U = self.U[start:, :]
 
         # Compute cluster dimensionality.
-        Do = X.shape[2] + U.shape[2] + X.shape[2]
+        Do = X.shape[2] + U.shape[2] + X.shape[2]  # TODO: Use Xtgt.
 
         # Create dataset.
-        N = self.parameters('X').shape[0]
+        N = self.X.shape[0]
         xux = np.reshape(
-            np.c_[
-                self.parameters('X')[:, :T, :], self.parameters('U')[:, :T, :], self.parameters('X')[:, 1:(T + 1), :]],
+            np.c_[self.X[:, :T, :], self.U[:, :T, :], self.X[:, 1:(T + 1), :]],
             [T * N, Do]
         )
 

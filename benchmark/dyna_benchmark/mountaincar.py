@@ -18,7 +18,7 @@ from baconian.algo.dynamics.mlp_dynamics_model import ContinuousMLPGlobalDynamic
 from baconian.algo.dyna import Dyna
 from baconian.algo.dynamics.terminal_func.terminal_func import FixedEpisodeLengthTerminalFunc
 from baconian.core.flow.dyna_flow import DynaFlow
-from baconian.envs.gym_reward_func import REWARD_FUNC_DICT
+from baconian.envs.envs_reward_func import REWARD_FUNC_DICT
 
 
 def pendulum_task_fn():

@@ -160,7 +160,9 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DifferentiableDynami
 
     def _setup_loss(self):
         reg_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES, scope=self.name_scope)
-        loss = tf.reduce_sum((self.mlp_net.output - self.delta_state_label_ph) ** 2) + reg_loss
+        loss = tf.reduce_sum((self.mlp_net.output - self.delta_state_label_ph) ** 2)
+        if len(reg_loss) > 0:
+            loss += tf.reduce_sum(reg_loss)
         optimizer = tf.train.AdamOptimizer(learning_rate=self.parameters('learning_rate'))
         optimize_op = optimizer.minimize(loss=loss, var_list=self.parameters('tf_var_list'))
         return loss, optimizer, optimize_op

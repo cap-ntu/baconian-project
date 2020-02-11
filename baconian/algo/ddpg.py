@@ -216,7 +216,9 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
 
     def _setup_critic_loss(self):
         reg_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES, scope=self.critic.name_scope)
-        loss = tf.reduce_sum((self.predict_q_value - self.critic.q_tensor) ** 2) + tf.reduce_sum(reg_loss)
+        loss = tf.reduce_sum((self.predict_q_value - self.critic.q_tensor) ** 2)
+        if len(reg_loss) > 0:
+            loss += tf.reduce_sum(reg_loss)
         optimizer = tf.train.AdamOptimizer(learning_rate=self.parameters('CRITIC_LEARNING_RATE'))
         grad_var_pair = optimizer.compute_gradients(loss=loss, var_list=self.critic.parameters('tf_var_list'))
         grads = [g[0] for g in grad_var_pair]
@@ -236,8 +238,10 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
 
     def _set_up_actor_loss(self):
         reg_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES, scope=self.actor.name_scope)
+        loss = -tf.reduce_mean(self._critic_with_actor_output.q_tensor)
 
-        loss = -tf.reduce_mean(self._critic_with_actor_output.q_tensor) + tf.reduce_sum(reg_loss)
+        if len(reg_loss) > 0:
+            loss += tf.reduce_sum(reg_loss)
 
         optimizer = tf.train.AdamOptimizer(learning_rate=self.parameters('CRITIC_LEARNING_RATE'))
         grad_var_pair = optimizer.compute_gradients(loss=loss, var_list=self.actor.parameters('tf_var_list'))
