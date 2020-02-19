@@ -25,7 +25,7 @@ using data sampled from environment as index and averaged every 10 rewards for s
 
 .. code-block:: python
     path = '/path/to/log/'
-    image = loader.SingleExpLogDataLoader(exp_root_dir=path)
+    image = loader.SingleExpLogDataLoader(exp_root_dir=path) # exp_root_dir is the path to the log folder generated after finish experiments
     image.plot_res(sub_log_dir_name='demo_exp_agent/TRAIN',
                    # Specify the log file to be used is from agent during training process,
                    # replace with demo_exp_agent/TRAIN can given the result during testing process.
@@ -48,11 +48,12 @@ using data sampled from environment as index and averaged every 10 rewards for s
 .. note::
         ``sub_log_dir_name`` should include the COMPLETE directory
         in between the ``log_path`` directory and ``json.log``.
-        For example, if you have a log folder structured as /path/to/log/record/demo_exp_agent/TEST/log.json, then the ``sub_log_dir_name`` should be
+        For example, if you have a log folder structured as ``/path/to/log/record/demo_exp_agent/TEST/log.json``, then the ``sub_log_dir_name`` should be
         ``demo_exp_agent/TEST/`` and ``exp_root_dir`` should be ``/path/to/log/``.
 
 
-Please note that ``histogram`` plot mode is a bit different from the other two modes, in terms of data manipulation.
+Please note that ``histogram`` plot mode is a bit different from the other two modes, in terms of data manipulation. Although ``index`` is unnecessary under ``histogram`` mode, but currently user still should pass in one for internal data processing.
+
 
 .. code-block:: python
 
@@ -61,14 +62,12 @@ Please note that ``histogram`` plot mode is a bit different from the other two m
                key="average_reward",
                index='sample_counter',
                mode='histogram',
+               save_format='pdf',
+               save_flag=True,
                file_name='average_reward_histogram'
                )
 
 .. image:: ./fig/average_reward_histogram.png
-
-.. note::
-
- Although ``index`` is unnecessary under ``histogram`` mode, but currently user still should pass in one for internal data processing.
 
 
 - Multiple Experiment Visualisation
@@ -82,6 +81,7 @@ Following code snippet is to draw a ``line`` plot of ``sum_reward`` in ``benchma
 as a result of 10 times of DDPG benchmark experiments.
 
 .. code-block:: python
+
     path = '/path/to/log' # under the path, there should be 10 sub folders, each contains 1 experiment results.
     image = loader.MultipleExpLogDataLoader(path)
     image.plot_res(sub_log_dir_name='benchmark_agent/TEST',
@@ -90,6 +90,7 @@ as a result of 10 times of DDPG benchmark experiments.
                    mode='line',
                    save_flag=True,
                    average_over=10,
+                   save_format='pdf'
                    )
 
 .. image:: ./fig/sum_reward_VERSUS_sample_counter.png
@@ -100,17 +101,20 @@ When plotting multiple experiment results in ``histogram`` mode, figure will ref
 
 .. code-block:: python
 
-    image = loader.MultipleExpLogDataLoader(path, num=10)
+    path = '/path/to/log'
+    image = loader.MultipleExpLogDataLoader(path)
     image.plot_res(sub_log_dir_name='benchmark_ddpg/TRAIN',
                    key="average_critic_loss",
                    index='train',
                    mode='histogram',
                    file_name='average_critic_loss_benchmark',
+                   save_format='pdf',
+                   save_flag=True,
                    )
 
 .. image:: ./fig/average_critic_loss_benchmark.png
 
-We can see the action distribution which can help us to analyze and diagnose algorithms.
+We can use the action distribution to analyze and diagnose algorithms.
 
 How the logging module of Baconian works
 ----------------------------------------
@@ -119,5 +123,4 @@ There are two important modules of Baconian: ``Logger`` and ``Recorder``, ``Reco
 class you want to record something during training or testing, for such as DQN, Agent or Environment. It will record the
 information like loss, gradient or reward in a way that you specified. While ``Logger`` will take charge of these
 recorded information, group them in a certain way and output them into file, console etc.
-
 
