@@ -14,7 +14,7 @@ from baconian.core.agent import Agent
 from baconian.core.experiment import Experiment
 from baconian.core.flow.train_test_flow import TrainTestFlow
 from baconian.config.global_config import GlobalConfig
-from benchmark.ddpg_bechmark.hopper_conf import *
+from benchmark.ddpg_benchmark.hopper_conf import HOPPER_BENCHMARK_CONFIG_DICT
 from baconian.core.status import get_global_status_collect
 from baconian.common.noise import *
 from baconian.common.schedules import *

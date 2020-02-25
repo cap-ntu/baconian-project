@@ -9,25 +9,28 @@ environment. We also need to specific the hyper-parameters in Dyna architecture,
 from real environment to update the dynamics model, and how many samples from real environment and dynamics model to serve
 the training of the model-free algorithms.
 
+For more important information on the module used in the following code, please see `Best Practices <./best_practice>`
+and `API references <./API>`
+
 .. note::
     Complete codes can be found at :doc:`here <./example/dyna>`
 
 Create the tasks and DDPG algorithms
 -------------------------------------
 
-Create env Pendulum-v0, and the DDPG algorithms to solve the task
+Create environment Pendulum-v0, and the DDPG algorithms to solve the task
 
 .. literalinclude:: ../examples/dyna.py
     :linenos:
     :language: python
-    :lines: 23-90
+    :lines: 23-94
 
 Create a global dynamics model with MLP network
 --------------------------------------------------
 .. literalinclude:: ../examples/dyna.py
     :linenos:
     :language: python
-    :lines: 92-121
+    :lines: 95-125
 
 Create the Dyna architecture as algorithms
 --------------------------------------------------
@@ -36,7 +39,7 @@ Create the Dyna algorithms by passing the ddpg and dynamics model, and wrap by t
 .. literalinclude:: ../examples/dyna.py
     :linenos:
     :language: python
-    :lines: 122-143
+    :lines: 126-152
 
 Configure the workflow and experiments object
 ---------------------------------------------------------------
@@ -45,19 +48,19 @@ Create the dyna-like workflow, and the experiments object, and run the experimen
 .. literalinclude:: ../examples/dyna.py
     :linenos:
     :language: python
-    :lines: 145-178
+    :lines: 153-189
 .. note::
     Don't confuse the workflow with the Dyna algorithm itself. The flow only specifics how the algorithms interact
     with environments, and how to update and evaluate the ddpg (model-free method) and dynamics model.
 
 Set the global configuration and launch the experiment
 --------------------------------------------------------------------
-Set the log path and wrap all the above task into a function `task_fn`, and pass into experiment runner.
+Set some global config if needed and wrap all the above task into a function `task_fn`, and pass into experiment runner.
 
 .. literalinclude:: ../examples/dyna.py
     :linenos:
     :language: python
-    :lines: 181-184
+    :lines: 191-205
 
 Results logging/ Visualization
 --------------------------------
