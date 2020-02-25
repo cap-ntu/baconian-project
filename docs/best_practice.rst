@@ -103,6 +103,7 @@ Example Usages:
 User can set by:
 
 .. code-block:: python
+
     # only set one value with its limit as the end point.
     # once the recorded value TOTAL_AGENT_TRAIN_SAMPLE_COUNT exceed 200, the experiment will end.
     GlobalConfig().set('DEFAULT_EXPERIMENT_END_POINT', dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=200))

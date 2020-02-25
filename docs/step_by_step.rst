@@ -9,8 +9,8 @@ environment. We also need to specific the hyper-parameters in Dyna architecture,
 from real environment to update the dynamics model, and how many samples from real environment and dynamics model to serve
 the training of the model-free algorithms.
 
-For more important information on the module used in the following code, please see `Best Practices <./best_practice>`
-and `API references <./API>`
+For more important information on the module used in the following code, please see :doc:`Best Practices <./best_practice>`
+and :doc:`API references <./API>`
 
 .. note::
     Complete codes can be found at :doc:`here <./example/dyna>`
