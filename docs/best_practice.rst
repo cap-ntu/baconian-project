@@ -73,6 +73,45 @@ model-free algorithms, which is sampling-training-testing pipeline. The other on
     Do get freaked out by the long list of parameters you need to initialize the flow!
     This is caused by the fact that we want the flow to be fully configurable by users, and currently we are working to simplify this module.
 
+Built-in Global Status
+-------------------------------
+
+We include some recorded values as a time clock which can be used by users to use during the experiments.
+
+The all built-in recorded values are listed below, which user can use as end point to terminate the experiments
+
+- TOTAL_AGENT_TRAIN_SAMPLE_COUNT: the timesteps/samples used by agent for training
+- TOTAL_AGENT_TRAIN_SAMPLE_FUNC_COUNT: the times of sampling function called by agent during training
+- TOTAL_AGENT_TEST_SAMPLE_COUNT: the timesteps/samples used by agent for testing
+- TOTAL_AGENT_UPDATE_COUNT: the times of training function called by agent
+- TOTAL_ENV_STEP_TRAIN_SAMPLE_COUNT: the timesteps used by environment during training, it differs a little from TOTAL_AGENT_TRAIN_SAMPLE_COUNT
+- TOTAL_ENV_STEP_TEST_SAMPLE_COUNT: the timesteps used by environment during testing, it differs a little from TOTAL_AGENT_TEST_SAMPLE_COUNT
+
+User can access these values from anywhere they want by following code snippet after you start to execute the experiment:
+.. code-block:: python
+
+    from baconian.core.status import get_global_status_collect
+    # access directly
+    print(get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'))
+    # wrap in to a function
+    train_sample_count_func=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT')
+
+
+Example Usages:
+
+1. Use it to decide when to end the experiment using DEFAULT_EXPERIMENT_END_POINT in Global Config
+User can set by:
+
+.. code-block:: python
+    # only set one value with its limit as the end point.
+    # once the recorded value TOTAL_AGENT_TRAIN_SAMPLE_COUNT exceed 200, the experiment will end.
+    GlobalConfig().set('DEFAULT_EXPERIMENT_END_POINT', dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=200))
+
+2. Access the value to as the scheduler parameters' clock:
+
+See Page :doc:`Scheduler Parameters <./example/scheduler_parameter>`.
+
+
 Status Control
 -------------------------
 Status control is a must for DRL experiments. For instance, off-policy DRL methods need to switch between behavior

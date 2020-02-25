@@ -21,11 +21,14 @@ from baconian.common.data_pre_processing import RunningStandardScaler
 
 
 def task_fn():
+    # create the gym environment by make function
     env = make('Pendulum-v0')
+    # give your experiment a name which is used to generate the log path etc.
     name = 'demo_exp'
+    # construct the environment specification
     env_spec = EnvSpec(obs_space=env.observation_space,
                        action_space=env.action_space)
-
+    # construct the neural network to approximate q function of DDPG
     mlp_q = MLPQValueFunction(env_spec=env_spec,
                               name_scope=name + '_mlp_q',
                               name=name + '_mlp_q',
@@ -47,6 +50,7 @@ def task_fn():
                                       "W_NORMAL_STDDEV": 0.03
                                   }
                               ])
+    # construct the neural network to approximate policy for DDPG
     policy = DeterministicMLPPolicy(env_spec=env_spec,
                                     name_scope=name + '_mlp_policy',
                                     name=name + '_mlp_policy',
@@ -69,7 +73,7 @@ def task_fn():
                                         }
                                     ],
                                     reuse=False)
-
+    # construct the DDPG algorithms
     ddpg = DDPG(
         env_spec=env_spec,
         config_or_config_dict={
@@ -88,7 +92,7 @@ def task_fn():
         name=name + '_ddpg',
         replay_buffer=None
     )
-
+    # construct a neural network based global dynamics model to approximate the state transition of environment
     mlp_dyna = ContinuousMLPGlobalDynamicsModel(
         env_spec=env_spec,
         name_scope=name + '_mlp_dyna',
@@ -119,6 +123,7 @@ def task_fn():
                 "W_NORMAL_STDDEV": 0.03
             }
         ])
+    # finally, construct the Dyna algorithms with a model free algorithm DDGP, and a NN model.
     algo = Dyna(env_spec=env_spec,
                 name=name + '_dyna_algo',
                 model_free_algo=ddpg,
@@ -127,11 +132,15 @@ def task_fn():
                     dynamics_model_train_iter=10,
                     model_free_algo_train_iter=10
                 ))
+    # To make the NN based dynamics model a proper environment so be a sampling source for DDPG, reward function and
+    # terminal function need to be set.
+
     # For examples only, we use random reward function and terminal function with fixed episode length.
     algo.set_terminal_reward_function_for_dynamics_env(
         terminal_func=FixedEpisodeLengthTerminalFunc(max_step_length=env.unwrapped._max_episode_steps,
                                                      step_count_fn=algo.dynamics_env.total_step_count_fn),
         reward_func=RandomRewardFunc())
+    # construct agent with additional exploration strategy if needed.
     agent = Agent(env=env, env_spec=env_spec,
                   algo=algo,
                   algo_saving_scheduler=PeriodicalEventSchedule(
@@ -141,7 +150,7 @@ def task_fn():
                   name=name + '_agent',
                   exploration_strategy=EpsilonGreedy(action_space=env_spec.action_space,
                                                      init_random_prob=0.5))
-
+    # construct the training flow, called Dyna flow. It defines how the training proceed, and the terminal condition
     flow = create_dyna_flow(
         train_algo_func=(agent.train, (), dict(state='state_agent_training')),
         train_algo_from_synthesized_data_func=(agent.train, (), dict(state='state_agent_training')),
@@ -167,7 +176,7 @@ def task_fn():
         start_test_dynamics_after_sample_count=1,
         warm_up_dynamics_samples=1
     )
-
+    # construct the experiment
     experiment = Experiment(
         tuner=None,
         env=env,
@@ -175,10 +184,21 @@ def task_fn():
         flow=flow,
         name=name + '_exp'
     )
+    # run!
     experiment.run()
+
 
 if __name__ == '__main__':
     from baconian.core.experiment_runner import *
 
+    # set some global configuration here
+
+    # set DEFAULT_EXPERIMENT_END_POINT to indicate when to stop the experiment.
+    # one usually used is the TOTAL_AGENT_TRAIN_SAMPLE_COUNT, i.e., how many samples/timesteps are used for training
+    GlobalConfig().set('DEFAULT_EXPERIMENT_END_POINT', dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=200))
+
+    # set the logging path to write log and save model checkpoints.
     GlobalConfig().set('DEFAULT_LOG_PATH', './log_path')
+
+    # feed the task into a exp runner.
     single_exp_runner(task_fn, del_if_log_path_existed=True)

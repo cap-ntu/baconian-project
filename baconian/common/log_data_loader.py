@@ -12,21 +12,17 @@ class SingleExpLogDataLoader(object):
         check_file(path=os.path.join(exp_root_dir, 'record', 'global_config.json'))
         self.final_status = load_json(file_path=os.path.join(exp_root_dir, 'record', 'final_status.json'))
         self.global_config = load_json(file_path=os.path.join(exp_root_dir, 'record', 'global_config.json'))
-        # check the existence of json files?
 
     def load_record_data(self, agent_log_dir_name, algo_log_dir_name, env_log_dir_name):
-        # todo maybe add a verbose mode to load all log
-        agent_log_dir = os.path.join(self._root_dir, agent_log_dir_name)
-        algo_log_dir = os.path.join(self._root_dir, algo_log_dir_name)
-        # TODO : load all data here
-        check_dir(agent_log_dir)
-        check_dir(algo_log_dir)
+        # TODO  pre-load all data here
+        check_dir(os.path.join(self._root_dir, agent_log_dir_name))
+        check_dir(os.path.join(self._root_dir, algo_log_dir_name))
 
     def init(self):
         pass
 
-    def plot_res(self, sub_log_dir_name, key, index, save_path, mode=('line', 'hist', 'scatter'),
-                 average_over=1, file_name=None, save_format='png',
+    def plot_res(self, sub_log_dir_name, key, index, save_path=None, mode=('line', 'hist', 'scatter'),
+                 average_over=1, file_name=None, save_format='png', save_flag=False,
                  ):
         log_name = os.path.join(self._root_dir, 'record', sub_log_dir_name, 'log.json')
         f = open(log_name, 'r')
@@ -66,7 +62,7 @@ class SingleExpLogDataLoader(object):
 
         Plotter.plot_any_key_in_log(data=data_new, index=index, key=key,
                                     sub_log_dir_name=sub_log_dir_name,
-                                    scatter_flag=scatter_flag, save_flag=True,
+                                    scatter_flag=scatter_flag, save_flag=save_flag,
                                     histogram_flag=histogram_flag, save_path=save_path,
                                     save_format=save_format, file_name=file_name)
 
@@ -98,7 +94,7 @@ class MultipleExpLogDataLoader(object):
                     SingleExpLogDataLoader(exp_root_dir)
 
     def plot_res(self, key, index, save_path, sub_log_dir_name: str, mode=('plot', 'hist', 'scatter'), average_over=1,
-                 save_format='png', file_name=None, ):
+                 save_format='png', file_name=None, save_flag=False):
         multiple_key_value = {}
         for exp in self.exp_list:
             f = open(os.path.join(exp, 'record', sub_log_dir_name, 'log.json'), 'r')
@@ -142,7 +138,7 @@ class MultipleExpLogDataLoader(object):
             scatter_flag = False
 
         Plotter.plot_any_key_in_log(data=data_new, index=index, key=key, exp_num=self.num,
-                                    scatter_flag=scatter_flag, save_flag=True,
+                                    scatter_flag=scatter_flag, save_flag=save_flag,
                                     mean_stddev_flag=True,
                                     histogram_flag=histogram_flag, save_path=save_path,
                                     sub_log_dir_name=sub_log_dir_name, save_format=save_format, file_name=file_name)

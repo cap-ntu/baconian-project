@@ -22,5 +22,8 @@ We offer some examples on how to better use Baconian in a more practical and eff
     :maxdepth: 1
     :caption: Utility examples
 
+    ./example/early_stopping_flow.rst
+    ./example/env_state_projection.rst
     ./example/scheduler_parameter.rst
     ./example/visualization.rst
+
