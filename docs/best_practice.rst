@@ -76,9 +76,9 @@ model-free algorithms, which is sampling-training-testing pipeline. The other on
 Built-in Global Status
 -------------------------------
 
-We include some recorded values as a time clock which can be used by users to use during the experiments.
+We include some recorded values as a global shared status which can be accessed during the experiments.
 
-The all built-in recorded values are listed below, which user can use as end point to terminate the experiments
+The all built-in recorded values are listed below:
 
 - TOTAL_AGENT_TRAIN_SAMPLE_COUNT: the timesteps/samples used by agent for training
 - TOTAL_AGENT_TRAIN_SAMPLE_FUNC_COUNT: the times of sampling function called by agent during training
@@ -87,7 +87,7 @@ The all built-in recorded values are listed below, which user can use as end poi
 - TOTAL_ENV_STEP_TRAIN_SAMPLE_COUNT: the timesteps used by environment during training, it differs a little from TOTAL_AGENT_TRAIN_SAMPLE_COUNT
 - TOTAL_ENV_STEP_TEST_SAMPLE_COUNT: the timesteps used by environment during testing, it differs a little from TOTAL_AGENT_TEST_SAMPLE_COUNT
 
-User can access these values from anywhere they want by following code snippet after you start to execute the experiment:
+User can access these values from anywhere they want or register new global status into by following code snippet after you start to execute the experiment:
 .. code-block:: python
 
     from baconian.core.status import get_global_status_collect
@@ -95,6 +95,18 @@ User can access these values from anywhere they want by following code snippet a
     print(get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT'))
     # wrap in to a function
     train_sample_count_func=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT')
+
+    # register new status
+    get_global_status_collect().register_info_key_status(
+                                                         # object that hold the source value
+                                                        obj=object,
+                                                         # which key the object used
+                                                        info_key='predict_counter',
+                                                        # under which status
+                                                        under_status='TRAIN',
+                                                        # name used to store in global status
+                                                        return_name='TOTAL_AGENT_TRAIN_SAMPLE_COUNT'
+                                                        )
 
 
 Example Usages:
@@ -108,7 +120,7 @@ User can set by:
     # once the recorded value TOTAL_AGENT_TRAIN_SAMPLE_COUNT exceed 200, the experiment will end.
     GlobalConfig().set('DEFAULT_EXPERIMENT_END_POINT', dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=200))
 
-2. Access the value to as the scheduler parameters' clock:
+2. Access the value as the scheduler parameters' clock:
 
 See Page :doc:`Scheduler Parameters <./example/scheduler_parameter>`.
 
