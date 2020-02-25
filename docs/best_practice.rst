@@ -88,6 +88,7 @@ The all built-in recorded values are listed below:
 - TOTAL_ENV_STEP_TEST_SAMPLE_COUNT: the timesteps used by environment during testing, it differs a little from TOTAL_AGENT_TEST_SAMPLE_COUNT
 
 User can access these values from anywhere they want or register new global status into by following code snippet after you start to execute the experiment:
+
 .. code-block:: python
 
     from baconian.core.status import get_global_status_collect
