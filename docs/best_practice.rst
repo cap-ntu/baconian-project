@@ -26,8 +26,8 @@ Specifically, you can do it by:
     from baconian.core.experiment_runner import single_exp_runner, duplicate_exp_runner
     # Define your function first.
     def your_function():
-        a = 1;
-        b = 2;
+        a = 1
+        b = 2
         print(a + b)
     # Then pass the function object to single_exp_runner, then it will set up everything and run your code.
     single_exp_runner(your_function)
