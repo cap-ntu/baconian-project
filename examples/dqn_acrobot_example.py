@@ -10,6 +10,7 @@ from baconian.config.global_config import GlobalConfig
 from baconian.common.schedules import LinearScheduler
 from baconian.core.status import get_global_status_collect
 
+
 def task_fn():
     env = make('Acrobot-v1')
     name = 'demo_exp'
@@ -71,18 +72,20 @@ def task_fn():
                                                          schedule_timesteps=int(0.1 * 100000),
                                                          initial_p=1.0,
                                                          final_p=0.02),
-                                                     init_random_prob=0.1))
+                                                     init_random_prob=0.1),
+                  noise_adder=None)
+
     flow = create_train_test_flow(
         test_every_sample_count=100,
         train_every_sample_count=1,
         start_test_after_sample_count=0,
         start_train_after_sample_count=1000,
-        train_func_and_args=(agent.train, (), dict()),
-        test_func_and_args=(agent.test, (), dict(sample_count=3, sample_trajectory_flag=True)),
         sample_func_and_args=(agent.sample, (), dict(sample_count=1,
                                                      env=agent.env,
                                                      in_which_status='TRAIN',
-                                                     store_flag=True))
+                                                     store_flag=True)),
+        train_func_and_args=(agent.train, (), dict()),
+        test_func_and_args=(agent.test, (), dict(sample_count=3, sample_trajectory_flag=True)),
     )
     experiment = Experiment(
         tuner=None,
@@ -93,7 +96,9 @@ def task_fn():
     )
     experiment.run()
 
+
 from baconian.core.experiment_runner import *
+
 
 if __name__ == '__main__':
     GlobalConfig().set('DEFAULT_LOG_PATH', './log_path')
