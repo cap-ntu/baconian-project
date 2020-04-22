@@ -106,3 +106,4 @@ venv.bak/
 examples/log_path*
 benchmark/benchmark_log
 log_path/
+mjkey.txt

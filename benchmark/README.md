@@ -6,3 +6,17 @@ To reproduce the results, run following command:
 ```bash
 python run_benchmark.py --env_id Pendulum-v0 --algo DDPG --count 10
 ```
+
+A docker file is offered for installation of Baconian with Tensorflow GPU version, and mujoco. 
+Use the docker with following example instruction:
+
+```bash
+// put your mujoco mjkey.txt at root directory of baconian project.
+cp /path/to/mkjey.txt /path/to/baconian-project/ 
+// build the container
+cd /path/to/baconian-project/benchmark 
+docker build -t baconian-test .
+// runing the experiment, you can modify the passed in paramters 
+docker run --gpus 1 baconian-test --env Pendulum-v0 --algo ddpg --count 1
+// after finish, you need copy the log file back manually 
+```
