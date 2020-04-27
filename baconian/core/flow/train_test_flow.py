@@ -6,6 +6,7 @@ from baconian.common.misc import *
 from baconian.core.parameters import Parameters
 from baconian.core.status import *
 from baconian.common.error import *
+import tracemalloc
 
 
 class Flow(object):
@@ -123,6 +124,12 @@ class TrainTestFlow(Flow):
                     self.time_step_func() > self.parameters('START_TEST_AFTER_SAMPLE_COUNT'):
                 self.last_test_point = self.time_step_func()
                 self._call_func('test')
+            snapshot = tracemalloc.take_snapshot()
+            top_stats = snapshot.statistics('lineno')
+            print("[ Top 10 ]")
+            for stat in top_stats[:10]:
+                print(stat)
+
             if self._is_ended() is True:
                 break
         return True

@@ -11,6 +11,7 @@ from baconian.common import files as file
 from baconian.common.logging import Logger, ConsoleLogger
 from baconian.config.global_config import GlobalConfig
 from copy import deepcopy
+import tracemalloc
 
 
 def _reset_global_seed(seed):
@@ -99,6 +100,7 @@ def duplicate_exp_runner(num, task_fn, auto_choose_gpu_flag=False, gpu_id: int =
     :return:
     :rtype:
     """
+    tracemalloc.start(100)
     if seeds:
         assert len(seeds) == num
     base_log_path = deepcopy(GlobalConfig().DEFAULT_LOG_PATH)
