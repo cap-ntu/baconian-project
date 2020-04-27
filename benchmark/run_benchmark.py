@@ -6,8 +6,7 @@ from benchmark.ppo_benchmark import reacher_task_fn
 from benchmark.ppo_benchmark import swimmer_task_fn
 from benchmark.ppo_benchmark import hopper_task_fn
 from benchmark.ppo_benchmark import half_cheetah_task_fn
-from benchmark.ppo_benchmark import inverted_pendulum_task_fn
-
+from benchmark.ppo_benchmark import inverted_pendulum_task_fn, half_cheetah_bullet_env_task_fn
 from benchmark.iLQR_benchmark import ilqr_pendulum_task_fn
 from benchmark.dqn_benchmark import acrobot_task_fn, lunarlander_task_fn
 import argparse
@@ -45,8 +44,8 @@ env_id_to_task_fn = {
     'HalfCheetah-v2': {
         'ppo': half_cheetah_task_fn,
     },
-    'HalfCheetahBulletEnv': {
-        'ppo': half_cheetah_task_fn,
+    'HalfCheetahBulletEnv-v0': {
+        'ppo': half_cheetah_bullet_env_task_fn,
 
     },
     'Acrobot-v1': {
