@@ -46,8 +46,8 @@ RUN mv /root/.mujoco/mujoco200_linux /root/.mujoco/mujoco200
 RUN rm mjpro131_linux.zip && rm mjpro150_linux.zip && rm mujoco200_linux.zip
 
 
-COPY .. /baconian-project
-COPY ../mjkey.txt /root/.mujoco/
+COPY . /baconian-project
+COPY ./mjkey.txt /root/.mujoco/
 
 # ENV LD_LIBRARY_PATH /root/.mujoco/mjpro131/bin:${LD_LIBRARY_PATH}
 ENV LD_LIBRARY_PATH /root/.mujoco/mujoco200/bin:${LD_LIBRARY_PATH}
