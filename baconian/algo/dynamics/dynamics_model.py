@@ -12,7 +12,6 @@ from baconian.common.error import *
 from baconian.core.core import EnvSpec, Env
 from baconian.algo.dynamics.reward_func.reward_func import RewardFunc
 from baconian.algo.dynamics.terminal_func.terminal_func import TerminalFunc
-from copy import deepcopy
 from baconian.common.data_pre_processing import DataScaler, IdenticalDataScaler
 
 
@@ -228,7 +227,7 @@ class DynamicsEnvWrapper(Env):
 
     def step(self, action: np.ndarray, **kwargs):
         super().step(action)
-        state = deepcopy(self.get_state()) if 'state' not in kwargs else kwargs['state']
+        state = self.get_state() if 'state' not in kwargs else kwargs['state']
         new_state = self._dynamics.step(action=action, **kwargs)
         re = self._reward_func(state=state, new_state=new_state, action=action)
         terminal = self._terminal_func(state=state, action=action, new_state=new_state)
