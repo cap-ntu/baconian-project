@@ -58,5 +58,4 @@ RUN source ~/.bashrc
 
 WORKDIR /baconian-project
 RUN pip install cffi && pip install pip -U && pip install -e .
-RUN pip install mujoco-py && pip install 'gym[all]==0.12.0'
 ENTRYPOINT ["python", "/baconian-project/benchmark/run_benchmark.py"]
