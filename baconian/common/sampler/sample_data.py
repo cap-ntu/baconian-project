@@ -73,6 +73,7 @@ class TransitionData(SampleData):
 
     def reset(self):
         for key, data_set in self._internal_data_dict.items():
+            del self._internal_data_dict[key][0]
             self._internal_data_dict[key][0] = []
         self.cumulative_reward = 0.0
         self.step_count_per_episode = 0
@@ -94,7 +95,10 @@ class TransitionData(SampleData):
             self._internal_data_dict[key][0] += sample_data._internal_data_dict[key][0]
 
     def get_copy(self):
-        return deepcopy(self)
+        obj = TransitionData(env_spec=self.env_spec, obs_shape=self.obs_shape, action_shape=self.action_shape)
+        for key in self._internal_data_dict:
+            obj._internal_data_dict[key] = deepcopy(self._internal_data_dict[key])
+        return obj
 
     def append_new_set(self, name, data_set: (list, np.ndarray), shape: (tuple, list)):
         assert len(data_set) == len(self)
@@ -240,7 +244,8 @@ class TrajectoryData(SampleData):
 
     def get_copy(self):
         tmp_traj = TrajectoryData(env_spec=self.env_spec, obs_shape=self.obs_shape, action_shape=self.action_shape)
-        tmp_traj.union(self)
+        for traj in self.trajectories:
+            tmp_traj.append(transition_data=traj.get_copy())
         return tmp_traj
 
     def return_generator(self, batch_size=None, shuffle_flag=False):

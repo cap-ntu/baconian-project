@@ -154,8 +154,9 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                                                        reward=reward,
                                                        done=done)
             if done is True:
-                self.trajectory_memory.append(self.transition_data_for_trajectory)
-                self.transition_data_for_trajectory.reset()
+                self.trajectory_memory.append(self.transition_data_for_trajectory.get_copy())
+                del self.transition_data_for_trajectory
+                self.transition_data_for_trajectory = TransitionData(env_spec=self.env_spec)
         self.scaler.update_scaler(data=np.array(obs_list))
 
     @record_return_decorator(which_recorder='self')
