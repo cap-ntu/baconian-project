@@ -160,6 +160,8 @@ class GymEnv(Env):
         elif hasattr(self.unwrapped_gym, 'spec') and hasattr(self.unwrapped_gym.spec,
                                                              'id') and self.unwrapped_gym.spec.id in specialEnv:
             return specialEnv[self.unwrapped_gym.spec.id](self)
+        elif hasattr(self.unwrapped_gym, 'robot'):
+            return self.unwrapped_gym.robot.calc_state()
         else:
             raise ValueError('Env id: {} is not supported for method get_state'.format(self.env_id))
 

@@ -20,6 +20,7 @@ def half_cheetah_task_fn():
                        exp_config['DEFAULT_EXPERIMENT_END_POINT'])
 
     env = make(exp_config['env_id'])
+    env.reset()
     name = 'benchmark'
     env_spec = EnvSpec(obs_space=env.observation_space,
                        action_space=env.action_space)
