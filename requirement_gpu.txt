@@ -44,3 +44,4 @@ roboschool==1.0.48
 opencv-python>=4.1.0.25
 scikit-learn>=0.21.1
 atari-py>=0.1.14
+pybullet

@@ -45,6 +45,10 @@ env_id_to_task_fn = {
     'HalfCheetah-v2': {
         'ppo': half_cheetah_task_fn,
     },
+    'HalfCheetahBulletEnv': {
+        'ppo': half_cheetah_task_fn,
+
+    },
     'Acrobot-v1': {
         'dqn': acrobot_task_fn,
     },
