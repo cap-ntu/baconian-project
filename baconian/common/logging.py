@@ -1,9 +1,6 @@
 import abc
 import logging
 import os
-from copy import deepcopy
-
-from typeguard import typechecked
 
 from baconian.common.misc import construct_dict_config
 from baconian.common import files as files
@@ -241,9 +238,9 @@ class Recorder(object):
             self._obj_log[obj] = {}
         if attr_name not in self._obj_log[obj]:
             self._obj_log[obj][attr_name] = []
-        info = deepcopy(status_info)
-        info['attr_name'] = deepcopy(attr_name)
-        info['log_val'] = deepcopy(log_val)
+        info = status_info
+        info['attr_name'] = attr_name
+        info['log_val'] = log_val
         self._obj_log[obj][attr_name].append(info)
 
     def get_log(self, attr_name: str, filter_by_status: dict = None, obj=None):
@@ -266,7 +263,7 @@ class Recorder(object):
                     filtered_record.append(r)
             return filtered_record
         else:
-            return deepcopy(record)
+            return record
 
     def is_empty(self):
         return len(self._obj_log) == 0
@@ -307,10 +304,11 @@ class Recorder(object):
                     filtered_res[obj.name][stat][attr] = []
             for attr in self._obj_log[obj]:
                 for val_dict in self._obj_log[obj][attr]:
-                    res = deepcopy(val_dict)
+                    res = val_dict
                     res.pop('attr_name')
                     filtered_res[obj.name][val_dict['status']][val_dict['attr_name']].append(res)
         if clear_obj_log_flag is True:
+            del self._obj_log
             self._obj_log = {}
         return filtered_res
 
@@ -324,9 +322,10 @@ class Recorder(object):
                 for attr in self._obj_log[obj]:
                     filtered_res[obj.name][attr] = []
                     for val_dict in self._obj_log[obj][attr]:
-                        res = deepcopy(val_dict)
+                        res = val_dict
                         res.pop('attr_name')
                         filtered_res[obj.name][val_dict['attr_name']].append(res)
+            del self._obj_log
             self._obj_log = {}
             return filtered_res, self.flush_by_split_status
 

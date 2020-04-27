@@ -91,7 +91,7 @@ class TransitionData(SampleData):
         self.step_count_per_episode += sample_data.step_count_per_episode
         for key, val in self._internal_data_dict.items():
             assert self._internal_data_dict[key][1] == sample_data._internal_data_dict[key][1]
-            self._internal_data_dict[key][0] += deepcopy(sample_data._internal_data_dict[key][0])
+            self._internal_data_dict[key][0] += sample_data._internal_data_dict[key][0]
 
     def get_copy(self):
         return deepcopy(self)
@@ -144,7 +144,7 @@ class TransitionData(SampleData):
             index = np.arange(len(self._internal_data_dict['state_set'][0]))
             np.random.shuffle(index)
         for key in self._internal_data_dict.keys():
-            self._internal_data_dict[key][0] = deepcopy([self._internal_data_dict[key][0][i] for i in index])
+            self._internal_data_dict[key][0] = [self._internal_data_dict[key][0][i] for i in index]
 
     def return_generator(self, batch_size=None, shuffle_flag=False, assigned_keys=None, infinite_run=False):
         if assigned_keys is None:
@@ -212,7 +212,7 @@ class TrajectoryData(SampleData):
         self.trajectories = []
 
     def append(self, transition_data: TransitionData):
-        self.trajectories.append(transition_data.get_copy())
+        self.trajectories.append(transition_data)
 
     def union(self, sample_data):
         if not isinstance(sample_data, type(self)):
@@ -220,9 +220,9 @@ class TrajectoryData(SampleData):
         self.trajectories += sample_data.trajectories
 
     def return_as_transition_data(self, shuffle_flag=False) -> TransitionData:
-        transition_set = self.trajectories[0].get_copy()
+        transition_set = self.trajectories[0]
         for i in range(1, len(self.trajectories)):
-            transition_set.union(self.trajectories[i].get_copy())
+            transition_set.union(self.trajectories[i])
         if shuffle_flag is True:
             transition_set.shuffle()
         return transition_set
