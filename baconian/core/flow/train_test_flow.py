@@ -7,6 +7,7 @@ from baconian.core.parameters import Parameters
 from baconian.core.status import *
 from baconian.common.error import *
 import tracemalloc
+from pympler import summary, muppy
 
 
 class Flow(object):
@@ -114,7 +115,17 @@ class TrainTestFlow(Flow):
         :return: True if the flow correctly executed and finished
         :rtype: bool
         """
+        sum_list = []
+        cnt = 0
         while True:
+            cnt += 1
+            print(cnt)
+            if cnt % 5 == 0:
+                sum = summary.summarize(muppy.get_objects())
+                summary.print_(sum)
+                if len(sum_list) > 0:
+                    summary.print_(summary.get_diff(sum, sum_list[-1]))
+                sum_list.append(sum)
             self._call_func('sample')
             if self.time_step_func() - self.parameters('TRAIN_EVERY_SAMPLE_COUNT') >= self.last_train_point and \
                     self.time_step_func() > self.parameters('START_TRAIN_AFTER_SAMPLE_COUNT'):
@@ -124,11 +135,11 @@ class TrainTestFlow(Flow):
                     self.time_step_func() > self.parameters('START_TEST_AFTER_SAMPLE_COUNT'):
                 self.last_test_point = self.time_step_func()
                 self._call_func('test')
-            snapshot = tracemalloc.take_snapshot()
-            top_stats = snapshot.statistics('lineno')
-            print("[ Top 10 ]")
-            for stat in top_stats[:10]:
-                print(stat)
+            # snapshot = tracemalloc.take_snapshot()
+            # top_stats = snapshot.statistics('lineno')
+            # print("[ Top 10 ]")
+            # for stat in top_stats[:10]:
+            #     print(stat)
 
             if self._is_ended() is True:
                 break

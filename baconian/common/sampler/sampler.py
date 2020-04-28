@@ -1,7 +1,7 @@
 from baconian.core.core import Basic, Env
 from baconian.common.sampler.sample_data import TransitionData, TrajectoryData
 from typeguard import typechecked
-
+import numpy as np
 
 class Sampler(Basic):
     """
@@ -90,7 +90,7 @@ class Sampler(Basic):
             traj_record = TransitionData(self.env_spec)
             while done is not True:
                 action = agent.predict(obs=state)
-                new_state, re, done, info = env.step(action.squeeze())
+                new_state, re, done, info = env.step(np.reshape(np.array(action), [-1]))
                 if not isinstance(done, bool):
                     raise TypeError()
                 traj_record.append(state=state,

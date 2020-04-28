@@ -100,7 +100,7 @@ def duplicate_exp_runner(num, task_fn, auto_choose_gpu_flag=False, gpu_id: int =
     :return:
     :rtype:
     """
-    tracemalloc.start(100)
+    # tracemalloc.start(100)
     if seeds:
         assert len(seeds) == num
     base_log_path = deepcopy(GlobalConfig().DEFAULT_LOG_PATH)
