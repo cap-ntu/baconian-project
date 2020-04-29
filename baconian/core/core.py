@@ -177,6 +177,7 @@ class EnvSpec(object):
     @staticmethod
     def flat(space: Space, obs_or_action: (np.ndarray, list)):
         """
+        flat the input obs or action
         :param space: space of environment
         :type space: Space
         :param obs_or_action: action or observation space

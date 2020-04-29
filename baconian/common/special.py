@@ -191,13 +191,16 @@ def flat_dim(space):
         raise NotImplementedError
 
 
-def flatten(space, obs):
+def flatten(space, obs, one_hot_for_discrete=False):
     if isinstance(space, mbrl_spaces.Box):
         return np.asarray(obs).flatten()
     elif isinstance(space, mbrl_spaces.Discrete):
-        if space.n == 2:
-            obs = int(obs)
-        return to_onehot(obs, space.n)
+        if one_hot_for_discrete is True:
+            if space.n == 2:
+                obs = int(obs)
+            return to_onehot(obs, space.n)
+        else:
+            return int(obs)
     elif isinstance(space, mbrl_spaces.Tuple):
         return np.concatenate(
             [flatten(c, xi) for c, xi in zip(space.spaces, obs)])

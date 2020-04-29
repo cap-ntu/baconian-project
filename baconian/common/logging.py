@@ -318,9 +318,8 @@ class Recorder(object):
                 for attr in self._obj_log[obj]:
                     filtered_res[obj.name][attr] = []
                     for val_dict in self._obj_log[obj][attr]:
-                        res = val_dict
-                        res.pop('attr_name')
-                        filtered_res[obj.name][val_dict['attr_name']].append(res)
+                        val_dict.pop('attr_name')
+                        filtered_res[obj.name][attr].append(val_dict)
             del self._obj_log
             self._obj_log = {}
             return filtered_res, self.flush_by_split_status

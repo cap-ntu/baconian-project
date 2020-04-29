@@ -109,6 +109,7 @@ class GymEnv(Env):
         :rtype: gym env
         """
         super().step(action)
+        action = self.env_spec.flat_action(action)
         return self.unwrapped.step(action=action)
 
     def reset(self):

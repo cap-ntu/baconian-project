@@ -79,7 +79,7 @@ class Sampler(object):
             traj_record = TransitionData(env.env_spec)
             while done is not True:
                 action = agent.predict(obs=state)
-                new_state, re, done, info = env.step(np.reshape(np.array(action), [-1]))
+                new_state, re, done, info = env.step(action)
                 if not isinstance(done, bool):
                     raise TypeError()
                 traj_record.append(state=state,

@@ -224,6 +224,7 @@ class DynamicsEnvWrapper(Env):
         self._dynamics = dynamics
         self._reward_func = None
         self._terminal_func = None
+        self.env_spec = dynamics.env_spec
 
     def step(self, action: np.ndarray, **kwargs):
         super().step(action)

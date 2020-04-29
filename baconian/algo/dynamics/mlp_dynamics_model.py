@@ -137,7 +137,7 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DifferentiableDynami
     def _state_transit(self, state, action, **kwargs) -> np.ndarray:
         state = self.state_input_scaler.process(
             np.array(state).reshape(self.env_spec.obs_shape)) if state is not None else self.state
-        action = self.action_input_scaler.process(action.reshape(self.env_spec.flat_action_dim))
+        action = self.action_input_scaler.process(self.env_spec.flat_action(action))
 
         if 'sess' in kwargs:
             tf_sess = kwargs['sess']
