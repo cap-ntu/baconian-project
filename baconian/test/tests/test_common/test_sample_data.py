@@ -37,7 +37,7 @@ class TestSampleData(BaseTestCase):
             self.assertTrue(env_spec.obs_space.contains(st))
             self.assertTrue(env_spec.obs_space.contains(new_st))
             self.assertTrue(np.isscalar(reward))
-            self.assertTrue(isinstance(terminal, bool))
+            self.assertTrue(isinstance(bool(terminal), bool))
         self.assertEqual(count, 100)
 
         a = TransitionData(obs_shape=list(np.array(env_spec.obs_space.sample()).shape),
@@ -102,7 +102,7 @@ class TestSampleData(BaseTestCase):
             self.assertTrue(env_spec.obs_space.contains(st))
             self.assertTrue(env_spec.obs_space.contains(new_st))
             self.assertTrue(np.isscalar(reward))
-            self.assertTrue(isinstance(terminal, bool))
+            self.assertTrue(isinstance(bool(terminal), bool))
         self.assertEqual(count, 100)
         count = 0
         iter = a.return_generator(batch_size=10)
@@ -171,8 +171,8 @@ class TestSampleData(BaseTestCase):
             else:
                 done = False
             tmp_traj.append(state=st, new_state=st_new, action=ac, done=done, reward=re)
-            if done is True:
-                a.append(tmp_traj)
+            if done:
+                a.append(tmp_traj.get_copy())
                 tmp_traj.reset()
         self.assertEqual(a.trajectories.__len__(), 10)
         for traj in a.trajectories:

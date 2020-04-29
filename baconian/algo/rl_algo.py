@@ -6,8 +6,8 @@ import numpy as np
 
 
 class ModelFreeAlgo(Algo):
-    def __init__(self, env_spec: EnvSpec, name: str = 'model_free_algo'):
-        super(ModelFreeAlgo, self).__init__(env_spec, name)
+    def __init__(self, env_spec: EnvSpec, name: str = 'model_free_algo', warm_up_trajectories_number=0):
+        super(ModelFreeAlgo, self).__init__(env_spec, name, warm_up_trajectories_number)
 
 
 class OnPolicyAlgo(Algo):

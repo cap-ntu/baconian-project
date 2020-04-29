@@ -99,7 +99,7 @@ PENDULUM_BENCHMARK_CONFIG_DICT = {
             "START_TEST_AFTER_SAMPLE_COUNT": 0,
         }
     },
-    'DEFAULT_EXPERIMENT_END_POINT': dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=1000 * 200,
+    'DEFAULT_EXPERIMENT_END_POINT': dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=1000 * 10,
                                          TOTAL_AGENT_TEST_SAMPLE_COUNT=None,
                                          TOTAL_AGENT_UPDATE_COUNT=None),
 }

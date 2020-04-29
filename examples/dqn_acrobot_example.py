@@ -85,7 +85,7 @@ def task_fn():
                                                      in_which_status='TRAIN',
                                                      store_flag=True)),
         train_func_and_args=(agent.train, (), dict()),
-        test_func_and_args=(agent.test, (), dict(sample_count=3, sample_trajectory_flag=True)),
+        test_func_and_args=(agent.test, (), dict(sample_count=3)),
     )
     experiment = Experiment(
         tuner=None,

@@ -238,10 +238,7 @@ class Recorder(object):
             self._obj_log[obj] = {}
         if attr_name not in self._obj_log[obj]:
             self._obj_log[obj][attr_name] = []
-        info = status_info
-        info['attr_name'] = attr_name
-        info['log_val'] = log_val
-        self._obj_log[obj][attr_name].append(info)
+        self._obj_log[obj][attr_name].append(dict(**status_info, attr_name=attr_name, log_val=log_val))
 
     def get_log(self, attr_name: str, filter_by_status: dict = None, obj=None):
         if obj is None:
@@ -304,9 +301,8 @@ class Recorder(object):
                     filtered_res[obj.name][stat][attr] = []
             for attr in self._obj_log[obj]:
                 for val_dict in self._obj_log[obj][attr]:
-                    res = val_dict
-                    res.pop('attr_name')
-                    filtered_res[obj.name][val_dict['status']][val_dict['attr_name']].append(res)
+                    filtered_res[obj.name][val_dict['status']][val_dict['attr_name']].append(val_dict)
+                    filtered_res[obj.name][val_dict['status']][attr][-1].pop('attr_name')
         if clear_obj_log_flag is True:
             del self._obj_log
             self._obj_log = {}

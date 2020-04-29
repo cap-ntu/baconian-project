@@ -1,20 +1,21 @@
-from baconian.core.core import Basic, EnvSpec
+from baconian.core.core import Basic, EnvSpec, Env
 from baconian.core.status import StatusWithSubInfo
 import abc
 from typeguard import typechecked
 from baconian.common.logging import Recorder
 from baconian.core.parameters import Parameters
+from baconian.common.sampler.sample_data import TrajectoryData
 
 
 class Algo(Basic):
     """
     Abstract class for algorithms
     """
-    STATUS_LIST = ['NOT_INIT', 'JUST_INITED', 'TRAIN', 'TEST']
-    INIT_STATUS = 'NOT_INIT'
+    STATUS_LIST = ['CREATED', 'INITED', 'TRAIN', 'TEST']
+    INIT_STATUS = 'CREATED'
 
     @typechecked
-    def __init__(self, env_spec: EnvSpec, name: str = 'algo'):
+    def __init__(self, env_spec: EnvSpec, name: str = 'algo', warm_up_trajectories_number=0):
         """
         Constructor
 
@@ -22,12 +23,15 @@ class Algo(Basic):
         :type env_spec: EnvSpec
         :param name: name of the algorithm
         :type name: str
+        :param warm_up_trajectories_number: how many trajectories used to warm up the training
+        :type warm_up_trajectories_number: TrajectoryData
         """
 
         super().__init__(status=StatusWithSubInfo(obj=self), name=name)
         self.env_spec = env_spec
         self.parameters = Parameters(dict())
         self.recorder = Recorder(default_obj=self)
+        self.warm_up_trajectories_number = warm_up_trajectories_number
 
     def init(self):
         """
@@ -35,7 +39,18 @@ class Algo(Basic):
 
         :return:
         """
-        self._status.set_status('JUST_INITED')
+        self._status.set_status('INITED')
+
+    def warm_up(self, trajectory_data: TrajectoryData):
+        """
+        Use some data to warm up the algorithm, e.g., compute the mean/std-dev of the state to perform normalization.
+        Data used in warm up process will not be added into the memory
+        :param trajectory_data: TrajectoryData object
+        :type trajectory_data: TrajectoryData
+
+        :return: None
+        """
+        pass
 
     def train(self, *arg, **kwargs) -> dict:
         """

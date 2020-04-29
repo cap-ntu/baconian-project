@@ -3,33 +3,21 @@ from baconian.common.sampler.sample_data import TransitionData, TrajectoryData
 from typeguard import typechecked
 import numpy as np
 
-class Sampler(Basic):
+
+class Sampler(object):
     """
     Sampler module that handle the sampling procedure for training/testing of the agent.
     """
 
-    def __init__(self, env_spec, name='sampler'):
-        """
-        Constructor
-        :param env_spec: env_spec type, that indicate what is the environment spec that the sampler will work on.
-        :param name: a string.
-        """
-        super().__init__(name)
-        self._data = TransitionData(env_spec)
-        self.env_spec = env_spec
-
-    def init(self):
-        self._data.reset()
-
+    @staticmethod
     @typechecked
-    def sample(self, env: Env,
+    def sample(env: Env,
                agent,
-               in_which_status: str,
                sample_count: int,
                sample_type='transition',
                reset_at_start=None) -> (TransitionData, TrajectoryData):
         """
-        sample function
+        a static method of sample function
 
         :param env: environment object to sample from.
         :param agent: agent object to offer the sampling policy
@@ -46,24 +34,24 @@ class Sampler(Basic):
                                     previous state to reach the terminal goal state). If None, for sample_type ==
                                     "transition", it will set to False, for sample_type == "trajectory", it will set to True.
 
-        :return: SampleData object or TrajectoryData object based on passed in sample_type.
+        :return: SampleData object.
         """
-        self.set_status(in_which_status)
         state = None
         if reset_at_start is True or (reset_at_start is None and sample_type == 'trajectory'):
             state = env.reset()
         elif reset_at_start is False or (reset_at_start is None and sample_type == 'transition'):
             state = env.get_state()
         if sample_type == 'transition':
-            return self._sample_transitions(env, agent, sample_count, state)
+            return Sampler._sample_transitions(env, agent, sample_count, state)
         elif sample_type == 'trajectory':
-            return self._sample_trajectories(env, agent, sample_count, state)
+            return Sampler._sample_trajectories(env, agent, sample_count, state)
         else:
             raise ValueError()
 
-    def _sample_transitions(self, env: Env, agent, sample_count, init_state):
+    @staticmethod
+    def _sample_transitions(env: Env, agent, sample_count, init_state):
         state = init_state
-        sample_record = TransitionData(env_spec=self.env_spec)
+        sample_record = TransitionData(env_spec=env.env_spec)
 
         for i in range(sample_count):
             action = agent.predict(obs=state)
@@ -82,12 +70,13 @@ class Sampler(Basic):
                 state = new_state
         return sample_record
 
-    def _sample_trajectories(self, env, agent, sample_count, init_state):
+    @staticmethod
+    def _sample_trajectories(env, agent, sample_count, init_state):
         state = init_state
-        sample_record = TrajectoryData(self.env_spec)
+        sample_record = TrajectoryData(env.env_spec)
         done = False
         for i in range(sample_count):
-            traj_record = TransitionData(self.env_spec)
+            traj_record = TransitionData(env.env_spec)
             while done is not True:
                 action = agent.predict(obs=state)
                 new_state, re, done, info = env.step(np.reshape(np.array(action), [-1]))

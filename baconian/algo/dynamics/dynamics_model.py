@@ -16,8 +16,8 @@ from baconian.common.data_pre_processing import DataScaler, IdenticalDataScaler
 
 
 class DynamicsModel(Basic):
-    STATUS_LIST = ('NOT_INIT', 'JUST_INITED')
-    INIT_STATUS = 'NOT_INIT'
+    STATUS_LIST = ('CREATED', 'INITED')
+    INIT_STATUS = 'CREATED'
 
     def __init__(self, env_spec: EnvSpec, parameters: Parameters = None, init_state=None, name='dynamics_model',
                  state_input_scaler: DataScaler = None,
@@ -58,7 +58,7 @@ class DynamicsModel(Basic):
             dims=env_spec.flat_obs_dim)
 
     def init(self, *args, **kwargs):
-        self.set_status('JUST_INITED')
+        self.set_status('INITED')
         self.state = self.env_spec.obs_space.sample()
 
     @register_counter_info_to_status_decorator(increment=1, info_key='step_counter')

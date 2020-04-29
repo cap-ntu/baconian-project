@@ -93,7 +93,7 @@ def pendulum_task_fn():
                                'kwargs': dict(state='state_dynamics_training')},
             'test_algo': {'func': agent.test,
                           'args': list(),
-                          'kwargs': dict(sample_count=1, sample_trajectory_flag=True)},
+                          'kwargs': dict(sample_count=1)},
             'test_dynamics': {'func': agent.algo.test_dynamics,
                               'args': list(),
                               'kwargs': dict(sample_count=10, env=env)},

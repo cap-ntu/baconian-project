@@ -28,7 +28,6 @@ from baconian.core.status import *
 from baconian.algo.policy.ilqr_policy import iLQRPolicy
 from baconian.algo.dynamics.random_dynamics_model import UniformRandomDynamicsModel
 from baconian.common.noise import *
-from baconian.common.sampler.sampler import Sampler
 from baconian.core.flow.dyna_flow import DynaFlow
 from baconian.common.data_pre_processing import *
 from baconian.common.sampler.sample_data import TransitionData, TrajectoryData
@@ -567,9 +566,6 @@ class ClassCreatorSetup(unittest.TestCase):
                         reward=re)
         return data
 
-
-    def create_sampler(self, env_spec):
-        return Sampler(env_spec=env_spec, name='sampler')
 
     def register_global_status_when_test(self, agent, env):
         """

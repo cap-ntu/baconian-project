@@ -54,8 +54,7 @@ def hopper_task_fn():
         func_dict={
                              'test': {'func': agent.test,
                                       'args': list(),
-                                      'kwargs': dict(sample_count=exp_config['TrainTestFlow']['TEST_SAMPLES_COUNT'],
-                                                     sample_trajectory_flag=True),
+                                      'kwargs': dict(sample_count=exp_config['TrainTestFlow']['TEST_SAMPLES_COUNT']),
                                       },
                              'train': {'func': agent.train,
                                        'args': list(),

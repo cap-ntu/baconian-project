@@ -14,8 +14,6 @@ import os
 import time
 from baconian.config.global_config import GlobalConfig
 from baconian.core.experiment_runner import duplicate_exp_runner
-from baconian.envs.gym_env import make
-from baconian.common.error import EnvNotExistedError
 
 arg = argparse.ArgumentParser()
 env_id_to_task_fn = {
@@ -64,19 +62,8 @@ arg.add_argument('--cuda_id', type=int, default=-1)
 args = arg.parse_args()
 
 
-def check_env_available(env_id):
-    try:
-        make(env_id)
-    except Exception as e:
-        return False
-    return True
-
-
 if __name__ == '__main__':
     CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
-
-    if not check_env_available(args.env_id):
-        raise EnvNotExistedError('Env {} not available'.format(args.env_id))
 
     GlobalConfig().set('DEFAULT_LOG_PATH', os.path.join(CURRENT_PATH, 'benchmark_log', args.env_id, args.algo,
                                                         time.strftime("%Y-%m-%d_%H-%M-%S")))

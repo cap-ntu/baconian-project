@@ -28,8 +28,11 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                  stochastic_policy: StochasticPolicy,
                  config_or_config_dict: (DictConfig, dict),
                  value_func: VValueFunction,
+                 warm_up_trajectories_number=5,
                  name='ppo'):
-        ModelFreeAlgo.__init__(self, env_spec=env_spec, name=name)
+        ModelFreeAlgo.__init__(self, env_spec=env_spec,
+                               name=name,
+                               warm_up_trajectories_number=warm_up_trajectories_number)
 
         self.config = construct_dict_config(config_or_config_dict, self)
         self.policy = stochastic_policy
@@ -38,7 +41,6 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         self.trajectory_memory = TrajectoryData(env_spec=env_spec)
         self.transition_data_for_trajectory = TransitionData(env_spec=env_spec)
         self.value_func_train_data_buffer = None
-        # self.scaler = Scaler(obs_dim=self.env_spec.flat_obs_dim)
         self.scaler = RunningStandardScaler(dims=self.env_spec.flat_obs_dim)
 
         with tf.variable_scope(name):
@@ -87,8 +89,11 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                                                                         attr_name='policy')],
                                        parameters=self.parameters)
 
+    def warm_up(self, trajectory_data: TrajectoryData):
+        for traj in trajectory_data.trajectories:
+            self.scaler.update_scaler(data=traj.state_set)
 
-    @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='JUST_INITED')
+    @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='INITED')
     def init(self, sess=None, source_obj=None):
         self.policy.init()
         self.value_func.init()
@@ -160,7 +165,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                                                        action=action,
                                                        reward=reward,
                                                        done=done)
-            if done is True:
+            if done:
                 self.trajectory_memory.append(self.transition_data_for_trajectory.get_copy())
                 del self.transition_data_for_trajectory
                 self.transition_data_for_trajectory = TransitionData(env_spec=self.env_spec)

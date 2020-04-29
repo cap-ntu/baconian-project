@@ -78,7 +78,7 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
                                                                         attr_name='target_q_value_func')],
                                        parameters=self.parameters)
 
-    @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='JUST_INITED')
+    @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='INITED')
     def init(self, sess=None, source_obj=None):
         super().init()
         self.q_value_func.init()

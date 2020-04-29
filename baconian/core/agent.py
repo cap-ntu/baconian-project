@@ -17,8 +17,8 @@ from baconian.core.parameters import Parameters
 
 
 class Agent(Basic):
-    STATUS_LIST = ('NOT_INIT', 'JUST_INITED', 'TRAIN', 'TEST')
-    INIT_STATUS = 'NOT_INIT'
+    STATUS_LIST = ('CREATED', 'INITED', 'TRAIN', 'TEST')
+    INIT_STATUS = 'CREATED'
     required_key_dict = {}
 
     @init_func_arg_record_decorator()
@@ -60,8 +60,6 @@ class Agent(Basic):
         super(Agent, self).__init__(name=name, status=StatusWithSubInfo(self))
         self.parameters = Parameters(parameters=dict(reset_noise_every_terminal_state=reset_noise_every_terminal_state,
                                                      reset_state_every_sample=reset_state_every_sample))
-        self.total_test_samples = 0
-        self.total_train_samples = 0
         self.env = env
         self.algo = algo
         self._env_step_count = 0
@@ -73,7 +71,6 @@ class Agent(Basic):
             self.explorations_strategy = exploration_strategy
         else:
             self.explorations_strategy = None
-        self.sampler = sampler if sampler else Sampler(env_spec=env_spec, name='{}_sampler'.format(name))
         self.noise_adder = noise_adder
         self.algo_saving_scheduler = algo_saving_scheduler
 
@@ -102,37 +99,24 @@ class Agent(Basic):
                                                                                  under_status='TRAIN'))
 
     # @record_return_decorator(which_recorder='self')
-    def test(self, sample_count, sample_trajectory_flag: bool = False):
+    def test(self, sample_count) -> SampleData:
         """
+
         test the agent
 
-        :param sample_count: how many transitions, or, transitions in trajectories used to evaluate the agent's performance
+        :param sample_count: how many trajectories used to evaluate the agent's performance
         :type sample_count: int
-        :param sample_trajectory_flag: True for sampling trajectory instead of transitions
-        :type sample_count: bool
+        :return: SampleData object.
         """
         self.set_status('TEST')
         self.algo.set_status('TEST')
-        ConsoleLogger().print('info', 'test: agent with {},sample_trajectory_flag {}'.format(sample_count,
-                                                                                             sample_trajectory_flag))
-        if sample_trajectory_flag is True:
-            left_sample_count = sample_count
-            while left_sample_count > 0:
-                res = self.sample(env=self.env,
-                                  sample_count=1,
-                                  sample_type='trajectory',
-                                  store_flag=False,
-                                  in_which_status='TEST')
-                self.total_test_samples += len(res)
-                left_sample_count -= len(res)
-
-        else:
-            res = self.sample(env=self.env,
-                              sample_count=sample_count,
-                              sample_type='transition',
-                              store_flag=False,
-                              in_which_status='TEST')
-            self.total_test_samples += len(res)
+        ConsoleLogger().print('info', 'test: agent with {} trajectories'.format(sample_count))
+        res = self.sample(env=self.env,
+                          sample_count=sample_count,
+                          sample_type='trajectory',
+                          store_flag=False,
+                          in_which_status='TEST')
+        return res
 
     @register_counter_info_to_status_decorator(increment=1, info_key='predict_counter', under_status=('TRAIN', 'TEST'),
                                                ignore_wrong_status=True)
@@ -177,12 +161,11 @@ class Agent(Basic):
         ConsoleLogger().print('info',
                               "agent sampled {} {} under status {}".format(sample_count, sample_type,
                                                                            self.get_status()))
-        batch_data = self.sampler.sample(agent=self,
-                                         env=env,
-                                         reset_at_start=self.parameters('reset_state_every_sample'),
-                                         sample_type=sample_type,
-                                         in_which_status=in_which_status,
-                                         sample_count=sample_count)
+        batch_data = Sampler.sample(agent=self,
+                                    env=env,
+                                    reset_at_start=self.parameters('reset_state_every_sample'),
+                                    sample_type=sample_type,
+                                    sample_count=sample_count)
         if store_flag is True:
             self.store_samples(samples=batch_data)
         # todo when we have transition/ trajectory data here, the mean or sum results are still valid?
@@ -204,10 +187,15 @@ class Agent(Basic):
 
     def init(self):
         """
-        Initialize the algorithm, and set status to 'JUST_INITED'.
+        Initialize the algorithm, and set status to 'INITED'.
         """
         self.algo.init()
-        self.set_status('JUST_INITED')
+        self.set_status('INITED')
+        self.algo.warm_up(trajectory_data=Sampler.sample(env=self.env,
+                                                         agent=self,
+                                                         sample_type='trajectory',
+                                                         reset_at_start=True,
+                                                         sample_count=self.algo.warm_up_trajectories_number, ))
 
     @typechecked
     def store_samples(self, samples: SampleData):

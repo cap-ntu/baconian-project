@@ -25,8 +25,8 @@ from baconian.common.logging import reset_logging
 
 
 class Experiment(Basic):
-    STATUS_LIST = ('NOT_INIT', 'INITED', 'RUNNING', 'FINISHED', 'CORRUPTED')
-    INIT_STATUS = 'NOT_INIT'
+    STATUS_LIST = ('CREATED', 'INITED', 'RUNNING', 'FINISHED', 'CORRUPTED')
+    INIT_STATUS = 'CREATED'
     # required_key_dict = DictConfig.load_json(file_path=GlobalConfig().DEFAULT_EXPERIMENT_REQUIRED_KEY_LIST)
     required_key_dict = dict()
 

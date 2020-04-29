@@ -155,7 +155,7 @@ def task_fn():
         train_algo_func=(agent.train, (), dict(state='state_agent_training')),
         train_algo_from_synthesized_data_func=(agent.train, (), dict(state='state_agent_training')),
         train_dynamics_func=(agent.train, (), dict(state='state_dynamics_training')),
-        test_algo_func=(agent.test, (), dict(sample_count=10)),
+        test_algo_func=(agent.test, (), dict(sample_count=1)),
         test_dynamics_func=(agent.algo.test_dynamics, (), dict(sample_count=10, env=env)),
         sample_from_real_env_func=(agent.sample, (), dict(sample_count=10,
                                                           env=agent.env,

@@ -20,7 +20,7 @@ from baconian.common.data_pre_processing import DataScaler, IdenticalDataScaler
 class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DifferentiableDynamics, PlaceholderInput,
                                        TrainableDyanmicsModel):
     STATUS_LIST = GlobalDynamicsModel.STATUS_LIST + ('TRAIN',)
-    INIT_STATUS = 'NOT_INIT'
+    INIT_STATUS = 'CREATED'
 
     def __init__(self, env_spec: EnvSpec,
                  name_scope: str,
