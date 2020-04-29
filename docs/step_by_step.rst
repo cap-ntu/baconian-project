@@ -20,14 +20,14 @@ Create the tasks and DDPG algorithms
 
 Create environment Pendulum-v0, and the DDPG algorithms to solve the task
 
-.. literalinclude:: ../examples/dyna.py
+.. literalinclude:: ../baconian/examples/dyna.py
     :linenos:
     :language: python
     :lines: 23-94
 
 Create a global dynamics model with MLP network
 --------------------------------------------------
-.. literalinclude:: ../examples/dyna.py
+.. literalinclude:: ../baconian/examples/dyna.py
     :linenos:
     :language: python
     :lines: 95-125
@@ -36,7 +36,7 @@ Create the Dyna architecture as algorithms
 --------------------------------------------------
 Create the Dyna algorithms by passing the ddpg and dynamics model, and wrap by the agent
 
-.. literalinclude:: ../examples/dyna.py
+.. literalinclude:: ../baconian/examples/dyna.py
     :linenos:
     :language: python
     :lines: 126-152
@@ -45,7 +45,7 @@ Configure the workflow and experiments object
 ---------------------------------------------------------------
 Create the dyna-like workflow, and the experiments object, and run the experiment within your `task_fn`
 
-.. literalinclude:: ../examples/dyna.py
+.. literalinclude:: ../baconian/examples/dyna.py
     :linenos:
     :language: python
     :lines: 153-189
@@ -57,7 +57,7 @@ Set the global configuration and launch the experiment
 --------------------------------------------------------------------
 Set some global config if needed and wrap all the above task into a function `task_fn`, and pass into experiment runner.
 
-.. literalinclude:: ../examples/dyna.py
+.. literalinclude:: ../baconian/examples/dyna.py
     :linenos:
     :language: python
     :lines: 191-205

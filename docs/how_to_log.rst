@@ -75,7 +75,7 @@ Please note that ``histogram`` plot mode is a bit different from the other two m
 Visualize the results from multiple runs can give a more reliable analysis of the RL methods, by plotting the mean and variance over these results.
 Such can be done by ``MultipleExpLogDataLoader``
 
-We use the DDPG benchmark experiments as example, use can found the script under the source code ``baconian-project/benchmark/run_benchmark.py``
+We use the DDPG benchmark experiments as example, use can found the script under the source code ``baconian-project/baconian/benchmark/run_benchmark.py``
 
 Following code snippet is to draw a ``line`` plot of ``sum_reward`` in ``benchmark_agent/TEST``
 as a result of 10 times of DDPG benchmark experiments.

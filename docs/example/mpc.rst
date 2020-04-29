@@ -1,5 +1,5 @@
 MPC with Pendulum-v0
 ==============================
 
-.. literalinclude:: ../../examples/mpc.py
+.. literalinclude:: ../../baconian/examples/mpc.py
     :language: python

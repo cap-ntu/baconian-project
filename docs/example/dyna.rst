@@ -1,5 +1,5 @@
 Dyna with Pendulum-v0
 ============================
 
-.. literalinclude:: ../../examples/dyna.py
+.. literalinclude:: ../../baconian/examples/dyna.py
     :language: python
