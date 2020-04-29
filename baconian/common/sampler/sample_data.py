@@ -98,7 +98,8 @@ class TransitionData(SampleData):
         self.step_count_per_episode += sample_data.step_count_per_episode
         for key, val in self._internal_data_dict.items():
             assert self._internal_data_dict[key][1] == sample_data._internal_data_dict[key][1]
-            np.concatenate((self._internal_data_dict[key][0], sample_data._internal_data_dict[key][0]), axis=0)
+            self._internal_data_dict[key][0] = np.concatenate(
+                (self._internal_data_dict[key][0], sample_data._internal_data_dict[key][0]), axis=0)
 
     def get_copy(self):
         obj = TransitionData(env_spec=self.env_spec, obs_shape=self.obs_shape, action_shape=self.action_shape)

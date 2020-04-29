@@ -93,7 +93,7 @@ class TestExperiment(BaseTestCase):
             self.tearDown()
 
     def test_saving_scheduler_on_all_model_based_algo(self):
-        to_test_algo_func = (self.create_dyna, self.create_mpc)
+        to_test_algo_func = (self.create_mpc, self.create_dyna)
         # to_test_algo_func = (self.create_dyna,)
         for func in to_test_algo_func:
             self.setUp()

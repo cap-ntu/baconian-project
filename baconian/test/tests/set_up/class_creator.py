@@ -372,7 +372,7 @@ class ClassCreatorSetup(unittest.TestCase):
             func_dict={
                 'test': {'func': agent.test,
                          'args': list(),
-                         'kwargs': dict(sample_count=10),
+                         'kwargs': dict(sample_count=1),
                          },
                 'train': {'func': agent.train,
                           'args': list(),

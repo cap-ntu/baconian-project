@@ -13,6 +13,7 @@ modularized framework that can allow the users to easily set-up their model-base
 provide.
 
 ### Release news:
+- 2020.04.29 v0.2.2 Fix some memory issues in SampleData module, and simplify some APIs
 - 2020.02.10 We are including external reward & terminal function of Gym/mujoco tasks with well-written documents.
 - 2020.01.30 Update some dependent packages versions, and release some preliminary benchmark results with hyper-parameters.
 

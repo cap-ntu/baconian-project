@@ -114,6 +114,8 @@ class RunningMinMaxScaler(MinMaxScaler):
             raise ShapeNotCompatibleError('the shape of min/max range is not as same as shape')
 
     def update_scaler(self, data):
+        if len(np.array(data)) == 0:
+            return
         if self._min is not None:
             self._min = np.minimum(np.min(data, axis=0), self._min)
         else:
@@ -181,6 +183,8 @@ class RunningStandardScaler(StandardScaler):
             self._data_count = np.array(init_data).shape[0]
 
     def update_scaler(self, data):
+        if len(np.array(data)) == 0:
+            return
         if self._mean is None or self._var is None:
             _, _, self._mean, self._var = self._compute_stat_of_batch_data(data)
             self._data_count = data.shape[0]
