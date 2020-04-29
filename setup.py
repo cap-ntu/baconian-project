@@ -23,7 +23,7 @@ ver = __version__
 
 setup(
     name='baconian',
-    version='0.2.12',
+    version=ver,
     url='https://github.com/cap-ntu/baconian-project',
     license='MIT License',
     author='Linsen Dong',
@@ -32,6 +32,6 @@ setup(
     install_requires=req,
     long_description=long_description,
     long_description_content_type='text/markdown',
-    packages=find_packages(),
+    packages=find_packages(include=['baconian', 'baconian.*'], exclude=[]),
     python_requires='>=3.5'
 )
