@@ -21,8 +21,6 @@ formats: all
 python:
   version: 3.7
   install:
-    - method: pip
-      path: tensorflow==1.15.2
     - requirements: requirements.txt
     - method: pip
       path: .
