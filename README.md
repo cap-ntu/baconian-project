@@ -13,7 +13,7 @@ modularized framework that can allow the users to easily set-up their model-base
 provide.
 ### Installation 
 
-You can easily install by (with python 3.6/3.7, Ubuntu 16.04/18.04): 
+You can easily install by (with python 3.5/3.6/3.7, Ubuntu 16.04/18.04): 
 ```bash
 # install tensorflow with/without GPU based on your machine
 pip install tensorflow-gpu==1.15.2
