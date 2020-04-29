@@ -12,13 +12,17 @@ overwrite some of already installed packages with a different version.
 
     source activate your_env
 
-2. Clone the source code and install the packages with requirement file:
+2. Install by pip or clone the source code and install the packages with requirement file:
 
 .. code-block:: bash
-
+    // pip install:
+    pip install baconian
+    // source code install
     git clone git@github.com:cap-ntu/baconian-project.git baconian
     cd ./baconian
-    ./installation.sh
+    pip install pip -U
+    pip install -e .
+
 
 Then you are free to go. You can either use the Baconian as a third party package and import it into your own project, or
 directly modify it.
