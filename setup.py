@@ -1,6 +1,5 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 import os
-import subprocess
 
 
 def parse_requirements(filename):
@@ -10,34 +9,21 @@ def parse_requirements(filename):
 
 
 CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
-gpu_flag = None
-try:
-    nvcc_res = subprocess.run(['nvcc', '-V'])
-    if nvcc_res.returncode == 0:
-        gpu_flag = True
-    else:
-        gpu_flag = False
-except Exception:
-    gpu_flag = False
 
-if gpu_flag is True:
-    req_file = 'requirement_gpu.txt'
-else:
-    req_file = 'requirement_nogpu.txt'
-
-req = parse_requirements(filename=os.path.join(CURRENT_PATH, req_file))
+req = parse_requirements(filename=os.path.join(CURRENT_PATH, 'requirements.txt'))
 
 # req = [str(ir.req) for ir in req]
 
 # print(req)
 with open(os.path.join(CURRENT_PATH, 'README.md'), 'r', encoding='utf-8') as f:
     long_description = f.read()
-exec(open('./baconian/__version__.py').read())
+exec(open('baconian/version.py').read())
 
 ver = __version__
+
 setup(
     name='baconian',
-    version=ver,
+    version='0.2.12',
     url='https://github.com/cap-ntu/baconian-project',
     license='MIT License',
     author='Linsen Dong',
@@ -45,5 +31,7 @@ setup(
     description='model-based reinforcement learning toolbox',
     install_requires=req,
     long_description=long_description,
-    long_description_content_type='text/markdown'
+    long_description_content_type='text/markdown',
+    packages=find_packages(),
+    python_requires='>=3.5'
 )

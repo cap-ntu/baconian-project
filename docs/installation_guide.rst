@@ -21,6 +21,7 @@ overwrite some of already installed packages with a different version.
     git clone git@github.com:cap-ntu/baconian-project.git baconian
     cd ./baconian
     pip install pip -U
+    pip install tensorflow==1.15.2 // or pip install tensorflow-gpu==1.15.2
     pip install -e .
 
 

@@ -42,11 +42,13 @@ before_install:
   - conda activate test-environment
 
 install:
-  - bash installation.sh
+  - pip install pip -U
+  - pip install tensorflow==1.15.2
+  - pip install -e .
 
 script:
   - pip install pytest pytest-cov
-  - pytest --cov=baconian ./examples/ ./baconian/test/
+  - pytest --cov=baconian ./baconian/examples/ ./baconian/test/
 
 
 branches:

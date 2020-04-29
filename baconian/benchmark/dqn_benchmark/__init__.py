@@ -1,0 +1,2 @@
+from baconian.benchmark.dqn_benchmark.acrobot import acrobot_task_fn
+from baconian.benchmark.dqn_benchmark.lunarlander import lunarlander_task_fn
