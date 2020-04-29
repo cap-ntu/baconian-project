@@ -17,7 +17,6 @@ from baconian.algo.misc.placeholder_input import MultiPlaceholderInput, Placehol
 from baconian.common.error import *
 from baconian.common.data_pre_processing import RunningStandardScaler
 from baconian.common.special import *
-from tensorflow.profiler import Profiler, ProfileOptionBuilder
 
 
 class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
@@ -100,10 +99,6 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         self.parameters.init()
         if source_obj:
             self.copy_from(source_obj)
-        self.profiler = Profiler(tf.get_default_session().graph)
-        self.meta_data = tf.RunMetadata()
-        self.profiler_step = 0
-
         super().init()
 
     @record_return_decorator(which_recorder='self')
@@ -156,7 +151,6 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
     def append_to_memory(self, samples: SampleData):
         # todo how to make sure the data's time sequential
         iter_samples = samples.return_generator()
-        # scale, offset = self.scaler.get()
         obs_list = []
         for state, new_state, action, reward, done in iter_samples:
             obs_list.append(state)
@@ -237,27 +231,13 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
 
     def _update_policy(self, train_data: TransitionData, train_iter, sess):
         old_policy_feed_dict = dict()
-        run_meta = tf.RunMetadata()
         res = sess.run([getattr(self.policy, tensor[1]) for tensor in self.old_dist_tensor],
-                       run_metadata=run_meta,
-                       options=tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE),
                        feed_dict={
                            self.policy.parameters('state_input'): train_data('state_set'),
                            self.policy.parameters('action_input'): train_data('action_set'),
                            **self.parameters.return_tf_parameter_feed_dict()
                        })
-        self.profiler.add_step(self.profiler_step, run_meta)
-        # Profile the parameters of your model.
-        self.profiler.profile_name_scope(options=(ProfileOptionBuilder.trainable_variables_parameter()))
-        opts = ProfileOptionBuilder.time_and_memory()
-        self.profiler.profile_operations(options=opts)
-        opts = (ProfileOptionBuilder(
-            ProfileOptionBuilder.time_and_memory())
-                .with_step(self.profiler_step)
-                .with_timeline_output('tf.profile.log').build())
-        self.profiler.profile_graph(options=opts)
 
-        self.profiler_step += 1
         for tensor, val in zip(self.old_dist_tensor, res):
             old_policy_feed_dict[tensor[0]] = val
 
