@@ -103,7 +103,7 @@ venv.bak/
 # mypy
 .mypy_cache/
 .idea/
-examples/log_path*
-benchmark/benchmark_log
+baconian/examples/log_path*
+baconian/benchmark/benchmark_log
 log_path/
 mjkey.txt

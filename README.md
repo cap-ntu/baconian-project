@@ -11,9 +11,22 @@ Baconian [beˈkonin] is a toolbox for model-based reinforcement learning with us
 and visualization modules developed by [CAP](http://cap.scse.ntu.edu.sg/). We aim to develop a flexible, re-usable and 
 modularized framework that can allow the users to easily set-up their model-based RL experiments by reusing modules we 
 provide.
+### Installation 
+
+You can easily install by (with python 3.5/3.6/3.7, Ubuntu 16.04/18.04): 
+```bash
+# install tensorflow with/without GPU based on your machine
+pip install tensorflow-gpu==1.15.2
+# or
+pip install tensorflow==1.15.2 
+
+pip install baconian
+```
+
+For more advance usage like using Mujoco environment, please refer to our documentation page.
 
 ### Release news:
-- 2020.04.29 v0.2.2 Fix some memory issues in SampleData module, and simplify some APIs
+- 2020.04.29 v0.2.2 Fix some memory issues in SampleData module, and simplify some APIs.
 - 2020.02.10 We are including external reward & terminal function of Gym/mujoco tasks with well-written documents.
 - 2020.01.30 Update some dependent packages versions, and release some preliminary benchmark results with hyper-parameters.
 

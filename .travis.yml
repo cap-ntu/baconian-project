@@ -1,6 +1,10 @@
 language: python
 matrix:
   include:
+    - name: "Python 3.5 on Xenial Linux 16.04"
+      python:
+        - "3.5"
+      dist: xenial
     - name: "Python 3.6 on Xenial Linux 16.04"
       python:
         - "3.6"
@@ -9,6 +13,10 @@ matrix:
       python:
         - "3.7"
       dist: xenial
+    - name: "Python 3.5 on Bionic Linux 18.04"
+        python:
+          - "3.5"
+        dist: bionic
     - name: "Python 3.6 on Bionic Linux 18.04"
       python:
         - "3.6"
@@ -17,6 +25,7 @@ matrix:
       python:
         - "3.7"
       dist: bionic
+
 
 
 before_install:
@@ -42,11 +51,13 @@ before_install:
   - conda activate test-environment
 
 install:
-  - bash installation.sh
+  - pip install pip -U
+  - pip install tensorflow==1.15.2
+  - pip install -e .
 
 script:
   - pip install pytest pytest-cov
-  - pytest --cov=baconian ./examples/ ./baconian/test/
+  - pytest --cov=baconian ./baconian/examples/ ./baconian/test/
 
 
 branches:

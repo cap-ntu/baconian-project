@@ -30,7 +30,7 @@ source_parsers = {
 project = 'Baconian'
 copyright = '2019, Linsen Dong'
 author = 'Linsen Dong'
-from baconian.__version__ import __version__
+from baconian.version import __version__
 
 # The short X.Y version
 version = __version__
