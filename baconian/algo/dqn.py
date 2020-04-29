@@ -78,7 +78,7 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
                                                                         attr_name='target_q_value_func')],
                                        parameters=self.parameters)
 
-    @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='JUST_INITED')
+    @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='INITED')
     def init(self, sess=None, source_obj=None):
         super().init()
         self.q_value_func.init()
@@ -108,10 +108,10 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
             target_q_val_on_new_s = np.expand_dims(target_q_val_on_new_s, axis=1)
             assert target_q_val_on_new_s.shape[0] == train_data.state_set.shape[0]
             feed_dict = {
-                self.reward_input: train_data.reward_set,
+                self.reward_input: np.reshape(train_data.reward_set, [-1, 1]),
                 self.action_input: flatten_n(self.env_spec.action_space, train_data.action_set),
                 self.state_input: train_data.state_set,
-                self.done_input: train_data.done_set,
+                self.done_input: np.reshape(train_data.done_set, [-1, 1]),
                 self.target_q_input: target_q_val_on_new_s,
                 **self.parameters.return_tf_parameter_feed_dict()
             }

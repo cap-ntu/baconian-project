@@ -27,8 +27,11 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                  stochastic_policy: StochasticPolicy,
                  config_or_config_dict: (DictConfig, dict),
                  value_func: VValueFunction,
+                 warm_up_trajectories_number=5,
                  name='ppo'):
-        ModelFreeAlgo.__init__(self, env_spec=env_spec, name=name)
+        ModelFreeAlgo.__init__(self, env_spec=env_spec,
+                               name=name,
+                               warm_up_trajectories_number=warm_up_trajectories_number)
 
         self.config = construct_dict_config(config_or_config_dict, self)
         self.policy = stochastic_policy
@@ -37,7 +40,6 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         self.trajectory_memory = TrajectoryData(env_spec=env_spec)
         self.transition_data_for_trajectory = TransitionData(env_spec=env_spec)
         self.value_func_train_data_buffer = None
-        # self.scaler = Scaler(obs_dim=self.env_spec.flat_obs_dim)
         self.scaler = RunningStandardScaler(dims=self.env_spec.flat_obs_dim)
 
         with tf.variable_scope(name):
@@ -86,7 +88,11 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                                                                         attr_name='policy')],
                                        parameters=self.parameters)
 
-    @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='JUST_INITED')
+    def warm_up(self, trajectory_data: TrajectoryData):
+        for traj in trajectory_data.trajectories:
+            self.scaler.update_scaler(data=traj.state_set)
+
+    @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='INITED')
     def init(self, sess=None, source_obj=None):
         self.policy.init()
         self.value_func.init()
@@ -123,7 +129,8 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                                                       train_iter=train_iter if train_iter else self.parameters(
                                                           'value_func_train_iter'),
                                                       sess=tf_sess)
-        self.trajectory_memory.reset()
+        del train_data
+        trajectory_data.reset()
         return {
             **policy_res_dict,
             **value_func_res_dict
@@ -144,7 +151,6 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
     def append_to_memory(self, samples: SampleData):
         # todo how to make sure the data's time sequential
         iter_samples = samples.return_generator()
-        # scale, offset = self.scaler.get()
         obs_list = []
         for state, new_state, action, reward, done in iter_samples:
             obs_list.append(state)
@@ -153,9 +159,10 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                                                        action=action,
                                                        reward=reward,
                                                        done=done)
-            if done is True:
-                self.trajectory_memory.append(self.transition_data_for_trajectory)
-                self.transition_data_for_trajectory.reset()
+            if done:
+                self.trajectory_memory.append(self.transition_data_for_trajectory.get_copy())
+                del self.transition_data_for_trajectory
+                self.transition_data_for_trajectory = TransitionData(env_spec=self.env_spec)
         self.scaler.update_scaler(data=np.array(obs_list))
 
     @record_return_decorator(which_recorder='self')
@@ -224,7 +231,6 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
 
     def _update_policy(self, train_data: TransitionData, train_iter, sess):
         old_policy_feed_dict = dict()
-
         res = sess.run([getattr(self.policy, tensor[1]) for tensor in self.old_dist_tensor],
                        feed_dict={
                            self.policy.parameters('state_input'): train_data('state_set'),

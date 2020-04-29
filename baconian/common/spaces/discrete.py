@@ -18,7 +18,9 @@ class Discrete(Space):
         return np.random.randint(self.n)
 
     def contains(self, x):
-        x = np.asarray(x)
+        if float(x).is_integer() is False:
+            return False
+        x = np.array(x, dtype=np.int)
         return bool(x.shape == () and x.dtype.kind == 'i' and x >= 0 and x < self.n)
 
     def __repr__(self):

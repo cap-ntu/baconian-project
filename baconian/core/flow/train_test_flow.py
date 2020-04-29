@@ -123,6 +123,7 @@ class TrainTestFlow(Flow):
                     self.time_step_func() > self.parameters('START_TEST_AFTER_SAMPLE_COUNT'):
                 self.last_test_point = self.time_step_func()
                 self._call_func('test')
+
             if self._is_ended() is True:
                 break
         return True

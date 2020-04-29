@@ -2,6 +2,8 @@ from baconian.core.core import Env, EnvSpec
 import gym.envs
 from gym.envs.registration import registry
 import roboschool
+import pybullet
+import pybullet_envs
 
 have_mujoco_flag = True
 try:
@@ -107,6 +109,7 @@ class GymEnv(Env):
         :rtype: gym env
         """
         super().step(action)
+        action = self.env_spec.flat_action(action)
         return self.unwrapped.step(action=action)
 
     def reset(self):
@@ -158,6 +161,8 @@ class GymEnv(Env):
         elif hasattr(self.unwrapped_gym, 'spec') and hasattr(self.unwrapped_gym.spec,
                                                              'id') and self.unwrapped_gym.spec.id in specialEnv:
             return specialEnv[self.unwrapped_gym.spec.id](self)
+        elif hasattr(self.unwrapped_gym, 'robot'):
+            return self.unwrapped_gym.robot.calc_state()
         else:
             raise ValueError('Env id: {} is not supported for method get_state'.format(self.env_id))
 

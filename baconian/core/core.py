@@ -75,8 +75,8 @@ class Env(gym.Env, Basic):
     Abstract class for environment
     """
     key_list = ()
-    STATUS_LIST = ('JUST_RESET', 'JUST_INITED', 'TRAIN', 'TEST', 'NOT_INIT')
-    INIT_STATUS = 'NOT_INIT'
+    STATUS_LIST = ('JUST_RESET', 'INITED', 'TRAIN', 'TEST', 'CREATED')
+    INIT_STATUS = 'CREATED'
 
     @typechecked
     def __init__(self, name: str = 'env'):
@@ -87,6 +87,7 @@ class Env(gym.Env, Basic):
         self.recorder = Recorder(default_obj=self)
         self._last_reset_point = 0
         self.total_step_count_fn = lambda: self._status.group_specific_info_key(info_key='step', group_way='sum')
+        self.env_spec = None
 
     @register_counter_info_to_status_decorator(increment=1, info_key='step', under_status=('TRAIN', 'TEST'),
                                                ignore_wrong_status=True)
@@ -104,10 +105,10 @@ class Env(gym.Env, Basic):
         self._status.set_status('JUST_RESET')
         self._last_reset_point = self.total_step_count_fn()
 
-    @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='JUST_INITED')
+    @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='INITED')
     def init(self):
-        """ Set the status to 'JUST_INITED'."""
-        self._status.set_status('JUST_INITED')
+        """ Set the status to 'INITED'."""
+        self._status.set_status('INITED')
 
     def get_state(self):
         """ Get the status of the environment."""
@@ -176,6 +177,7 @@ class EnvSpec(object):
     @staticmethod
     def flat(space: Space, obs_or_action: (np.ndarray, list)):
         """
+        flat the input obs or action
         :param space: space of environment
         :type space: Space
         :param obs_or_action: action or observation space

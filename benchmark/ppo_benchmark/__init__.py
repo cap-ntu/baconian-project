@@ -4,3 +4,4 @@ from benchmark.ppo_benchmark.reacher import reacher_task_fn
 from benchmark.ppo_benchmark.swimmer import swimmer_task_fn
 from benchmark.ppo_benchmark.hopper import hopper_task_fn
 from benchmark.ppo_benchmark.halfCheetah import half_cheetah_task_fn
+from benchmark.ppo_benchmark.halfCheetah_pybullet import half_cheetah_task_fn as half_cheetah_bullet_env_task_fn

@@ -1,7 +1,7 @@
 """
-PPO benchmark on Hopper
+PPO benchmark on HalfCheetah
 """
-from benchmark.ppo_benchmark.hopper_conf import *
+from benchmark.ppo_benchmark.halfCheetah_bullet_conf import *
 from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
 from baconian.algo.value_func import MLPVValueFunc
@@ -13,12 +13,14 @@ from baconian.core.flow.train_test_flow import TrainTestFlow
 from baconian.config.global_config import GlobalConfig
 from baconian.core.status import get_global_status_collect
 
-def hopper_task_fn():
-    exp_config = HOPPER_BENCHMARK_CONFIG_DICT
+
+def half_cheetah_task_fn():
+    exp_config = HALF_CHEETAH_BENCHMARK_CONFIG_DICT
     GlobalConfig().set('DEFAULT_EXPERIMENT_END_POINT',
                        exp_config['DEFAULT_EXPERIMENT_END_POINT'])
 
-    env = make('Hopper-v2')
+    env = make(exp_config['env_id'])
+    env.reset()
     name = 'benchmark'
     env_spec = EnvSpec(obs_space=env.observation_space,
                        action_space=env.action_space)
@@ -52,23 +54,23 @@ def hopper_task_fn():
         train_sample_count_func=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_FUNC_COUNT'),
         config_or_config_dict=exp_config['TrainTestFlow']['config_or_config_dict'],
         func_dict={
-                             'test': {'func': agent.test,
-                                      'args': list(),
-                                      'kwargs': dict(sample_count=exp_config['TrainTestFlow']['TEST_SAMPLES_COUNT']),
-                                      },
-                             'train': {'func': agent.train,
-                                       'args': list(),
-                                       'kwargs': dict(),
-                                       },
-                             'sample': {'func': agent.sample,
-                                        'args': list(),
-                                        'kwargs': dict(sample_count=exp_config['TrainTestFlow']['TRAIN_SAMPLES_COUNT'],
-                                                       env=agent.env,
-                                                       sample_type='trajectory',
-                                                       in_which_status='TRAIN',
-                                                       store_flag=True),
-                                        },
-                         })
+            'test': {'func': agent.test,
+                     'args': list(),
+                     'kwargs': dict(sample_count=exp_config['TrainTestFlow']['TEST_SAMPLES_COUNT']),
+                     },
+            'train': {'func': agent.train,
+                      'args': list(),
+                      'kwargs': dict(),
+                      },
+            'sample': {'func': agent.sample,
+                       'args': list(),
+                       'kwargs': dict(sample_count=exp_config['TrainTestFlow']['TRAIN_SAMPLES_COUNT'],
+                                      env=agent.env,
+                                      sample_type='trajectory',
+                                      in_which_status='TRAIN',
+                                      store_flag=True),
+                       },
+        })
 
     experiment = Experiment(
         tuner=None,

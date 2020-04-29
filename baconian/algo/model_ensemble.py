@@ -53,7 +53,7 @@ class ModelEnsembleAlgo(ModelBasedAlgo):
         self.validation_result = [0] * len(dynamics_model)
         self._dynamics_model.__class__ = ModelEnsemble
 
-    @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='JUST_INITED')
+    @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='INITED')
     def init(self):
         self.parameters.init()
         self.model_free_algo.init()
@@ -100,7 +100,6 @@ class ModelEnsembleAlgo(ModelBasedAlgo):
             env = individual_model.return_as_env()
             batch_data = agent.sample(env=env,
                                       sample_count=self.parameters('validation_trajectory_count'),
-                                      in_which_status='TEST',
                                       sample_type='trajectory',
                                       store_flag=False)
 

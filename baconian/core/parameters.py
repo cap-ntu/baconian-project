@@ -5,7 +5,7 @@ from baconian.common.logging import Logger
 import baconian.common.files as files
 import os
 from baconian.common.schedules import Scheduler
-from copy import deepcopy
+from copy import deepcopy, copy
 
 
 class Parameter(object):
@@ -68,17 +68,17 @@ class Parameters(object):
         self._update_dict(source_dict=source_parameter._parameters,
                           target_dict=self._parameters)
         self._source_config.config_dict = source_parameter._source_config.config_dict
-        self.default_save_param_key = deepcopy(source_parameter.default_save_param_key)
+        self.default_save_param_key = copy(source_parameter.default_save_param_key)
         if source_parameter.to_scheduler_param_list:
             self._scheduler_info_dict = dict()
-            self.to_scheduler_param_list = deepcopy(source_parameter.to_scheduler_param_list)
+            self.to_scheduler_param_list = copy(source_parameter.to_scheduler_param_list)
             if self.to_scheduler_param_list:
                 for val_dict in self.to_scheduler_param_list:
                     self.set_scheduler(**val_dict)
 
     def _update_dict(self, source_dict: dict, target_dict: dict):
         for key, val in source_dict.items():
-            target_dict[key] = deepcopy(val)
+            target_dict[key] = val
 
     def save(self, save_path, global_step, name=None, default_save_param=None, *args, **kwargs):
         if default_save_param is None:

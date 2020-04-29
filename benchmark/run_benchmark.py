@@ -6,8 +6,7 @@ from benchmark.ppo_benchmark import reacher_task_fn
 from benchmark.ppo_benchmark import swimmer_task_fn
 from benchmark.ppo_benchmark import hopper_task_fn
 from benchmark.ppo_benchmark import half_cheetah_task_fn
-from benchmark.ppo_benchmark import inverted_pendulum_task_fn
-
+from benchmark.ppo_benchmark import inverted_pendulum_task_fn, half_cheetah_bullet_env_task_fn
 from benchmark.iLQR_benchmark import ilqr_pendulum_task_fn
 from benchmark.dqn_benchmark import acrobot_task_fn, lunarlander_task_fn
 import argparse
@@ -15,8 +14,6 @@ import os
 import time
 from baconian.config.global_config import GlobalConfig
 from baconian.core.experiment_runner import duplicate_exp_runner
-from baconian.envs.gym_env import make
-from baconian.common.error import EnvNotExistedError
 
 arg = argparse.ArgumentParser()
 env_id_to_task_fn = {
@@ -45,6 +42,10 @@ env_id_to_task_fn = {
     'HalfCheetah-v2': {
         'ppo': half_cheetah_task_fn,
     },
+    'HalfCheetahBulletEnv-v0': {
+        'ppo': half_cheetah_bullet_env_task_fn,
+
+    },
     'Acrobot-v1': {
         'dqn': acrobot_task_fn,
     },
@@ -61,19 +62,8 @@ arg.add_argument('--cuda_id', type=int, default=-1)
 args = arg.parse_args()
 
 
-def check_env_available(env_id):
-    try:
-        make(env_id)
-    except Exception as e:
-        return False
-    return True
-
-
 if __name__ == '__main__':
     CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
-
-    if not check_env_available(args.env_id):
-        raise EnvNotExistedError('Env {} not available'.format(args.env_id))
 
     GlobalConfig().set('DEFAULT_LOG_PATH', os.path.join(CURRENT_PATH, 'benchmark_log', args.env_id, args.algo,
                                                         time.strftime("%Y-%m-%d_%H-%M-%S")))

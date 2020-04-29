@@ -1,8 +1,4 @@
 import abc
-
-import typeguard as tg
-from typeguard import typechecked
-from copy import deepcopy
 from baconian.common.logging import ConsoleLogger
 from baconian.common.error import *
 from functools import wraps
@@ -217,7 +213,7 @@ class StatusCollector(object):
 
                     res = obj._status.get_specific_info_key_status(under_status=val['under_status'],
                                                                    info_key=val['info_key'])
-                    return deepcopy(res)
+                    return res
         else:
             stat_dict = dict()
             for val in self._register_status_dict:
@@ -231,7 +227,7 @@ class StatusCollector(object):
 
                 res = obj._status.get_specific_info_key_status(under_status=val['under_status'],
                                                                info_key=val['info_key'])
-                stat_dict[val['return_name']] = deepcopy(res)
+                stat_dict[val['return_name']] = res
             return stat_dict
 
     def get_status(self) -> dict:

@@ -20,7 +20,7 @@ from baconian.common.data_pre_processing import DataScaler, IdenticalDataScaler
 class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DifferentiableDynamics, PlaceholderInput,
                                        TrainableDyanmicsModel):
     STATUS_LIST = GlobalDynamicsModel.STATUS_LIST + ('TRAIN',)
-    INIT_STATUS = 'NOT_INIT'
+    INIT_STATUS = 'CREATED'
 
     def __init__(self, env_spec: EnvSpec,
                  name_scope: str,
@@ -137,7 +137,7 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DifferentiableDynami
     def _state_transit(self, state, action, **kwargs) -> np.ndarray:
         state = self.state_input_scaler.process(
             np.array(state).reshape(self.env_spec.obs_shape)) if state is not None else self.state
-        action = self.action_input_scaler.process(action.reshape(self.env_spec.flat_action_dim))
+        action = self.action_input_scaler.process(self.env_spec.flat_action(action))
 
         if 'sess' in kwargs:
             tf_sess = kwargs['sess']

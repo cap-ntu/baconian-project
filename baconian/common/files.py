@@ -2,7 +2,6 @@ import json_tricks as json
 import os
 import shutil
 from baconian.common.error import *
-from copy import deepcopy
 
 
 def create_path(path, del_if_existed=True):
@@ -56,7 +55,7 @@ def convert_to_jsonable(dict_or_list) -> (list, dict):
                 try:
                     json.dump([val], f)
                 except Exception:
-                    jsonable_dict.append(deepcopy(str(val)))
+                    jsonable_dict.append(str(val))
                 else:
                     jsonable_dict.append(val)
                 finally:
@@ -74,7 +73,7 @@ def convert_to_jsonable(dict_or_list) -> (list, dict):
                 try:
                     json.dump([val], f)
                 except Exception:
-                    jsonable_dict[key] = deepcopy(str(val))
+                    jsonable_dict[key] = str(val)
                 else:
                     jsonable_dict[key] = val
                 finally:

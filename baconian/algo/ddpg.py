@@ -108,7 +108,7 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
                                                                    ],
                                        parameters=self.parameters)
 
-    @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='JUST_INITED')
+    @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='INITED')
     def init(self, sess=None, source_obj=None):
         self.actor.init()
         self.critic.init()
@@ -160,8 +160,8 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
                 self.target_q_input: target_q,
                 self.critic.state_input: batch_data.state_set,
                 self.critic.action_input: batch_data.action_set,
-                self.done_input: batch_data.done_set,
-                self.reward_input: batch_data.reward_set,
+                self.done_input: np.reshape(batch_data.done_set, [-1, 1]),
+                self.reward_input: np.reshape(batch_data.reward_set, [-1, 1]),
                 **self.parameters.return_tf_parameter_feed_dict()
             }
         )

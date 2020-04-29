@@ -12,13 +12,12 @@ from baconian.common.error import *
 from baconian.core.core import EnvSpec, Env
 from baconian.algo.dynamics.reward_func.reward_func import RewardFunc
 from baconian.algo.dynamics.terminal_func.terminal_func import TerminalFunc
-from copy import deepcopy
 from baconian.common.data_pre_processing import DataScaler, IdenticalDataScaler
 
 
 class DynamicsModel(Basic):
-    STATUS_LIST = ('NOT_INIT', 'JUST_INITED')
-    INIT_STATUS = 'NOT_INIT'
+    STATUS_LIST = ('CREATED', 'INITED')
+    INIT_STATUS = 'CREATED'
 
     def __init__(self, env_spec: EnvSpec, parameters: Parameters = None, init_state=None, name='dynamics_model',
                  state_input_scaler: DataScaler = None,
@@ -59,7 +58,7 @@ class DynamicsModel(Basic):
             dims=env_spec.flat_obs_dim)
 
     def init(self, *args, **kwargs):
-        self.set_status('JUST_INITED')
+        self.set_status('INITED')
         self.state = self.env_spec.obs_space.sample()
 
     @register_counter_info_to_status_decorator(increment=1, info_key='step_counter')
@@ -225,10 +224,11 @@ class DynamicsEnvWrapper(Env):
         self._dynamics = dynamics
         self._reward_func = None
         self._terminal_func = None
+        self.env_spec = dynamics.env_spec
 
     def step(self, action: np.ndarray, **kwargs):
         super().step(action)
-        state = deepcopy(self.get_state()) if 'state' not in kwargs else kwargs['state']
+        state = self.get_state() if 'state' not in kwargs else kwargs['state']
         new_state = self._dynamics.step(action=action, **kwargs)
         re = self._reward_func(state=state, new_state=new_state, action=action)
         terminal = self._terminal_func(state=state, action=action, new_state=new_state)
