@@ -26,8 +26,6 @@ matrix:
         - "3.7"
       dist: bionic
 
-
-
 before_install:
   # Install Anaconda
   - sudo apt-get update
@@ -59,13 +57,14 @@ script:
   - pip install pytest pytest-cov
   - pytest --cov=baconian ./baconian/examples/ ./baconian/test/
 
-
 branches:
   only:
-  - master
-  - travis_ci_test
-  - dev_*
-  - dev_cly_0.2
+    - master
+    - travis_ci_test
+    - dev/*
+    - feature/*
+    - fix/*
+    -
 notifications:
   email: false
 

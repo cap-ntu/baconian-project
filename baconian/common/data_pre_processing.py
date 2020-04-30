@@ -89,10 +89,10 @@ class MinMaxScaler(DataScaler):
             self._desired_range = (np.array(desired_range[0]), np.array(desired_range[1]))
 
     def inverse_process(self, data):
-        if np.greater(data, self._desired_range[1]).any() or np.less(data, self._desired_range[0]).any():
+        if np.greater(np.array(data), self._desired_range[1]).any() or np.less(data, self._desired_range[0]).any():
             raise WrongValueRangeError('data for inverse process not in the range {} {}'.format(self._desired_range[0],
                                                                                                 self._desired_range[1]))
-        return (data - self._desired_range[0]) / (self._desired_range[1] - self._desired_range[0]) * \
+        return (np.array(data) - self._desired_range[0]) / (self._desired_range[1] - self._desired_range[0]) * \
                (self._max - self._min) + self._min
 
 
@@ -144,10 +144,10 @@ class StandardScaler(DataScaler):
         self._epsilon = 0.01
 
     def process(self, data):
-        return (data - self._mean) / (np.sqrt(self._var) + self._epsilon)
+        return (np.array(data) - self._mean) / (np.sqrt(self._var) + self._epsilon)
 
     def inverse_process(self, data):
-        return data * (np.sqrt(self._var) + self._epsilon) + self._mean
+        return np.array(data) * (np.sqrt(self._var) + self._epsilon) + self._mean
 
     def get_param(self):
         return dict(mean=self._mean.tolist(),

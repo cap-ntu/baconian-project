@@ -56,11 +56,21 @@ class SampleProcessor(object):
         data.append_new_set(name=name, data_set=make_batch(np.array(v_set), original_shape=[]), shape=[])
 
     @staticmethod
-    def normalization(data: TransitionData, key, mean: np.ndarray = None, std_dev: np.ndarray = None):
-        if mean is not None:
-            assert mean.shape == data(key).shape[1:]
-            assert std_dev.shape == data(key).shape[1:]
+    def normalization(data: (TransitionData, TrajectoryData), key, mean: np.ndarray = None, std_dev: np.ndarray = None):
+        if isinstance(data, TransitionData):
+            if mean is not None:
+                assert mean.shape == data(key).shape[1:]
+                assert std_dev.shape == data(key).shape[1:]
+            else:
+                mean = data(key).mean(axis=0)
+                std_dev = data(key).std(axis=0)
+            data.append_new_set(name=key, data_set=(data(key) - mean) / (std_dev + 1e-6), shape=data(key).shape[1:])
+            return data
         else:
-            mean = data(key).mean(axis=0)
-            std_dev = data(key).std(axis=0)
-        setattr(data, '_{}'.format(key), (data(key) - mean) / (std_dev + 1e-6))
+            # TODO add shape check
+            mean = np.mean([d(key) for d in data.trajectories])
+            std_dev = np.std([d(key) for d in data.trajectories])
+            for d in data.trajectories:
+                d.append_new_set(name=key, data_set=np.array((d(key) - mean) / (std_dev + 1e-6)),
+                                 shape=d(key).shape[1:])
+            return data
