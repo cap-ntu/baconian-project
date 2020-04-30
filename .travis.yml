@@ -64,7 +64,7 @@ branches:
     - dev/*
     - feature/*
     - fix/*
-    -
+
 notifications:
   email: false
 
