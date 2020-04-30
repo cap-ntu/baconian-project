@@ -125,18 +125,20 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                                 name='advantage_set',
                                 lam=self.parameters('lam'),
                                 value_func=self.value_func)
-
-        train_data = trajectory_data.return_as_transition_data(shuffle_flag=False)
-        SampleProcessor.normalization(train_data, key='advantage_set')
-        policy_res_dict = self._update_policy(train_data=train_data,
-                                              train_iter=train_iter if train_iter else self.parameters(
-                                                  'policy_train_iter'),
-                                              sess=tf_sess)
-        value_func_res_dict = self._update_value_func(train_data=train_data,
-                                                      train_iter=train_iter if train_iter else self.parameters(
-                                                          'value_func_train_iter'),
-                                                      sess=tf_sess)
-        del train_data
+        trajectory_data = SampleProcessor.normalization(trajectory_data, key='advantage_set')
+        policy_res_dict = self._update_policy(
+            state_set=np.concatenate([t('state_set') for t in trajectory_data.trajectories], axis=0),
+            action_set=np.concatenate([t('action_set') for t in trajectory_data.trajectories], axis=0),
+            advantage_set=np.concatenate([t('advantage_set') for t in trajectory_data.trajectories], axis=0),
+            train_iter=train_iter if train_iter else self.parameters(
+                'policy_train_iter'),
+            sess=tf_sess)
+        value_func_res_dict = self._update_value_func(
+            state_set=np.concatenate([t('state_set') for t in trajectory_data.trajectories], axis=0),
+            discount_set=np.concatenate([t('discount_set') for t in trajectory_data.trajectories], axis=0),
+            train_iter=train_iter if train_iter else self.parameters(
+                'value_func_train_iter'),
+            sess=tf_sess)
         trajectory_data.reset()
         return {
             **policy_res_dict,
@@ -232,12 +234,12 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         train_op = optimizer.minimize(loss, var_list=self.value_func.parameters('tf_var_list'))
         return loss, optimizer, train_op
 
-    def _update_policy(self, train_data: TransitionData, train_iter, sess):
+    def _update_policy(self, state_set, action_set, advantage_set, train_iter, sess):
         old_policy_feed_dict = dict()
         res = sess.run([getattr(self.policy, tensor[1]) for tensor in self.old_dist_tensor],
                        feed_dict={
-                           self.policy.parameters('state_input'): train_data('state_set'),
-                           self.policy.parameters('action_input'): train_data('action_set'),
+                           self.policy.parameters('state_input'): state_set,
+                           self.policy.parameters('action_input'): action_set,
                            **self.parameters.return_tf_parameter_feed_dict()
                        })
 
@@ -245,10 +247,10 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
             old_policy_feed_dict[tensor[0]] = val
 
         feed_dict = {
-            self.policy.parameters('action_input'): train_data('action_set'),
-            self.old_policy.parameters('action_input'): train_data('action_set'),
-            self.policy.parameters('state_input'): train_data('state_set'),
-            self.advantages_ph: train_data('advantage_set'),
+            self.policy.parameters('action_input'): action_set,
+            self.old_policy.parameters('action_input'): action_set,
+            self.policy.parameters('state_input'): state_set,
+            self.advantages_ph: advantage_set,
             **self.parameters.return_tf_parameter_feed_dict(),
             **old_policy_feed_dict
         }
@@ -291,34 +293,36 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
             policy_total_train_epoch=total_epoch
         )
 
-    def _update_value_func(self, train_data: TransitionData, train_iter, sess):
+    def _update_value_func(self, state_set, discount_set, train_iter, sess):
         if self.value_func_train_data_buffer is None:
-            self.value_func_train_data_buffer = train_data
+            self.value_func_train_data_buffer = (state_set, discount_set)
         else:
-            self.value_func_train_data_buffer.union(train_data)
-        y_hat = self.value_func.forward(obs=train_data('state_set'))
-        old_exp_var = 1 - np.var(self.value_func_train_data_buffer('discount_set') - y_hat) / np.var(
-            self.value_func_train_data_buffer('discount_set'))
+            self.value_func_train_data_buffer = (
+            np.concatenate([state_set, self.value_func_train_data_buffer[0]], axis=0),
+            np.concatenate([discount_set, self.value_func_train_data_buffer[1]], axis=0))
+
+        state_set, discount_set = self.value_func_train_data_buffer
+        y_hat = self.value_func.forward(obs=state_set)
+        old_exp_var = 1 - np.var(discount_set - y_hat) / np.var(discount_set)
         param_dict = self.parameters.return_tf_parameter_feed_dict()
+
         for i in range(train_iter):
 
             for index in range(0,
-                               len(self.value_func_train_data_buffer) - self.parameters('value_func_train_batch_size'),
+                               len(state_set) - self.parameters('value_func_train_batch_size'),
                                self.parameters('value_func_train_batch_size')):
                 loss, _ = sess.run([self.value_func_loss, self.value_func_update_op],
                                    feed_dict={
-                                       self.value_func.state_input: self.value_func_train_data_buffer.state_set[
+                                       self.value_func.state_input: state_set[
                                                                     index: index + self.parameters(
                                                                         'value_func_train_batch_size')],
-                                       self.v_func_val_ph: self.value_func_train_data_buffer('discount_set')[
-                                                           index: index + self.parameters(
-                                                               'value_func_train_batch_size')],
+                                       self.v_func_val_ph: discount_set[index: index + self.parameters(
+                                           'value_func_train_batch_size')],
                                        **param_dict
                                    })
-        y_hat = self.value_func.forward(obs=self.value_func_train_data_buffer('state_set'))
-        loss = np.mean(np.square(y_hat - self.value_func_train_data_buffer('discount_set')))
-        exp_var = 1 - np.var(self.value_func_train_data_buffer('discount_set') - y_hat) / np.var(
-            self.value_func_train_data_buffer('discount_set'))
+        y_hat = self.value_func.forward(obs=state_set)
+        loss = np.mean(np.square(y_hat - discount_set))
+        exp_var = 1 - np.var(discount_set - y_hat) / np.var(discount_set)
         return dict(
             value_func_loss=loss,
             value_func_policy_exp_var=exp_var,
