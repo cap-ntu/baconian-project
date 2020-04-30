@@ -34,5 +34,6 @@ setup(
     long_description_content_type='text/markdown',
     packages=find_packages(include=['baconian', 'baconian.*'], exclude=[]),
     python_requires='>=3.5',
-    include_package_data=True
+    include_package_data=True,
+    package_data={'baconian': ['config/required_keys/*', 'benchmark/**/*', './*']}
 )
