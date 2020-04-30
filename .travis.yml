@@ -56,14 +56,6 @@ script:
   - pip install pytest pytest-cov
   - pytest --cov=baconian ./baconian/examples/ ./baconian/test/
 
-branches:
-  only:
-    - master
-    - travis_ci_test
-    - dev/*
-    - feature/*
-    - fix/*
-
 notifications:
   email: false
 
