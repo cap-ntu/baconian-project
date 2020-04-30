@@ -50,7 +50,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
             self.scaler.set_param(mean=scale_last_time_index_mean, var=scale_last_time_index_var)
         with tf.variable_scope(name):
             self.advantages_ph = tf.placeholder(tf.float32, (None,), 'advantages')
-            self.v_func_val_ph = tf.placeholder(tf.float32, (None,), 'val_valfunc')
+            self.v_func_val_ph = tf.placeholder(tf.float32, (None,), 'val_val_func')
             dist_info_list = self.policy.get_dist_info()
             self.old_dist_tensor = [
                 (tf.placeholder(**dict(dtype=dist_info['dtype'],
@@ -245,7 +245,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
 
     def _setup_value_func_loss(self):
         # todo update the value_func design
-        loss = tf.reduce_mean(tf.square(self.value_func.v_tensor - self.v_func_val_ph))
+        loss = tf.reduce_mean(tf.square(tf.squeeze(self.value_func.v_tensor) - self.v_func_val_ph))
         reg_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES, scope=self.value_func.name_scope)
         if len(reg_loss) > 0:
             loss += tf.reduce_sum(reg_loss)
