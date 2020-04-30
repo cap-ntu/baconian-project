@@ -2,7 +2,7 @@ from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
 import numpy as np
 
-OBS_DIM = 26
+OBS_DIM = 26 + 1
 HID1_MULT = 10
 HID3_SIZE = 5
 HID1_SIZE = OBS_DIM * HID1_MULT
@@ -106,7 +106,7 @@ HALF_CHEETAH_BENCHMARK_CONFIG_DICT = {
         }
     },
     'TrainTestFlow': {
-        "TEST_SAMPLES_COUNT": 2,
+        "TEST_SAMPLES_COUNT": 5,
         "TRAIN_SAMPLES_COUNT": 5,
         'config_or_config_dict': {
             "TEST_EVERY_SAMPLE_COUNT": 5,
@@ -115,7 +115,7 @@ HALF_CHEETAH_BENCHMARK_CONFIG_DICT = {
             "START_TEST_AFTER_SAMPLE_COUNT": 0,
         }
     },
-    'DEFAULT_EXPERIMENT_END_POINT': dict(TOTAL_AGENT_TRAIN_SAMPLE_FUNC_COUNT=600,
+    'DEFAULT_EXPERIMENT_END_POINT': dict(TOTAL_AGENT_TRAIN_SAMPLE_FUNC_COUNT=1000,
                                          TOTAL_AGENT_TEST_SAMPLE_COUNT=None,
                                          TOTAL_AGENT_UPDATE_COUNT=None),
 }

@@ -168,24 +168,26 @@ class TransitionData(SampleData):
             if infinite_run is True:
                 while True:
                     end = min(start + batch_size, len(self))
-                    yield [make_batch(self._internal_data_dict[key][0][start: end], self._internal_data_dict[key][1])
-                           for key in assigned_keys]
+                    yield deepcopy(
+                        [make_batch(self._internal_data_dict[key][0][start: end], self._internal_data_dict[key][1])
+                         for key in assigned_keys])
                     start = end % len(self)
             else:
                 while start < len(self):
                     end = min(start + batch_size, len(self))
-                    yield [make_batch(self._internal_data_dict[key][0][start: end], self._internal_data_dict[key][1])
-                           for key in assigned_keys]
+                    yield deepcopy(
+                        [make_batch(self._internal_data_dict[key][0][start: end], self._internal_data_dict[key][1])
+                         for key in assigned_keys])
                     start = end
         else:
             start = 0
             if infinite_run is True:
                 while True:
-                    yield [self._internal_data_dict[key][0][start] for key in assigned_keys]
+                    yield deepcopy([self._internal_data_dict[key][0][start] for key in assigned_keys])
                     start = (start + 1) % len(self)
             else:
                 for i in range(len(self)):
-                    yield [self._internal_data_dict[key][0][i] for key in assigned_keys]
+                    yield deepcopy([self._internal_data_dict[key][0][i] for key in assigned_keys])
 
     @property
     def _allowed_data_set_keys(self):
@@ -229,7 +231,7 @@ class TrajectoryData(SampleData):
         self.trajectories += sample_data.trajectories
 
     def return_as_transition_data(self, shuffle_flag=False) -> TransitionData:
-        transition_set = self.trajectories[0]
+        transition_set = self.trajectories[0].get_copy()
         for i in range(1, len(self.trajectories)):
             transition_set.union(self.trajectories[i])
         if shuffle_flag is True:

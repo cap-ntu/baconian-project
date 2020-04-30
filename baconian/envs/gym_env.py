@@ -12,10 +12,8 @@ except Exception:
     have_mujoco_flag = False
 import numpy as np
 import types
-from gym.spaces import *
-from gym.spaces import Space as GymSpace
+import gym.spaces as GymSpace
 import baconian.common.spaces as garage_space
-from typeguard import typechecked
 import gym.error as gym_error
 
 _env_inited_count = dict()
@@ -43,7 +41,7 @@ def make(gym_env_id: str, allow_multiple_env=True):
         return GymEnv(gym_env_id)
 
 
-def space_converter(space: GymSpace):
+def space_converter(space: GymSpace.Space):
     """
     Convert space into any one of "Box", "Discrete", or "Tuple" type.
 
@@ -52,13 +50,13 @@ def space_converter(space: GymSpace):
     :return: converted space
     :rtype: Box, Discrete, or Tuple
     """
-    if isinstance(space, Box):
+    if isinstance(space, GymSpace.Box):
         return garage_space.Box(low=space.low, high=space.high)
-    elif isinstance(space, Dict):
+    elif isinstance(space, GymSpace.Dict):
         return garage_space.Dict(space.spaces)
-    elif isinstance(space, Discrete):
+    elif isinstance(space, GymSpace.Discrete):
         return garage_space.Discrete(space.n)
-    elif isinstance(space, Tuple):
+    elif isinstance(space, GymSpace.Tuple):
         return garage_space.Tuple(list(map(space_converter, space.spaces)))
     else:
         raise NotImplementedError

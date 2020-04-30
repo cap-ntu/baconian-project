@@ -1,4 +1,5 @@
 from baconian.core.core import Basic, Env, EnvSpec
+from baconian.envs.env_wrapper import Wrapper, ObservationWrapper, StepObservationWrapper
 from baconian.common.sampler.sampler import Sampler
 from baconian.common.error import *
 from baconian.algo.algo import Algo
@@ -25,7 +26,7 @@ class Agent(Basic):
     @typechecked
     def __init__(self, name,
                  # config_or_config_dict: (DictConfig, dict),
-                 env: Env,
+                 env: (Env, Wrapper),
                  algo: Algo,
                  env_spec: EnvSpec,
                  sampler: Sampler = None,

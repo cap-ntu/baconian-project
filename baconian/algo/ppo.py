@@ -28,11 +28,12 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                  config_or_config_dict: (DictConfig, dict),
                  value_func: VValueFunction,
                  warm_up_trajectories_number=5,
+                 use_time_index_flag=False,
                  name='ppo'):
         ModelFreeAlgo.__init__(self, env_spec=env_spec,
                                name=name,
                                warm_up_trajectories_number=warm_up_trajectories_number)
-
+        self.use_time_index_flag = use_time_index_flag
         self.config = construct_dict_config(config_or_config_dict, self)
         self.policy = stochastic_policy
         self.value_func = value_func
@@ -91,6 +92,12 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
     def warm_up(self, trajectory_data: TrajectoryData):
         for traj in trajectory_data.trajectories:
             self.scaler.update_scaler(data=traj.state_set)
+        if self.use_time_index_flag:
+            scale_last_time_index_mean = self.scaler._mean
+            scale_last_time_index_mean[-1] = 0
+            scale_last_time_index_var = self.scaler._var
+            scale_last_time_index_var[-1] = 1000 * 1000
+            self.scaler.set_param(mean=scale_last_time_index_mean, var=scale_last_time_index_var)
 
     @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='INITED')
     def init(self, sess=None, source_obj=None):
@@ -148,22 +155,19 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         ac = self.policy.forward(obs=obs, sess=tf_sess, feed_dict=self.parameters.return_tf_parameter_feed_dict())
         return ac
 
-    def append_to_memory(self, samples: SampleData):
+    def append_to_memory(self, samples: TrajectoryData):
         # todo how to make sure the data's time sequential
-        iter_samples = samples.return_generator()
-        obs_list = []
-        for state, new_state, action, reward, done in iter_samples:
-            obs_list.append(state)
-            self.transition_data_for_trajectory.append(state=self.scaler.process(state),
-                                                       new_state=self.scaler.process(new_state),
-                                                       action=action,
-                                                       reward=reward,
-                                                       done=done)
-            if done:
-                self.trajectory_memory.append(self.transition_data_for_trajectory.get_copy())
-                del self.transition_data_for_trajectory
-                self.transition_data_for_trajectory = TransitionData(env_spec=self.env_spec)
+        obs_list = samples.trajectories[0].state_set
+        for i in range(1, len(samples.trajectories)):
+            obs_list = np.concatenate([obs_list, samples.trajectories[i].state_set], axis=0)
+        self.trajectory_memory.union(samples)
         self.scaler.update_scaler(data=np.array(obs_list))
+        if self.use_time_index_flag:
+            scale_last_time_index_mean = self.scaler._mean
+            scale_last_time_index_mean[-1] = 0
+            scale_last_time_index_var = self.scaler._var
+            scale_last_time_index_var[-1] = 1000 * 1000
+            self.scaler.set_param(mean=scale_last_time_index_mean, var=scale_last_time_index_var)
 
     @record_return_decorator(which_recorder='self')
     def save(self, global_step, save_path=None, name=None, **kwargs):
@@ -224,7 +228,6 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         reg_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES, scope=self.value_func.name_scope)
         if len(reg_loss) > 0:
             loss += tf.reduce_sum(reg_loss)
-
         optimizer = tf.train.AdamOptimizer(self.parameters('value_func_lr'))
         train_op = optimizer.minimize(loss, var_list=self.value_func.parameters('tf_var_list'))
         return loss, optimizer, train_op
@@ -253,8 +256,9 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         total_epoch = 0
         kl = None
         for i in range(train_iter):
-            loss, kl, entropy, _ = sess.run(
-                [self.policy_loss, self.kl, self.average_entropy, self.policy_update_op],
+            _ = sess.run(self.policy_update_op, feed_dict=feed_dict)
+            loss, kl, entropy = sess.run(
+                [self.policy_loss, self.kl, self.average_entropy],
                 feed_dict=feed_dict)
             average_loss += loss
             average_kl += kl
@@ -297,16 +301,18 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
             self.value_func_train_data_buffer('discount_set'))
         param_dict = self.parameters.return_tf_parameter_feed_dict()
         for i in range(train_iter):
-            data_gen = self.value_func_train_data_buffer.return_generator(
-                batch_size=self.parameters('value_func_train_batch_size'),
-                infinite_run=False,
-                shuffle_flag=True,
-                assigned_keys=('state_set', 'new_state_set', 'action_set', 'reward_set', 'done_set', 'discount_set'))
-            for batch in data_gen:
+
+            for index in range(0,
+                               len(self.value_func_train_data_buffer) - self.parameters('value_func_train_batch_size'),
+                               self.parameters('value_func_train_batch_size')):
                 loss, _ = sess.run([self.value_func_loss, self.value_func_update_op],
                                    feed_dict={
-                                       self.value_func.state_input: batch[0],
-                                       self.v_func_val_ph: batch[5],
+                                       self.value_func.state_input: self.value_func_train_data_buffer.state_set[
+                                                                    index: index + self.parameters(
+                                                                        'value_func_train_batch_size')],
+                                       self.v_func_val_ph: self.value_func_train_data_buffer('discount_set')[
+                                                           index: index + self.parameters(
+                                                               'value_func_train_batch_size')],
                                        **param_dict
                                    })
         y_hat = self.value_func.forward(obs=self.value_func_train_data_buffer('state_set'))

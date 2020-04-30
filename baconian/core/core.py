@@ -79,15 +79,22 @@ class Env(gym.Env, Basic):
     INIT_STATUS = 'CREATED'
 
     @typechecked
-    def __init__(self, name: str = 'env'):
+    def __init__(self, name: str = 'env', copy_from_env=None):
         super(Env, self).__init__(status=StatusWithSubInfo(obj=self), name=name)
         self.action_space = None
         self.observation_space = None
-        self.step_count = None
+        self.trajectory_level_step_count = 0
         self.recorder = Recorder(default_obj=self)
         self._last_reset_point = 0
         self.total_step_count_fn = lambda: self._status.group_specific_info_key(info_key='step', group_way='sum')
         self.env_spec = None
+        if copy_from_env:
+            assert isinstance(copy_from_env, Env)
+            self.action_space = copy_from_env.action_space
+            self.observation_space = copy_from_env.observation_space
+            self.trajectory_level_step_count = copy_from_env.trajectory_level_step_count
+            self.trajectory_level_step_count = copy_from_env._last_reset_point
+            self.env_spec = copy_from_env.env_spec
 
     @register_counter_info_to_status_decorator(increment=1, info_key='step', under_status=('TRAIN', 'TEST'),
                                                ignore_wrong_status=True)
@@ -97,6 +104,7 @@ class Env(gym.Env, Basic):
         :param action: agent's action, the environment will react responding to action
         :type action: method
         """
+        self.trajectory_level_step_count += 1
         pass
 
     @register_counter_info_to_status_decorator(increment=1, info_key='reset', under_status='JUST_RESET')
@@ -104,6 +112,7 @@ class Env(gym.Env, Basic):
         """ Set the status to 'JUST_RESET', and update new reset point"""
         self._status.set_status('JUST_RESET')
         self._last_reset_point = self.total_step_count_fn()
+        self.trajectory_level_step_count = 0
 
     @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='INITED')
     def init(self):
@@ -131,12 +140,20 @@ class EnvSpec(object):
     def __init__(self, obs_space: Space, action_space: Space):
         self._obs_space = obs_space
         self._action_space = action_space
-        self.obs_shape = tuple(np.array(self.obs_space.sample()).shape)
-        if len(self.obs_shape) == 0:
-            self.obs_shape = (1,)
-        self.action_shape = tuple(np.array(self.action_space.sample()).shape)
-        if len(self.action_shape) == 0:
-            self.action_shape = ()
+
+    @property
+    def obs_shape(self):
+        obs_shape = tuple(np.array(self.obs_space.sample()).shape)
+        if len(obs_shape) == 0:
+            obs_shape = (1,)
+        return obs_shape
+
+    @property
+    def action_shape(self):
+        action_shape = tuple(np.array(self.action_space.sample()).shape)
+        if len(action_shape) == 0:
+            action_shape = ()
+        return action_shape
 
     @property
     def obs_space(self):
@@ -155,6 +172,14 @@ class EnvSpec(object):
         :rtype: Space
         """
         return self._action_space
+
+    @obs_space.setter
+    def obs_space(self, s: Space):
+        self._obs_space = s
+
+    @action_space.setter
+    def action_space(self, s: Space):
+        self._action_space = s
 
     @property
     def flat_obs_dim(self) -> int:
