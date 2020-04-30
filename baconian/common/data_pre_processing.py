@@ -202,4 +202,7 @@ class RunningStandardScaler(StandardScaler):
             self._data_count += n
 
     def set_param(self, mean=None, var=None):
-        raise NotImplementedError()
+        assert np.array(mean).shape == self._mean.shape, 'new mean shape is changed'
+        assert np.array(var).shape == self._var.shape, 'new var shape is changed'
+        self._mean = mean
+        self._var = var

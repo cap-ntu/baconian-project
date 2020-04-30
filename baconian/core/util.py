@@ -10,7 +10,8 @@ def init_func_arg_record_decorator():
     def wrap(fn):
         @wraps(fn)
         def wrap_with_self(self, *args, **kwargs):
-            get_all()['_global_obj_arg_dict'][self] = dict(args=args, kwargs=kwargs, cls=type(self))
+            get_all()['_global_obj_arg_dict'][self] = None
+            # get_all()['_global_obj_arg_dict'][self] = dict(args=args, kwargs=kwargs, cls=type(self))
             res = fn(self, *args, **kwargs)
             return res
 
@@ -24,6 +25,12 @@ def get_global_arg_dict():
 
 
 def copy_globally(arg_dict, source_obj_list):
+    """
+    deprecated in the future
+    :param arg_dict:
+    :param source_obj_list:
+    :return:
+    """
     new_obj_list = []
     reset('_global_name_dict')
     for obj in source_obj_list:
@@ -88,16 +95,3 @@ def in_dict(obj, list_or_dict):
                 if id(key) == id(obj):
                     return True
             return False
-
-
-if __name__ == '__main__':
-    from baconian.common.spaces import *
-
-    x = 1
-    y = Discrete(n=3)
-    s = dict()
-    s[x] = 10
-    s[y] = 100
-
-    print(in_dict(x, s))
-    print(in_dict(y, s))

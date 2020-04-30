@@ -28,11 +28,12 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                  config_or_config_dict: (DictConfig, dict),
                  value_func: VValueFunction,
                  warm_up_trajectories_number=5,
+                 use_time_index_flag=False,
                  name='ppo'):
         ModelFreeAlgo.__init__(self, env_spec=env_spec,
                                name=name,
                                warm_up_trajectories_number=warm_up_trajectories_number)
-
+        self.use_time_index_flag = use_time_index_flag
         self.config = construct_dict_config(config_or_config_dict, self)
         self.policy = stochastic_policy
         self.value_func = value_func
@@ -91,6 +92,12 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
     def warm_up(self, trajectory_data: TrajectoryData):
         for traj in trajectory_data.trajectories:
             self.scaler.update_scaler(data=traj.state_set)
+        if self.use_time_index_flag:
+            scale_last_time_index_mean = self.scaler._mean
+            scale_last_time_index_mean[-1] = 0
+            scale_last_time_index_var = self.scaler._var
+            scale_last_time_index_var[-1] = 1000 * 1000
+            self.scaler.set_param(mean=scale_last_time_index_mean, var=scale_last_time_index_var)
 
     @register_counter_info_to_status_decorator(increment=1, info_key='init', under_status='INITED')
     def init(self, sess=None, source_obj=None):
@@ -164,6 +171,12 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                 del self.transition_data_for_trajectory
                 self.transition_data_for_trajectory = TransitionData(env_spec=self.env_spec)
         self.scaler.update_scaler(data=np.array(obs_list))
+        if self.use_time_index_flag:
+            scale_last_time_index_mean = self.scaler._mean
+            scale_last_time_index_mean[-1] = 0
+            scale_last_time_index_var = self.scaler._var
+            scale_last_time_index_var[-1] = 1000 * 1000
+            self.scaler.set_param(mean=scale_last_time_index_mean, var=scale_last_time_index_var)
 
     @record_return_decorator(which_recorder='self')
     def save(self, global_step, save_path=None, name=None, **kwargs):

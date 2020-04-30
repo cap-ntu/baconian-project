@@ -1,5 +1,5 @@
 """
-PPO benchmark on HalfCheetah
+PPO benchmark on HalfCheetahBulletEnv-v0
 """
 from baconian.core.core import EnvSpec
 from baconian.envs.gym_env import make
@@ -12,6 +12,7 @@ from baconian.core.flow.train_test_flow import TrainTestFlow
 from baconian.config.global_config import GlobalConfig
 from baconian.core.status import get_global_status_collect
 from baconian.benchmark.ppo_benchmark.halfCheetah_bullet_conf import HALF_CHEETAH_BENCHMARK_CONFIG_DICT
+from baconian.envs.env_wrapper import StepObservationWrapper
 
 
 def half_cheetah_task_fn():
@@ -20,7 +21,9 @@ def half_cheetah_task_fn():
                        exp_config['DEFAULT_EXPERIMENT_END_POINT'])
 
     env = make(exp_config['env_id'])
+
     env.reset()
+    env = StepObservationWrapper(env, step_limit=env.unwrapped._max_episode_steps)
     name = 'benchmark'
     env_spec = EnvSpec(obs_space=env.observation_space,
                        action_space=env.action_space)
@@ -42,9 +45,11 @@ def half_cheetah_task_fn():
         **exp_config['PPO'],
         value_func=mlp_v,
         stochastic_policy=policy,
-        name=name + '_ppo'
+        name=name + '_ppo',
+        use_time_index_flag=True
     )
-    agent = Agent(env=env, env_spec=env_spec,
+    agent = Agent(env=env,
+                  env_spec=env_spec,
                   algo=ppo,
                   exploration_strategy=None,
                   noise_adder=None,
