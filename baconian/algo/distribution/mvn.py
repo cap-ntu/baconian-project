@@ -15,13 +15,15 @@ def kl(mean_p, var_p, mean_q, var_q, dims):
     :param dims:
     :return:
     """
+    # p is old
+
     log_var_p = tf.log(var_p)
     log_var_q = tf.log(var_q)
     log_det_cov_p = tf.reduce_sum(log_var_p)
     log_det_cov_q = tf.reduce_sum(log_var_q)
-    tr_p_q = tf.reduce_sum(tf.exp(log_var_q - log_var_p))
+    tr_p_q = tf.reduce_sum(tf.exp(log_var_p - log_var_q))
     kl = 0.5 * tf.reduce_mean(
-        log_det_cov_p - log_det_cov_q + tr_p_q + tf.reduce_sum(tf.square(mean_p - mean_q) / tf.exp(log_var_p),
+        log_det_cov_q - log_det_cov_p + tr_p_q + tf.reduce_sum(tf.square(mean_q - mean_p) / tf.exp(log_det_cov_q),
                                                                axis=1) - dims)
     return kl
 

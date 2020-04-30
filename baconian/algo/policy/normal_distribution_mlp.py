@@ -94,6 +94,9 @@ class NormalDistributionMLPPolicy(StochasticPolicy, PlaceholderInput):
                                                            ),
                                                            name='normal_distribution_mlp_tf_param')
         PlaceholderInput.__init__(self, parameters=self.parameters)
+        self._log_prob = None
+        self._prob = None
+        self._entropy = None
 
     @overrides.overrides
     def forward(self, obs: (np.ndarray, list), sess=None, feed_dict=None, **kwargs):
@@ -161,13 +164,19 @@ class NormalDistributionMLPPolicy(StochasticPolicy, PlaceholderInput):
                       mean_q=other.mean_output, var_q=other.var_output, dims=self.action_space.flat_dim)
 
     def log_prob(self, *args, **kwargs) -> tf.Tensor:
-        return mvn.log_prob(variable_ph=self.action_output, mean_p=self.mean_output, var_p=self.var_output)
+        if self._log_prob is None:
+            self._log_prob = mvn.log_prob(variable_ph=self.action_input, mean_p=self.mean_output, var_p=self.var_output)
+        return self._log_prob
 
     def prob(self, *args, **kwargs) -> tf.Tensor:
-        return mvn.prob(variable_ph=self.action_output, mean_p=self.mean_output, var_p=self.var_output)
+        if self._prob is None:
+            self._prob = mvn.prob(variable_ph=self.action_input, mean_p=self.mean_output, var_p=self.var_output)
+        return self._prob
 
     def entropy(self, *args, **kwargs) -> tf.Tensor:
-        return mvn.entropy(self.mean_output, self.var_output, dims=self.action_space.flat_dim)
+        if self._entropy is None:
+            self._entropy = mvn.entropy(self.mean_output, self.var_output, dims=self.action_space.flat_dim)
+        return self._entropy
 
     def get_dist_info(self) -> tuple:
         res = (

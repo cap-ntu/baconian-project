@@ -266,8 +266,9 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         total_epoch = 0
         kl = None
         for i in range(train_iter):
-            loss, kl, entropy, _ = sess.run(
-                [self.policy_loss, self.kl, self.average_entropy, self.policy_update_op],
+            _ = sess.run(self.policy_update_op, feed_dict=feed_dict)
+            loss, kl, entropy = sess.run(
+                [self.policy_loss, self.kl, self.average_entropy],
                 feed_dict=feed_dict)
             average_loss += loss
             average_kl += kl
