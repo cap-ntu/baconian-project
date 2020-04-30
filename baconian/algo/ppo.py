@@ -42,7 +42,12 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         self.transition_data_for_trajectory = TransitionData(env_spec=env_spec)
         self.value_func_train_data_buffer = None
         self.scaler = RunningStandardScaler(dims=self.env_spec.flat_obs_dim)
-
+        if use_time_index_flag:
+            scale_last_time_index_mean = self.scaler._mean
+            scale_last_time_index_mean[-1] = 0
+            scale_last_time_index_var = self.scaler._var
+            scale_last_time_index_var[-1] = 1000 * 1000
+            self.scaler.set_param(mean=scale_last_time_index_mean, var=scale_last_time_index_var)
         with tf.variable_scope(name):
             self.advantages_ph = tf.placeholder(tf.float32, (None,), 'advantages')
             self.v_func_val_ph = tf.placeholder(tf.float32, (None,), 'val_valfunc')
@@ -116,6 +121,19 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
             trajectory_data = self.trajectory_memory
         if len(trajectory_data) == 0:
             raise MemoryBufferLessThanBatchSizeError('not enough trajectory data')
+        for i, traj in enumerate(trajectory_data.trajectories):
+            trajectory_data.trajectories[i].append_new_set(name='state_set',
+                                                           shape=self.env_spec.obs_shape,
+                                                           data_set=np.reshape(
+                                                               np.array(self.scaler.process(np.array(traj.state_set))),
+                                                               [-1] + list(self.env_spec.obs_shape)))
+            trajectory_data.trajectories[i].append_new_set(name='new_state_set',
+                                                           shape=self.env_spec.obs_shape,
+                                                           data_set=np.reshape(
+                                                               np.array(
+                                                                   self.scaler.process(np.array(traj.new_state_set))),
+                                                               [-1] + list(self.env_spec.obs_shape)))
+
         tf_sess = sess if sess else tf.get_default_session()
         SampleProcessor.add_estimated_v_value(trajectory_data, value_func=self.value_func)
         SampleProcessor.add_discount_sum_reward(trajectory_data,
@@ -140,6 +158,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                 'value_func_train_iter'),
             sess=tf_sess)
         trajectory_data.reset()
+        self.trajectory_memory.reset()
         return {
             **policy_res_dict,
             **value_func_res_dict
@@ -152,16 +171,16 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
     @register_counter_info_to_status_decorator(increment=1, info_key='predict')
     def predict(self, obs: np.ndarray, sess=None, batch_flag: bool = False):
         tf_sess = sess if sess else tf.get_default_session()
-        obs = make_batch(obs, original_shape=self.env_spec.obs_shape)
-        obs = self.scaler.process(data=obs)
-        ac = self.policy.forward(obs=obs, sess=tf_sess, feed_dict=self.parameters.return_tf_parameter_feed_dict())
+        ac = self.policy.forward(obs=self.scaler.process(data=make_batch(obs, original_shape=self.env_spec.obs_shape)),
+                                 sess=tf_sess,
+                                 feed_dict=self.parameters.return_tf_parameter_feed_dict())
         return ac
 
     def append_to_memory(self, samples: TrajectoryData):
         # todo how to make sure the data's time sequential
         obs_list = samples.trajectories[0].state_set
         for i in range(1, len(samples.trajectories)):
-            obs_list = np.concatenate([obs_list, samples.trajectories[i].state_set], axis=0)
+            obs_list = np.array(np.concatenate([obs_list, samples.trajectories[i].state_set], axis=0))
         self.trajectory_memory.union(samples)
         self.scaler.update_scaler(data=np.array(obs_list))
         if self.use_time_index_flag:
@@ -298,16 +317,18 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
             self.value_func_train_data_buffer = (state_set, discount_set)
         else:
             self.value_func_train_data_buffer = (
-            np.concatenate([state_set, self.value_func_train_data_buffer[0]], axis=0),
-            np.concatenate([discount_set, self.value_func_train_data_buffer[1]], axis=0))
+                np.concatenate([state_set, self.value_func_train_data_buffer[0]], axis=0),
+                np.concatenate([discount_set, self.value_func_train_data_buffer[1]], axis=0))
 
         state_set, discount_set = self.value_func_train_data_buffer
-        y_hat = self.value_func.forward(obs=state_set)
+        y_hat = self.value_func.forward(obs=state_set).squeeze()
         old_exp_var = 1 - np.var(discount_set - y_hat) / np.var(discount_set)
         param_dict = self.parameters.return_tf_parameter_feed_dict()
 
         for i in range(train_iter):
-
+            random_index = np.random.choice(np.arange(len(state_set)), len(state_set))
+            state_set = state_set[random_index]
+            discount_set = discount_set[random_index]
             for index in range(0,
                                len(state_set) - self.parameters('value_func_train_batch_size'),
                                self.parameters('value_func_train_batch_size')):
@@ -320,7 +341,7 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                                            'value_func_train_batch_size')],
                                        **param_dict
                                    })
-        y_hat = self.value_func.forward(obs=state_set)
+        y_hat = self.value_func.forward(obs=state_set).squeeze()
         loss = np.mean(np.square(y_hat - discount_set))
         exp_var = 1 - np.var(discount_set - y_hat) / np.var(discount_set)
         return dict(

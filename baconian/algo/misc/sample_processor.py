@@ -64,12 +64,13 @@ class SampleProcessor(object):
             else:
                 mean = data(key).mean(axis=0)
                 std_dev = data(key).std(axis=0)
-            setattr(data, '_{}'.format(key), (data(key) - mean) / (std_dev + 1e-6))
+            data.append_new_set(name=key, data_set=(data(key) - mean) / (std_dev + 1e-6), shape=data(key).shape[1:])
             return data
         else:
             # TODO add shape check
             mean = np.mean([d(key) for d in data.trajectories])
             std_dev = np.std([d(key) for d in data.trajectories])
             for d in data.trajectories:
-                setattr(d, '_{}'.format(key), (d(key) - mean) / (std_dev + 1e-6))
+                d.append_new_set(name=key, data_set=np.array((d(key) - mean) / (std_dev + 1e-6)),
+                                 shape=d(key).shape[1:])
             return data
