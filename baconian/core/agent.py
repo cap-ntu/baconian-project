@@ -64,6 +64,8 @@ class Agent(Basic):
         self.env = env
         self.algo = algo
         self._env_step_count = 0
+        if sampler is None:
+            sampler = Sampler()
         self.sampler = sampler
         self.recorder = Recorder(default_obj=self)
         self.env_spec = env_spec
@@ -162,11 +164,11 @@ class Agent(Basic):
         ConsoleLogger().print('info',
                               "agent sampled {} {} under status {}".format(sample_count, sample_type,
                                                                            self.get_status()))
-        batch_data = Sampler.sample(agent=self,
-                                    env=env,
-                                    reset_at_start=self.parameters('reset_state_every_sample'),
-                                    sample_type=sample_type,
-                                    sample_count=sample_count)
+        batch_data = self.sampler.sample(agent=self,
+                                         env=env,
+                                         reset_at_start=self.parameters('reset_state_every_sample'),
+                                         sample_type=sample_type,
+                                         sample_count=sample_count)
         if store_flag is True:
             self.store_samples(samples=batch_data)
         # todo when we have transition/ trajectory data here, the mean or sum results are still valid?
@@ -192,11 +194,11 @@ class Agent(Basic):
         """
         self.algo.init()
         self.set_status('INITED')
-        self.algo.warm_up(trajectory_data=Sampler.sample(env=self.env,
-                                                         agent=self,
-                                                         sample_type='trajectory',
-                                                         reset_at_start=True,
-                                                         sample_count=self.algo.warm_up_trajectories_number, ))
+        self.algo.warm_up(trajectory_data=self.sampler.sample(env=self.env,
+                                                              agent=self,
+                                                              sample_type='trajectory',
+                                                              reset_at_start=True,
+                                                              sample_count=self.algo.warm_up_trajectories_number))
 
     @typechecked
     def store_samples(self, samples: SampleData):

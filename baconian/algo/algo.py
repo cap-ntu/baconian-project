@@ -24,7 +24,7 @@ class Algo(Basic):
         :param name: name of the algorithm
         :type name: str
         :param warm_up_trajectories_number: how many trajectories used to warm up the training
-        :type warm_up_trajectories_number: TrajectoryData
+        :type warm_up_trajectories_number: int
         """
 
         super().__init__(status=StatusWithSubInfo(obj=self), name=name)
