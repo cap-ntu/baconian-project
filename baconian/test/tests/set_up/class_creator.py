@@ -359,7 +359,7 @@ class ClassCreatorSetup(unittest.TestCase):
                       exploration_strategy=eps)
         return agent, locals()
 
-    def create_train_test_flow(self, agent):
+    def create_train_test_flow(self, agent, traj_flag=False):
 
         flow = TrainTestFlow(
             train_sample_count_func=lambda: get_global_status_collect()('TOTAL_ENV_STEP_TRAIN_SAMPLE_COUNT'),
@@ -380,8 +380,9 @@ class ClassCreatorSetup(unittest.TestCase):
                           },
                 'sample': {'func': agent.sample,
                            'args': list(),
-                           'kwargs': dict(sample_count=100,
+                           'kwargs': dict(sample_count=100 if not traj_flag else 1,
                                           env=agent.env,
+                                          sample_type='trajectory' if traj_flag else 'transition',
                                           in_which_status='TRAIN',
                                           store_flag=True),
                            },
@@ -436,12 +437,12 @@ class ClassCreatorSetup(unittest.TestCase):
         )
         return flow, locals()
 
-    def create_exp(self, name, env, agent, flow=None):
+    def create_exp(self, name, env, agent, flow=None, traj_flag=False):
         experiment = Experiment(
             tuner=None,
             env=env,
             agent=agent,
-            flow=self.create_train_test_flow(agent) if not flow else flow,
+            flow=self.create_train_test_flow(agent, traj_flag=traj_flag) if not flow else flow,
             name=name + 'experiment_debug'
         )
         return experiment
@@ -565,7 +566,6 @@ class ClassCreatorSetup(unittest.TestCase):
                         done=done,
                         reward=re)
         return data
-
 
     def register_global_status_when_test(self, agent, env):
         """

@@ -127,7 +127,9 @@ class TestNormalDistMLPPolicy(TestTensorflowSetup):
                                      value=env_spec.action_space.sample(),
                                      feed_dict={
                                          policy.state_input: make_batch(env_spec.obs_space.sample(),
-                                                                        original_shape=env_spec.obs_shape)}))
+                                                                        original_shape=env_spec.obs_shape),
+                                         policy.action_input: make_batch(env_spec.action_space.sample(),
+                                                                         original_shape=env_spec.action_shape)}))
         new_policy = policy.make_copy(
             reuse=False,
             name='new_p',

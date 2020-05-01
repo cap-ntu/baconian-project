@@ -7,7 +7,7 @@ import numpy as np
 
 def kl(mean_p, var_p, mean_q, var_q, dims):
     """
-    Compute the KL divergence of diagonal multivariate normal distribution q, and p, which is KL(Q||P)
+    Compute the KL divergence of diagonal multivariate normal distribution q, and p, which is KL(P||Q)
     :param mean_p:
     :param var_p:
     :param mean_q:

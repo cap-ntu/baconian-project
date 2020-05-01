@@ -27,7 +27,18 @@ def describe_sample_tensor_shapes(distributions, sample_shapes):
 def kl_entropy_logprob_from_pat_cody(old_mean, old_var, mean, var, sess, action_dim, action_ph, feed_dict):
     # logvar = tf.reduce_sum(tf.log(var))
     # old_log_var = tf.reduce_sum(tf.log(old_var))
-
+    """
+    KL(old|new)
+    :param old_mean:
+    :param old_var:
+    :param mean:
+    :param var:
+    :param sess:
+    :param action_dim:
+    :param action_ph:
+    :param feed_dict:
+    :return:
+    """
     logvar = tf.log(var)
     old_log_var = tf.log(old_var)
 
@@ -63,7 +74,7 @@ def kl_entropy_logprob_from_pat_cody(old_mean, old_var, mean, var, sess, action_
 
 
 def kl_entropy_logprob_from_mvn(old_mean, old_var, mean, var, sess, action_dim, action_ph, feed_dict):
-    kl = mvn.kl(mean, var, old_mean, old_var, action_dim)
+    kl = mvn.kl(old_mean, old_var, mean, var, action_dim)
     entropy = mvn.entropy(mean, var, action_dim)
     logp = mvn.log_prob(action_ph, mean, var)
     logp_old = mvn.log_prob(action_ph, old_mean, old_var)
@@ -193,6 +204,7 @@ class TestTFP(TestTensorflowSetup):
                                                                    sess=sess,
                                                                    action_ph=action_ph,
                                                                    action_dim=action_dim)
+        print(kl, entropy, logp, log_p_old)
         self.assertTrue(np.isclose(logp, log_prob_tfp).all())
         self.assertTrue(np.isclose(log_p_old, log_p_old_tfp).all())
         self.assertTrue(np.isclose(entropy, entropy_tfp).all())
