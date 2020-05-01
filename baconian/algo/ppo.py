@@ -332,13 +332,16 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
             for index in range(0,
                                len(state_set) - self.parameters('value_func_train_batch_size'),
                                self.parameters('value_func_train_batch_size')):
+                state = np.array(state_set[
+                                 index: index + self.parameters(
+                                     'value_func_train_batch_size')])
+                discount = discount_set[index: index + self.parameters(
+                    'value_func_train_batch_size')]
                 loss, _ = sess.run([self.value_func_loss, self.value_func_update_op],
+                                   options=tf.RunOptions(report_tensor_allocations_upon_oom=True),
                                    feed_dict={
-                                       self.value_func.state_input: state_set[
-                                                                    index: index + self.parameters(
-                                                                        'value_func_train_batch_size')],
-                                       self.v_func_val_ph: discount_set[index: index + self.parameters(
-                                           'value_func_train_batch_size')],
+                                       self.value_func.state_input: state,
+                                       self.v_func_val_ph: discount,
                                        **param_dict
                                    })
         y_hat = self.value_func.forward(obs=state_set).squeeze()
