@@ -142,7 +142,7 @@ class Agent(Basic):
 
     @register_counter_info_to_status_decorator(increment=1, info_key='sample_counter', under_status=('TRAIN', 'TEST'),
                                                ignore_wrong_status=True)
-    def sample(self, env, sample_count: int, in_which_status: str, store_flag=False,
+    def sample(self, env, sample_count: int, in_which_status: str = 'TRAIN', store_flag=False,
                sample_type: str = 'transition') -> (
             TransitionData, TrajectoryData):
         """

@@ -313,6 +313,9 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
         )
 
     def _update_value_func(self, state_set, discount_set, train_iter, sess):
+        y_hat = self.value_func.forward(obs=state_set).squeeze()
+        old_exp_var = 1 - np.var(discount_set - y_hat) / np.var(discount_set)
+
         if self.value_func_train_data_buffer is None:
             self.value_func_train_data_buffer = (state_set, discount_set)
         else:
@@ -320,25 +323,27 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                 np.concatenate([state_set, self.value_func_train_data_buffer[0]], axis=0),
                 np.concatenate([discount_set, self.value_func_train_data_buffer[1]], axis=0))
 
-        state_set, discount_set = self.value_func_train_data_buffer
-        y_hat = self.value_func.forward(obs=state_set).squeeze()
-        old_exp_var = 1 - np.var(discount_set - y_hat) / np.var(discount_set)
+        state_set_all, discount_set_all = self.value_func_train_data_buffer
+
         param_dict = self.parameters.return_tf_parameter_feed_dict()
 
         for i in range(train_iter):
-            random_index = np.random.choice(np.arange(len(state_set)), len(state_set))
-            state_set = state_set[random_index]
-            discount_set = discount_set[random_index]
+            random_index = np.random.choice(np.arange(len(state_set_all)), len(state_set_all))
+            state_set_all = state_set_all[random_index]
+            discount_set_all = discount_set_all[random_index]
             for index in range(0,
-                               len(state_set) - self.parameters('value_func_train_batch_size'),
+                               len(state_set_all) - self.parameters('value_func_train_batch_size'),
                                self.parameters('value_func_train_batch_size')):
+                state = np.array(state_set_all[
+                                 index: index + self.parameters(
+                                     'value_func_train_batch_size')])
+                discount = discount_set_all[index: index + self.parameters(
+                    'value_func_train_batch_size')]
                 loss, _ = sess.run([self.value_func_loss, self.value_func_update_op],
+                                   options=tf.RunOptions(report_tensor_allocations_upon_oom=True),
                                    feed_dict={
-                                       self.value_func.state_input: state_set[
-                                                                    index: index + self.parameters(
-                                                                        'value_func_train_batch_size')],
-                                       self.v_func_val_ph: discount_set[index: index + self.parameters(
-                                           'value_func_train_batch_size')],
+                                       self.value_func.state_input: state,
+                                       self.v_func_val_ph: discount,
                                        **param_dict
                                    })
         y_hat = self.value_func.forward(obs=state_set).squeeze()

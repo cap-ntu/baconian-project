@@ -71,7 +71,7 @@ class TestExperiment(BaseTestCase):
                                       name='agent',
                                       eps=self.create_eps(env_spec)[0],
                                       env_spec=env_spec)[0]
-            exp = self.create_exp(name='model_fre', env=env, agent=agent)
+            exp = self.create_exp(name='model_free', env=env, agent=agent)
             exp.run()
 
         base_path = GlobalConfig().DEFAULT_LOG_PATH
@@ -86,15 +86,18 @@ class TestExperiment(BaseTestCase):
 
     def test_saving_scheduler_on_all_model_free_algo(self):
         to_test_algo_func = (self.create_ppo, self.create_dqn, self.create_ddpg)
-        for func in to_test_algo_func:
+        sample_traj_flag = (True, False, False)
+        for i, func in enumerate(to_test_algo_func):
             self.setUp()
-            single_exp_runner(_saving_scheduler(self, func), auto_choose_gpu_flag=False, gpu_id=0,
+            single_exp_runner(_saving_scheduler(self, func,
+                                                sample_traj_flag=sample_traj_flag[i]),
+                              auto_choose_gpu_flag=False,
+                              gpu_id=0,
                               del_if_log_path_existed=True)
             self.tearDown()
 
     def test_saving_scheduler_on_all_model_based_algo(self):
         to_test_algo_func = (self.create_mpc, self.create_dyna)
-        # to_test_algo_func = (self.create_dyna,)
         for func in to_test_algo_func:
             self.setUp()
             single_exp_runner(_saving_scheduler(self, func), auto_choose_gpu_flag=False,
@@ -102,7 +105,7 @@ class TestExperiment(BaseTestCase):
             self.tearDown()
 
 
-def _saving_scheduler(self, creat_func=None):
+def _saving_scheduler(self, creat_func=None, sample_traj_flag=False):
     def wrap_algo():
         def func(self, creat_func=None):
             GlobalConfig().set('DEFAULT_EXPERIMENT_END_POINT', dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=500,
@@ -123,7 +126,7 @@ def _saving_scheduler(self, creat_func=None):
             from baconian.algo.dyna import Dyna
             if isinstance(algo, Dyna):
                 flow = self.create_dyna_flow(agent=agent, env=env)[0]
-            exp = self.create_exp(name='model_free', env=env, agent=agent, flow=flow)
+            exp = self.create_exp(name='model_free', env=env, agent=agent, flow=flow, traj_flag=sample_traj_flag)
             exp.run()
             self.assertEqual(exp.TOTAL_AGENT_TEST_SAMPLE_COUNT(), exp.TOTAL_ENV_STEP_TEST_SAMPLE_COUNT())
             self.assertEqual(exp.TOTAL_AGENT_TRAIN_SAMPLE_COUNT(), exp.TOTAL_ENV_STEP_TRAIN_SAMPLE_COUNT(), 500)

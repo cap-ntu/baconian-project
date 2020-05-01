@@ -176,7 +176,7 @@ def make_batch(v, original_shape: (list, tuple)):
         return v
     else:
         bs = np.prod(list(v.shape)) / np.prod(original_shape)
-        assert bs == int(bs)
+        assert float(bs).is_integer()
         return np.reshape(v, newshape=[int(bs)] + list(original_shape))
 
 

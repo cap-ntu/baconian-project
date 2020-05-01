@@ -14,9 +14,9 @@ matrix:
         - "3.7"
       dist: xenial
     - name: "Python 3.5 on Bionic Linux 18.04"
-        python:
-          - "3.5"
-        dist: bionic
+      python:
+        - "3.5"
+      dist: bionic
     - name: "Python 3.6 on Bionic Linux 18.04"
       python:
         - "3.6"
@@ -43,7 +43,6 @@ before_install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-
   # Replace dep1 dep2 ... with your dependencies
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
   - conda activate test-environment
@@ -57,14 +56,6 @@ script:
   - pip install pytest pytest-cov
   - pytest --cov=baconian ./baconian/examples/ ./baconian/test/
 
-branches:
-  only:
-    - master
-    - travis_ci_test
-    - dev/*
-    - feature/*
-    - fix/*
-    -
 notifications:
   email: false
 

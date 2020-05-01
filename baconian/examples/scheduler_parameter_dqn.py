@@ -76,7 +76,6 @@ def task_fn():
         test_func_and_args=(agent.test, (), dict(sample_count=10)),
         sample_func_and_args=(agent.sample, (), dict(sample_count=100,
                                                      env=agent.env,
-                                                     in_which_status='TRAIN',
                                                      store_flag=True))
     )
     experiment = Experiment(
@@ -97,8 +96,7 @@ def task_fn():
     experiment.run()
 
 
-if __name__ == '__main__':
-    from baconian.core.experiment_runner import single_exp_runner
+from baconian.core.experiment_runner import single_exp_runner
 
-    GlobalConfig().set('DEFAULT_LOG_PATH', './log_path')
-    single_exp_runner(task_fn, del_if_log_path_existed=True)
+GlobalConfig().set('DEFAULT_LOG_PATH', './log_path')
+single_exp_runner(task_fn, del_if_log_path_existed=True)

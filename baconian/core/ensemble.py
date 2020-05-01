@@ -42,6 +42,7 @@ class ModelEnsemble(Ensemble, DynamicsModel):
                 if model[b].env_spec != base_env_spec:
                     raise TypeError('EnvSpec of list of models do not match.')
             self._model = model
+        self.state = None
 
     def train(self, *args, **kwargs):
         res = {}
@@ -69,6 +70,7 @@ class ModelEnsemble(Ensemble, DynamicsModel):
 
         for m in self.model:
             m.init(*args, **kwargs)
+        self.reset_state()
 
     def step(self, *args, **kwargs):
 
