@@ -100,6 +100,7 @@ INVERTED_PENDULUM_BENCHMARK_CONFIG_DICT = {
             "clipping_range": None,
             "beta": 1.0,
             "eta": 50,
+            "value_func_memory_size": 1000000,
             "log_var_init": -1.0,
             "kl_target": 0.003,
             "policy_lr": 9e-4 / np.sqrt(POLICY_HID2_SIZE),

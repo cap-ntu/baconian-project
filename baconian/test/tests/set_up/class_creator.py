@@ -265,6 +265,7 @@ class ClassCreatorSetup(unittest.TestCase):
             env_spec=env_spec,
             config_or_config_dict={
                 "gamma": 0.995,
+                "value_func_memory_size": 10000,
                 "lam": 0.98,
                 "policy_train_iter": 10,
                 "value_func_train_iter": 10,

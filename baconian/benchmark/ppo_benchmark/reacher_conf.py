@@ -100,6 +100,7 @@ REACHER_BENCHMARK_CONFIG_DICT = {
             "eta": 50,
             "log_var_init": -1.0,
             "kl_target": 0.003,
+            "value_func_memory_size": 100000,
             "policy_lr": 9e-4 / np.sqrt(POLICY_HID2_SIZE),
             "value_func_lr": 1e-2 / np.sqrt(HID2_SIZE),
             "value_func_train_batch_size": 256,

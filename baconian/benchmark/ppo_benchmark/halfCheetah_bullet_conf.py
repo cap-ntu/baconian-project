@@ -90,6 +90,7 @@ HALF_CHEETAH_BENCHMARK_CONFIG_DICT = {
     },
     'PPO': {
         'config_or_config_dict': {
+            "value_func_memory_size": 1000000000,
             "gamma": 0.995,
             "lam": 0.98,
             "policy_train_iter": 20,

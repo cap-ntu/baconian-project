@@ -84,6 +84,7 @@ PENDULUM_BENCHMARK_CONFIG_DICT = {
             "log_var_init": -1.0,
             "kl_target": 0.03,
             "policy_lr": 0.0003,
+            "value_func_memory_size": 100000,
             "value_func_lr": 0.005,
             "value_func_train_batch_size": 32,
             "lr_multiplier": 1.0
