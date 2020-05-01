@@ -15,9 +15,8 @@ class SmoothMountainCarReward(RewardWrapper):
         return 10.0
 
 
-if __name__ == '__main__':
-    car_env = make('MountainCarContinuous-v0')
-    car_env = SmoothMountainCarReward(env=car_env)
-    car_env.reset()
-    new_st, reward, terminal, info = car_env.step(action=car_env.action_space.sample())
-    print(reward)
+car_env = make('MountainCarContinuous-v0')
+car_env = SmoothMountainCarReward(env=car_env)
+car_env.reset()
+new_st, reward, terminal, info = car_env.step(action=car_env.action_space.sample())
+print(reward)

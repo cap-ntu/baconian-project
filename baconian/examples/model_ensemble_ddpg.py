@@ -162,23 +162,21 @@ def task_fn():
         test_dynamics_func=(agent.algo.test_dynamics, (), dict(sample_count=10, env=env)),
         sample_from_real_env_func=(agent.sample, (), dict(sample_count=10,
                                                           env=agent.env,
-                                                          in_which_status='TRAIN',
                                                           store_flag=True)),
         sample_from_dynamics_env_func=(agent.sample, (), dict(sample_count=10,
                                                               env=agent.algo.dynamics_env,
-                                                              in_which_status='TRAIN',
                                                               store_flag=True)),
         # set this to large enough so agent only use data from dynamics env.
-        train_algo_every_real_sample_count_by_data_from_real_env=10000000,
-        train_algo_every_real_sample_count_by_data_from_dynamics_env=10,
-        test_algo_every_real_sample_count=10,
-        test_dynamics_every_real_sample_count=10,
-        train_dynamics_ever_real_sample_count=10,
+        train_algo_every_real_sample_count_by_data_from_real_env=100,
+        train_algo_every_real_sample_count_by_data_from_dynamics_env=100,
+        test_algo_every_real_sample_count=100,
+        test_dynamics_every_real_sample_count=100,
+        train_dynamics_ever_real_sample_count=100,
         start_train_algo_after_sample_count=1,
         start_train_dynamics_after_sample_count=1,
         start_test_algo_after_sample_count=1,
         start_test_dynamics_after_sample_count=1,
-        warm_up_dynamics_samples=1000
+        warm_up_dynamics_samples=100
     )
 
     experiment = Experiment(
@@ -191,8 +189,9 @@ def task_fn():
     experiment.run()
 
 
-if __name__ == '__main__':
-    from baconian.core.experiment_runner import *
+from baconian.core.experiment_runner import *
 
-    GlobalConfig().set('DEFAULT_LOG_PATH', './log_path')
-    single_exp_runner(task_fn, del_if_log_path_existed=True)
+GlobalConfig().set('DEFAULT_LOG_PATH', './log_path')
+GlobalConfig().set('DEFAULT_EXPERIMENT_END_POINT', dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=400))
+
+single_exp_runner(task_fn, del_if_log_path_existed=True)

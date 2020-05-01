@@ -159,17 +159,15 @@ def task_fn():
         test_dynamics_func=(agent.algo.test_dynamics, (), dict(sample_count=10, env=env)),
         sample_from_real_env_func=(agent.sample, (), dict(sample_count=10,
                                                           env=agent.env,
-                                                          in_which_status='TRAIN',
                                                           store_flag=True)),
         sample_from_dynamics_env_func=(agent.sample, (), dict(sample_count=10,
                                                               env=agent.algo.dynamics_env,
-                                                              in_which_status='TRAIN',
                                                               store_flag=True)),
-        train_algo_every_real_sample_count_by_data_from_real_env=10,
-        train_algo_every_real_sample_count_by_data_from_dynamics_env=10,
-        test_algo_every_real_sample_count=10,
-        test_dynamics_every_real_sample_count=10,
-        train_dynamics_ever_real_sample_count=10,
+        train_algo_every_real_sample_count_by_data_from_real_env=40,
+        train_algo_every_real_sample_count_by_data_from_dynamics_env=40,
+        test_algo_every_real_sample_count=40,
+        test_dynamics_every_real_sample_count=40,
+        train_dynamics_ever_real_sample_count=20,
         start_train_algo_after_sample_count=1,
         start_train_dynamics_after_sample_count=1,
         start_test_algo_after_sample_count=1,
@@ -188,17 +186,16 @@ def task_fn():
     experiment.run()
 
 
-if __name__ == '__main__':
-    from baconian.core.experiment_runner import *
+from baconian.core.experiment_runner import *
 
-    # set some global configuration here
+# set some global configuration here
 
-    # set DEFAULT_EXPERIMENT_END_POINT to indicate when to stop the experiment.
-    # one usually used is the TOTAL_AGENT_TRAIN_SAMPLE_COUNT, i.e., how many samples/timesteps are used for training
-    GlobalConfig().set('DEFAULT_EXPERIMENT_END_POINT', dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=200))
+# set DEFAULT_EXPERIMENT_END_POINT to indicate when to stop the experiment.
+# one usually used is the TOTAL_AGENT_TRAIN_SAMPLE_COUNT, i.e., how many samples/timesteps are used for training
+GlobalConfig().set('DEFAULT_EXPERIMENT_END_POINT', dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=200))
 
-    # set the logging path to write log and save model checkpoints.
-    GlobalConfig().set('DEFAULT_LOG_PATH', './log_path')
+# set the logging path to write log and save model checkpoints.
+GlobalConfig().set('DEFAULT_LOG_PATH', './log_path')
 
-    # feed the task into a exp runner.
-    single_exp_runner(task_fn, del_if_log_path_existed=True)
+# feed the task into a exp runner.
+single_exp_runner(task_fn, del_if_log_path_existed=True)
