@@ -1,7 +1,7 @@
 from baconian.core.core import Env, EnvSpec
 import gym.envs
 from gym.envs.registration import registry
-import roboschool
+# do not remove the following import statements
 import pybullet
 import pybullet_envs
 
