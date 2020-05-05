@@ -40,4 +40,4 @@ Algorithm:
 DDPG, PPO, Dyna with DDPG, Dyna with PPO, MPC, iLQR, Model-ensemble PPO, Model-ensemble DDPG
 
 Task: 
-Pendulum, MountainCarContinuous, HalfCheetah, Ant, Reacher, Hopper
+Pendulum, InvertedPendulumBulletEnv, HalfCheetah, InvertedDoublePendulumBulletEnv

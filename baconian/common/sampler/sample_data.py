@@ -217,11 +217,6 @@ class TrajectoryData(SampleData):
             tmp_traj.append(transition_data=traj.get_copy())
         return tmp_traj
 
-    #
-    # def return_generator(self, batch_size=None, shuffle_flag=False):
-    #     return self.return_as_transition_data(shuffle_flag=False).return_generator(batch_size=batch_size,
-    #                                                                                shuffle_flag=shuffle_flag)
-
     def apply_transformation(self, set_name, func, direct_apply=False, **func_kwargs):
         # TODO unit test
         for traj in self.trajectories:
