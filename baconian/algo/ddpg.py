@@ -191,14 +191,12 @@ class DDPG(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
         return self.actor.forward(obs=obs, sess=tf_sess, feed_dict=feed_dict)
 
     def append_to_memory(self, samples: TransitionData):
-        iter_samples = samples.return_generator()
 
-        for obs0, obs1, action, reward, terminal1 in iter_samples:
-            self.replay_buffer.append(obs0=obs0,
-                                      obs1=obs1,
-                                      action=action,
-                                      reward=reward,
-                                      terminal1=terminal1)
+        self.replay_buffer.append_batch(obs0=samples.state_set,
+                                        obs1=samples.new_state_set,
+                                        action=samples.action_set,
+                                        reward=samples.reward_set,
+                                        terminal1=samples.done_set)
 
     @record_return_decorator(which_recorder='self')
     def save(self, global_step, save_path=None, name=None, **kwargs):

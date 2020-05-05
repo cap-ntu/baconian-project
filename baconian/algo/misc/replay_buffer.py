@@ -35,6 +35,14 @@ class RingBuffer(object):
             raise RuntimeError()
         self.data[(self.start + self.length - 1) % self.maxlen] = v
 
+    def append_batch(self, v):
+        v = np.array(v)
+        if len(v.shape) == 1 or len(v.shape) == 0:
+            v = np.reshape(v, [-1, 1])
+        assert len(v.shape) == 2
+        for i in range(len(v)):
+            self.append(v[i])
+
 
 def array_min2d(x):
     x = np.array(x)
@@ -67,6 +75,15 @@ class BaseReplayBuffer(object):
         self.rewards.append(reward)
         self.observations1.append(obs1)
         self.terminals1.append(terminal1)
+
+    def append_batch(self, obs0, obs1, action, reward, terminal1, training=True):
+        if not training:
+            return
+        self.observations0.append_batch(obs0)
+        self.actions.append_batch(action)
+        self.rewards.append_batch(reward)
+        self.observations1.append_batch(obs1)
+        self.terminals1.append_batch(terminal1)
 
     @property
     def nb_entries(self):

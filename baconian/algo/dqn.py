@@ -165,16 +165,12 @@ class DQN(ModelFreeAlgo, OffPolicyAlgo, MultiPlaceholderInput):
 
     @register_counter_info_to_status_decorator(increment=1, info_key='append_to_memory')
     def append_to_memory(self, samples: TransitionData):
-        iter_samples = samples.return_generator()
-        data_count = 0
-        for obs0, obs1, action, reward, terminal1 in iter_samples:
-            self.replay_buffer.append(obs0=obs0,
-                                      obs1=obs1,
-                                      action=action,
-                                      reward=reward,
-                                      terminal1=terminal1)
-            data_count += 1
-        self._status.update_info(info_key='replay_buffer_data_total_count', increment=data_count)
+        self.replay_buffer.append_batch(obs0=samples.state_set,
+                                        obs1=samples.new_state_set,
+                                        action=samples.action_set,
+                                        reward=samples.reward_set,
+                                        terminal1=samples.done_set)
+        self._status.update_info(info_key='replay_buffer_data_total_count', increment=len(samples))
 
     @record_return_decorator(which_recorder='self')
     def save(self, global_step, save_path=None, name=None, **kwargs):
