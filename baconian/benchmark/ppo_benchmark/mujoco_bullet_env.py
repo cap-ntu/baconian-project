@@ -96,7 +96,7 @@ def make_task_fn(env_id, total_episode, episode_per_sample):
     return func
 
 
-half_cheetah_bullet_env_task_fn = make_task_fn(env_id='HalfCheetahBulletEnv-0', total_episode=5000,
+half_cheetah_bullet_env_task_fn = make_task_fn(env_id='HalfCheetahBulletEnv-v0', total_episode=5000,
                                                episode_per_sample=5)
 
 inverted_pendulum_bullet_env_task_fn = make_task_fn(env_id='InvertedPendulumBulletEnv-v0', total_episode=1000,
