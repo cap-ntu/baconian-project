@@ -14,7 +14,7 @@ Log Directory Explanation
 After one experiment finished, lots of built-in logging information will be recorded and saved to file so you can
 visualize and analysis the results. A typical logging file directory looks like this:
 
-.. code-block::
+::
     .
     ├── console.log             # log output to console during experiments
     ├── final_status.json       # final status of all modules when the experiment finished
