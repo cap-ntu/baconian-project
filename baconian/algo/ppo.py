@@ -323,7 +323,9 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
                 np.concatenate([self.value_func_train_data_buffer[0], state_set], axis=0),
                 np.concatenate([self.value_func_train_data_buffer[1], discount_set], axis=0))
         if len(self.value_func_train_data_buffer[0]) > self.parameters('value_func_memory_size'):
-            self.value_func_train_data_buffer = (np.array(data[-self.parameters('value_func_memory_size'):]) for data in self.value_func_train_data_buffer)
+            self.value_func_train_data_buffer = tuple(
+                np.array(data[-self.parameters('value_func_memory_size'):]) for data in
+                self.value_func_train_data_buffer)
         state_set_all, discount_set_all = self.value_func_train_data_buffer
 
         param_dict = self.parameters.return_tf_parameter_feed_dict()
