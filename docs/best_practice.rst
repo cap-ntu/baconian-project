@@ -1,4 +1,4 @@
-Best practice of Baconian
+Best practice and core concepts of Baconian
 ===========================================================================
 
 Here we introduce the core ideas and features about Baconian, to make sure you utilize the code correctly. As
@@ -60,6 +60,7 @@ examples:
 During the time task is running, the global configuration will be frozen, if you try to change it, an error will be
 raised.
 
+
 Workflow for RL Experiments
 --------------------------------------------
 In Baconian, the control flow of the experiments is delegated to an independent module ``baconian.core.flow.train_test_flow:Flow``
@@ -69,9 +70,53 @@ Two typical flow are implemented. One is
 model-free algorithms, which is sampling-training-testing pipeline. The other one is
 ``baconian.core.flow.dyna_flow.py:DynaFlow``, which is the flow in Dyna algorithm [Sutton, 1992].
 
+A typical train-test flow follows the diagram below:
+
+.. image:: ./fig/document-chart.png
+
 .. note::
-    Do get freaked out by the long list of parameters you need to initialize the flow!
-    This is caused by the fact that we want the flow to be fully configurable by users, and currently we are working to simplify this module.
+    Do not get freaked out by the long list of parameters you need to initialize the flow!
+    This is caused by the fact that we want the flow to be fully configurable by users.
+
+For setting the end point N in the flow, see the section you can achieve by setting the global configuration in follwing
+code example. For using other status as end point, see section :ref:`_built_in_status` for more built-in status.
+
+.. code-block:: python
+    # set the end point N as 200, i.e., when TOTAL_AGENT_TRAIN_SAMPLE_COUNT > 200, the experiment will end.
+
+    GlobalConfig().set('DEFAULT_EXPERIMENT_END_POINT', dict(TOTAL_AGENT_TRAIN_SAMPLE_COUNT=200))
+
+A flow module is required to pass in one step function as the timer to control the process. More detailed explanations
+of the time step function are given below.
+
+
+Time Step Function
+---------------------------
+
+RL experiment often relies on a timer/counter to indicate the progress of the experiment. It can be used to schedule
+the parameters from modules like action noise, exploration strategy. It can also be used to timestamp a recorded log like
+the evaluated performance of agent so you can know the changes of the performance along with the different timestep.
+
+Naturally, the number of samples generated from environment for training purpose is used
+as the time step function. This value can be retrieved from following code. Or you can built the time step function
+using any status value from any objects (i.e., agent, env, algorithm) as long as it is a monotonic counter.
+
+.. code-block:: python
+    # built number of samples agent get from environment for training as a function and pass into any modules
+    # (e.g.,flow, parameter scheduler) to use it.
+    t_fn=lambda: get_global_status_collect()('TOTAL_AGENT_TRAIN_SAMPLE_COUNT')
+    flow = TrainTestFlow(train_sample_count_func=t_fn,
+                           ...
+                         )
+    prob_scheduler=PiecewiseScheduler(t_fn=t_fn)
+
+    # other time step examples
+    t_fn=lambda: get_global_status_collect()('TOTAL_AGENT_TEST_SAMPLE_COUNT')
+    t_fn=lambda: get_global_status_collect()('TOTAL_AGENT_UPDATE_COUNT')
+
+For using built-in agent status counter as the time step function, you can see more in the following section.
+
+.. _built_in_status:
 
 Built-in Global Status
 -------------------------------
@@ -126,8 +171,8 @@ User can set by:
 See Page :doc:`Scheduler Parameters <./example/scheduler_parameter>`.
 
 
-Status Control
--------------------------
+Status Control and Stateful Behaviour
+--------------------------------------
 Status control is a must for DRL experiments. For instance, off-policy DRL methods need to switch between behavior
 policy and target policy during sampling and testing or decay the exploration action noise w.r.t the training progress status.
 
