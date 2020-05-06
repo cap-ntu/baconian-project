@@ -75,11 +75,11 @@ A typical train-test flow follows the diagram below:
 .. image:: ./fig/document-chart.png
 
 .. note::
-    Do not get freaked out by the long list of parameters you need to initialize the flow!
-    This is caused by the fact that we want the flow to be fully configurable by users.
+    The reason why we add this module with these parameters settings is to enable the user to fully customize the
+    experiment execution process.
 
-For setting the end point N in the flow, see the section you can achieve by setting the global configuration in follwing
-code example. For using other status as end point, see section :ref:`_built_in_status` for more built-in status.
+For setting the end point N in the flow, see the section you can achieve by setting the global configuration in following
+code example. For using other status as end point, see section :ref:`built in status` for more built-in status.
 
 .. code-block:: python
     # set the end point N as 200, i.e., when TOTAL_AGENT_TRAIN_SAMPLE_COUNT > 200, the experiment will end.
@@ -89,6 +89,11 @@ code example. For using other status as end point, see section :ref:`_built_in_s
 A flow module is required to pass in one step function as the timer to control the process. More detailed explanations
 of the time step function are given below.
 
+
+For ``baconian.core.flow.dyna_flow.py:DynaFlow``, comparing to ``baconian.core.flow.train_test_flow:TrainTestFlow``,
+there are three more processes are added: ``train_agent_from_model``, ``train_dynamics_model``, and ``test_dynamics_model``.
+They follows the similar ideas on how to control these processes, user can refer to its usage and example codes for more
+details.
 
 Time Step Function
 ---------------------------
@@ -116,9 +121,9 @@ using any status value from any objects (i.e., agent, env, algorithm) as long as
 
 For using built-in agent status counter as the time step function, you can see more in the following section.
 
-.. _built_in_status:
+.. _built in status:
 
-Built-in Global Status
+Built-in Global Status/Counter
 -------------------------------
 
 We include some recorded values as a global shared status which can be accessed during the experiments.
@@ -171,13 +176,18 @@ User can set by:
 See Page :doc:`Scheduler Parameters <./example/scheduler_parameter>`.
 
 
-Status Control and Stateful Behaviour
+Stateful Behaviour
 --------------------------------------
 Status control is a must for DRL experiments. For instance, off-policy DRL methods need to switch between behavior
 policy and target policy during sampling and testing or decay the exploration action noise w.r.t the training progress status.
 
+The following figure shows the status transition of agent and how it control the behaviour of agent.
+
+.. image:: ./fig/status-flow.png
+
+
 Every class that inherited from ``baconian.core.core:Basic`` will have two class attributes: ``STATUS_LIST`` which contains
-all status of this class or module, and ``INIT_STATUS`` as the initial status of it.
+all status of this class or module.
 
 You can call ``set_status`` method to change the status of one instance. You can call ``get_status`` method to get the
 current status of an instance, which is a dict type. The return value not only contains the status (i.e., TRAIN, TEST)

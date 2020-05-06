@@ -7,7 +7,7 @@ import numpy as np
 
 class TestDataPreProcessing(BaseTestCase):
     def test_min_max(self):
-        for env in (make('Pendulum-v0'), make('Acrobot-v1'), make('RoboschoolAnt-v1')):
+        for env in (make('Pendulum-v0'), make('Acrobot-v1'), make('HalfCheetahBulletEnv-v0')):
             for sample_space in (env.observation_space, env.action_space):
                 sample_fn = sample_space.sample
                 dims = sample_space.flat_dim
@@ -92,7 +92,7 @@ class TestDataPreProcessing(BaseTestCase):
                         pass
 
     def test_standard_scaler(self):
-        for env in (make('Pendulum-v0'), make('Acrobot-v1'), make('RoboschoolAnt-v1')):
+        for env in (make('Pendulum-v0'), make('Acrobot-v1'), make('HalfCheetahBulletEnv-v0')):
             for sample_space in (env.observation_space, env.action_space):
                 sample_fn = sample_space.sample
                 dims = sample_space.flat_dim
