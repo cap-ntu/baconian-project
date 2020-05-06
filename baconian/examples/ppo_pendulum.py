@@ -84,6 +84,7 @@ def task_fn():
             "clipping_range": None,
             "beta": 1.0,
             "eta": 50,
+            "value_func_memory_size": 10,
             "log_var_init": -1.0,
             "kl_target": 0.003,
             "policy_lr": 0.01,

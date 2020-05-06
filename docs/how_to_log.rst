@@ -4,8 +4,33 @@ Logging and Visualization
 In this part, we will introduce how to record and save everything you want during an experiments. The contents are
 organized as follows:
 
+* How to understand the log file after the experiment finished.
 * How to visualize with log file after experiment finished.
 * How the logging module of Baconian works.
+
+Log Directory Explanation
+----------------------
+After one experiment finished, lots of built-in logging information will be recorded and saved to file so you can
+visualize and analysis the results. A typical logging file directory looks like this:
+
+.. code-block:: none
+    .
+    ├── console.log             # log output to console during experiments
+    ├── final_status.json       # final status of all modules when the experiment finished
+    ├── global_config.json      # config you use for this experiment include default config and customized config.
+    ├── record                  # record folder contains all raw log of experiments.
+    │   ├── agent               # agent level log (training samples' reward, test samples' reward etc.)
+    │   │   ├── CREATED.json    # agent's log under CREATED status
+    │   │   ├── INITED.json     # agent's log after CREATED and into INITED status
+    │   │   ├── TRAIN.json      # agent's log under training status (e.g., reward received when sample for training, action during training sampling)
+    │   │   └── TEST.json       # agent's log under test status (e.g., reward received when sample for evaluation/test)
+    │   └── algo                # algorithm level log (loss, KL divergence, etc.)
+    │   │   ├── CREATED.json    # algorithm's log under CREATED status
+    │   │   ├── INITED.json     # algorithm's log after CREATED and into INITED status
+    │   │   ├── TRAIN.json      # algorithm's log under training status (e.g., training loss)
+    │   │   └── TEST.json       # algorithm's log under test status
+    └── model_checkpoints       # store the checkpoints of tensorflow models if you have add the saving scheduler in your experiments.
+
 
 How to visualize with log file after experiment finished
 --------------------------------------------------------------------------------

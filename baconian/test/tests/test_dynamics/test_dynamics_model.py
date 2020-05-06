@@ -35,9 +35,8 @@ class TestDynamicsModel(TestWithAll):
                                               dims=real_env.observation_space.flat_dim))
         data = self.sample_transition(env=real_env, count=100)
         a.train(batch_data=data)
-        gen = data.return_generator(shuffle_flag=True)
         predict = []
-        for state, _, action, _, _ in gen:
+        for state, action in zip(data.state_set, data.action_set):
             predict.append(a.step(state=state, action=action))
         print(np.linalg.norm(np.array(predict) - data.new_state_set, ord=1))
         print(np.linalg.norm(np.array(predict) - data.new_state_set, ord=2))

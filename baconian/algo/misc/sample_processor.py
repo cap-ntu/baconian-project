@@ -66,11 +66,13 @@ class SampleProcessor(object):
                 std_dev = data(key).std(axis=0)
             data.append_new_set(name=key, data_set=(data(key) - mean) / (std_dev + 1e-6), shape=data(key).shape[1:])
             return data
-        else:
+        elif isinstance(data, TrajectoryData):
             # TODO add shape check
-            mean = np.mean([d(key) for d in data.trajectories])
-            std_dev = np.std([d(key) for d in data.trajectories])
+            mean = np.mean(np.concatenate([d(key) for d in data.trajectories], axis=0), axis=0)
+            std_dev = np.std(np.concatenate([d(key) for d in data.trajectories], axis=0), axis=0)
             for d in data.trajectories:
                 d.append_new_set(name=key, data_set=np.array((d(key) - mean) / (std_dev + 1e-6)),
                                  shape=d(key).shape[1:])
             return data
+        else:
+            raise TypeError('not supported sample data type')

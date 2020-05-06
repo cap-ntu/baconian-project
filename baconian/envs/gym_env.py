@@ -1,7 +1,7 @@
 from baconian.core.core import Env, EnvSpec
 import gym.envs
 from gym.envs.registration import registry
-import roboschool
+# do not remove the following import statements
 import pybullet
 import pybullet_envs
 
@@ -108,7 +108,8 @@ class GymEnv(Env):
         """
         super().step(action)
         action = self.env_spec.flat_action(action)
-        return self.unwrapped.step(action=action)
+        state, re, done, info = self.unwrapped.step(action=action)
+        return state, re, bool(done), info
 
     def reset(self):
         """

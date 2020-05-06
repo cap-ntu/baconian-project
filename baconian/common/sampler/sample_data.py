@@ -34,9 +34,6 @@ class SampleData(object):
     def sample_batch(self, *args, **kwargs):
         raise NotImplementedError
 
-    def return_generator(self, *args, **kwargs):
-        raise NotImplementedError
-
     def apply_transformation(self, set_name, func, *args, **kwargs):
         raise NotImplementedError
 
@@ -154,41 +151,6 @@ class TransitionData(SampleData):
             np.random.shuffle(index)
         for key in self._internal_data_dict.keys():
             self._internal_data_dict[key][0] = self._internal_data_dict[key][0][index]
-
-    def return_generator(self, batch_size=None, shuffle_flag=False, assigned_keys=None, infinite_run=False):
-        if assigned_keys is None:
-            assigned_keys = ('state_set', 'new_state_set', 'action_set', 'reward_set', 'done_set')
-        # todo unit test should be tested, the dataset should not be shuffled, only the generator should be shuffled
-        if shuffle_flag is True:
-            self.shuffle()
-        if batch_size is not None:
-            if batch_size <= 0:
-                raise ValueError()
-            start = 0
-            if infinite_run is True:
-                while True:
-                    end = min(start + batch_size, len(self))
-                    yield deepcopy(
-                        [make_batch(self._internal_data_dict[key][0][start: end], self._internal_data_dict[key][1])
-                         for key in assigned_keys])
-                    start = end % len(self)
-            else:
-                while start < len(self):
-                    end = min(start + batch_size, len(self))
-                    yield deepcopy(
-                        [make_batch(self._internal_data_dict[key][0][start: end], self._internal_data_dict[key][1])
-                         for key in assigned_keys])
-                    start = end
-        else:
-            start = 0
-            if infinite_run is True:
-                while True:
-                    yield deepcopy([self._internal_data_dict[key][0][start] for key in assigned_keys])
-                    start = (start + 1) % len(self)
-            else:
-                for i in range(len(self)):
-                    yield deepcopy([self._internal_data_dict[key][0][i] for key in assigned_keys])
-
     @property
     def _allowed_data_set_keys(self):
         return list(self._internal_data_dict.keys())
@@ -254,10 +216,6 @@ class TrajectoryData(SampleData):
         for traj in self.trajectories:
             tmp_traj.append(transition_data=traj.get_copy())
         return tmp_traj
-
-    def return_generator(self, batch_size=None, shuffle_flag=False):
-        return self.return_as_transition_data(shuffle_flag=False).return_generator(batch_size=batch_size,
-                                                                                   shuffle_flag=shuffle_flag)
 
     def apply_transformation(self, set_name, func, direct_apply=False, **func_kwargs):
         # TODO unit test

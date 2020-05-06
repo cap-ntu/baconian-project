@@ -1,4 +1,4 @@
-Step by step guide
+Step by step guide to run a RL experiment
 ============================================================
 
 This is a step by step guide of how to compose an model-based RL experiments in Baconian, we will take the example of

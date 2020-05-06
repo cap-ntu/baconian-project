@@ -5,7 +5,7 @@ from gym import make
 
 class TestEnv(TestWithLogSet):
     def test_gym_env(self):
-        a = GymEnv('RoboschoolHalfCheetah-v1')
+        a = GymEnv('HalfCheetahBulletEnv-v0')
         a.set_status('TRAIN')
         self.assertEqual(a.total_step_count_fn(), 0)
         self.assertEqual(a._last_reset_point, 0)
