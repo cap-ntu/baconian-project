@@ -8,12 +8,13 @@ organized as follows:
 * How to visualize with log file after experiment finished.
 * How the logging module of Baconian works.
 
+
 Log Directory Explanation
 ----------------------
 After one experiment finished, lots of built-in logging information will be recorded and saved to file so you can
 visualize and analysis the results. A typical logging file directory looks like this:
 
-.. code-block:: none
+.. code-block::
     .
     ├── console.log             # log output to console during experiments
     ├── final_status.json       # final status of all modules when the experiment finished
@@ -32,7 +33,7 @@ visualize and analysis the results. A typical logging file directory looks like 
     └── model_checkpoints       # store the checkpoints of tensorflow models if you have add the saving scheduler in your experiments.
 
 
-How to visualize with log file after experiment finished
+Visualize and analyze the log
 --------------------------------------------------------------------------------
 
 Three plot modes: ``line``, ``scatter`` and ``histogram``
@@ -140,6 +141,7 @@ When plotting multiple experiment results in ``histogram`` mode, figure will ref
 .. image:: ./fig/average_critic_loss_benchmark.png
 
 We can use the action distribution to analyze and diagnose algorithms.
+
 
 How the logging module of Baconian works
 ----------------------------------------
