@@ -14,7 +14,7 @@ for i in range(numTrials):
 
     x = []
     for result in result_dict["sum_reward"]:
-        x.append(result["log_val"]["__ndarray__"])
+        x.append(result["value"]["__ndarray__"])
 
     print("TESTSET: " + str(i+1) + " - MAX:", max(x))
     maxRewardArray.append(max(x))

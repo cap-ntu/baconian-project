@@ -16,7 +16,7 @@ for i in range(10):
     x = collections.deque(numSamples * [0], numSamples)
     for result in result_dict["sum_reward"]:
         # print(result["log_val"]["__ndarray__"])
-        x.append(result["log_val"]["__ndarray__"])
+        x.append(result["value"]["__ndarray__"])
 
     print("TESTSET: " + str(i+1) + " - AVERAGE OF LAST", numSamples, "sum rewards: ", sum(x) / numSamples)
     sumRewardArray.append(sum(x) / numSamples)
