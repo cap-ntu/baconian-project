@@ -152,9 +152,9 @@ class _SingletonLogger(BaseLogger):
                                                                                                     str(obj_name),
                                                                                                     str(status))))
                     self.out_to_file(
-                        file_path=os.path.join(self._record_file_log_dir, str(obj_name), str(status)),
+                        file_path=os.path.join(self._record_file_log_dir, str(obj_name)),
                         content=status_log_dict,
-                        file_name='log.json')
+                        file_name='{}.json'.format(status))
             else:
                 ConsoleLogger().print('info', 'save {} log into {}'.format(str(obj_name),
                                                                            os.path.join(
@@ -232,13 +232,13 @@ class Recorder(object):
         self.flush_by_split_status = flush_by_split_status
         self._default_obj = default_obj
 
-    def append_to_obj_log(self, obj, attr_name: str, status_info: dict, log_val):
+    def append_to_obj_log(self, obj, attr_name: str, status_info: dict, value):
         assert hasattr(obj, 'name')
         if obj not in self._obj_log:
             self._obj_log[obj] = {}
         if attr_name not in self._obj_log[obj]:
             self._obj_log[obj][attr_name] = []
-        self._obj_log[obj][attr_name].append(dict(**status_info, attr_name=attr_name, log_val=log_val))
+        self._obj_log[obj][attr_name].append(dict(**status_info, attr_name=attr_name, value=value))
 
     def get_log(self, attr_name: str, filter_by_status: dict = None, obj=None):
         if obj is None:
@@ -338,10 +338,8 @@ class Recorder(object):
                     res = val['obj'].__getattribute__(val['attr_name'])
                 else:
                     res = val['get_method'](val)
-                self.append_to_obj_log(obj=val['obj'],
-                                       attr_name=val['attr_name'],
-                                       log_val=res,
-                                       status_info=val['obj'].get_status())
+                self.append_to_obj_log(obj=val['obj'], attr_name=val['attr_name'], status_info=val['obj'].get_status(),
+                                       value=res)
 
 
 def record_return_decorator(which_recorder: str = 'global'):
@@ -363,8 +361,7 @@ def record_return_decorator(which_recorder: str = 'global'):
                 if not isinstance(res, dict):
                     raise TypeError('returned value by {} must be a dict in order to be recorded'.format(fn.__name__))
                 for key, val in res.items():
-                    recorder.append_to_obj_log(obj=obj, attr_name=key, status_info=info,
-                                               log_val=val)
+                    recorder.append_to_obj_log(obj=obj, attr_name=key, status_info=info, value=val)
             return res
 
         return wrap_with_self

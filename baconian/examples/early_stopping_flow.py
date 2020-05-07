@@ -38,8 +38,8 @@ class EarlyStoppingFlow(TrainTestFlow):
             last_reward = test_reward[-self.parameters('USE_LAST_K_EVALUATION_REWARD'):]
             pre_reward = test_reward[-self.parameters('USE_LAST_K_EVALUATION_REWARD') * 2: -self.parameters(
                 'USE_LAST_K_EVALUATION_REWARD')]
-            last_reward = np.mean([r['log_val'] for r in last_reward])
-            pre_reward = np.mean([r['log_val'] for r in pre_reward])
+            last_reward = np.mean([r['value'] for r in last_reward])
+            pre_reward = np.mean([r['value'] for r in pre_reward])
             if last_reward < pre_reward:
                 ConsoleLogger().print('info', 'training ended because last {} step reward: {} < previous {} step reward {}'.format(self.parameters('USE_LAST_K_EVALUATION_REWARD'), last_reward, self.parameters('USE_LAST_K_EVALUATION_REWARD'), pre_reward))
                 return True

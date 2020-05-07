@@ -34,7 +34,7 @@ class SingleExpLogDataLoader(object):
         for record in key_list:
             num_index = int(record[index])
             index_vector.append(num_index)
-            key_vector.append(record["log_val"])
+            key_vector.append(record["value"])
         key_value[index] = index_vector
         key_value[key] = key_vector
         data = pd.DataFrame.from_dict(key_value)  # Create dataframe for plotting
@@ -105,7 +105,7 @@ class MultipleExpLogDataLoader(object):
             for record in key_list:
                 num_index = int(record[index])
                 index_vector.append(num_index)
-                key_vector.append(record["log_val"])
+                key_vector.append(record["value"])
             multiple_key_value[index] = index_vector
             multiple_key_value[key + '_' + exp] = key_vector
         data = pd.DataFrame.from_dict(multiple_key_value)  # Create dataframe for plotting

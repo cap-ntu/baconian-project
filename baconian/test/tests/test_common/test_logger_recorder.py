@@ -66,15 +66,15 @@ class TestLogger(TestWithAll):
         self.assertTrue(obj in obj.recorder._obj_log)
         self.assertTrue('val' in obj.recorder._obj_log[obj])
         self.assertTrue(len(obj.recorder._obj_log[obj]['val']) == 3)
-        self.assertTrue(obj.recorder._obj_log[obj]['val'][0]['log_val'] == 20)
-        self.assertTrue(obj.recorder._obj_log[obj]['val'][1]['log_val'] == 2)
-        self.assertTrue(obj.recorder._obj_log[obj]['val'][2]['log_val'] == 8)
+        self.assertTrue(obj.recorder._obj_log[obj]['val'][0]['value'] == 20)
+        self.assertTrue(obj.recorder._obj_log[obj]['val'][1]['value'] == 2)
+        self.assertTrue(obj.recorder._obj_log[obj]['val'][2]['value'] == 8)
 
         self.assertTrue('val2' in obj.recorder._obj_log[obj])
         self.assertTrue(len(obj.recorder._obj_log[obj]['val2']) == 3)
-        self.assertTrue(obj.recorder._obj_log[obj]['val2'][0]['log_val'] == 10)
-        self.assertTrue(obj.recorder._obj_log[obj]['val2'][1]['log_val'] == 1)
-        self.assertTrue(obj.recorder._obj_log[obj]['val2'][2]['log_val'] == 2)
+        self.assertTrue(obj.recorder._obj_log[obj]['val2'][0]['value'] == 10)
+        self.assertTrue(obj.recorder._obj_log[obj]['val2'][1]['value'] == 1)
+        self.assertTrue(obj.recorder._obj_log[obj]['val2'][2]['value'] == 2)
 
         obj = Foo(name='foo2')
         obj.get_by_return(res=10, num=2)
@@ -84,15 +84,15 @@ class TestLogger(TestWithAll):
         self.assertTrue(obj in obj.recorder._obj_log)
         self.assertTrue('val' in obj.recorder._obj_log[obj])
         self.assertTrue(len(obj.recorder._obj_log[obj]['val']) == 3)
-        self.assertTrue(obj.recorder._obj_log[obj]['val'][0]['log_val'] == 20)
-        self.assertTrue(obj.recorder._obj_log[obj]['val'][1]['log_val'] == 2)
-        self.assertTrue(obj.recorder._obj_log[obj]['val'][2]['log_val'] == 8)
+        self.assertTrue(obj.recorder._obj_log[obj]['val'][0]['value'] == 20)
+        self.assertTrue(obj.recorder._obj_log[obj]['val'][1]['value'] == 2)
+        self.assertTrue(obj.recorder._obj_log[obj]['val'][2]['value'] == 8)
 
         self.assertTrue('val2' in obj.recorder._obj_log[obj])
         self.assertTrue(len(obj.recorder._obj_log[obj]['val2']) == 3)
-        self.assertTrue(obj.recorder._obj_log[obj]['val2'][0]['log_val'] == 10)
-        self.assertTrue(obj.recorder._obj_log[obj]['val2'][1]['log_val'] == 1)
-        self.assertTrue(obj.recorder._obj_log[obj]['val2'][2]['log_val'] == 2)
+        self.assertTrue(obj.recorder._obj_log[obj]['val2'][0]['value'] == 10)
+        self.assertTrue(obj.recorder._obj_log[obj]['val2'][1]['value'] == 1)
+        self.assertTrue(obj.recorder._obj_log[obj]['val2'][2]['value'] == 2)
 
 
 class TesTLoggerWithDQN(TestWithAll):
@@ -157,7 +157,7 @@ class TesTLoggerWithDQN(TestWithAll):
         self.assertTrue('average_loss' in dqn.recorder._obj_log[dqn])
         self.assertTrue(len(dqn.recorder._obj_log[dqn]['average_loss']) == 2)
         self.assertTrue(
-            np.equal(np.array(res), [x['log_val'] for x in dqn.recorder._obj_log[dqn]['average_loss']]).all())
+            np.equal(np.array(res), [x['value'] for x in dqn.recorder._obj_log[dqn]['average_loss']]).all())
 
         self.assertTrue(len(Logger()._registered_recorders) > 0)
         self.assertTrue(dqn.recorder in Logger()._registered_recorders)

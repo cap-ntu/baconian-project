@@ -9,7 +9,7 @@ def get_reward_json(root_dir_list, sub_dir, key, index_key):
     for rt in root_dir_list:
         with open(file=os.path.join(rt, sub_dir)) as f:
             res = json.load(f)[key]
-            val = [rr['log_val'] for rr in res]
+            val = [rr['value'] for rr in res]
 
             index = [rr[index_key] for rr in res]
             all_res.append((val, index))

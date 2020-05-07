@@ -91,7 +91,7 @@ def make_config(obs_dim, action_dim, policy_hid1_multi, value_hid3_size, value_h
         },
         'PPO': {
             'config_or_config_dict': {
-                "value_func_memory_size": 1000000000,
+                "value_func_memory_size": int(total_episode * episode_length / 10),
                 "gamma": 0.995,
                 "lam": 0.98,
                 "policy_train_iter": 20,
