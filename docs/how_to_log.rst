@@ -31,7 +31,7 @@ visualize and analysis the results. A typical logging file directory looks like 
      │   │   ├── INITED.json     # algorithm's log after CREATED and into INITED status
      │   │   ├── TRAIN.json      # algorithm's log under training status (e.g., training loss)
      │   │   └── TEST.json       # algorithm's log under test status
-     └── model_checkpoints       # store the checkpoints of tensorflow models if you have add the saving scheduler in your experiments.
+     └── model_checkpoints       # store the checkpoints of tensorflow models if you have added the saving scheduler in your experiments.
 
 
 Visualize and analyze the log

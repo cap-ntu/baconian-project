@@ -229,9 +229,6 @@ class PPO(ModelFreeAlgo, OnPolicyAlgo, MultiPlaceholderInput):
             loss3 = self.parameters('eta') * tf.square(
                 tf.maximum(0.0, self.kl - 2.0 * self.parameters('kl_target')))
             loss = loss1 + loss2 + loss3
-            self.loss1 = loss1
-            self.loss2 = loss2
-            self.loss3 = loss3
         if isinstance(self.policy, PlaceholderInput):
             reg_list = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES, scope=self.policy.name_scope)
             if len(reg_list) > 0:

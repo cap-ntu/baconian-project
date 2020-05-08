@@ -93,10 +93,10 @@ def make_config(obs_dim, action_dim, policy_hid1_multi, value_hid3_size, value_h
             'config_or_config_dict': {
                 "value_func_memory_size": int(total_episode * episode_length / 10),
                 "gamma": 0.995,
-                "lam": 0.98,
+                "lam": 0.95,
                 "policy_train_iter": 20,
                 "value_func_train_iter": 10,
-                "clipping_range": None,
+                "clipping_range": (-0.2, 0.2),
                 "beta": 1.0,
                 "eta": 50,
                 "log_var_init": -1.0,
