@@ -198,4 +198,4 @@ autodoc_default_options = {
 }
 autodoc_inherit_docstrings = False
 
-autodoc_mock_imports = ['mujoco_env', 'gym.envs.mujoco']
+autodoc_mock_imports = ['mujoco_env', 'gym.envs.mujoco', 'pybullet', 'tensorflow', 'tensorflow-probability']
