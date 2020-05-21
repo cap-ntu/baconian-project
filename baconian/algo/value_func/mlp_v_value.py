@@ -69,11 +69,9 @@ class MLPVValueFunc(VValueFunction, PlaceholderInput):
         self.mlp_net = mlp_net
         self.v_tensor = self.mlp_net.output
 
-    @overrides.overrides
     def copy_from(self, obj: PlaceholderInput) -> bool:
         return PlaceholderInput.copy_from(self, obj)
 
-    @overrides.overrides
     def forward(self, obs: (np.ndarray, list), sess=None,
                 feed_dict=None, *args,
                 **kwargs):

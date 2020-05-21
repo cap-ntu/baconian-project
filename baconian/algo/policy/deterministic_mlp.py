@@ -56,7 +56,6 @@ class DeterministicMLPPolicy(DeterministicPolicy, PlaceholderInput):
         self.output_high = output_high
         self.name_scope = name_scope
 
-    @overrides.overrides
     def forward(self, obs: (np.ndarray, list), sess=None, feed_dict=None, **kwargs):
         obs = make_batch(obs, original_shape=self.env_spec.obs_shape)
         feed_dict = {} if feed_dict is None else feed_dict
@@ -70,7 +69,6 @@ class DeterministicMLPPolicy(DeterministicPolicy, PlaceholderInput):
         res = np.clip(res, a_min=self.env_spec.action_space.low, a_max=self.env_spec.action_space.high)
         return res
 
-    @overrides.overrides
     def copy_from(self, obj) -> bool:
         return PlaceholderInput.copy_from(self, obj)
 

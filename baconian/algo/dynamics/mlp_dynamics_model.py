@@ -130,7 +130,6 @@ class ContinuousMLPGlobalDynamicsModel(GlobalDynamicsModel, DifferentiableDynami
     def load(self, *args, **kwargs):
         return PlaceholderInput.load(self, *args, **kwargs)
 
-    @overrides.overrides
     def copy_from(self, obj: PlaceholderInput) -> bool:
         return PlaceholderInput.copy_from(self, obj)
 
