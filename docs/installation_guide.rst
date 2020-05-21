@@ -15,6 +15,7 @@ overwrite some of already installed packages with a different version.
 2. Install by pip or clone the source code and install the packages with requirement file:
 
 .. code-block:: bash
+
     // pip install:
     pip install baconian
     // source code install
