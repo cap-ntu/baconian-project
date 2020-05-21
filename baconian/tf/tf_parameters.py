@@ -39,7 +39,6 @@ class ParametersWithTensorflowVariable(Parameters):
             for key, val in to_ph_parameter_dict.items():
                 self.to_tf_ph(key=key, ph=val)
 
-    @overrides
     def init(self):
         Parameters.init(self)
         sess = tf.get_default_session()
@@ -187,7 +186,6 @@ class ParametersWithTensorflowVariable(Parameters):
         self(key)
         self._registered_tf_ph_dict[key] = ph
 
-    @overrides
     def copy_from(self, source_parameter, deep_copy=None):
         if not isinstance(source_parameter, type(self)):
             raise TypeError()

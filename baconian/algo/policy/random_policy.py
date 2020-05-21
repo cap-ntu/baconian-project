@@ -11,7 +11,6 @@ class UniformRandomPolicy(Policy):
     def __init__(self, env_spec: EnvSpec, name: str = 'random_policy'):
         super().__init__(env_spec=env_spec, name=name)
 
-    @overrides
     def forward(self, obs, **kwargs):
         return np.array(self.action_space.sample())
 
